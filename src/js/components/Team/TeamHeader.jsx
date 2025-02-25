@@ -30,7 +30,7 @@ const TeamHeader = ({ showHeaderLabels, showIcons, team }) => {
   return (
     <OneTeamHeader>
       {/* Width (below) of this TeamHeaderCell comes from the combined widths of the first x columns in TeamMemberList */}
-      <TeamHeaderCell cellwidth={215} largefont="true" titlecell="true">
+      <TeamHeaderCell cellwidth={215} $largefont $titlecell>
         {teamLocal && (
           <Link to={`/team-home/${teamLocal.id}`}>
             {teamLocal.teamName}
@@ -85,19 +85,17 @@ const OneTeamHeader = styled('div')`
   margin-top: 10px;
 `;
 
-const TeamHeaderCell = styled('div', {
-  shouldForwardProp: (prop) => !['largefont', 'titlecell', 'cellwidth'].includes(prop),
-})(({ largefont, titlecell, cellwidth }) => (`
+const TeamHeaderCell = styled.div`
   align-content: center;
-  ${(titlecell) ? '' : 'border-bottom: 1px solid #ccc;'}
-  ${(largefont) ? 'font-size: 1.1em;' : 'font-size: .8em;'}
-  ${(titlecell) ? '' : 'font-weight: 550;'}
+  border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
+  font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};
+  font-weight: ${(props) => (props?.$titleCell ? ';' : '550;')}
   height: 22px;
-  ${cellwidth ? `max-width: ${cellwidth}px;` : ''}
-  ${cellwidth ? `min-width: ${cellwidth}px;` : ''}
+  max-width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
+  min-width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
+  width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
-  ${cellwidth ? `width: ${cellwidth}px;` : ''}
-`));
+`;
 
 export default withStyles(styles)(TeamHeader);

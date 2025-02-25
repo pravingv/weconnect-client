@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { httpLog } from '../common/utils/logging';
+import { reactQueryLog } from '../common/utils/logging';
 import webAppConfig from '../config';
 
 const METHOD = {
@@ -16,8 +16,7 @@ const weConnectQueryFn = async (queryKey, params, isGet) => {
   if (isGet) {
     url.search = new URLSearchParams(params);
   }
-  // 2/12/24 temporarily replaced:  httpLog(`weConnectQueryFn ${isGet ? 'GET' : 'POST'} url.href: ${url.href}`); // DO NOT REMOVE, this is the only way to see if we are hitting the API server unnecessarily
-  // console.log(`weConnectQueryFn ${isGet ? 'GET' : 'POST'} url.href: ${url.href}`);
+  reactQueryLog(`weConnectQueryFn ${isGet ? 'GET' : 'POST'} url.href: ${url.href}`);
 
   let response;
   try {
@@ -38,7 +37,7 @@ const weConnectQueryFn = async (queryKey, params, isGet) => {
 };
 
 const useFetchData = (queryKey, fetchParams, isGet) => {
-  httpLog('useFetchData queryKey, fetchParams before fetch: ', queryKey, '  fetchParams: ', fetchParams);
+  reactQueryLog('useFetchData queryKey, fetchParams before fetch: ', queryKey, '  fetchParams: ', fetchParams);
   const { data, isSuccess, isFetching, isStale, refetch, error } = useQuery({
     queryKey,
     queryFn: () => weConnectQueryFn(queryKey, fetchParams, isGet),

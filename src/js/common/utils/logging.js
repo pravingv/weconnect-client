@@ -54,6 +54,18 @@ export function authLog (text, res) {
   }
 }
 
+//  Log  reactQuery fetches and responses
+export function reactQueryLog (text, res) {
+  if (webAppConfig.LOG_REACT_QUERY_EVENTS) {
+    if (res) {
+      console.log('>> reactQuery >> ', text, res);
+    } else {
+      console.log('>> reactQuery >> ', text);
+    }
+  }
+}
+
+
 //  Cordova offsets
 export function cordovaOffsetLog (text, res) {
   if (webAppConfig.LOG_CORDOVA_OFFSETS) {

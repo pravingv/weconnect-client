@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useConnectAppContext } from '../contexts/ConnectAppContext';
 import weConnectQueryFn, { METHOD } from './WeConnectQuery';
 
 const useRemoveTeamMutation = () => {
@@ -99,6 +100,16 @@ const usePersonSaveMutation = () => {
   });
 };
 
+const usePersonSaveForAuthMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('person-save', params, METHOD.GET),
+    onError: (error) => console.log('error in personSaveMutation: ', error),
+    onSuccess: () => queryClient.invalidateQueries('get-auth'),
+  });
+};
+
 const useSaveTaskMutation = () => {
   const queryClient = useQueryClient();
 
@@ -127,10 +138,38 @@ const useGetAuthMutation = () => {
   });
 };
 
+const usePersonRetrieveMutation = () => {
+  console.log('entry to useGetPersonMutation');
+  const { setAppContextValue } = useConnectAppContext();
+
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('person-retrieve', params, METHOD.GET),
+    onError: (error) => console.log('error in usePersonRetrieveMutation: ', error),
+    onSuccess: (data, variables, context) => {
+      console.log('usePersonRetrieveMutation successful, returning', data, variables, context);
+      setAppContextValue('authenticatedPerson', data);
+    },
+  });
+};
+
+const usePersonRetrieveByEmailMutation = () => {
+  console.log('entry to useGetPersonMutation');
+  const { setAppContextValue } = useConnectAppContext();
+
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('person-retrieve-by-email', params, METHOD.GET),
+    onError: (error) => console.log('error in usePersonRetrieveByEmailMutation: ', error),
+    onSuccess: (data, variables, context) => {
+      console.log('usePersonRetrieveByEmailMutation successful, returning', data, variables, context);
+      setAppContextValue('authenticatedPerson', data);
+    },
+  });
+};
+
 
 export { useRemoveTeamMutation, useRemoveTeamMemberMutation, useAddPersonToTeamMutation,
   useQuestionnaireSaveMutation, useTaskDefinitionSaveMutation, useGroupSaveMutation,
   usePersonAwaySaveMutation,
-  useQuestionSaveMutation, usePersonSaveMutation, useSaveTaskMutation, useAnswerListSaveMutation,
-  useLogoutMutation, useGetAuthMutation };
+  useQuestionSaveMutation, usePersonSaveMutation, usePersonSaveForAuthMutation, useSaveTaskMutation, useAnswerListSaveMutation,
+  useLogoutMutation, useGetAuthMutation, usePersonRetrieveMutation, usePersonRetrieveByEmailMutation };
 
