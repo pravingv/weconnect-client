@@ -9,13 +9,12 @@ import { isIPhone4in } from '../common/utils/cordovaUtils';
 import { isCordova, isWebApp } from '../common/utils/isCordovaOrWebApp';
 import { renderLog } from '../common/utils/logging';
 import { useConnectAppContext } from '../contexts/ConnectAppContext';
-import { useGetAuthMutation } from '../react-query/mutations';
 import weConnectQueryFn, { METHOD } from '../react-query/WeConnectQuery';
+import { ErrorMessage } from './Style/sharedStyles';
 
-const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
+const VerifySecretCodeModal = ({ classes, person }) => {
   renderLog('VerifySecretCodeModal');
-  const { mutate: mutateAuth } = useGetAuthMutation();
-  const { getAppContextValue } = useConnectAppContext();
+  const { getAppContextValue, setAppContextValue } = useConnectAppContext();
 
   const d1FldRef = useRef('');
   const d2FldRef = useRef('');
@@ -29,21 +28,25 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
   const [condensed] = useState(true);
   const [voterPhoneNumber] = useState(undefined);
   const [voterEmailAddress] = useState(true);
-  const [openDialog, setOpenDialog] = useState(true);
+  const [openDialogMutable, setOpenDialogMutable] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const digits = [[1, 'd1Id', d1FldRef], [2, 'd2Id', d2FldRef], [3, 'd3Id', d3FldRef], [4, 'd4Id', d4FldRef], [5, 'd5Id', d5FldRef], [6, 'd6Id', d6FldRef]];
 
+  const open = getAppContextValue('openVerifySecretCodeModalDialog');
   useEffect(() => {
-    setOpenDialog(openVerifyModalDialog);
-  }, [openVerifyModalDialog]);
+    setOpenDialogMutable(getAppContextValue('openVerifySecretCodeModalDialog'));
+    setAppContextValue('secretCodeVerified', false);
+  }, [open]);
 
   const handleClose = () => {
     console.log('handleClose pressed');
-    setOpenDialog(false);
+    setOpenDialogMutable(false);
+    setAppContextValue('openVerifySecretCodeModalDialog', false);
   };
 
-  const voterVerifySecretCode = async () => {
-    console.log('voterVerifySecretCode pressed');
+  const verifySecretCode = async () => {
+    console.log('verifySecretCode pressed');
     let code = '';
     for (let i = 0; i < digits.length; i++) {
       const digit = digits[i];
@@ -51,15 +54,19 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
       code += refDigit.current.value.toString();
     }
 
-    const newPersonId = getAppContextValue('authenticatedPersonId');
-    const data = await weConnectQueryFn('verify-email-code', { personId: newPersonId, code }, METHOD.POST);
+    const data = await weConnectQueryFn('verify-email-code', { personId: person.personId, code }, METHOD.POST);
     console.log(`/verify-email-code response: data: ${JSON.stringify(data)}`);
-    await mutateAuth();  // to propagate the invalidation to HeaderBar and Login (might be a better way to do this)
-    setOpenDialog(false);
+    if (data.emailVerified) {
+      setAppContextValue('secretCodeVerified', true);
+      setAppContextValue('secretCodeVerifiedForReset', true);
+      setOpenDialogMutable(false);
+    } else {
+      setErrorMessage('Your code did not verify.  Try again.');
+    }
   };
 
   useEffect(() => {
-    while (d1FldRef?.current) {
+    while (d1FldRef?.current && openDialogMutable) {
       setTimeout(() => {
         // See https://github.com/mui/material-ui/issues/33004#issuecomment-1455260156
         d1FldRef.current?.focus();
@@ -80,11 +87,14 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
     }
   }, [nextFocus]);
 
+  const extractDigits = (str) => {
+    const digitsLocal = str.match(/\d/g);
+    return digitsLocal?.length ? digitsLocal.join('') : '';
+  };
+
   const onPaste = (event) => {
-    // console.log(ev.clipboardData.getData('Text'));
-    const clipboardData = event.clipboardData || window.clipboardData;
-    const pastedData = clipboardData.getData('text').trim();
-    console.log(pastedData);
+    const clipboardData = (event.originalEvent || event).clipboardData.getData('text/plain');
+    const pastedData = extractDigits(clipboardData);
 
     for (let i = 0; i < pastedData.length; i++) {
       const digit = digits[i];
@@ -97,8 +107,6 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
     }
   };
 
-
-
   const onDigitChange = (event) => {
     // eslint-disable-next-line no-unused-vars
     const [index, id, refThis] = digits.find((dig) => dig[1] === event.target.id);
@@ -109,25 +117,23 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
       refThis.current.blur();
       setNextFocus(index + 1);
     }
-
+    setErrorMessage('');
     console.log(event);
   };
 
-  if (!(openDialog)) {
+  if (!openDialogMutable || !person || Object.keys(person).length === 0) {
     return null;
   }
 
   return (
     <Modal
-      open={openDialog}
-      // onClose={handleClose}
+      open={openDialogMutable}
       aria-labelledby="parent-modal-title"
       aria-describedby="parent-modal-description"
     >
       <Dialog
         id="codeVerificationDialog"
-        open={openDialog}
-        // onClose={handleClose}
+        open={openDialogMutable}
         className="u-z-index-9030"
         classes={{
           paper: clsx(classes.dialogPaper, {
@@ -145,7 +151,7 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
           <TextContainer>
             <Title $condensed={condensed}>Code Verification</Title>
             <Subtitle>A 6-digit code has been sent to</Subtitle>
-            <PhoneSubtitle>{person?.email}</PhoneSubtitle>
+            <EmailSubtitle>{person?.email}</EmailSubtitle>
 
             {(voterEmailAddress) ? (
               <Subtitle>If you haven&apos;t received the code in 30 seconds, please check your spam folder and mark the email as &apos;Not Spam&apos;.</Subtitle>
@@ -159,6 +165,7 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
             <InputContainer>
               {digits.map((dig) => (
                 <OutlinedInput
+                  autoFocus={dig[0] === 0}
                   classes={{ root: classes.inputBase, input: classes.input }}
                   id={dig[1]}
                   inputProps={{ maxLength: 1 }}
@@ -167,30 +174,28 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
                   label={false}
                   notched={false}
                   onChange={onDigitChange}
+                  onPaste={onPaste}
                   type="tel"
-                  autoFocus={dig[0] === 0}
                   // onFocus="this.select()"
                   // maxLength={1}
                   // value={this.state.digit1}
                   // onBlur={this.handleBlur}
-                  onPaste={onPaste}
                 />
               ))}
             </InputContainer>
           </TextContainer>
+          <ErrorMessage>{errorMessage}</ErrorMessage>
           <ButtonsContainer $condensed={condensed}>
             <Button
               classes={{ root: classes.verifyButton }}
               id="emailVerifyButton"
               color="primary"
               ref={buttonRef}
-              // disabled={this.state.digit1 === '' || this.state.digit2 === '' || this.state.digit3 === '' || this.state.digit4 === '' || this.state.digit5 === '' || this.state.digit6 === '' || voterMustRequestNewCode || voterSecretCodeRequestsLocked || voterVerifySecretCodeSubmitted}
               fullWidth
-              onClick={voterVerifySecretCode}
+              onClick={verifySecretCode}
               variant="contained"
             >
               Verify
-              {/* {voterVerifySecretCodeSubmitted ? 'Verifying...' : 'Verify'} */}
             </Button>
           </ButtonsContainer>
         </ModalContent>
@@ -201,7 +206,6 @@ const VerifySecretCodeModal = ({ classes, person, openVerifyModalDialog }) => {
 VerifySecretCodeModal.propTypes = {
   classes: PropTypes.object,
   person: PropTypes.object,
-  openVerifyModalDialog: PropTypes.bool,
 };
 
 const styles = (theme) => ({
@@ -345,18 +349,10 @@ const Subtitle = styled('h4')`
   text-align: center;
 `;
 
-const PhoneSubtitle = styled('h4')`
+const EmailSubtitle = styled('h4')`
   color: black;
   font-weight: bold;
   text-align: center;
 `;
-
-// const ErrorMessage = styled('div')`
-//   color: red;
-//   margin: 12px 0;
-//   text-align: center;
-//   font-size: 14px;
-// `;
-
 
 export default withTheme(withStyles(styles)(VerifySecretCodeModal));

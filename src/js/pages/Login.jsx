@@ -1,6 +1,5 @@
 import { Button, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
-import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -9,23 +8,22 @@ import styled from 'styled-components';
 import validator from 'validator';
 import { renderLog } from '../common/utils/logging';
 import compileDate from '../compileDate';
+import ResetYourPassword from '../components/Login/ResetYourPassword';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import VerifySecretCodeModal from '../components/VerifySecretCodeModal';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
-// import { clearSignedInGlobals } from '../contexts/contextFunctions';
+import { clearSignedInGlobals } from '../contexts/contextFunctions';
 import { captureAccessRightsData } from '../models/AuthModel';
 import { getFullNamePreferredPerson } from '../models/PersonModel';
 import { useLogoutMutation } from '../react-query/mutations';
 import weConnectQueryFn, { METHOD, useFetchData } from '../react-query/WeConnectQuery';
-import ReactQuerySaveReadTest from '../test/ReactQuerySaveReadTest';
 
 
 const Login = ({ classes }) => {
   renderLog('Login');
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { apiDataCache, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
   const dispatch = useConnectDispatch();
   const { mutate: mutateLogout } = useLogoutMutation();
 
@@ -38,10 +36,10 @@ const Login = ({ classes }) => {
   // const stateFldRef = useRef('');
   const passwordFldRef = useRef('');
   const confirmPasswordFldRef = useRef('');
+  const authPerson = useRef(undefined);
 
-  const [authPerson, setAuthPerson] = useState({});
-  const [openVerifyModalDialog, setOpenVerifyModalDialog] = useState(false);
-  const [returnFromLogin, setReturnFromLogin] = useState(false);
+  const [loginAttempted, setLoginAttempted] = useState(false);
+  const [openResetPasswordDialog, setOpenResetPasswordDialog] = useState(false);
   const [showCreateStuff, setShowCreateStuff] = useState(false);
   const [successLine, setSuccessLine] = useState('');
   const [warningLine, setWarningLine] = useState('');
@@ -51,17 +49,24 @@ const Login = ({ classes }) => {
     if (isSuccessAuth) {
       console.log('useFetchData in Login useEffect dataAuth good:', dataAuth, isSuccessAuth, isFetchingAuth);
 
-      const { isAuthenticated } = dataAuth;
-      const authenticatedPerson = dataAuth.person;
-      setAuthPerson(authenticatedPerson);
-      const success = isAuthenticated && authenticatedPerson ? `Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}` : 'Please sign in';
-      setSuccessLine(success);
-      // setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
+      const { isAuthenticated, person: authenticatedPerson, emailVerified: emailVerifiedFromAPI, personId } = dataAuth;
+      authPerson.current = authenticatedPerson;
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
-      if (isAuthenticated && returnFromLogin) {
-        setTimeout(() => {
-          navigate('/tasks');
-        }, 2000);
+      console.log('appContextData in Login [dataAuth, isSuccessAuth]: ', getAppContextData());
+      if (!emailVerifiedFromAPI && personId > 0) {
+        setWarningLine('');
+        setSuccessLine('A verification email has been sent to your address');
+        setAppContextValue('openVerifySecretCodeModalDialog', true);
+      } else if (isAuthenticated && authenticatedPerson) {
+        setSuccessLine(`Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}`);
+        setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
+        if (loginAttempted) {  // if we navigate to here directly, not as a result of a loginAPI
+          setTimeout(() => {
+            navigate('/tasks');
+          }, 2000);
+        }
+      } else {
+        setSuccessLine('Please sign in');
       }
     }
   }, [dataAuth, isSuccessAuth]);
@@ -70,29 +75,55 @@ const Login = ({ classes }) => {
     if (!validator.isEmail(email)) {
       setWarningLine('Please enter a valid email address.');
       return;
-    }
-    if (validator.isEmpty(password)) {
+    } else if (validator.isEmpty(password)) {
       setWarningLine('Password cannot be blank.');
       return;
+    } else {
+      setSuccessLine('');
+      setSuccessLine('');
     }
 
+    setLoginAttempted(true);  // so we know when to timeout to /tasks
     const data = await weConnectQueryFn('login', { email, password }, METHOD.POST);
     console.log(`/login response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
     if (data.personId > 0) {
-      setWarningLine('');
-      setSuccessLine(`Cheers person #${data.personId}!  You are signed in!`);
-      setAppContextValue('isAuthenticated', true);
-      setAppContextValue('authenticatedPersonId', data.personId);
-      setReturnFromLogin(true);
-      if (!data.emailVerified) {
-        setOpenVerifyModalDialog(true);
+      setAppContextValue('isAuthenticated', data.emailVerified);
+      if (data.emailVerified) {
+        setWarningLine('');
+        setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
+        setAppContextValue('authenticatedPerson', data);
+        setTimeout(() => {
+          navigate('/tasks');
+        }, 2000);
+      } else {
+        authPerson.current = {      // just enough data for VerifySecretCodeModal
+          personId: data.personId,
+          personEmail: email.trim(),
+        };
+        setAppContextValue('openVerifySecretCodeModalDialog', true);
+        setSuccessLine('A verification email has been sent to your address');
       }
-      await queryClient.invalidateQueries('get-auth');
     } else {
       setWarningLine(data.error.msg);
       setSuccessLine('');
     }
   };
+
+  const secretCodeVerified = getAppContextValue('secretCodeVerified');
+  const resetPassword = getAppContextValue('resetPassword');
+  useEffect(() => {
+    if (secretCodeVerified === true && resetPassword && resetPassword.length) {
+      loginApi(getAppContextValue('resetEmail'), getAppContextValue('resetPassword')).then(() => {
+        // console.log('--------- useEffect secretCodeVerified in Login, clearing resetEmail and resetPassword', e, p);
+        setAppContextValue('resetEmail', '');
+        setAppContextValue('resetPassword', '');
+        setAppContextValue('openVerifySecretCodeModalDialog', false);
+        setAppContextValue('secretCodeVerified', false);
+        setAppContextValue('secretCodeVerifiedForReset', false);
+        // console.log('appContextData in Login L124: ', getAppContextData());
+      });
+    }
+  }, [secretCodeVerified, resetPassword]);
 
   const logoutApi = async () => {
     const data = await weConnectQueryFn('logout', {}, METHOD.POST);
@@ -130,12 +161,10 @@ const Login = ({ classes }) => {
       setWarningLine(errStr);
       if (data.personCreated) {
         setSuccessLine(`user # ${data.personId} created`);
-        // setAppContextValue('isAuthenticated', true);
-        setAppContextValue('authenticatedPersonId', data.personId);
         verifyYourEmail(data.personId).then(() => {
           setSuccessLine('A verification email has been sent to your address');
-          console.log('verifyYourEmail in signupApi then clause , setOpenVerifyModalDialog true');
-          setOpenVerifyModalDialog(true);
+          console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog true');
+          setAppContextValue('openVerifySecretCodeModalDialog', true);
         });
       }
     } catch (e) {
@@ -152,14 +181,14 @@ const Login = ({ classes }) => {
       setWarningLine('Enter a valid username and password');
     } else {
       setWarningLine('');
-      setAppContextValue('personIsSignedIn', true);
       loginApi(email, password).then();
     }
   };
 
   const useSignOutPressed = () => {
     // clearSignedInGlobals is also called in logoutApi, so isn't needed here
-    // clearSignedInGlobals(setAppContextValue);
+    // TODO 2/23/25: unfortunately there are two logoutApi(), consolidating them is high priority
+    clearSignedInGlobals(setAppContextValue, getAppContextData);
     logoutApi().then();
   };
 
@@ -225,7 +254,7 @@ const Login = ({ classes }) => {
           <div id="warningLine" style={{ color: 'red', paddingTop: '10px', paddingBottom: '20px' }}>{warningLine}</div>
           <div id="successLine" style={{ color: 'green', paddingTop: '10px', paddingBottom: '20px' }}>{successLine}</div>
           <span style={{ display: 'flex' }}>
-            <TextField id="outlined-basic"
+            <TextField id="FirstName"
                        label="First Name"
                        helperText={showCreateStuff ? 'Required' : ''}
                        variant="outlined"
@@ -234,7 +263,7 @@ const Login = ({ classes }) => {
                          paddingRight: '10px',
                          display: showCreateStuff ? 'block' : 'none'  }}
             />
-            <TextField id="outlined-basic"
+            <TextField id="LastName"
                        label="Last Name"
                        helperText={showCreateStuff ? 'Required' : ''}
                        variant="outlined"
@@ -243,14 +272,14 @@ const Login = ({ classes }) => {
                          display: showCreateStuff ? 'block' : 'none'  }}
             />
           </span>
-          <TextField id="outlined-basic"
+          <TextField id="email"
                      label={showCreateStuff ? 'Your personal email' : 'Your email address'}
                      helperText={showCreateStuff ? 'Required' : ''}
                      variant="outlined"
                      inputRef={emailPersonalFldRef}
                      sx={{ display: 'block', paddingBottom: '15px' }}
           />
-          <TextField id="outlined-basic"
+          <TextField id="secondEmail"
                      label="Second Email"
                      helperText="Optional, possibly your wevote.us email"
                      variant="outlined"
@@ -258,7 +287,7 @@ const Login = ({ classes }) => {
                      sx={{ paddingBottom: '15px',
                        display: showCreateStuff ? 'block' : 'none' }}
           />
-          <TextField id="outlined-basic"
+          <TextField id="location"
                      label="Location"
                      variant="outlined"
                      inputRef={locationFldRef}
@@ -267,18 +296,18 @@ const Login = ({ classes }) => {
                        display: showCreateStuff ? 'block' : 'none'  }}
           />
           <span style={{ display: 'flex' }}>
-            <TextField id="outlined-basic"
+            <TextField id="password"
                        label="Password"
                        variant="outlined"
                        inputRef={passwordFldRef}
-                       defaultValue="12345678"
+                       // defaultValue="12345678"
                        sx={{ display: 'block', paddingBottom: '15px' }}
             />
-            <TextField id="outlined-basic"
+            <TextField id="confirmPassword"
                        label="Confirm Password"
                        variant="outlined"
                        inputRef={confirmPasswordFldRef}
-                       defaultValue="12345678"
+                       // defaultValue="12345678"
                        sx={{ padding: '0 0 15px 10px', display: showCreateStuff ? 'block' : 'none'  }}
             />
           </span>
@@ -292,7 +321,14 @@ const Login = ({ classes }) => {
             >
               Sign In
             </Button>
-            <AStyled style={{ display: showCreateStuff ? 'none' : 'flex'  }}>Forgot your password?</AStyled>
+            <Button
+              classes={{ root: classes.loginButtonRoot }}
+              color="primary"
+              onClick={() => setOpenResetPasswordDialog(true)}
+              sx={showCreateStuff ? { display: 'none' } : { margin: '0 0 15px 20px !important', width: '200px !important' }}
+            >
+              Reset your password
+            </Button>
           </span>
           <div style={{ paddingTop: '35px' }} />
           <Button
@@ -310,6 +346,7 @@ const Login = ({ classes }) => {
             color="primary"
             variant="contained"
             onClick={useSignOutPressed}
+            sx={showCreateStuff ? { display: 'none' } : {}}
           >
             Sign Out
           </Button>
@@ -317,19 +354,16 @@ const Login = ({ classes }) => {
             <div>Compile Date:</div>
             <div style={{ paddingLeft: 10 }}>{compileDate}</div>
           </DateDisplay>
-          <Button
-            classes={{ root: classes.buttonDesktop }}
-            color="primary"
-            variant="contained"
-            onClick={() => navigate('/faq')}
-
-          >
-            FAQ (Requires Authentication) (This is a test button, that can be removed)
-          </Button>
         </div>
-        <VerifySecretCodeModal person={authPerson} openVerifyModalDialog={openVerifyModalDialog} />
+        {authPerson.current &&
+          Object.keys(authPerson.current).length > 0 &&
+          getAppContextValue('secretCodeVerified') !== true &&
+          getAppContextValue('openVerifySecretCodeModalDialog') && (
+          <VerifySecretCodeModal person={authPerson.current} />
+        )}
+        <ResetYourPassword openDialog={openResetPasswordDialog} closeDialog={setOpenResetPasswordDialog} />
         {/* This following test can be deleted or converted to an automated test */}
-        <ReactQuerySaveReadTest personId="1" />
+        {/* <ReactQuerySaveReadTest personId="1" /> */}
       </PageContentContainer>
     </div>
   );
@@ -349,14 +383,6 @@ const styles = (theme) => ({
     },
   },
 });
-
-const AStyled = styled('a')`
-  font-weight: 400;
-  color: rgb(13, 110, 253);
-  text-decoration-color: rgb(13, 110, 253);
-  text-decoration-line: underline;
-  padding: 8px 0 0 25px;
-`;
 
 const DateDisplay = styled('div')`
   padding: 50px 0 50px 0;

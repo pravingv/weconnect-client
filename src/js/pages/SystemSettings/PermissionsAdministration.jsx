@@ -65,7 +65,6 @@ const PermissionsAdministration = ({ classes }) => {
   const cancelClicked  = (event) => {
     const pieces = event.target.id.split('-');
     const personId = parseInt(pieces[2]);
-    // TODO change the data!
     const activePerson = peopleWorkingArray.find((p) => p.id === personId);
     const personCached = Object.values(allPeopleCache).find((p) => p.id === personId);
     Object.assign(activePerson, personCached);

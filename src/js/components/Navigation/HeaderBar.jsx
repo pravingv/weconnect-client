@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import standardBoxShadow from '../../common/components/Style/standardBoxShadow';
 import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { normalizedHrefPage } from '../../common/utils/hrefUtils';
-import { renderLog } from '../../common/utils/logging';
+import { authLog, renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
@@ -22,7 +22,7 @@ import HeaderBarLogo from './HeaderBarLogo';
 const HeaderBar = ({ hideTabs }) => {
   renderLog('HeaderBar');
   const navigate = useNavigate();
-  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const { mutate: mutateLogout } = useLogoutMutation();
 
@@ -34,7 +34,7 @@ const HeaderBar = ({ hideTabs }) => {
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
     if (isAuth !== null) {
-      console.log('----------- isAuthenticated changed =', isAuth);
+      authLog('HeaderBar isAuthenticated changed =', isAuth);
       setIsAuthenticated(isAuth);
     }
   }, [isAuth]);
@@ -43,7 +43,7 @@ const HeaderBar = ({ hideTabs }) => {
     // I don't think we want to make the weConnectQueryFn call here since we are about to call mutateLogout
     const data = await weConnectQueryFn('logout', {}, METHOD.POST);
     console.log(`/logout response in HeaderBar -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
-    clearSignedInGlobals(setAppContextValue);
+    clearSignedInGlobals(setAppContextValue, getAppContextData);
     navigate('/login');
     mutateLogout();
   };

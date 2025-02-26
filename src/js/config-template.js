@@ -57,14 +57,15 @@ module.exports = {
   DEBUG_MODE: false,
   SHOW_TEST_OPTIONS: false,    // On the DeviceDialog and elsewhere
 
-  LOG_RENDER_EVENTS: false,
-  LOG_ONLY_FIRST_RENDER_EVENTS: false,
-  LOG_HTTP_REQUESTS: false,
-  LOG_ROUTING: false,
-  LOG_AUTHENTICATION: false,        // authLog function prints to console
+  ENABLE_REACT_QUERY_TOOLS: false,        // Show ReactQueryDevtools icon/console
+  LOG_AUTHENTICATION: false,              // authLog function prints to console
   LOG_CORDOVA_OFFSETS: false,
-  SHOW_CORDOVA_URL_FIELD: false,    // Only needed for debugging in Cordova
-  ENABLE_REACT_QUERY_TOOLS: false,  // Show ReactQueryDevtools icon/console
+  LOG_HTTP_REQUESTS: false,
+  LOG_RENDER_EVENTS__FIRST_ONLY: false,   // Log the render event for a component, but only the first time
+  LOG_REACT_QUERY_EVENTS: false,          // Log query requests/responses
+  LOG_RENDER_EVENTS: false,
+  LOG_ROUTING: false,
+  SHOW_CORDOVA_URL_FIELD: false,          // Only needed for debugging in Cordova
 
   // Use 1 or 0 as opposed to true or false
   test: {

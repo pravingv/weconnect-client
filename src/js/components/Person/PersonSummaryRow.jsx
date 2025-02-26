@@ -5,10 +5,7 @@ import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import {
-  getFullNamePreferredPerson,
-  // useGetFullNamePreferred,
-} from '../../models/PersonModel';
+import { getFullNamePreferredPerson } from '../../models/PersonModel';
 import { useRemoveTeamMemberMutation } from '../../react-query/mutations';
 import { DeleteStyled, EditStyled } from '../Style/iconStyles';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
@@ -117,7 +114,6 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
               id={`removeMember-personId-${person.personId}`}
               onClick={() => removeTeamMemberClick(person)}
               style={{ cursor: 'pointer' }}
-              // cellwidth="20"
               cellwidth={20}
             >
               <DeleteStyled />

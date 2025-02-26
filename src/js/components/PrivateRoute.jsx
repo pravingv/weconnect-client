@@ -7,7 +7,7 @@ import { captureAccessRightsData } from '../models/AuthModel';
 
 const PrivateRoute = () => {
   const location = useLocation();
-  const { apiDataCache, getAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const dispatch = useConnectDispatch();
 
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -15,17 +15,16 @@ const PrivateRoute = () => {
   const { data: dataAuth, isSuccess: isSuccessAuth } = useFetchData(['get-auth'], {}, METHOD.POST);
   useEffect(() => {
     if (isSuccessAuth) {
-      // console.log('useFetchData in PrivateRoute useEffect dataAuth good:', dataAuth, isSuccessAuth);
+      authLog('useFetchData in PrivateRoute useEffect dataAuth good:', dataAuth, isSuccessAuth);
       setIsAuthenticated(dataAuth.isAuthenticated);
-      // setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
+      setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
-      authLog('========= PrivateRoute =========== INNER isAuthenticated: ', dataAuth.isAuthenticated);
     }
   }, [dataAuth, isSuccessAuth]);
 
   const isAuth = getAppContextValue('isAuthenticated');
 
-  authLog('========= PrivateRoute =========== OUTER isAuthenticated: ', isAuthenticated, ', isAuth: ', isAuth);
+  authLog('========= PrivateRoute =========== isAuthenticated: ', isAuthenticated);
 
   if (isAuthenticated || isAuth || isAuthenticated !== false) {
     return <Outlet />;
