@@ -37,6 +37,7 @@ const Login = ({ classes }) => {
   const authPerson = useRef(undefined);
 
   const [loginAttempted, setLoginAttempted] = useState(false);
+  const [isForSomeOneElse, setIsForSomeOneElse] = useState(false);
   const [openResetPasswordDialog, setOpenResetPasswordDialog] = useState(false);
   const [showCreateStuff, setShowCreateStuff] = useState(false);
   const [successLine, setSuccessLine] = useState('');
@@ -191,11 +192,17 @@ const Login = ({ classes }) => {
         setSuccessLine(`user # ${data.personId} created`);
         setSuccessLine(`user # ${data.personId} created`);
         authPerson.current = data.person;
-        verifyYourEmail(data.personId).then(() => {
-          setSuccessLine('A verification email has been sent to your address');
-          console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog true');
-          setAppContextValue('openVerifySecretCodeModalDialog', true);
-        });
+        if (isForSomeOneElse) {
+          setShowCreateStuff(false);
+          setSuccessLine(`A person record was created for ${firstName} ${lastName} (they will have to verify their email on their first login)`);
+          console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog false');
+        } else {
+          verifyYourEmail(data.personId).then(() => {
+            setSuccessLine('A verification email has been sent to your address');
+            console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog true');
+            setAppContextValue('openVerifySecretCodeModalDialog', true);
+          });
+        }
       }
     } catch (e) {
       console.log('signup error', e);
@@ -239,7 +246,7 @@ const Login = ({ classes }) => {
     if (!showCreateStuff) {
       setShowCreateStuff(true);
       setWarningLine('');
-      setSuccessLine('');
+      setSuccessLine(isForSomeOneElse ? 'Creating an account for someone else' : '');
     } else {
       setWarningLine('');
       let errStr = '';
@@ -268,13 +275,15 @@ const Login = ({ classes }) => {
   };
 
   const createForSomeoneElsePressed = () => {
-    console.log('NOT YET IMPLEMENTED');
+    setIsForSomeOneElse(true);
+    createPressed();
   };
 
   // console.log(getAppContextData());
   const isAdmin = getAppContextValue('loggedInPersonIsAdmin') || false;
   const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   const displayVerify =
+    !isForSomeOneElse &&
     authPerson.current &&
     Object.keys(authPerson.current).length > 0 &&
     getAppContextValue('secretCodeVerified') !== true &&

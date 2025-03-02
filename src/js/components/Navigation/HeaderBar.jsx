@@ -141,6 +141,7 @@ const HeaderBar = ({ hideTabs }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loc]);
 
+  console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
 
   return (
     <HeaderBarWrapper

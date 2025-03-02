@@ -32,9 +32,16 @@ const PermissionsAdministration = ({ classes }) => {
     setCanEditPermissionsAnyone(viewerCanSeeOrDo('canEditPermissionsAnyone', viewerAccessRights));
   }, [viewerAccessRights]);
 
+  function alphabetizePeoplesObject (obj) {
+    const arrayOfObjects = Object.keys(obj).map((key) => ({ ...obj[key], id: key }));
+    arrayOfObjects.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName));
+    return arrayOfObjects;
+  }
+
   useEffect(() => {
     const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
-    setPeopleWorkingArray(Object.values(allPeopleCacheCopy2));
+    const sorted = alphabetizePeoplesObject(allPeopleCacheCopy2);
+    setPeopleWorkingArray(sorted);
   }, [allPeopleCache]);
 
   const adminFldRef = useRef('');
