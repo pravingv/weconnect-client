@@ -96,12 +96,15 @@ export const ConnectAppContextProvider = ({ children }) => {
       authLog('useFetchData in ConnectAppContext useEffect dataAuth good:', dataAuth, isSuccessAuth, isFetchingAuth);
       const { isAuthenticated } = dataAuth;
       setAppContextValue('authenticatedPerson', dataAuth.person);
-      setAppContextValue('isAuthenticated', isAuthenticated);
-      setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
+      if (dataAuth.person) {
+        setAppContextValue('isAuthenticated', isAuthenticated);
+        setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
+      }
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
 
       console.log('=============== ConnectAppContextProvider ======= isAuthenticated: ', isAuthenticated, ' ===========');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataAuth, isSuccessAuth]);
 
   return (

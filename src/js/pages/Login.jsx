@@ -3,10 +3,9 @@ import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import validator from 'validator';
-import { renderLog } from '../common/utils/logging';
+import { authLog, renderLog } from '../common/utils/logging';
 import compileDate from '../compileDate';
 import ResetYourPassword from '../components/Login/ResetYourPassword';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
@@ -22,7 +21,6 @@ import weConnectQueryFn, { METHOD, useFetchData } from '../react-query/WeConnect
 
 const Login = ({ classes }) => {
   renderLog('Login');
-  const navigate = useNavigate();
   const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
   const dispatch = useConnectDispatch();
   const { mutate: mutateLogout } = useLogoutMutation();
@@ -43,16 +41,19 @@ const Login = ({ classes }) => {
   const [showCreateStuff, setShowCreateStuff] = useState(false);
   const [successLine, setSuccessLine] = useState('');
   const [warningLine, setWarningLine] = useState('');
+  const [loginCount, setLoginCount] = useState(0);
 
   const { data: dataAuth, isSuccess: isSuccessAuth, isFetching: isFetchingAuth } = useFetchData(['get-auth'], {}, METHOD.POST);
   useEffect(() => {
     if (isSuccessAuth) {
-      console.log('useFetchData in Login useEffect dataAuth good:', dataAuth, isSuccessAuth, isFetchingAuth);
+      authLog('useFetchData get-auth in Login dataAuth:', dataAuth, isSuccessAuth, isFetchingAuth);
 
       const { isAuthenticated, person: authenticatedPerson, emailVerified: emailVerifiedFromAPI, personId } = dataAuth;
       authPerson.current = authenticatedPerson;
+      if (authenticatedPerson) {
+        setAppContextValue('isAuthenticated', isAuthenticated);
+      }
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
-      console.log('appContextData in Login [dataAuth, isSuccessAuth]: ', getAppContextData());
       if (!emailVerifiedFromAPI && personId > 0) {
         setWarningLine('');
         setSuccessLine('A verification email has been sent to your address');
@@ -61,15 +62,25 @@ const Login = ({ classes }) => {
         setSuccessLine(`Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}`);
         setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
         if (loginAttempted) {  // if we navigate to here directly, not as a result of a loginAPI
-          setTimeout(() => {
-            navigate('/tasks');
-          }, 2000);
+          // setTimeout(() => {
+          //   navigate('/tasks');
+          setAppContextValue('navigatedFromLogin', true);
+          // }, 2000);
         }
-      } else {
+      } else if (!getAppContextValue('openVerifySecretCodeModalDialog')) {
+        // console.log('======== appContextData in Login: Please sign in');
         setSuccessLine('Please sign in');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataAuth, isSuccessAuth]);
+
+  const isAuth = getAppContextValue('isAuthenticated');
+  useEffect(() => {
+    // rerender if logged out from HeaderBar
+    setLoginCount(loginCount + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuth]);
 
   const loginApi = async (email, password) => {
     if (!validator.isEmail(email)) {
@@ -85,16 +96,18 @@ const Login = ({ classes }) => {
 
     setLoginAttempted(true);  // so we know when to timeout to /tasks
     const data = await weConnectQueryFn('login', { email, password }, METHOD.POST);
-    console.log(`/login response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
-    if (data.personId > 0) {
+    // console.log(`/login response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
+    // console.log('appContextData in Login after /login response: ', getAppContextData());
+    if (data?.personId > 0) {
       setAppContextValue('isAuthenticated', data.emailVerified);
+      setAppContextValue('authenticatedPerson', data.person);
       if (data.emailVerified) {
         setWarningLine('');
+        passwordFldRef.current = '';   // Blank the email field after signing in
         setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
-        setAppContextValue('authenticatedPerson', data);
-        setTimeout(() => {
-          navigate('/tasks');
-        }, 2000);
+        // setTimeout(() => {
+        //   navigate('/tasks');
+        // }, 4000);
       } else {
         authPerson.current = {      // just enough data for VerifySecretCodeModal
           personId: data.personId,
@@ -104,32 +117,47 @@ const Login = ({ classes }) => {
         setSuccessLine('A verification email has been sent to your address');
       }
     } else {
-      setWarningLine(data.error.msg);
+      setWarningLine(data?.error?.msg || 'error message with bad data');
       setSuccessLine('');
     }
   };
 
+  const clearOnCreate = () => {
+    console.log('clearOnCreate -------------- 1 ------------ ', openResetPasswordDialog);
+    if (!openResetPasswordDialog) {
+      console.log('clearOnCreate -------------- 2 ------------ ', openResetPasswordDialog);
+      setAppContextValue('resetEmail', '');
+      setAppContextValue('resetPassword', '');
+      setAppContextValue('openVerifySecretCodeModalDialog', false);
+      setAppContextValue('secretCodeVerified', false);
+      setAppContextValue('secretCodeVerifiedForReset', false);
+      setShowCreateStuff(false);
+      const per = authPerson.current ? authPerson.current : getAppContextValue('authenticatedPerson');
+      setSuccessLine(`${getFullNamePreferredPerson(per)}, you are signed in!`);
+      passwordFldRef.current = '';   // Blank the email field after signing in
+    }
+  };
+
   const secretCodeVerified = getAppContextValue('secretCodeVerified');
-  const resetPassword = getAppContextValue('resetPassword');
+  const resetPassword = getAppContextValue('resetPassword') || '';
   useEffect(() => {
-    if (secretCodeVerified === true && resetPassword && resetPassword.length) {
+    if (secretCodeVerified === true) {
+      loginApi(emailPersonalFldRef.current.value, passwordFldRef.current.value).then(() => {
+        clearOnCreate();
+      });
+    } else if (resetPassword && resetPassword.length) {
       loginApi(getAppContextValue('resetEmail'), getAppContextValue('resetPassword')).then(() => {
-        // console.log('--------- useEffect secretCodeVerified in Login, clearing resetEmail and resetPassword', e, p);
-        setAppContextValue('resetEmail', '');
-        setAppContextValue('resetPassword', '');
-        setAppContextValue('openVerifySecretCodeModalDialog', false);
-        setAppContextValue('secretCodeVerified', false);
-        setAppContextValue('secretCodeVerifiedForReset', false);
-        // console.log('appContextData in Login L124: ', getAppContextData());
+        clearOnCreate();
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secretCodeVerified, resetPassword]);
 
-  const logoutApi = async () => {
-    const data = await weConnectQueryFn('logout', {}, METHOD.POST);
+  const logoutApiInLogin = async () => {
+    const data = await weConnectQueryFn('logout', { credentials: 'same-origin' }, METHOD.POST);
     console.log(`/logout response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
     if (data.authenticated) {
-      setWarningLine(data.errors.msg);
+      setWarningLine(data?.errors?.msg);
       setSuccessLine('');
     } else {
       setWarningLine('');
@@ -156,11 +184,13 @@ const Login = ({ classes }) => {
       console.log(`/signup response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
       let errStr = '';
       for (let i = 0; i < data.errors.length; i++) {
-        errStr += data.errors[i].msg;
+        errStr += data.errors[i]?.msg;
       }
       setWarningLine(errStr);
       if (data.personCreated) {
         setSuccessLine(`user # ${data.personId} created`);
+        setSuccessLine(`user # ${data.personId} created`);
+        authPerson.current = data.person;
         verifyYourEmail(data.personId).then(() => {
           setSuccessLine('A verification email has been sent to your address');
           console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog true');
@@ -173,8 +203,8 @@ const Login = ({ classes }) => {
   };
 
   const loginPressed = () => {
-    const email =  emailPersonalFldRef.current.value;
-    const password = passwordFldRef.current.value;
+    const email =  (emailPersonalFldRef.current.value).trim();
+    const password = (passwordFldRef.current.value).trim();
 
     if (email.length === 0 || password.length === 0) {
       console.log('too short');
@@ -185,11 +215,24 @@ const Login = ({ classes }) => {
     }
   };
 
-  const useSignOutPressed = () => {
-    // clearSignedInGlobals is also called in logoutApi, so isn't needed here
-    // TODO 2/23/25: unfortunately there are two logoutApi(), consolidating them is high priority
+  const removeSessionCookie = ()  => {
+    const urlObject = new URL(webAppConfig.STAFF_API_SERVER_ROOT_URL);
+    const updatedCookie = `WeConnectSession=; Max-Age=0; path=/; domain=${urlObject.hostname}`;
+    document.cookie = updatedCookie;
+    console.log('Login removeSessionCookie, cookie that was removed: ', updatedCookie);
+  };
+
+  const closeResetYourPassword = () => {
     clearSignedInGlobals(setAppContextValue, getAppContextData);
-    logoutApi().then();
+    console.log('closeResetYourPassword in Login before logutApiInLogin()');
+    logoutApiInLogin().then(() => removeSessionCookie());
+  };
+
+  const signOutButtonPressed = () => {
+    clearSignedInGlobals(setAppContextValue, getAppContextData);
+    setOpenResetPasswordDialog(false);
+    console.log('signOutButtonPressed in Login before logutApiInLogin()');
+    logoutApiInLogin().then(() => removeSessionCookie());
   };
 
   const createPressed = () => {
@@ -224,8 +267,19 @@ const Login = ({ classes }) => {
     }
   };
 
+  const createForSomeoneElsePressed = () => {
+    console.log('NOT YET IMPLEMENTED');
+  };
 
   // console.log(getAppContextData());
+  const isAdmin = getAppContextValue('loggedInPersonIsAdmin') || false;
+  const isAuthSafe = getAppContextValue('isAuthenticated') || false;
+  const displayVerify =
+    authPerson.current &&
+    Object.keys(authPerson.current).length > 0 &&
+    getAppContextValue('secretCodeVerified') !== true &&
+    (getAppContextValue('openVerifySecretCodeModalDialog') || false);
+
   return (
     <div>
       <Helmet>
@@ -331,21 +385,33 @@ const Login = ({ classes }) => {
             </Button>
           </span>
           <div style={{ paddingTop: '35px' }} />
-          <Button
-            classes={{ root: classes.buttonDesktop }}
-            color="primary"
-            variant="contained"
-            onClick={createPressed}
-          >
-            {showCreateStuff ? 'Save New Account' : 'Create Account'}
-          </Button>
+          {!isAuthSafe && (
+            <Button
+              classes={{ root: classes.buttonDesktop }}
+              color="primary"
+              variant="contained"
+              onClick={createPressed}
+            >
+              {showCreateStuff ? 'Save New Account' : 'Create Account'}
+            </Button>
+          )}
+          {isAdmin && (
+            <Button
+              classes={{ root: classes.buttonDesktop }}
+              color="primary"
+              variant="contained"
+              onClick={createForSomeoneElsePressed}
+            >
+              Create Account for Someone Else
+            </Button>
+          )}
           <div style={{ paddingTop: '35px' }} />
           <div style={{ paddingTop: '35px' }} />
           <Button
             classes={{ root: classes.buttonDesktop }}
             color="primary"
             variant="contained"
-            onClick={useSignOutPressed}
+            onClick={signOutButtonPressed}
             sx={showCreateStuff ? { display: 'none' } : {}}
           >
             Sign Out
@@ -355,13 +421,8 @@ const Login = ({ classes }) => {
             <div style={{ paddingLeft: 10 }}>{compileDate}</div>
           </DateDisplay>
         </div>
-        {authPerson.current &&
-          Object.keys(authPerson.current).length > 0 &&
-          getAppContextValue('secretCodeVerified') !== true &&
-          getAppContextValue('openVerifySecretCodeModalDialog') && (
-          <VerifySecretCodeModal person={authPerson.current} />
-        )}
-        <ResetYourPassword openDialog={openResetPasswordDialog} closeDialog={setOpenResetPasswordDialog} />
+        {displayVerify && <VerifySecretCodeModal person={authPerson.current} />}
+        <ResetYourPassword openDialog={openResetPasswordDialog} closeDialog={closeResetYourPassword} />
         {/* This following test can be deleted or converted to an automated test */}
         {/* <ReactQuerySaveReadTest personId="1" /> */}
       </PageContentContainer>

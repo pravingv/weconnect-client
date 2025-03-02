@@ -56,6 +56,7 @@
     "react/destructuring-assignment": 0,          // Dec 2018: We should do this!  But right now we have 3990 warnings/errors if enabled.
     "react/forbid-prop-types": 0,                 // Dec 2018: Should consider someday
     "react/indent-prop": 0,
+    "react/jsx-curly-newline": 0,                 // Feb 2025, started showing up with latest eslint
     "react/jsx-first-prop-new-line": 0,
     "react/jsx-indent-props": 0,
     "react/jsx-no-bind": 1,                       // Dec 2018: Should these be errors?

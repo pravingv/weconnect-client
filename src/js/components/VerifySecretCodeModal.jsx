@@ -37,6 +37,7 @@ const VerifySecretCodeModal = ({ classes, person }) => {
   useEffect(() => {
     setOpenDialogMutable(getAppContextValue('openVerifySecretCodeModalDialog'));
     setAppContextValue('secretCodeVerified', false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleClose = () => {
@@ -54,7 +55,8 @@ const VerifySecretCodeModal = ({ classes, person }) => {
       code += refDigit.current.value.toString();
     }
 
-    const data = await weConnectQueryFn('verify-email-code', { personId: person.personId, code }, METHOD.POST);
+    const id = person.personId || person.id;
+    const data = await weConnectQueryFn('verify-email-code', { personId: id, code }, METHOD.POST);
     console.log(`/verify-email-code response: data: ${JSON.stringify(data)}`);
     if (data.emailVerified) {
       setAppContextValue('secretCodeVerified', true);
@@ -85,6 +87,7 @@ const VerifySecretCodeModal = ({ classes, person }) => {
         }, 50);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextFocus]);
 
   const extractDigits = (str) => {

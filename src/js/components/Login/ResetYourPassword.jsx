@@ -8,11 +8,11 @@ import TextField from '@mui/material/TextField';
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 import validator from 'validator';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import makeRequestParams from '../../react-query/makeRequestParams';
-import { useLogoutMutation, usePersonRetrieveByEmailMutation, usePersonSaveForAuthMutation } from '../../react-query/mutations';
+import { useLogoutMutation, usePasswordSaveMutation, usePersonRetrieveByEmailMutation } from '../../react-query/mutations';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ErrorMessage } from '../Style/sharedStyles';
 import VerifySecretCodeModal from '../VerifySecretCodeModal';
@@ -20,7 +20,7 @@ import VerifySecretCodeModal from '../VerifySecretCodeModal';
 const ResetYourPassword = ({ openDialog, closeDialog }) => {
   renderLog('ResetYourPassword');
   const { mutate: mutateRetrievePersonByEmail } = usePersonRetrieveByEmailMutation();
-  const { mutate: mutatePersonSaveForAuth } = usePersonSaveForAuthMutation();
+  const { mutate: mutatePasswordSave } = usePasswordSaveMutation();
   const { mutate: mutateLogout } = useLogoutMutation();
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
 
@@ -28,11 +28,13 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
   const [displayEmailAddress, setDisplayEmailAddress] = useState(true);
   const [warningLine, setWarningLine] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [personId, setPersonId] = useState('');
 
   const emailRef = useRef('');
+  const emailDisabledRef = useRef('');
   const password1Ref = useRef('');
   const password2Ref = useRef('');
-  const authPerson = useRef(undefined);
+  const authPersonRef = useRef(undefined);
 
   useEffect(() => {
     setOpen(openDialog);
@@ -43,6 +45,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     if (secretCodeVerified === true) {
       console.log('received new secretCodeVerifiedForReset', secretCodeVerified);
       setDisplayEmailAddress(false);
+      emailDisabledRef.current = authPersonRef.current?.emailPersonal || '';
       emailRef.current = '';
       password1Ref.current = '';
       password2Ref.current = '';
@@ -52,11 +55,12 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
   const auth = getAppContextValue('authenticatedPerson');
   useEffect(() => {
     const authP = getAppContextValue('authenticatedPerson');
+    authPersonRef.current = authP;
     if (authP && open) {
       console.log('received new authP', authP);
-      authPerson.current = authP;
-      console.log('authPerson.personId in Login useEffect [auth] id: ', authP.personId);
-      console.log('authPerson.personId in Login useEffect [auth] open: ', open);
+      console.log('authPersonRef.personId in Login useEffect [auth] id: ', authP.personId);
+      console.log('authPersonRef.personId in Login useEffect [auth] open: ', open);
+      setPersonId(authP.personId);
       weConnectQueryFn('send-email-code', { personId: authP.personId }, METHOD.POST)
         .then(setAppContextValue('openVerifySecretCodeModalDialog', true));
     }
@@ -64,10 +68,38 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
+
+  const handleClose = () => {
+    setOpen(false);
+    closeDialog(false);
+  };
+
+  const changePassword = async () => {
+    const pass1 = password1Ref.current.value;
+    const pass2 = password2Ref.current.value;
+    const person = authPersonRef.current;
+    let id;
+    if (person?.id) {
+      id = person.id;
+    } else {
+      id = personId;
+    }
+
+    if (pass1 !== pass2) {
+      setErrorMessage('Your password entries do not match.');
+    } else {
+      setErrorMessage('');
+      await mutatePasswordSave({ personId: id, password: pass1 });
+      setAppContextValue('isAuthenticated', true);
+      setAppContextValue('authenticatedPerson', person);
+      setAppContextValue('resetPassword', pass1);
+      handleClose();
+    }
+  };
+
   const sendEmail = async () => {
     const email = emailRef.current.value;
     setAppContextValue('resetEmail', email);
-    console.log('email in sendEmail: ', emailRef.current.value);
     if (!validator.isEmail(email)) {
       setWarningLine('Please enter a valid email address.');
       return;
@@ -80,31 +112,6 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     await mutateRetrievePersonByEmail({ emailPersonal: email });
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    closeDialog(false);
-  };
-
-  const changePassword = async () => {
-    const pass1 = password1Ref.current.value;
-    const pass2 = password2Ref.current.value;
-    const person = authPerson.current;
-
-    console.log('password in changePassword: ', pass1, pass2);
-    if (pass1 !== pass2) {
-      setErrorMessage('Your password entries do not match.');
-    } else {
-      setErrorMessage('');
-      // const person = getAppContextValue('authenticatedPerson');
-      await mutatePersonSaveForAuth(makeRequestParams({ id: person.id }, { password: pass1 }));
-      setAppContextValue('isAuthenticated', true);
-      console.log('ResetYourPassword changePassword pass1, pass2: ',  pass1, pass2);
-      setAppContextValue('resetPassword', pass1);
-      handleClose();
-    }
-  };
-
-  console.log('ResetYourPassword incoming authPerson: ', authPerson);
   return (
     <>
       <Modal
@@ -132,10 +139,12 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                 name="email"
                 required
                 type="email"
-                variant="standard"
+                variant="outlined"
               />
             ) : (
-              <form>
+              <>
+                {/* EmailDiv clues in Google "Update password?" dialog to display this email, it probably could be css hidden */}
+                <EmailDiv id="username">Email: &nbsp;&nbsp;&nbsp;{emailDisabledRef.current}</EmailDiv>
                 <TextField
                   autoFocus
                   fullWidth
@@ -145,8 +154,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   margin="dense"
                   name="password1"
                   required
-                  type="password"
-                  variant="standard"
+                  variant="outlined"
                 />
                 <TextField
                   fullWidth
@@ -156,10 +164,9 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   margin="dense"
                   name="password2"
                   required
-                  type="password"
-                  variant="standard"
+                  variant="outlined"
                 />
-              </form>
+              </>
             )}
             <Button sx={{ float: 'right' }} onClick={displayEmailAddress ? sendEmail : changePassword}>
               {displayEmailAddress ? 'Send reset email' : 'Save your new password'}
@@ -167,13 +174,24 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
           </DialogContent>
         </Dialog>
       </Modal>
-      <VerifySecretCodeModal person={authPerson.current}  />
+      <VerifySecretCodeModal person={authPersonRef.current}  />
     </>
   );
 };
 ResetYourPassword.propTypes = {
-  openDialog: PropTypes.func,
+  openDialog: PropTypes.bool,
   closeDialog: PropTypes.func,
 };
+
+const EmailDiv  = styled('div')`
+  padding: 0 0 20px 0;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+  color: rgba(0, 0, 0, 0.6);
+`;
+
 
 export default ResetYourPassword;

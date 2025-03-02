@@ -2,12 +2,12 @@ import { Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import styled from 'styled-components';
 import standardBoxShadow from '../../common/components/Style/standardBoxShadow';
 import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { normalizedHrefPage } from '../../common/utils/hrefUtils';
-import { authLog, renderLog } from '../../common/utils/logging';
+import { authLog, renderLog, routingLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
@@ -23,13 +23,13 @@ const HeaderBar = ({ hideTabs }) => {
   renderLog('HeaderBar');
   const navigate = useNavigate();
   const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
-  const { viewerAccessRights } = apiDataCache;
   const { mutate: mutateLogout } = useLogoutMutation();
 
   const [scrolledDown] = useState(false);
   const [tabsValue, setTabsValue] = useState('1');
   const [showTabs, setShowTabs] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache);
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
@@ -73,8 +73,16 @@ const HeaderBar = ({ hideTabs }) => {
     }
   };
 
+  const authP = getAppContextValue('authenticatedPerson');
+  useEffect(() => {
+    // Track new user logging in, possibly after a reset password, and display the resulting appropriate tabs
+    console.log('useEffect  authenticatedPerson changed');
+    setViewerAccessRights(apiDataCache);
+    initializeTabValue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authP]);
+
   const handleTabChange = (event, newValue) => {
-    // console.log(`handleTabChange newValue: ${newValue}`);
     // setTabsValue(newValue);
     if (newValue) {
       switch (newValue) {
@@ -123,6 +131,16 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     initializeTabValue();
   }, []);
+
+  // useNavigate() called from anywhere, will update the ReactRouter, and will call initializeTabValue()
+  const loc = useLocation();
+  React.useEffect(() => {
+    routingLog('HeaderBar useLocation detected a url change to: ', loc.pathname);
+    setViewerAccessRights(apiDataCache);
+    initializeTabValue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loc]);
+
 
   return (
     <HeaderBarWrapper

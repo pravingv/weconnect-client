@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { reactQueryLog } from '../common/utils/logging';
 import { useConnectAppContext } from '../contexts/ConnectAppContext';
 import weConnectQueryFn, { METHOD } from './WeConnectQuery';
 
@@ -100,16 +101,6 @@ const usePersonSaveMutation = () => {
   });
 };
 
-const usePersonSaveForAuthMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (params) => weConnectQueryFn('person-save', params, METHOD.GET),
-    onError: (error) => console.log('error in personSaveMutation: ', error),
-    onSuccess: () => queryClient.invalidateQueries('get-auth'),
-  });
-};
-
 const useSaveTaskMutation = () => {
   const queryClient = useQueryClient();
 
@@ -134,33 +125,39 @@ const useGetAuthMutation = () => {
   return useMutation({
     mutationFn: () => weConnectQueryFn('get-auth', {}, METHOD.POST),
     onError: (error) => console.log('error in useGetAuthMutation: ', error),
-    onSuccess: () => console.log('useGetAuthMutation called to force refresh'),
+    onSuccess: (auth) => reactQueryLog('useGetAuthMutation called to force refresh', auth),
+  });
+};
+
+const usePasswordSaveMutation = () => {
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('save-password', params, METHOD.PUT),
+    onError: (error) => console.log('error in usePasswordSaveMutation: ', error),
+    onSuccess: (data, variables, context) => reactQueryLog('usePasswordSaveMutation successful, returning', data, variables, context),
   });
 };
 
 const usePersonRetrieveMutation = () => {
-  console.log('entry to useGetPersonMutation');
   const { setAppContextValue } = useConnectAppContext();
 
   return useMutation({
     mutationFn: (params) => weConnectQueryFn('person-retrieve', params, METHOD.GET),
     onError: (error) => console.log('error in usePersonRetrieveMutation: ', error),
     onSuccess: (data, variables, context) => {
-      console.log('usePersonRetrieveMutation successful, returning', data, variables, context);
+      reactQueryLog('usePersonRetrieveMutation successful, returning', data, variables, context);
       setAppContextValue('authenticatedPerson', data);
     },
   });
 };
 
 const usePersonRetrieveByEmailMutation = () => {
-  console.log('entry to useGetPersonMutation');
   const { setAppContextValue } = useConnectAppContext();
 
   return useMutation({
     mutationFn: (params) => weConnectQueryFn('person-retrieve-by-email', params, METHOD.GET),
     onError: (error) => console.log('error in usePersonRetrieveByEmailMutation: ', error),
     onSuccess: (data, variables, context) => {
-      console.log('usePersonRetrieveByEmailMutation successful, returning', data, variables, context);
+      reactQueryLog('usePersonRetrieveByEmailMutation successful, returning', data, variables, context);
       setAppContextValue('authenticatedPerson', data);
     },
   });
@@ -169,7 +166,7 @@ const usePersonRetrieveByEmailMutation = () => {
 
 export { useRemoveTeamMutation, useRemoveTeamMemberMutation, useAddPersonToTeamMutation,
   useQuestionnaireSaveMutation, useTaskDefinitionSaveMutation, useGroupSaveMutation,
-  usePersonAwaySaveMutation,
-  useQuestionSaveMutation, usePersonSaveMutation, usePersonSaveForAuthMutation, useSaveTaskMutation, useAnswerListSaveMutation,
+  usePersonAwaySaveMutation, usePasswordSaveMutation,
+  useQuestionSaveMutation, usePersonSaveMutation, useSaveTaskMutation, useAnswerListSaveMutation,
   useLogoutMutation, useGetAuthMutation, usePersonRetrieveMutation, usePersonRetrieveByEmailMutation };
 
