@@ -1,11 +1,12 @@
 import { Button, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
+import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
 import validator from 'validator';
-import { authLog, renderLog } from '../common/utils/logging';
+import { authLog, reactQueryLog, renderLog } from '../common/utils/logging';
 import compileDate from '../compileDate';
 import ResetYourPassword from '../components/Login/ResetYourPassword';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
@@ -23,6 +24,7 @@ const Login = ({ classes }) => {
   renderLog('Login');
   const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
   const dispatch = useConnectDispatch();
+  const queryClient = useQueryClient();
   const { mutate: mutateLogout } = useLogoutMutation();
 
   const firstNameFldRef = useRef('');
@@ -102,6 +104,7 @@ const Login = ({ classes }) => {
     if (data?.personId > 0) {
       setAppContextValue('isAuthenticated', data.emailVerified);
       setAppContextValue('authenticatedPerson', data.person);
+      queryClient.invalidateQueries('get-auth');
       if (data.emailVerified) {
         setWarningLine('');
         passwordFldRef.current = '';   // Blank the email field after signing in
@@ -124,9 +127,9 @@ const Login = ({ classes }) => {
   };
 
   const clearOnCreate = () => {
-    console.log('clearOnCreate -------------- 1 ------------ ', openResetPasswordDialog);
+    // console.log('clearOnCreate -------------- 1 ------------ ', openResetPasswordDialog);
     if (!openResetPasswordDialog) {
-      console.log('clearOnCreate -------------- 2 ------------ ', openResetPasswordDialog);
+      // console.log('clearOnCreate -------------- 2 ------------ ', openResetPasswordDialog);
       setAppContextValue('resetEmail', '');
       setAppContextValue('resetPassword', '');
       setAppContextValue('openVerifySecretCodeModalDialog', false);
@@ -156,7 +159,7 @@ const Login = ({ classes }) => {
 
   const logoutApiInLogin = async () => {
     const data = await weConnectQueryFn('logout', { credentials: 'same-origin' }, METHOD.POST);
-    console.log(`/logout response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
+    // console.log(`/logout response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
     if (data.authenticated) {
       setWarningLine(data?.errors?.msg);
       setSuccessLine('');
@@ -168,13 +171,12 @@ const Login = ({ classes }) => {
   };
 
   const verifyYourEmail = async (personId) => {
-    console.log('verifyYourEmail ----------------');
+    // console.log('verifyYourEmail ----------------');
     if (!personId || personId < 1) {
       console.error('Invalid personId found in verifyYourEmail');
     }
-    console.error('TESTING personId found in verifyYourEmail');
     const data = await weConnectQueryFn('send-email-code', { personId }, METHOD.POST);
-    console.log(`/send-email-code response: data: ${JSON.stringify(data)}`);
+    reactQueryLog(`/send-email-code response: data: ${JSON.stringify(data)}`);
   };
 
   const signupApi = async (firstName, lastName, location, emailPersonal, emailOfficial, password, confirmPassword) => {
@@ -182,7 +184,7 @@ const Login = ({ classes }) => {
     const data = await weConnectQueryFn('signup', params, METHOD.POST);
 
     try {
-      console.log(`/signup response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
+      reactQueryLog(`/signup response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
       let errStr = '';
       for (let i = 0; i < data.errors.length; i++) {
         errStr += data.errors[i]?.msg;
@@ -195,25 +197,23 @@ const Login = ({ classes }) => {
         if (isForSomeOneElse) {
           setShowCreateStuff(false);
           setSuccessLine(`A person record was created for ${firstName} ${lastName} (they will have to verify their email on their first login)`);
-          console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog false');
         } else {
           verifyYourEmail(data.personId).then(() => {
             setSuccessLine('A verification email has been sent to your address');
-            console.log('verifyYourEmail in signupApi then clause , openVerifySecretCodeModalDialog true');
             setAppContextValue('openVerifySecretCodeModalDialog', true);
           });
         }
       }
     } catch (e) {
-      console.log('signup error', e);
+      console.error('signup error', e);
     }
   };
 
   const loginPressed = () => {
-    const email =  (emailPersonalFldRef.current.value).trim();
-    const password = (passwordFldRef.current.value).trim();
+    const email =  (emailPersonalFldRef.current.value)?.trim();
+    const password = (passwordFldRef.current.value)?.trim();
 
-    if (email.length === 0 || password.length === 0) {
+    if (email?.length === 0 || password?.length === 0) {
       console.log('too short');
       setWarningLine('Enter a valid username and password');
     } else {
@@ -231,14 +231,14 @@ const Login = ({ classes }) => {
 
   const closeResetYourPassword = () => {
     clearSignedInGlobals(setAppContextValue, getAppContextData);
-    console.log('closeResetYourPassword in Login before logutApiInLogin()');
+    // console.log('closeResetYourPassword in Login before logoutApiInLogin()');
     logoutApiInLogin().then(() => removeSessionCookie());
   };
 
   const signOutButtonPressed = () => {
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     setOpenResetPasswordDialog(false);
-    console.log('signOutButtonPressed in Login before logutApiInLogin()');
+    // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
     logoutApiInLogin().then(() => removeSessionCookie());
   };
 

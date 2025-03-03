@@ -29,20 +29,29 @@ const HeaderBar = ({ hideTabs }) => {
   const [tabsValue, setTabsValue] = useState('1');
   const [showTabs, setShowTabs] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache);
+  const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
     if (isAuth !== null) {
       authLog('HeaderBar isAuthenticated changed =', isAuth);
+      setViewerAccessRights(apiDataCache.viewerAccessRights);
       setIsAuthenticated(isAuth);
     }
   }, [isAuth]);
 
+  useEffect(() => {
+    // console.log('HeaderBar detected apiDataCache change', apiDataCache.viewerAccessRights, isAuth);
+    const isAuth2 = getAppContextValue('isAuthenticated');
+    if (Object.keys(apiDataCache.viewerAccessRights).length > 0 || !isAuth2) {
+      setViewerAccessRights(apiDataCache.viewerAccessRights);
+    }
+  }, [apiDataCache]);
+
   const logoutApi = async () => {
     // I don't think we want to make the weConnectQueryFn call here since we are about to call mutateLogout
     const data = await weConnectQueryFn('logout', {}, METHOD.POST);
-    console.log(`/logout response in HeaderBar -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
+    // console.log(`/logout response in HeaderBar -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     navigate('/login');
     mutateLogout();
@@ -76,8 +85,8 @@ const HeaderBar = ({ hideTabs }) => {
   const authP = getAppContextValue('authenticatedPerson');
   useEffect(() => {
     // Track new user logging in, possibly after a reset password, and display the resulting appropriate tabs
-    console.log('useEffect  authenticatedPerson changed');
-    setViewerAccessRights(apiDataCache);
+    // console.log('useEffect  authenticatedPerson changed');
+    setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authP]);
@@ -136,12 +145,12 @@ const HeaderBar = ({ hideTabs }) => {
   const loc = useLocation();
   React.useEffect(() => {
     routingLog('HeaderBar useLocation detected a url change to: ', loc.pathname);
-    setViewerAccessRights(apiDataCache);
+    setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loc]);
 
-  console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
+  // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
 
   return (
     <HeaderBarWrapper
