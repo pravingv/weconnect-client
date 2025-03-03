@@ -23,6 +23,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
   const { mutate: mutatePasswordSave } = usePasswordSaveMutation();
   const { mutate: mutateLogout } = useLogoutMutation();
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
+  // console.log('ResetYourPassword ', getAppContextData());
 
   const [open, setOpen] = React.useState(openDialog);
   const [displayEmailAddress, setDisplayEmailAddress] = useState(true);
@@ -57,9 +58,6 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     const authP = getAppContextValue('authenticatedPerson');
     authPersonRef.current = authP;
     if (authP && open) {
-      console.log('received new authP', authP);
-      console.log('authPersonRef.personId in Login useEffect [auth] id: ', authP.personId);
-      console.log('authPersonRef.personId in Login useEffect [auth] open: ', open);
       setPersonId(authP.personId);
       weConnectQueryFn('send-email-code', { personId: authP.personId }, METHOD.POST)
         .then(setAppContextValue('openVerifySecretCodeModalDialog', true));

@@ -14,7 +14,7 @@ import VerifySecretCodeModal from '../components/VerifySecretCodeModal';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
 import { clearSignedInGlobals } from '../contexts/contextFunctions';
-import { captureAccessRightsData } from '../models/AuthModel';
+import { captureAccessRightsData, viewerCanSeeOrDo } from '../models/AuthModel';
 import { getFullNamePreferredPerson } from '../models/PersonModel';
 import { useLogoutMutation } from '../react-query/mutations';
 import weConnectQueryFn, { METHOD, useFetchData } from '../react-query/WeConnectQuery';
@@ -22,7 +22,7 @@ import weConnectQueryFn, { METHOD, useFetchData } from '../react-query/WeConnect
 
 const Login = ({ classes }) => {
   renderLog('Login');
-  const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
+  const { apiDataCache, apiDataCache: { viewerAccessRights }, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
   const dispatch = useConnectDispatch();
   const queryClient = useQueryClient();
   const { mutate: mutateLogout } = useLogoutMutation();
@@ -63,7 +63,6 @@ const Login = ({ classes }) => {
         setAppContextValue('openVerifySecretCodeModalDialog', true);
       } else if (isAuthenticated && authenticatedPerson) {
         setSuccessLine(`Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}`);
-        setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
         if (loginAttempted) {  // if we navigate to here directly, not as a result of a loginAPI
           // setTimeout(() => {
           //   navigate('/tasks');
@@ -106,8 +105,13 @@ const Login = ({ classes }) => {
       setAppContextValue('authenticatedPerson', data.person);
       queryClient.invalidateQueries('get-auth');
       if (data.emailVerified) {
+        passwordFldRef.current.value = '';   // Blank the email field after signing in
         setWarningLine('');
-        passwordFldRef.current = '';   // Blank the email field after signing in
+        setAppContextValue('secretCodeVerified', true);
+        setAppContextValue('openVerifySecretCodeModalDialog', false);
+        setAppContextValue('secretCodeVerified', false);
+        setAppContextValue('secretCodeVerifiedForReset', false);
+        setAppContextValue('resetPassword', '');
         setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
         // setTimeout(() => {
         //   navigate('/tasks');
@@ -135,10 +139,11 @@ const Login = ({ classes }) => {
       setAppContextValue('openVerifySecretCodeModalDialog', false);
       setAppContextValue('secretCodeVerified', false);
       setAppContextValue('secretCodeVerifiedForReset', false);
+      setOpenResetPasswordDialog(false);
       setShowCreateStuff(false);
       const per = authPerson.current ? authPerson.current : getAppContextValue('authenticatedPerson');
       setSuccessLine(`${getFullNamePreferredPerson(per)}, you are signed in!`);
-      passwordFldRef.current = '';   // Blank the email field after signing in
+      passwordFldRef.current.value = '';   // Blank the email field after signing in
     }
   };
 
@@ -214,7 +219,7 @@ const Login = ({ classes }) => {
     const password = (passwordFldRef.current.value)?.trim();
 
     if (email?.length === 0 || password?.length === 0) {
-      console.log('too short');
+      // console.log('too short');
       setWarningLine('Enter a valid username and password');
     } else {
       setWarningLine('');
@@ -236,6 +241,7 @@ const Login = ({ classes }) => {
   };
 
   const signOutButtonPressed = () => {
+    passwordFldRef.current.value = '';   // Blank the email field after signing out
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     setOpenResetPasswordDialog(false);
     // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
@@ -279,8 +285,14 @@ const Login = ({ classes }) => {
     createPressed();
   };
 
+  const resetYourPasswordClicked = () => {
+    console.log('resetYourPasswordClicked', openResetPasswordDialog);
+    setOpenResetPasswordDialog(true);
+    setAppContextValue('openVerifySecretCodeModalDialog', true);
+  };
+
   // console.log(getAppContextData());
-  const isAdmin = getAppContextValue('loggedInPersonIsAdmin') || false;
+  const isAdmin = viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights);
   const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   const displayVerify =
     !isForSomeOneElse &&
@@ -289,6 +301,7 @@ const Login = ({ classes }) => {
     getAppContextValue('secretCodeVerified') !== true &&
     (getAppContextValue('openVerifySecretCodeModalDialog') || false);
 
+  // console.log('login before return render, getAppContextData()', getAppContextData());
   return (
     <div>
       <Helmet>
@@ -387,7 +400,7 @@ const Login = ({ classes }) => {
             <Button
               classes={{ root: classes.loginButtonRoot }}
               color="primary"
-              onClick={() => setOpenResetPasswordDialog(true)}
+              onClick={resetYourPasswordClicked}
               sx={showCreateStuff ? { display: 'none' } : { margin: '0 0 15px 20px !important', width: '200px !important' }}
             >
               Reset your password
@@ -432,8 +445,6 @@ const Login = ({ classes }) => {
         </div>
         {displayVerify && <VerifySecretCodeModal person={authPerson.current} />}
         <ResetYourPassword openDialog={openResetPasswordDialog} closeDialog={closeResetYourPassword} />
-        {/* This following test can be deleted or converted to an automated test */}
-        {/* <ReactQuerySaveReadTest personId="1" /> */}
       </PageContentContainer>
     </div>
   );

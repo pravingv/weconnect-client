@@ -17,7 +17,6 @@ const PrivateRoute = () => {
     if (isSuccessAuth) {
       authLog('useFetchData in PrivateRoute useEffect dataAuth good:', dataAuth, isSuccessAuth);
       setIsAuthenticated(dataAuth.isAuthenticated);
-      setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
     }
   }, [dataAuth, isSuccessAuth]);

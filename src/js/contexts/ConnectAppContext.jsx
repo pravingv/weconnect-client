@@ -98,7 +98,6 @@ export const ConnectAppContextProvider = ({ children }) => {
       setAppContextValue('authenticatedPerson', dataAuth.person);
       if (dataAuth.person) {
         setAppContextValue('isAuthenticated', isAuthenticated);
-        setAppContextValue('loggedInPersonIsAdmin', dataAuth.loggedInPersonIsAdmin);
       }
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
 
