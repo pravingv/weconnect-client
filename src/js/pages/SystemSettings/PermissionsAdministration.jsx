@@ -72,7 +72,7 @@ const PermissionsAdministration = ({ classes }) => {
   const cancelClicked  = (event) => {
     const pieces = event.target.id.split('-');
     const personId = parseInt(pieces[2]);
-    const activePerson = peopleWorkingArray.find((p) => p.id === personId);
+    const activePerson = peopleWorkingArray.find((p) => parseInt(p.id) === personId);
     const personCached = Object.values(allPeopleCache).find((p) => p.id === personId);
     Object.assign(activePerson, personCached);
     setButtonState(SET.DISABLE, personId);
@@ -81,8 +81,8 @@ const PermissionsAdministration = ({ classes }) => {
 
   const saveClicked = (event) => {
     const personId = parseInt(event.target.id.split('-')[2]);
-    const activePerson = peopleWorkingArray.find((p) => p.id === personId);
-    const personCached = Object.values(allPeopleCache).find((p) => p.id === personId);
+    const activePerson = peopleWorkingArray.find((p) => parseInt(p.id) === personId);
+    const personCached = Object.values(allPeopleCache).find((p) => parseInt(p.id) === personId);
 
     const data = {};
     Object.keys(activePerson).forEach((key) => {
@@ -110,7 +110,7 @@ const PermissionsAdministration = ({ classes }) => {
     if (canEditPermissionsAnyone) {
       const pieces = event.target.id.split('-');
       const personId = parseInt(pieces[2]);
-      const person = peopleWorkingArray.find((p) => p.id === personId);
+      const person = peopleWorkingArray.find((p) => parseInt(p.id) === personId);
       switch (pieces[1]) {
         case 'admin':
           person.isAdmin = event.target.checked;
