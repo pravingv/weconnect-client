@@ -7,8 +7,9 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getTeamMembersListByTeamId } from '../../models/TeamModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useAddPersonToTeamMutation } from '../../react-query/mutations';
+import { alphabetizePeoplesObject } from '../../utils/utilities';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
-import { SearchBarWrapper, MatchingPerson } from '../Style/sharedStyles';
+import { MatchingPerson, SearchBarWrapper } from '../Style/sharedStyles';
 import AddPersonForm from './AddPersonForm';
 
 
@@ -70,7 +71,8 @@ const AddPersonDrawerMainContent = () => {
     // TODO: Need to deal with preferred name searching and display, very possible but it will get more complicated
     let addToTeamListTemp = searchResultsList || remainingPeopleToAdd || [];
     addToTeamListTemp = addToTeamListTemp.filter((person) => person.firstName.length || person.lastName.length);
-    setAddToTeamList(addToTeamListTemp);
+    const sorted = alphabetizePeoplesObject(addToTeamListTemp);
+    setAddToTeamList(sorted);
   }, [searchResultsList, remainingPeopleToAdd]);
 
   useEffect(() => {
@@ -174,6 +176,7 @@ const AddPersonDrawerMainContent = () => {
 };
 
 const AddPersonDrawerMainContentWrapper = styled('div')`
+  min-width: 30px;
 `;
 
 const AddPersonWrapper = styled('div')`

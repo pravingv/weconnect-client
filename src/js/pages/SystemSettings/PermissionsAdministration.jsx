@@ -10,6 +10,7 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
+import { alphabetizePeoplesObject } from '../../utils/utilities';
 
 /* global $  */
 
@@ -31,12 +32,6 @@ const PermissionsAdministration = ({ classes }) => {
   useEffect(() => {
     setCanEditPermissionsAnyone(viewerCanSeeOrDo('canEditPermissionsAnyone', viewerAccessRights));
   }, [viewerAccessRights]);
-
-  function alphabetizePeoplesObject (obj) {
-    const arrayOfObjects = Object.keys(obj).map((key) => ({ ...obj[key], id: key }));
-    arrayOfObjects.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName));
-    return arrayOfObjects;
-  }
 
   useEffect(() => {
     const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
