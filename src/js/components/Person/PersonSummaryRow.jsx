@@ -54,7 +54,7 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
       {rowNumberForDisplay && (
         <PersonCell
           id={`index-personId-${person.personId}`}
-          cellwidth={15}
+          $cellwidth={15}
         >
           <GraySpan>
             {rowNumberForDisplay}
@@ -69,23 +69,22 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
           textDecoration: 'underline',
           color: DesignTokenColors.primary500,
         }}
-        // cellwidth="200"
-        cellwidth={200}
+        $cellwidth={200}
       >
         {/* {`${person.firstName} ${person.lastName}`} */}
         {getFullNamePreferredPerson(person)} {/* 2/6/25 currently if you save a first name preferred, it shows up here, but will not be searchable on add team member If you */}
       </PersonCell>
       <PersonCell
         id={`location-personId-${person.personId}`}
-        cellwidth={300}
-        $smallfont             // Fixed: $smallfont gets rid of error message, but doesn't get passed to PersonCell styled div
+        $cellwidth={300}
+        $smallfont
       >
         {person.location}
       </PersonCell>
       <PersonCell
         id={`jobTitle-personId-${person.personId}`}
-        cellwidth={225}
-        $smallestfont     // Fixed: $smallestfont gets rid of error message, but doesn't get passed to PersonCell styled div
+        $cellwidth={225}
+        $smallestfont
       >
         {person.jobTitle}
       </PersonCell>
@@ -94,15 +93,13 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
           id={`editPerson-personId-${person.personId}`}
           onClick={() => editPersonClick(hasEditRights)}
           style={{ cursor: 'pointer' }}
-          // cellwidth="20"
-          cellwidth={20}
+          $cellwidth={20}
         >
           <EditStyled />
         </PersonCell>
       ) : (
         <PersonCell
-          // cellwidth="20"
-          cellwidth={20}
+          $cellwidth={20}
         >
           &nbsp;
         </PersonCell>
@@ -114,14 +111,13 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
               id={`removeMember-personId-${person.personId}`}
               onClick={() => removeTeamMemberClick(person)}
               style={{ cursor: 'pointer' }}
-              cellwidth={20}
+              $cellwidth={20}
             >
               <DeleteStyled />
             </PersonCell>
           ) : (
             <PersonCell
-              // cellwidth="20"
-              cellwidth={20}
+              $cellwidth={20}
             >
               &nbsp;
             </PersonCell>
@@ -167,17 +163,15 @@ const fontSz = (smallfont, smallestfont) => {
   }
   return ';';
 };
-// ${(smallfont && !smallestfont) ? 'font-size: .9em;' : ''}
-// ${(smallestfont && !smallfont) ? 'font-size: .8em;' : ''}
 
 const PersonCell = styled.div`
   align-content: center;
   border-bottom: 1px solid #ccc;
   font-size: ${(props) => (fontSz(props?.$smallfont, props?.$smallestfont))}
   height: 22px;
-  min-width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
-  max-width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';;')};
-  width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
+  min-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
+  max-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';;')};
+  width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
 `;
