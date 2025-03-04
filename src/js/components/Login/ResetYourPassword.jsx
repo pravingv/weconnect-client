@@ -149,6 +149,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   id="field1"
                   inputRef={password1Ref}
                   label="Password"
+                  type="password"
                   margin="dense"
                   name="password1"
                   required
@@ -159,6 +160,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   id="field2"
                   inputRef={password2Ref}
                   label="Verify Password"
+                  type="password"
                   margin="dense"
                   name="password2"
                   required
