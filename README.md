@@ -4,10 +4,10 @@ This WeConnect Client repository contains a React Javascript application.
 
 Interested in [volunteering or applying for an internship](https://wevote.applytojob.com/apply)? [Starting presentation here](https://prezi.com/p/6iu9aks7zqvs/?present=1). 
 Please also [read about our values](https://docs.google.com/document/d/12qBXevI3mVKUsGmXL8mrDMPnWJ1SYw9zX9LGW5cozgg/edit) and 
-[see our Code of Conduct](CODE_OF_CONDUCT.md)
+[see our Code of Conduct](https://github.com/wevote/WebApp/blob/435304bc1edd7a8d4d0abdae8c46a533a0ecf52c/CODE_OF_CONDUCT.md)
 To join us, please [review our openings here](https://wevote.applytojob.com/apply), and apply for a volunteer position through that page.
 
-Our current version is here [https://WeVote.US](https://WeVote.US) and we are working on a new version now!
+Our current version is here [https://WeVote.US](https://WeVote.US), and we are working on a new version now!
 
 
 Our installation process is built to allow engineers all over America to contribute.
@@ -36,16 +36,16 @@ License it as a free Community installation.
 
 Once installed, start WebStorm from Launch Pad or Spotlight
 
-<img src="docs/images/WelcomeToWebStorm.png" alt="Alt Text" width="600" >
+<img src="docs/images/WelcomeToWebStorm.png" alt="Alt Text" style="width: 600px" >
 
 The first step is to press that "Clone Repository" button to clone the https://github.com/wevote/weconnect-client repository.
 Enter the URL and press the Clone button.
 
-<img src="docs/images/WebstormCloneRepository.png" alt="Alt Text" width="600" >
+<img src="docs/images/WebstormCloneRepository.png" alt="Alt Text" style="width: 600px" >
 
 Now the latest code is on your machine.
 
-<img src="docs/images/CodeInstalledInWebStorm.png" alt="Alt Text" width="1200" >
+<img src="docs/images/CodeInstalledInWebStorm.png" alt="Alt Text" style="width: 1200px" >
 <br><br>
 
 ### Configure the WebStorm display mode
@@ -55,7 +55,7 @@ Access the settings dialog from the gear icon in the upper right hand side of th
 Set the Theme as you would like, or have it "Sync with OS" (which is my preference), and then save.
 <br><br>
 
-<img src="docs/images/WebStormAppearanceSettings.png" alt="Alt Text" width="700" >
+<img src="docs/images/WebStormAppearanceSettings.png" alt="Alt Text" style="width: 700px" >
 <br><br>
 
 ### About WebStorm plugins
@@ -66,25 +66,25 @@ Plugins suggested by WebStorm are safe to install, and easy to remove if you don
 ### Run 'npm install'
 If WebStorm prompts you to run "npm install" feel free to do it anytime.   
 
-<img src="docs/images/NpmInstall.png" alt="Alt Text" width="1200" >
+<img src="docs/images/NpmInstall.png" alt="Alt Text" style="width: 400px" >
 
 "npm install" updates all the dependencies (node_modules i.e. libraries) that we import from other projects, and should never be a problem.
 
 "npm install" will often show lots of outdated libraries, and vulnerabilities ... WeVote gets
-reports on these issues, and we resolve them periodically.  Don't worry about the warnings at this poin.t
+reports on these issues, and we resolve them periodically.  Don't worry about the warnings at this point.
 
 
 
 ### Install Homebrew (If it is not already installed)
-If your version of WebStorm displays a green arrow to the left of the following command,
-click it to install  [Homebrew](https://brew.sh/).  
+If you are reading this file in WebStorm, click the green double arrow to the left of the following command,
+to install  [Homebrew](https://brew.sh/).  Otherwise, open a terminal window at the bottom of Webstorm, and
+paste the following command into the terminal and run it.
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-Clicking the command results in the following output in the terminal
-window.  You will need your login password to allow MacOS to install
-Homebrew.  When it prompts you for an ENTER you can click in the terminal, and press Enter.
+The following output will appear in the terminal window.  You will need your login password to allow macOS 
+to install Homebrew.  When it prompts you for an "ENTER" you can click in the terminal, and press Enter.
 
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -101,12 +101,11 @@ Password:
 
 Press RETURN/ENTER to continue or any other key to abort:
 ```
-Homebrew will load the "formulae", (their cutesy name for scripts that install all sorts of
+Homebrew will load many many "formulae" (their cutesy name for scripts that install all sorts of
 free open source programs).  If you already had Homebrew installed, it will update
 any ("taps" which are "formulae" that were already installed).
 
-When Homebrew completes it will leave the "RunMarkdown" terminal window at 
-a MacOS (Linux) prompt.
+When Homebrew completes it will leave the terminal window at a macOS (Linux) prompt.
 
 You will now use Homebrew to install some more applications.
 <br><br>
@@ -169,28 +168,28 @@ stevepodell@Steves-MacBook-Air weconnect-client %
 
 ### Set up your Git remotes within WebStorm
 
-<img src="docs/images/ManageRemotesMenu.png" alt="Alt Text" width="1200" >
+<img src="docs/images/ManageRemotesMenu.png" alt="Alt Text" style="width: 1200px" >
 
 At WeVote we use different naming conventions for `origin` and `upstream` than you might be familiar with from other projects, so you
 will need to rename the default git origin (which at WeVote is your private branch in GitHub
 )
 
-<img src="docs/images/GitRemoteOriginBefore.png" alt="Alt Text" width="500" >
+<img src="docs/images/GitRemoteOriginBefore.png" alt="Alt Text" style="width: 500px" >
 
 Edit the origin line, and change the name to upstream, then press OK
 
-<img src="docs/images/GitRemoteUpstreamAfter.png" alt="Alt Text" width="500" >
+<img src="docs/images/GitRemoteUpstreamAfter.png" alt="Alt Text" style="width: 500px" >
 
 Then press the + button and set up the new value for “origin”.
 (DON’T USE SailingSteve — use your GitHub handle — the GitHub username that is in the URL after you sign in to GitHub .)
 
-<img src="docs/images/GitOriginMine.png" alt="Alt Text" width="500" >
+<img src="docs/images/GitOriginMine.png" alt="Alt Text" style="width: 500px" >
 
-You may have to authenticate with GitHub at this point, after authenticating, continue...
+You may have to authenticate with GitHub at this point.  After completing the GitHub authentication, continue...
 
 When done, your remotes will look something like this (with your GitHub handle instead of SailingSteve!)
 
-<img src="docs/images/GitRemotesDone.png" alt="Alt Text" width="500" >
+<img src="docs/images/GitRemotesDone.png" alt="Alt Text" style="width: 500px" >
 
 At this point you are poised to make Git branches and pull requests.
 <br><br>
@@ -203,151 +202,106 @@ stevepodell@Steves-MacBook-Air weconnect-client % npm install
 You can run this command as often as you want, and it will cause no harm.
 <br><br>
 
-### Make a live copy of .env-template to the .env file
+### Make a live copy of config-template.js to the config.js file
 
 Right-click on the `config-template.js` file in Webstorm, and copy it, then paste it as `config.js`
 
-<img src="docs/images/WebstormCopySelection.png" alt="Alt Text" width="1200" >
-<img src="docs/images/WebstormPaste.png" alt="Alt Text" width="1200" >
+<img src="docs/images/WebstormCopySelection.png" alt="Alt Text" style="width: 1200px" >
+<img src="docs/images/WebstormPaste.png" alt="Alt Text" style="width: 600px" >
 
-Open `config.js` in WebStorm by double-clicking on it
+If WebStorm did not automatically open `config.js` in a tab, then double click it in the Project pane to open it
+for editing.
 
-<img src="docs/images/WebstormEditConfig.png" alt="Alt Text" width="1200" >
+<img src="docs/images/WebstormEditConfig.png" alt="Alt Text" style="width: 1200px" >
 
-Modify the `DATABASE_URL` line by substituting your Postgres username and password, and then save.
+### Setup the connection to a weconnect-server (API server)
 
-Here is a filled in example:
+**Option 1:**  Use the weconnect-server running in Amazon AWS
+
+   Note: As of March 5, 2025 the weconnect-server is not yet running in Amazon AWS cloud, so this option is not available.
+
+This is all you need if initially you will not be developing new API endpoints, and you won't initially need to debug 
+aPI server side code.  
+
+Uncomment these four STAFF_API_SERVER_ lines, and make sure the other two sets of lines like this are commented out.
 
 ```
-DATABASE_URL=postgresql://jerrygarcia:jerryspassword@localhost:5432/WeConnectDB?schema=public
+  //// Connecting to live WeConnect APIs ////
+  // STAFF_API_SERVER_ROOT_URL: 'https://weconnectserver.org/',
+  // STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://weconnectserver.org/admin/',
+  // STAFF_API_SERVER_API_ROOT_URL: 'https://weconnectserver.org/apis/v1/',
+  // STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://cdn.weconnectserver.org/apis/v1/',
 ```
-<br><br>
 
 
-### Not now, but when you want to add a column in the future
-**Don't do this now!**
+**Option 2:**  Run a weconnect-server instance on your computer using https SSL/TLS
 
-But someday, when you add a column or a new schema (table)...
+In this case you will have already setup the [weconnect-server](https://github.com/wevote/weconnect-server) and postgres on your computer and have it running.
 
-After editing or creating your schema/?.prisma file
+For this option you will need to get the wevotedeveloper.com certificates from Dale.
 
-run `prisma migrate dev`
+Uncomment these four STAFF_API_SERVER_ lines, and make sure the other two sets of lines like this are commented out.
+
+```
+  //// weconnect-server local server running SSL/TLS HTTPS
+  // STAFF_API_SERVER_ROOT_URL: 'https://wevotedeveloper.com:4500/',
+  // STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://wevotedeveloper.com:4500/admin/',
+  // STAFF_API_SERVER_API_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
+  // STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
+```
+
+
+**Option 3:** (Not recommended)  Run a non-secure weconnect-server instance on your computer using http
+
+This may work for some limited purposes, but your session may not be maintained as you navigate to the React app in 
+different tabs on your browser, and you may have authentication problems, or API query response problems.
+
+Uncomment these four STAFF_API_SERVER_ lines, and make sure the other two sets of lines like this are commented out.
+```
+   //// Connecting to local WeConnect "weconnect-server" APIs ////
+   // STAFF_API_SERVER_ROOT_URL: 'http://localhost:4500/',
+   // STAFF_API_SERVER_ADMIN_ROOT_URL: 'http://localhost:4500/admin/',
+   // STAFF_API_SERVER_API_ROOT_URL: 'http://localhost:4500/apis/v1/',
+   // STAFF_API_SERVER_API_CDN_ROOT_URL: 'http://localhost:4500/apis/v1/',
+```
+
+Not in this project, but in the **weconnect-server project** on your computer, change the PROTOCOL line in the .env file from 
+`PROTOCOL=https://` to `PROTOCOL=http://` and restart the weconnect-server, and then it will come up in http mode.
 
 ### Add a Run Configuration in WebStorm to start the weconnect-client
 
 Open the pull-down that initially says "Current File", and select Edit Configurations
 <br>
-<img src="docs/images/RunConfigMenu.png" alt="Alt Text" width="400" style="border: 1px solid lightgrey;"><br>
+<img src="docs/images/RunConfigMenu.png" alt="Alt Text" style="width: 400px; border: 1px solid lightgrey;"><br>
 
 In the Run/Debug Configurations dialog, press the "+" button and then select "Node.js"
-<img src="docs/images/SelectNodeFromList.png" alt="Alt Text" width="600" ><br>
+<img src="docs/images/SelectNpmFromList.png" alt="Alt Text" style="width: 600px" ><br>
 Then fill in the run configuration...
-1) Enter `Start weconnect-client` in the Name field
-2) Enter `weconnect-client.js` in the File field.
-3) And press "OK" to save
-   <br><img src="docs/images/NodeConfigFillIn.png" alt="Alt Text" width="600" >
+1) Enter `Start weconnect-client` in the Scripts field. 
+2) And press "OK" to save
+   <br><img src="docs/images/NpmConfigFilledIn.png" alt="Alt Text" style="width: 600px" >
    <br><br>
-
-### Create a run config to start postgres
-Next create a run config to start postgres
-1) Add another "New Configuration", this time for a Shell Script (close to the bottom of the list of configurations on the right)
-2) In this "Run/Debug Configurations" dialog, add a name "Start Postgres"
-3) In the "Script Path" paste in `/usr/local/opt/postgresql@14/bin/postgres`
-   in the "Script Options" paste in `-D /usr/local/var/postgresql@14`
-4) Remove any text in the "Interpreter Path" field.
-5) Make sure "Execute in the terminal" is checked
-6) Then press OK to save
-
-<img src="docs/images/PostgresConfigFillIn.png" alt="Alt Text" width="600" >
-
-(This run configuration is the equivalent of typing
-
-````/usr/local/opt/postgresql@14/bin/postgres -D /usr/local/var/postgresql@14````
-
-in the terminal.)
-<br><br>
-
-### Install pgadmin4, a Mac based browser app for the postgres database
-```
-stevepodell@Steves-MacBook-Air weconnect-client % brew install --cask pgadmin4
-```
-This will take a few minutes, when it completes launch the app from Launch Pad or Spotlight
-
-Register the server as WeVoteServer
-
-<img src="docs/images/RegisterTheServer.png" alt="Alt Text" width="600" >
-
-And in the Connection tab set the Host name as localhost — also add your postgres Username and Password, then save
-
-<img src="docs/images/RegisterPgAdminHost.png" alt="Alt Text" width="600" >
-<br><br>
-
-On the left pane "Object Explorer" right click on "Databases" and add the "WeConnectDB"
-
-### Use the Prisma ORM to "migrate" the database and table definitions to the postgres server
-
-Generate the schema from prisma/schema.prisma to node_modules
-```
-stevepodell@Steves-MacBook-Air weconnect-client % prisma generate
-Prisma schema loaded from prisma/schema.prisma
-
-✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 73ms
-
-Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
-
-Help us improve the Prisma ORM for everyone. Share your feedback in a short 2-min survey: https://pris.ly/orm/survey/release-5-22
-
-stevepodell@Steves-MacBook-Air weconnect-client % 
-```
-
-Initialize the generated schema into the postgres database server.
-```
-stevepodell@Steves-MacBook-Air weconnect-client %  prisma migrate dev --name init
-Environment variables loaded from .env
-Prisma schema loaded from prisma/schema.prisma
-Datasource "db": PostgreSQL database "WeConnectDB", schema "public" at "localhost:5432"
-
-Applying migration `20241126190549_init`
-
-The following migration(s) have been created and applied from new schema changes:
-
-migrations/
-  └─ 20241126190549_init/
-    └─ migration.sql
-
-Your database is now in sync with your schema.
-
-✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 104ms
-
-
-stevepodell@Steves-MacBook-Air weconnect-client % 
-```
-<br><br>
-
 
 ### Start the app!
 First start postgres via the run configuration
 
-<img src="docs/images/StartPostgres.png" alt="Alt Text" width="400" style="border: 1px solid lightgrey;">
-
-Then start weconnect-client.js with the run configuration.
-<br><br><img src="docs/images/StartTheApp.png" alt="Alt Text" width="1200" >
-
 As you can see when you press the Green start arrow, the server starts up in a terminal window where you can see
-logging.  Any `console.log()` lines that you put in the code will appear in this JavaScript console for this Node based server (which has no DOM).
+some logging from the Webpack server program.  The `run start` starts up the Webpack server, which listens for any changes to the files in your IDE and then 
+automatically 'recompiles' and 'redeploys' the changes to your browser.
 
-Alternatively if you press the green bug icon, you start a debugging session, where you can set breakpoints, examine threads,  and examine data
-in a familiar way to what you might be used to with Chrome Dev Tools (Inspect) or debugging in PyCharm.
+Webpack takes a minute or two to start up, but then it recompiles in less that a second.  As you make changes in your code
+you will see the line that says something like `webpack 5.97.1 compiled successfully in 795 ms` change for each compile.
+Webpack will eventually see the changes to you code when Webstorm automatically saves the file, but you can get those
+recompiles to happen instantly by either pressing the save floppy-disk icon on the top row, or by pressing Command+S
 
-<img src="docs/images/StartDebug.png" alt="Alt Text" width="1200" >
-<br><br>
+In your browser you can press Control+Shift+R to reload the page with the latest from Webpack (although this also will 
+happen automatically after a few seconds).  Control+Shift+R guranatees a full reload, which sometimes does not happen
+if modal dialogs or drawers are open.
+
+Debugging of the code is done with Chrome Dev-tools, which can be invoked by right-clicking anywhere on the page, and 
+selecting 'Inspect' at the bottom of the right-click menu.
 
 ### View the app in the Chrome browser
 
-When you navigate in Chrome to `http://localhost:4000/` you will see the client view of app (in these early days the UI is
-generated on the server via the Pug UI package), this UI of course is rendered as a DOM within Chrome,
-and as with any web app, right-clicking on the page and choosing Inspect, will allow you to run the Chrome Dev Tools.
-
-<img src="docs/images/AppInChrome.png" alt="Alt Text" width="1200" >
-
+When you navigate in Chrome to `http://localhost:4000/` you will see the client login page.
 
