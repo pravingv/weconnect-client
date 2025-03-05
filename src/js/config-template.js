@@ -1,7 +1,7 @@
 /* eslint-disable */
 // Note that we import these values where needed as "webAppConfig"
 module.exports = {
-  // weconnect React server for the "weconnect" web app
+  // weconnect React server for the "weconnect-client" web app
   NAME_FOR_BROWSER_TAB_TITLE: 'WeConnect',
   ORGANIZATION_NAME: 'WeVote',
   PROTOCOL: 'http://', // 'http://' for local dev (if not using SSL), or 'https://' for live server
