@@ -124,6 +124,11 @@ const HeaderBar = ({ hideTabs }) => {
     initializeTabValue();
   }, []);
 
+  const editProfileClick = () => {
+    setAppContextValue('editProfileDrawerOpen', true);
+    // setAppContextValue('personProfileDrawerOpen', true);
+    console.log("I am being clicked");
+  };
   return (
     <HeaderBarWrapper
       $hasNotch={hasIPhoneNotch()}
@@ -150,6 +155,11 @@ const HeaderBar = ({ hideTabs }) => {
           )}
         </TopRowOneMiddleContainer>
         <TopRowOneRightContainer className="u-cursor--pointer">
+          <Button
+            onClick={() => editProfileClick()}
+          >
+            Edit Profile
+          </Button>
           <Button
             variant="outlined"
             sx={{ border: 'none' }}

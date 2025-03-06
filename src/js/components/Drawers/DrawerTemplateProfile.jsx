@@ -1,0 +1,206 @@
+import { Close } from '@mui/icons-material'; // Info
+import { Drawer, IconButton } from '@mui/material';
+import { withStyles } from '@mui/styles';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
+import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
+import { renderLog } from '../../common/utils/logging';
+import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { cordovaDrawerTopMargin } from '../../utils/cordovaOffsets';
+import { DrawerHeaderAnimateDownInnerContainer, DrawerHeaderAnimateDownOuterContainer, DrawerHeaderWrapper, DrawerTitle } from '../Style/drawerLayoutStyles';
+
+
+const DrawerTemplateProfile = (props) => {
+  const { classes, drawerId, drawerOpenGlobalVariableName, headerFixedJsx, headerTitleJsx, mainContentJsx, onDrawerClose } = props;
+  renderLog(`DrawerTemplateProfile (${drawerId})`);  // Set LOG_RENDER_EVENTS to log all renders
+  const { getAppContextData, setAppContextValue, getAppContextValue } = useConnectAppContext();
+
+  // eslint-disable-next-line no-unused-vars
+  const [scrolledDown, setScrolledDown] = useState(false);
+  const drawerOpen = getAppContextValue(drawerOpenGlobalVariableName) || false;
+
+  console.log('DrawerTemplateProfile drawerOpen: ', drawerOpenGlobalVariableName, drawerOpen);
+
+  const handleScrolledDownDrawer = (evt) => {
+    const { scrollTop } = evt.target;
+    if (scrollTop > 200 && !getAppContextValue('scrolledDownDrawer')) {
+      setAppContextValue('scrolledDownDrawer', true);
+    }
+    if (scrollTop < 200 && getAppContextValue('scrolledDownDrawer')) {
+      setAppContextValue('scrolledDownDrawer', false);
+    }
+  };
+
+  const onDrawerCloseLocal = () => {
+    setAppContextValue(drawerOpenGlobalVariableName, false);
+    if (onDrawerClose) {
+      onDrawerClose();
+    }
+  };
+
+  useEffect(() => {
+    // console.log('DrawerTemplateA: Context value changed: ',
+    //   drawerId, drawerOpenGlobalVariableName, getAppContextValue(drawerOpenGlobalVariableName));
+    // TEMP DALE: setScrolledDown(getAppContextValue('scrolledDownDrawer'));
+  }, [getAppContextData]);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      const drawer = document.querySelector('.MuiDrawer-paper');
+      if (drawer) {
+        drawer.addEventListener('scroll', handleScrolledDownDrawer);
+      } else {
+        // console.log('Drawer element NOT found make timeout longer.');
+      }
+    }, 100);
+
+    // return () => {
+    //   const drawer = document.querySelector('.MuiDrawer-paper');
+    //   if (drawer) {
+    //     drawer.removeListeners();
+    //   }
+    // };
+  }, []);
+
+  return (
+    <Drawer
+      anchor="right"
+      classes={{ paper: classes.drawer }}
+      direction="left"
+      id={drawerId}
+      onClose={onDrawerCloseLocal}
+      open={drawerOpen}
+    >
+      <DrawerHeaderWrapper>
+        <DrawerTitle>
+          {headerTitleJsx}
+        </DrawerTitle>
+        <CloseDrawerIconWrapper>
+          <IconButton
+            aria-label="Close"
+            className={classes.closeButton}
+            id={`${drawerId}Close`}
+            onClick={onDrawerCloseLocal}
+            size="large"
+          >
+            <span className="u-cursor--pointer">
+              <Close classes={{ root: classes.closeIcon }} />
+            </span>
+          </IconButton>
+        </CloseDrawerIconWrapper>
+      </DrawerHeaderWrapper>
+      <DrawerHeaderAnimateDownOuterContainer id={`${drawerId}AnimateDownId`} $scrolledDown={scrolledDown}>
+        <DrawerHeaderAnimateDownInnerContainer>
+          {headerFixedJsx}
+        </DrawerHeaderAnimateDownInnerContainer>
+      </DrawerHeaderAnimateDownOuterContainer>
+      <DrawerTemplateProfileWrapper>
+        {mainContentJsx}
+      </DrawerTemplateProfileWrapper>
+    </Drawer>
+  );
+};
+DrawerTemplateProfile.propTypes = {
+  classes: PropTypes.object.isRequired,
+  drawerId: PropTypes.string,
+  drawerOpenGlobalVariableName: PropTypes.string,
+  mainContentJsx: PropTypes.object,
+  headerTitleJsx: PropTypes.object,
+  headerFixedJsx: PropTypes.object,
+  onDrawerClose: PropTypes.func,
+};
+
+const styles = () => ({
+  drawer: {
+    marginTop: cordovaDrawerTopMargin(),
+    maxWidth: '550px',
+    '& *': {
+      maxWidth: '550px',
+    },
+    '@media(max-width: 576px)': {
+      maxWidth: '360px',
+      '& *': {
+        maxWidth: '360px',
+      },
+    },
+  },
+  dialogPaper: {
+    display: 'block',
+    marginTop: hasIPhoneNotch() ? 68 : 48,
+    minWidth: '100%',
+    maxWidth: '100%',
+    width: '100%',
+    minHeight: '100%',
+    maxHeight: '100%',
+    height: '100%',
+    margin: '0 auto',
+    '@media (min-width: 577px)': {
+      maxWidth: '550px',
+      width: '90%',
+      height: 'fit-content',
+      margin: '0 auto',
+      minWidth: 0,
+      minHeight: 0,
+      // transitionDuration: '.25s',
+    },
+    '@media (max-width: 576px)': {
+      maxWidth: '360px',
+    },
+  },
+  dialogContent: {
+    padding: '24px 24px 36px 24px',
+    background: 'white',
+    height: 'fit-content',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    '@media(max-width: 576px)': {
+      justifyContent: 'flex-start !important',
+    },
+  },
+  backButton: {
+    // marginBottom: 6,
+    // marginLeft: -8,
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+  backButtonIcon: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    marginRight: 'auto',
+    padding: 6,
+  },
+  closeButtonAbsolute: {
+    position: 'absolute',
+    right: 14,
+    top: 14,
+  },
+  closeIcon: {
+    color: '#999',
+    width: 24,
+    height: 24,
+  },
+  informationIcon: {
+    color: '#999',
+    width: 16,
+    height: 16,
+    marginTop: '-3px',
+    marginRight: 4,
+  },
+});
+
+const DrawerTemplateProfileWrapper = styled('div')`
+  margin: 0 15px;
+  min-width: 300px;
+`;
+
+const CloseDrawerIconWrapper = styled('div')`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+export default withStyles(styles)(DrawerTemplateProfile);
