@@ -1,7 +1,6 @@
 const clearSignedInGlobals = (setAppContextValue, getAppContextData) => {
   setAppContextValue('authenticatedPerson', {});
   setAppContextValue('isAuthenticated', false);
-  setAppContextValue('loggedInPersonIsAdmin', false);
   setAppContextValue('secretCodeVerifiedForReset', false);
   setAppContextValue('secretCodeVerified', false);
   console.log('appContextData in clearSignedInGlobals after clear: ', getAppContextData());

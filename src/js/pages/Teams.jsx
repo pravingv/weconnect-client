@@ -210,7 +210,7 @@ const Teams = () => {
         })}
         <div style={{ padding: '100px 0 50px 0', fontWeight: '700' }}>
           <Link to="/login">
-            Sign in
+            Temporary link to /login page
           </Link>
         </div>
       </PageContentContainer>

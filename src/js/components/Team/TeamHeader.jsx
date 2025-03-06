@@ -30,24 +30,24 @@ const TeamHeader = ({ showHeaderLabels, showIcons, team }) => {
   return (
     <OneTeamHeader>
       {/* Width (below) of this TeamHeaderCell comes from the combined widths of the first x columns in TeamMemberList */}
-      <TeamHeaderCell cellwidth={215} $largefont $titlecell>
+      <TeamHeaderCell $cellwidth={215} $largefont $titlecell>
         {teamLocal && (
           <Link to={`/team-home/${teamLocal.id}`}>
             {teamLocal.teamName}
           </Link>
         )}
       </TeamHeaderCell>
-      <TeamHeaderCell cellwidth={300}>
+      <TeamHeaderCell $cellwidth={300}>
         {showHeaderLabels ? 'Location' : ''}
       </TeamHeaderCell>
-      <TeamHeaderCell cellwidth={225}>
+      <TeamHeaderCell $cellwidth={225}>
         {showHeaderLabels ? 'Title / Volunteering Love' : ''}
       </TeamHeaderCell>
       {/* Edit icon */}
       {showIcons && (
         <>
           {viewerCanSeeOrDo('canEditTeamAnyTeam', viewerAccessRights) && (
-            <TeamHeaderCell cellwidth={20} onClick={editTeamClick}>
+            <TeamHeaderCell $cellwidth={20} onClick={editTeamClick}>
               <EditStyled />
             </TeamHeaderCell>
           )}
@@ -91,9 +91,9 @@ const TeamHeaderCell = styled.div`
   font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};
   font-weight: ${(props) => (props?.$titleCell ? ';' : '550;')}
   height: 22px;
-  max-width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
-  min-width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
-  width: ${(props) => (props.cellwidth ? `${props.cellwidth}px;` : ';')};
+  max-width: ${(props) => (props.$cellwidth ? `${ props.$cellwidth}px;` : ';')};
+  min-width: ${(props) => (props.$cellwidth ? `${ props.$cellwidth}px;` : ';')};
+  width: ${(props) => (props.$cellwidth ? `${ props.$cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
 `;
