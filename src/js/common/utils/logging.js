@@ -43,7 +43,7 @@ export function httpLog (text, res) {
   }
 }
 
-//  Log oAuth steps
+//  Log auth steps
 export function authLog (text, res) {
   if (webAppConfig.LOG_AUTHENTICATION) {
     if (res) {

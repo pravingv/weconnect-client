@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
 export const SearchBarWrapper = styled('div')`
+  display:inline-block;
+  vertical-align:top;
   margin-bottom: 16px;
-  display: flex;
 `;
 
 export const MatchingPerson = styled('div')`

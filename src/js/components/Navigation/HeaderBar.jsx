@@ -2,12 +2,12 @@ import { Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import styled from 'styled-components';
 import standardBoxShadow from '../../common/components/Style/standardBoxShadow';
 import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { normalizedHrefPage } from '../../common/utils/hrefUtils';
-import { authLog, renderLog } from '../../common/utils/logging';
+import { authLog, renderLog, routingLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
@@ -23,26 +23,35 @@ const HeaderBar = ({ hideTabs }) => {
   renderLog('HeaderBar');
   const navigate = useNavigate();
   const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
-  const { viewerAccessRights } = apiDataCache;
   const { mutate: mutateLogout } = useLogoutMutation();
 
   const [scrolledDown] = useState(false);
   const [tabsValue, setTabsValue] = useState('1');
   const [showTabs, setShowTabs] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
     if (isAuth !== null) {
       authLog('HeaderBar isAuthenticated changed =', isAuth);
+      setViewerAccessRights(apiDataCache.viewerAccessRights);
       setIsAuthenticated(isAuth);
     }
   }, [isAuth]);
 
+  useEffect(() => {
+    // console.log('HeaderBar detected apiDataCache change', apiDataCache.viewerAccessRights, isAuth);
+    const isAuth2 = getAppContextValue('isAuthenticated');
+    if (Object.keys(apiDataCache.viewerAccessRights).length > 0 || !isAuth2) {
+      setViewerAccessRights(apiDataCache.viewerAccessRights);
+    }
+  }, [apiDataCache]);
+
   const logoutApi = async () => {
     // I don't think we want to make the weConnectQueryFn call here since we are about to call mutateLogout
     const data = await weConnectQueryFn('logout', {}, METHOD.POST);
-    console.log(`/logout response in HeaderBar -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
+    // console.log(`/logout response in HeaderBar -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     navigate('/login');
     mutateLogout();
@@ -73,8 +82,16 @@ const HeaderBar = ({ hideTabs }) => {
     }
   };
 
+  const authP = getAppContextValue('authenticatedPerson');
+  useEffect(() => {
+    // Track new user logging in, possibly after a reset password, and display the resulting appropriate tabs
+    // console.log('useEffect  authenticatedPerson changed');
+    setViewerAccessRights(apiDataCache.viewerAccessRights);
+    initializeTabValue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authP]);
+
   const handleTabChange = (event, newValue) => {
-    // console.log(`handleTabChange newValue: ${newValue}`);
     // setTabsValue(newValue);
     if (newValue) {
       switch (newValue) {
@@ -123,6 +140,17 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     initializeTabValue();
   }, []);
+
+  // useNavigate() called from anywhere, will update the ReactRouter, and will call initializeTabValue()
+  const loc = useLocation();
+  React.useEffect(() => {
+    routingLog('HeaderBar useLocation detected a url change to: ', loc.pathname);
+    setViewerAccessRights(apiDataCache.viewerAccessRights);
+    initializeTabValue();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loc]);
+
+  // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
 
   return (
     <HeaderBarWrapper
