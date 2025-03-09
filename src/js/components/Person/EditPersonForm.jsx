@@ -13,7 +13,7 @@ import { usePersonSaveMutation } from '../../react-query/mutations';
 const EditPersonForm = ({ classes }) => {
   renderLog('EditPersonForm');
   const { getAppContextValue } = useConnectAppContext();
-  const { mutate } = usePersonSaveMutation();
+  const { mutate: personSave } = usePersonSaveMutation();
   // const { mutate: personSave } = usePersonSave();
 
   const [saveButtonActive, setSaveButtonActive] = useState(false);
@@ -53,7 +53,7 @@ const EditPersonForm = ({ classes }) => {
       personId: activePerson.id,
     };
 
-    mutate(makeRequestParams(plainParams, data));
+    personSave(makeRequestParams(plainParams, data));
     setSaveButtonActive(false);
   };
 

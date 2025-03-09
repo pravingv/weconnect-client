@@ -32,7 +32,7 @@ const PERSON_FIELDS_ACCEPTED = [
 const EditQuestionForm = ({ classes }) => {
   renderLog('EditQuestionForm');
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { mutate } = useQuestionSaveMutation();
+  const { mutate: mutateQuestionSave } = useQuestionSaveMutation();
 
   const [question] = useState(getAppContextValue('selectedQuestion'));
   const [questionnaire] = useState(getAppContextValue('selectedQuestionnaire'));
@@ -108,7 +108,7 @@ const EditQuestionForm = ({ classes }) => {
       statusActive: (statusActiveInputRef.current.value === 'on'),
     };
     const requestParams = makeRequestParams(plainParams, params);
-    mutate(requestParams);
+    mutateQuestionSave(requestParams);
     // console.log('saveQuestionnaire requestParams:', requestParams);
     setSaveButtonActive(false);
     setAppContextValue('editQuestionDrawerOpen', false);

@@ -1,4 +1,5 @@
 const makeRequestParams = (plainParams, data) => {
+  // plainParams could also be considered lookup params
   const expandedParams = {};
   Object.keys(plainParams).forEach((key) => {
     expandedParams[`${key}`] = plainParams[key];

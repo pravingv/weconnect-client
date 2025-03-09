@@ -73,11 +73,20 @@ const useTaskDefinitionSaveMutation = () => {
   });
 };
 
-const useGroupSaveMutation = () => {
+const useTaskGroupSaveMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: (params) => weConnectQueryFn('task-group-save', params, METHOD.GET),
-    onError: (error) => console.log('error in useGroupSaveMutation: ', error),
+    onError: (error) => console.log('error in useTaskGroupSaveMutation: ', error),
     onSuccess: () => queryClient.invalidateQueries('task-group-retrieve'),
+  });
+};
+
+const useMeetingSaveMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('meeting-save', params, METHOD.GET),
+    onError: (error) => console.log('error in useMeetingSaveMutation: ', error),
+    onSuccess: () => queryClient.invalidateQueries('meeting-list-retrieve'),
   });
 };
 
@@ -165,7 +174,8 @@ const usePersonRetrieveByEmailMutation = () => {
 
 
 export { useRemoveTeamMutation, useRemoveTeamMemberMutation, useAddPersonToTeamMutation,
-  useQuestionnaireSaveMutation, useTaskDefinitionSaveMutation, useGroupSaveMutation,
+  useQuestionnaireSaveMutation, useTaskDefinitionSaveMutation, useTaskGroupSaveMutation,
+  useMeetingSaveMutation,
   usePersonAwaySaveMutation, usePasswordSaveMutation,
   useQuestionSaveMutation, usePersonSaveMutation, useSaveTaskMutation, useAnswerListSaveMutation,
   useLogoutMutation, useGetAuthMutation, usePersonRetrieveMutation, usePersonRetrieveByEmailMutation };
