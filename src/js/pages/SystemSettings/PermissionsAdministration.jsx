@@ -39,13 +39,13 @@ const PermissionsAdministration = ({ classes }) => {
     setPeopleWorkingArray(sorted);
   }, [allPeopleCache]);
 
-  const adminFldRef = useRef('');
-  const hiringFldRef = useRef('');
-  const leadFldRef = useRef('');
-  const internFldRef = useRef('');
-  const activeFldRef = useRef('');
-  const leaveFldRef = useRef('');
-  const resignedFldRef = useRef('');
+  const adminInputRef = useRef('');
+  const hiringInputRef = useRef('');
+  const leadInputRef = useRef('');
+  const internInputRef = useRef('');
+  const activeInputRef = useRef('');
+  const leaveInputRef = useRef('');
+  const resignedInputRef = useRef('');
 
   const SET = {
     ENABLE: true,
@@ -203,7 +203,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-admin-${person.id}`}
-                  inputRef={adminFldRef}
+                  inputRef={adminInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -213,7 +213,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-hiring-${person.id}`}
-                  inputRef={hiringFldRef}
+                  inputRef={hiringInputRef}
                   inputProps={{ 'aria-label': 'controlled' }}
                   onChange={onClickCheckbox}
                 />
@@ -224,7 +224,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-lead-${person.id}`}
-                  inputRef={leadFldRef}
+                  inputRef={leadInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -234,7 +234,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-intern-${person.id}`}
-                  inputRef={internFldRef}
+                  inputRef={internInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -244,7 +244,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-active-${person.id}`}
-                  inputRef={activeFldRef}
+                  inputRef={activeInputRef}
                   name="activeCheckBox"
                   onChange={onClickCheckbox}
                 />
@@ -255,7 +255,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-leave-${person.id}`}
-                  inputRef={leaveFldRef}
+                  inputRef={leaveInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -265,7 +265,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-resigned-${person.id}`}
-                  inputRef={resignedFldRef}
+                  inputRef={resignedInputRef}
                   // sx={{ display: 'block', margin: 'auto' }}
                   onChange={onClickCheckbox}
                 />

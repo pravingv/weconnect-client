@@ -16,13 +16,13 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
   renderLog('PersonSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
-  const { mutate } = useRemoveTeamMemberMutation();
+  const { mutate: removeTeamMember } = useRemoveTeamMemberMutation();
 
   // const [person, setPerson] = useState(useGetPersonById(personId));  2/5/2025 does not work
 
   const removeTeamMemberClick = () => {
     const params = { personId: person.personId, teamId };
-    mutate(params);
+    removeTeamMember(params);
   };
 
   const editPersonClick = (hasEditRights = true) => {

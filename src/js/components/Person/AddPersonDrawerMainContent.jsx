@@ -17,7 +17,7 @@ const AddPersonDrawerMainContent = () => {
   renderLog('AddPersonDrawerMainContent');
   const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { allPeopleCache, allTeamsCache } = apiDataCache;
-  const { mutate } = useAddPersonToTeamMutation();
+  const { mutate: addPersonToTeam } = useAddPersonToTeamMutation();
 
   // const params  = useParams();
   // console.log('AddPersonDrawerMainContent params: ', params);
@@ -31,7 +31,7 @@ const AddPersonDrawerMainContent = () => {
   const [teamMemberPersonIdList] = useState([]);
   const [matchingCountText, setMatchingCountText] = useState('');
 
-  const searchStringRef = useRef('');
+  const searchStringInputRef = useRef('');
 
   const updateRemainingPeopleToAdd = () => {
     // console.log('initializeTheRemainingPeopleToAddListList in AddPersonDrawerMainContent');
@@ -88,7 +88,7 @@ const AddPersonDrawerMainContent = () => {
   };
 
   const searchFunction = () => {   // Now searches first and last name
-    const currentValue = searchStringRef.current.value;
+    const currentValue = searchStringInputRef.current.value;
     if (currentValue.length === 0) {
       setMatchingCountText('');
       setSearchResultsList(undefined);
@@ -117,7 +117,7 @@ const AddPersonDrawerMainContent = () => {
       teamMemberLastName: incomingPerson.lastName,
       teamName,
     };
-    mutate(makeRequestParams(plainParams, {}));
+    addPersonToTeam(makeRequestParams(plainParams, {}));
     // Remove this person from the All People less Adds list (since they were added to the team)
 
     const updatedRemainingPeopleToAdd = remainingPeopleToAdd.filter((person) => person.personId !== incomingPerson.personId);
@@ -137,7 +137,7 @@ const AddPersonDrawerMainContent = () => {
           <TextField
             id="search_input"
             label="Search for team members"
-            inputRef={searchStringRef}
+            inputRef={searchStringInputRef}
             name="searchByName"
             onChange={searchFunction}
             placeholder="Search by name"

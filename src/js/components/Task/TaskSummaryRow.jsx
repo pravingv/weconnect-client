@@ -15,9 +15,9 @@ const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenEx
 
 const TaskSummaryRow = ({ classes, hideIfCompleted, personId, rowNumberForDisplay, taskDefinition, task }) => {
   renderLog('TaskSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
-  const { mutate } = useSaveTaskMutation();
+  const { mutate: saveTask } = useSaveTaskMutation();
 
-  const doneCheckboxFldRef = useRef('');
+  const doneCheckboxInputRef = useRef('');
 
   const updateTaskFieldInstant = (event) => {
     console.log('updateTaskFieldInstant event:', event);
@@ -30,7 +30,7 @@ const TaskSummaryRow = ({ classes, hideIfCompleted, personId, rowNumberForDispla
     }, {
       statusDone: !event.target.checked,
     });
-    mutate(requestParams);
+    saveTask(requestParams);
   };
 
   if (hideIfCompleted && task.statusDone) {
@@ -64,7 +64,7 @@ const TaskSummaryRow = ({ classes, hideIfCompleted, personId, rowNumberForDispla
               color="primary"
               disabled
               id={`statusDoneCheckbox-${task.taskDefinitionId}`}
-              inputRef={doneCheckboxFldRef}
+              inputRef={doneCheckboxInputRef}
               name="statusDone"
             />
             <CheckboxDone>Done</CheckboxDone>
@@ -77,7 +77,7 @@ const TaskSummaryRow = ({ classes, hideIfCompleted, personId, rowNumberForDispla
                 className={classes.checkboxRoot}
                 color="primary"
                 id={`statusDoneCheckbox-${task.taskDefinitionId}`}
-                inputRef={doneCheckboxFldRef}
+                inputRef={doneCheckboxInputRef}
                 name="statusDone"
                 onChange={updateTaskFieldInstant}
               />

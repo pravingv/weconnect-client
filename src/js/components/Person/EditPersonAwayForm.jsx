@@ -40,8 +40,8 @@ const EditPersonAwayForm = ({ classes, personId }) => {
   const awayReasonInputRef = useRef('');
   const awayDescriptionForTeamLeadsInputRef = useRef('');
   const awayDescriptionInputRef = useRef('');
-  const dateEndInputRef = useRef('');
   const dateEndEstimatedInputRef = useRef('');
+  const dateEndInputRef = useRef('');
   const dateStartInputRef = useRef('');
 
   useEffect(() => {
@@ -207,6 +207,7 @@ const EditPersonAwayForm = ({ classes, personId }) => {
                 renderInput={() => (
                   <TextField
                     defaultValue={dateEnd}
+                    inputRef={dateEndInputRef}
                     margin="dense"
                   />
                 )}
@@ -258,14 +259,14 @@ const styles = (theme) => ({
   },
 });
 
-const DateWrapper = styled('div')`
-  margin-right: 4;
-`;
-
 const DateOptionsWrapper = styled('div')`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const DateWrapper = styled('div')`
+  margin-right: 4px;
 `;
 
 const EditPersonAwayFormWrapper = styled('div')`
