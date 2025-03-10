@@ -154,7 +154,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   name="password1"
                   required
                   variant="outlined"
-                  sx={{ '-webkit-text-security': 'disc' }}
+                  // sx={{ '-webkit-text-security': 'disc' }}
                 />
                 <TextField
                   fullWidth
@@ -166,7 +166,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   name="password2"
                   required
                   variant="outlined"
-                  sx={{ '-webkit-text-security': 'disc' }}
+                  // sx={{ '-webkit-text-security': 'disc' }}
                 />
               </>
             )}

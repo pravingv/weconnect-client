@@ -376,7 +376,7 @@ const Login = ({ classes }) => {
                        label="Password"
                        variant="outlined"
                        // type="password"
-                       autocomplete="current-password"
+                       autoComplete="current-password"
                        inputRef={passwordFldRef}
                        // defaultValue="12345678"
                        sx={{ display: 'block', paddingBottom: '15px' }}
