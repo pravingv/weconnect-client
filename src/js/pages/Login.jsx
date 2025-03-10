@@ -375,7 +375,8 @@ const Login = ({ classes }) => {
             <TextField id="password"
                        label="Password"
                        variant="outlined"
-                       type="password"
+                       // type="password"
+                       autocomplete="current-password"
                        inputRef={passwordFldRef}
                        // defaultValue="12345678"
                        sx={{ display: 'block', paddingBottom: '15px' }}
@@ -383,7 +384,7 @@ const Login = ({ classes }) => {
             <TextField id="confirmPassword"
                        label="Confirm Password"
                        variant="outlined"
-                       type="password"
+                       // type="password"
                        inputRef={confirmPasswordFldRef}
                        // defaultValue="12345678"
                        sx={{ padding: '0 0 15px 10px', display: showCreateStuff ? 'block' : 'none'  }}
