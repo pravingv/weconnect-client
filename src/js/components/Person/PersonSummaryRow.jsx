@@ -54,7 +54,7 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
       {rowNumberForDisplay && (
         <PersonCell
           id={`index-personId-${person.personId}`}
-          $cellwidth={15}
+          $cellwidth={25}
         >
           <GraySpan>
             {rowNumberForDisplay}

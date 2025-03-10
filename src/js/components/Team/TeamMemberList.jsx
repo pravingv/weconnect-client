@@ -11,7 +11,7 @@ import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import PersonSummaryRow from '../Person/PersonSummaryRow';
 
 // DO NOT REMOVE PASSED in TEAM
-const TeamMemberList = ({ searchText, teamId, team }) => { // teamMemberList
+const TeamMemberList = ({ searchText, teamId, team, hideInactive }) => { // teamMemberList
   renderLog('TeamMemberList');
   const { apiDataCache } = useConnectAppContext();
   const { allPeopleCache } = apiDataCache;
@@ -83,11 +83,21 @@ const TeamMemberList = ({ searchText, teamId, team }) => { // teamMemberList
     }
   };
 
+  const isPersonActive = (person) => {
+    if (person.dateEndDate === null || !hideInactive) {
+      return true;
+    }
+    const endDate = new Date(person.dateEndDate);
+    const nowDate = new Date();
+    // console.log(`${person.firstName} ---  ${endDate < nowDate}  ${endDate} ${nowDate}`);
+    return endDate > nowDate;
+  };
+
   return (
     <TeamMembersWrapper>
       {teamMemberListApiDataCache.map((person, index) => {
         // if (teamId === 10) console.log(`TeamMemberList teamId: ${teamId}, person: ${person} location ${person.location}`);
-        if (showPerson(person, searchText)) {
+        if (showPerson(person, searchText) && isPersonActive(person)) {
           return (
             <PersonSummaryRow
               key={`teamMember-${teamId}-${person.id}`}
@@ -107,6 +117,7 @@ TeamMemberList.propTypes = {
   searchText: PropTypes.string,
   teamId: PropTypes.any.isRequired,
   team: PropTypes.object.isRequired,
+  hideInactive: PropTypes.bool.isRequired,
 };
 
 const styles = () => ({

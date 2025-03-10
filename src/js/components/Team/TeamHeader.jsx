@@ -40,7 +40,7 @@ const TeamHeader = ({ showHeaderLabels, showIcons, team }) => {
       <TeamHeaderCell $cellwidth={showHeaderLabels ? 300 : 15}>
         {showHeaderLabels ? 'Location' : ''}
       </TeamHeaderCell>
-      <TeamHeaderCell $cellwidth={225}>
+      <TeamHeaderCell $cellwidth={360}>
         {showHeaderLabels ? 'Title / Volunteering Love' : ''}
       </TeamHeaderCell>
       {/* Edit icon */}
