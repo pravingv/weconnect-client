@@ -149,22 +149,24 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   id="field1"
                   inputRef={password1Ref}
                   label="Password"
-                  type="password"
+                  // type="password"
                   margin="dense"
                   name="password1"
                   required
                   variant="outlined"
+                  // sx={{ '-webkit-text-security': 'disc' }}
                 />
                 <TextField
                   fullWidth
                   id="field2"
                   inputRef={password2Ref}
                   label="Verify Password"
-                  type="password"
+                  // type="password"
                   margin="dense"
                   name="password2"
                   required
                   variant="outlined"
+                  // sx={{ '-webkit-text-security': 'disc' }}
                 />
               </>
             )}

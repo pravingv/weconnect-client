@@ -28,6 +28,7 @@ const Teams = () => {
 
   const [searchText, setSearchText] = useState('');
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(true);
+  const [hideInactive, setHideInactive] = useState(true);
   const [teamList, setTeamList] = useState([]);
 
   const clearFunction = () => {
@@ -84,6 +85,9 @@ const Teams = () => {
   const addTeamMemberClick = () => {
     setAppContextValue('addPersonDrawerOpen', true);
     setAppContextValue('AddPersonDrawerLabel', 'Add Person');
+  };
+  const hideInactiveClick = () => {
+    setHideInactive(!hideInactive);
   };
 
   const updateTeamMembersFoundDictWithOneTeam = (teamId, numberOfTeamMembersFound, numberOfTeamMembersFoundDictLocal) => {
@@ -179,6 +183,11 @@ const Teams = () => {
                 </SpanWithLinkStyle>
               </ActionBarItem>
             )}
+            <ActionBarItem>
+              <SpanWithLinkStyle onClick={() => hideInactiveClick()}>
+                {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'}
+              </SpanWithLinkStyle>
+            </ActionBarItem>
           </ActionBarSection>
         </ActionBarWrapper>
         {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
@@ -199,6 +208,7 @@ const Teams = () => {
                       searchText={searchText}
                       team={team}
                       teamId={team.id}
+                      hideInactive={hideInactive}
                     />
                   </>
                 )}

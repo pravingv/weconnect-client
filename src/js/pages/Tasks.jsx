@@ -17,6 +17,7 @@ import {
 } from '../models/TaskModel';
 import { captureTeamListRetrieveData } from '../models/TeamModel';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
+import { alphabetizePeoplesObject } from '../utils/utilities';
 
 
 // eslint-disable-next-line no-unused-vars
@@ -72,7 +73,8 @@ const Tasks = ({ classes, match }) => {
     if (allPeopleCache) {
       const allCachedPeopleList = Object.values(allPeopleCache);
       setPersonIdsList(allCachedPeopleList.map((person) => person.personId));
-      setSelectedPersonList(allCachedPeopleList);
+      const sorted = alphabetizePeoplesObject(allCachedPeopleList);
+      setSelectedPersonList(sorted);
     }
   }, [allPeopleCache]);
 

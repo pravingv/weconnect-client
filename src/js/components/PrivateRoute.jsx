@@ -7,7 +7,7 @@ import { captureAccessRightsData } from '../models/AuthModel';
 
 const PrivateRoute = () => {
   const location = useLocation();
-  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const dispatch = useConnectDispatch();
 
   const [isAuthenticated, setIsAuthenticated] = useState(null);
