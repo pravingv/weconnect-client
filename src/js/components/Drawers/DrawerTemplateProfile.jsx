@@ -9,7 +9,7 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { cordovaDrawerTopMargin } from '../../utils/cordovaOffsets';
 import { DrawerHeaderAnimateDownInnerContainer, DrawerHeaderAnimateDownOuterContainer, DrawerHeaderWrapper, DrawerTitle } from '../Style/drawerLayoutStyles';
-
+import DesignTokenColors from "../../common/components/Style/DesignTokenColors";
 
 const DrawerTemplateProfile = (props) => {
   const { classes, drawerId, drawerOpenGlobalVariableName, headerFixedJsx, headerTitleJsx, mainContentJsx, onDrawerClose } = props;
@@ -19,8 +19,6 @@ const DrawerTemplateProfile = (props) => {
   // eslint-disable-next-line no-unused-vars
   const [scrolledDown, setScrolledDown] = useState(false);
   const drawerOpen = getAppContextValue(drawerOpenGlobalVariableName) || false;
-
-  console.log('DrawerTemplateProfile drawerOpen: ', drawerOpenGlobalVariableName, drawerOpen);
 
   const handleScrolledDownDrawer = (evt) => {
     const { scrollTop } = evt.target;
@@ -72,8 +70,12 @@ const DrawerTemplateProfile = (props) => {
       onClose={onDrawerCloseLocal}
       open={drawerOpen}
     >
-      <DrawerHeaderWrapper>
-        <DrawerTitle>
+      <DrawerHeaderWrapper
+          className={classes.profileHeader}
+      >
+        <DrawerTitle
+            className={classes.profileTitle}
+        >
           {headerTitleJsx}
         </DrawerTitle>
         <CloseDrawerIconWrapper>
@@ -114,16 +116,16 @@ DrawerTemplateProfile.propTypes = {
 const styles = () => ({
   drawer: {
     marginTop: cordovaDrawerTopMargin(),
-    maxWidth: '550px',
-    '& *': {
-      maxWidth: '550px',
-    },
-    '@media(max-width: 576px)': {
-      maxWidth: '360px',
-      '& *': {
-        maxWidth: '360px',
-      },
-    },
+    width: '80%',
+    // '& *': {
+    //   maxWidth: '550px',
+    // },
+    // '@media(max-width: 576px)': {
+    //   maxWidth: '360px',
+    //   '& *': {
+    //     maxWidth: '360px',
+    //   },
+    // },
   },
   dialogPaper: {
     display: 'block',
@@ -180,7 +182,7 @@ const styles = () => ({
     top: 14,
   },
   closeIcon: {
-    color: '#999',
+    color: DesignTokenColors.whiteUI,
     width: 24,
     height: 24,
   },
@@ -190,6 +192,20 @@ const styles = () => ({
     height: 16,
     marginTop: '-3px',
     marginRight: 4,
+  },
+  profileHeader: {
+    backgroundColor: DesignTokenColors.neutral500,
+    width: '100%',
+  },
+  profileTitle: {
+    alignItems: 'center',
+    color: DesignTokenColors.whiteUI,
+    display: 'flex',
+    fontSize: '24px',
+    fontWeight: 400,
+    height: '66px',
+    justifyContent: 'space-between',
+    margin: 0,
   },
 });
 

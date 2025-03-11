@@ -8,6 +8,7 @@ import EditQuestionnaireDrawer from './EditQuestionnaireDrawer';
 import EditTaskDefinitionDrawer from './EditTaskDefinitionDrawer';
 import EditTaskGroupDrawer from './EditTaskGroupDrawer';
 import PersonProfileDrawer from './PersonProfileDrawer';
+import EditProfileDrawer from "./EditProfileDrawer";
 
 
 const Drawers = () => {
@@ -23,6 +24,7 @@ const Drawers = () => {
       <EditQuestionnaireDrawer />
       <EditTaskDefinitionDrawer />
       <EditTaskGroupDrawer />
+      <EditProfileDrawer />
     </>
   );
 };

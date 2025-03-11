@@ -126,8 +126,6 @@ const HeaderBar = ({ hideTabs }) => {
 
   const editProfileClick = () => {
     setAppContextValue('editProfileDrawerOpen', true);
-    // setAppContextValue('personProfileDrawerOpen', true);
-    console.log("I am being clicked");
   };
   return (
     <HeaderBarWrapper
