@@ -12,12 +12,13 @@ import { SpanWithLinkStyle } from '../../components/Style/linkStyles';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
 import webAppConfig from '../../config';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import PermissionsAdministration from './PermissionsAdministration';
-import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import UploadCSV from './UploadCSV';
 
 
 const SystemSettings = ({ classes }) => {
@@ -194,9 +195,8 @@ const SystemSettings = ({ classes }) => {
           </Button>
         </AddButtonWrapper>
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
-        {/* We could choose to hide PermissionsAdministration for those without Admin privileges, but as it exists you can't
-            save without admin privileges (enforced by logic on the server). */}
         <PermissionsAdministration />
+        <UploadCSV />
       </PageContentContainer>
     </div>
   );
