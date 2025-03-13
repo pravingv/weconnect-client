@@ -2,6 +2,7 @@ import React from 'react';
 import { renderLog } from '../../common/utils/logging';
 import AddPersonDrawer from './AddPersonDrawer';
 import AddTeamDrawer from './AddTeamDrawer';
+import EditMeetingDrawer from './EditMeetingDrawer';
 import EditPersonDrawer from './EditPersonDrawer';
 import EditQuestionDrawer from './EditQuestionDrawer';
 import EditQuestionnaireDrawer from './EditQuestionnaireDrawer';
@@ -19,6 +20,7 @@ const Drawers = () => {
       <PersonProfileDrawer />
       <AddPersonDrawer />
       <AddTeamDrawer />
+      <EditMeetingDrawer />
       <EditPersonDrawer />
       <EditQuestionDrawer />
       <EditQuestionnaireDrawer />

@@ -13,7 +13,7 @@ const AddTeamForm = ({ classes }) => {
   renderLog('AddTeamForm');
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
 
-  const teamNameFldRef = useRef('');
+  const teamNameInputRef = useRef('');
   const queryClient = useQueryClient();
   const [team] = useState(getAppContextValue('teamForAddTeamDrawer'));
   const [teamNameCached, setTeamNameCached] = useState(team && team.teamName);
@@ -32,7 +32,7 @@ const AddTeamForm = ({ classes }) => {
   });
 
   const saveNewTeam = () => {
-    const teamName = teamNameFldRef.current.value;
+    const teamName = teamNameInputRef.current.value;
     if (teamName.length === 0) {
       setErrorText('Enter a valid team name');
       return;
@@ -53,7 +53,7 @@ const AddTeamForm = ({ classes }) => {
           autoFocus
           defaultValue={teamNameCached}
           id="teamNameToBeSaved"
-          inputRef={teamNameFldRef}
+          inputRef={teamNameInputRef}
           label="Team Name"
           name="teamNameToBeSaved"
           margin="dense"

@@ -11,15 +11,15 @@ import { usePersonSaveMutation } from '../../react-query/mutations';
 const AddPersonForm = ({ classes }) => {  //  classes, teamId
   renderLog('AddPersonForm');
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { mutate } = usePersonSaveMutation();
+  const { mutate: personSave } = usePersonSaveMutation();
 
   const [teamId, setTeamId] = useState(-1);
   const [teamName, setTeamName] = useState('');
   const [saveButtonActive, setSaveButtonActive] = React.useState(false);
 
-  const firstNameFldRef = useRef('');
-  const lastNameFldRef = useRef('');
-  const emailFldRef = useRef('');
+  const firstNameInputRef = useRef('');
+  const lastNameInputRef = useRef('');
+  const emailInputRef = useRef('');
 
   useEffect(() => {  // Replaces onAppObservableStoreChange and will be called whenever the context value changes
     // console.log('AddPersonForm: Context value changed:', true);
@@ -32,25 +32,25 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
 
   const saveNewPerson = () => {
     const data = {
-      firstName: firstNameFldRef.current.value,
-      lastName: lastNameFldRef.current.value,
-      emailPersonal: emailFldRef.current.value,
+      firstName: firstNameInputRef.current.value,
+      lastName: lastNameInputRef.current.value,
+      emailPersonal: emailInputRef.current.value,
     };
     const plainParams = {
       personId: -1,
       teamId,
       teamName,
     };
-    mutate(makeRequestParams(plainParams, data));
+    personSave(makeRequestParams(plainParams, data));
     setAppContextValue('addPersonDrawerOpen', false);
     setAppContextValue('addPersonDrawerLabel', '');
     setAppContextValue('addPersonDrawerTeam', undefined);
   };
 
   const updateSaveButton = () => {
-    if (firstNameFldRef.current.value && firstNameFldRef.current.value.length &&
-      lastNameFldRef.current.value && lastNameFldRef.current.value.length &&
-      emailFldRef.current.value && emailFldRef.current.value.length) {
+    if (firstNameInputRef.current.value && firstNameInputRef.current.value.length &&
+      lastNameInputRef.current.value && lastNameInputRef.current.value.length &&
+      emailInputRef.current.value && emailInputRef.current.value.length) {
       if (!saveButtonActive) {
         setSaveButtonActive(true);
       }
@@ -64,7 +64,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
           // classes={{ root: classes.textField }} // Not working yet
           autoFocus
           id="firstNameToBeSaved"
-          inputRef={firstNameFldRef}
+          inputRef={firstNameInputRef}
           label="First Name"
           margin="dense"
           name="firstNameToBeSaved"
@@ -75,7 +75,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
         <TextField
           // classes={{ root: classes.textField }} // Not working yet
           id="lastNameToBeSaved"
-          inputRef={lastNameFldRef}
+          inputRef={lastNameInputRef}
           label="Last Name"
           margin="dense"
           name="lastNameToBeSaved"
@@ -86,7 +86,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
         <TextField
           // classes={{ root: classes.textField }} // Not working yet
           id="emailPersonalToBeSaved"
-          inputRef={emailFldRef}
+          inputRef={emailInputRef}
           label="Email Address, Personal"
           margin="dense"
           name="emailPersonalToBeSaved"

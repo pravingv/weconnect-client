@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
-import { useGroupSaveMutation } from '../../react-query/mutations';
+import { useTaskGroupSaveMutation } from '../../react-query/mutations';
 
 // const TASK_GROUP_FIELDS_IN_FORM = [
 //   'taskGroupName', 'taskGroupDescription', 'taskGroupIsForTeam'];
@@ -14,15 +14,15 @@ import { useGroupSaveMutation } from '../../react-query/mutations';
 const EditTaskGroupForm = ({ classes }) => {
   renderLog('EditTaskGroupForm');
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { mutate } = useGroupSaveMutation();
+  const { mutate: taskGroupSave } = useTaskGroupSaveMutation();
 
   const [taskGroup] = useState(getAppContextValue('editTaskGroupDrawerTaskGroup'));
   const [groupNameValue, setGroupNameValue] = useState('');
   const [groupDescValue, setGroupDescValue] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
 
-  const groupNameFldRef = useRef('');
-  const groupDescFldRef = useRef('');
+  const groupNameInputRef = useRef('');
+  const groupDescInputRef = useRef('');
 
   useEffect(() => {
     if (taskGroup) {
@@ -38,10 +38,10 @@ const EditTaskGroupForm = ({ classes }) => {
     const requestParams = makeRequestParams({
       taskGroupId: taskGroup ? taskGroup.id : '-1',
     }, {
-      taskGroupName: groupNameFldRef.current.value,
-      taskGroupDescription: groupDescFldRef.current.value,
+      taskGroupName: groupNameInputRef.current.value,
+      taskGroupDescription: groupDescInputRef.current.value,
     });
-    mutate(requestParams);
+    taskGroupSave(requestParams);
     setSaveButtonActive(false);
     setAppContextValue('editTaskGroupDrawerOpen', false);
     setAppContextValue('editTaskGroupDrawerTaskGroup', undefined);
@@ -49,8 +49,8 @@ const EditTaskGroupForm = ({ classes }) => {
   };
 
   const updateSaveButton = () => {
-    if (groupNameFldRef.current.value && groupNameFldRef.current.value.length &&
-      groupDescFldRef.current.value && groupDescFldRef.current.value.length) {
+    if (groupNameInputRef.current.value && groupNameInputRef.current.value.length &&
+      groupDescInputRef.current.value && groupDescInputRef.current.value.length) {
       if (!saveButtonActive) {
         setSaveButtonActive(true);
       }
@@ -64,7 +64,7 @@ const EditTaskGroupForm = ({ classes }) => {
           autoFocus
           defaultValue={groupNameValue}
           id="taskGroupNameToBeSaved"
-          inputRef={groupNameFldRef}
+          inputRef={groupNameInputRef}
           label="Task Grouping Name"
           margin="dense"
           name="taskGroupName"
@@ -75,7 +75,7 @@ const EditTaskGroupForm = ({ classes }) => {
         <TextField
           defaultValue={groupDescValue}
           id="taskGroupDescriptionToBeSaved"
-          inputRef={groupDescFldRef}
+          inputRef={groupDescInputRef}
           label="Description of this task grouping"
           margin="dense"
           multiline

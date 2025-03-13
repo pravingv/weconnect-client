@@ -12,7 +12,7 @@ import { useQuestionnaireSaveMutation } from '../../react-query/mutations';
 const EditQuestionnaireForm = ({ classes }) => {
   renderLog('EditQuestionnaireForm');
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { mutate } = useQuestionnaireSaveMutation();
+  const { mutate: mutateQuestionnaireSave } = useQuestionnaireSaveMutation();
 
   const [questionnaire]  = useState(getAppContextValue('selectedQuestionnaire'));
   const [saveButtonActive, setSaveButtonActive] = useState(false);
@@ -20,9 +20,9 @@ const EditQuestionnaireForm = ({ classes }) => {
   const [titleFldValue, setTitleFldValue] = useState('');
   const [instructionsFldValue, setInstructionsFldValue] = useState('');
 
-  const nameFldRef = useRef('');
-  const titleFldRef = useRef('');
-  const instructionsFldRef = useRef('');
+  const nameInputRef = useRef('');
+  const titleInputRef = useRef('');
+  const instructionsInputRef = useRef('');
 
   useEffect(() => {
     if (questionnaire) {
@@ -38,14 +38,14 @@ const EditQuestionnaireForm = ({ classes }) => {
 
   const saveQuestionnaire = () => {
     const params = {
-      questionnaireName: nameFldRef.current.value,
-      questionnaireTitle: titleFldRef.current.value,
-      questionnaireInstructions: instructionsFldRef.current.value,
+      questionnaireName: nameInputRef.current.value,
+      questionnaireTitle: titleInputRef.current.value,
+      questionnaireInstructions: instructionsInputRef.current.value,
     };
     const plainParams = {
       questionnaireId: questionnaire ? questionnaire.id : '-1',
     };
-    mutate(makeRequestParams(plainParams, params));
+    mutateQuestionnaireSave(makeRequestParams(plainParams, params));
     setSaveButtonActive(false);
     setAppContextValue('editQuestionnaireDrawerOpen', false);
     setAppContextValue('selectedQuestionnaire', undefined);
@@ -53,8 +53,8 @@ const EditQuestionnaireForm = ({ classes }) => {
   };
 
   const updateSaveButton = () => {
-    if (nameFldRef.current.value && nameFldRef.current.value.length &&
-      titleFldRef.current.value && titleFldRef.current.value.length) {
+    if (nameInputRef.current.value && nameInputRef.current.value.length &&
+      titleInputRef.current.value && titleInputRef.current.value.length) {
       if (!saveButtonActive) {
         setSaveButtonActive(true);
       }
@@ -68,7 +68,7 @@ const EditQuestionnaireForm = ({ classes }) => {
           autoFocus
           defaultValue={nameFldValue}
           id="questionnaireNameToBeSaved"
-          inputRef={nameFldRef}
+          inputRef={nameInputRef}
           label="Questionnaire Internal Name"
           margin="dense"
           name="questionnaireName"
@@ -79,7 +79,7 @@ const EditQuestionnaireForm = ({ classes }) => {
         <TextField
           defaultValue={titleFldValue}
           id="questionnaireTitleToBeSaved"
-          inputRef={titleFldRef}
+          inputRef={titleInputRef}
           label="Questionnaire Visible Title"
           margin="dense"
           multiline
@@ -92,7 +92,7 @@ const EditQuestionnaireForm = ({ classes }) => {
         <TextField
           defaultValue={instructionsFldValue}
           id="questionnaireInstructionsToBeSaved"
-          inputRef={instructionsFldRef}
+          inputRef={instructionsInputRef}
           label="Instructions"
           margin="dense"
           multiline

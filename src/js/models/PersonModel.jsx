@@ -7,7 +7,7 @@ import { useConnectAppContext } from '../contexts/ConnectAppContext';
 import weConnectQueryFn, { METHOD } from '../react-query/WeConnectQuery';
 
 // If you make any changes to the following, also update controllers/PersonController.js getPersonAwayLabel
-export const PERSON_AWAY_REASONS = ['isLeaveOfAbsence', 'isMedicalLeave', 'isNotAttending', 'isResigned', 'isVacation', 'isWorkTrip'];
+export const PERSON_AWAY_REASONS = ['isLeaveOfAbsence', 'isNotFeelingWell', 'isNotAttending', 'isResigned', 'isVacation', 'isWorkTrip'];
 export const PERSON_AWAY_REASONS_WITH_HR = [...PERSON_AWAY_REASONS, 'isNonResponsive'];
 
 export function capturePersonRetrieveData (incomingResults = {}, apiDataCache = {}, dispatch) {

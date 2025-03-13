@@ -32,10 +32,10 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [taskUrlValue, setTaskUrlValue] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
 
-  const taskNameFldRef = useRef('');
-  const taskDescFldRef = useRef('');
-  const taskInstFldRef = useRef('');
-  const taskUrlFldRef = useRef('');
+  const taskNameInputRef = useRef('');
+  const taskDescInputRef = useRef('');
+  const taskInstInputRef = useRef('');
+  const taskUrlInputRef = useRef('');
 
   useEffect(() => {
     if (taskDefinition) {
@@ -56,10 +56,10 @@ const EditTaskDefinitionForm = ({ classes }) => {
       taskDefinitionId: taskDefinition ? taskDefinition.id : '-1',
       taskGroupId: taskGroup.taskGroupId,
     }, {
-      taskName: taskNameFldRef.current.value,
-      taskDescription: taskDescFldRef.current.value,
-      taskInstructions: taskInstFldRef.current.value,
-      taskActionUrl: taskUrlFldRef.current.value,
+      taskName: taskNameInputRef.current.value,
+      taskDescription: taskDescInputRef.current.value,
+      taskInstructions: taskInstInputRef.current.value,
+      taskActionUrl: taskUrlInputRef.current.value,
     });
     taskDefinitionSave(requestParams);
     setSaveButtonActive(false);
@@ -70,7 +70,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
   };
 
   const updateSaveButton = () => {
-    if (taskNameFldRef.current.value && taskNameFldRef.current.value.length) {
+    if (taskNameInputRef.current.value && taskNameInputRef.current.value.length) {
       if (!saveButtonActive) {
         setSaveButtonActive(true);
       }
@@ -84,7 +84,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
           autoFocus
           defaultValue={taskNameValue}
           id="taskNameToBeSaved"
-          inputRef={taskNameFldRef}
+          inputRef={taskNameInputRef}
           label="Task Name"
           margin="dense"
           name="taskName"
@@ -95,7 +95,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
         <TextField
           defaultValue={taskDescValue}
           id="taskDescriptionToBeSaved"
-          inputRef={taskDescFldRef}
+          inputRef={taskDescInputRef}
           label="Description of this task"
           margin="dense"
           multiline
@@ -108,7 +108,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
         <TextField
           defaultValue={taskInstValue}
           id="taskInstructionsToBeSaved"
-          inputRef={taskInstFldRef}
+          inputRef={taskInstInputRef}
           label="Instructions for completing this task"
           margin="dense"
           multiline
@@ -121,7 +121,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
         <TextField
           defaultValue={taskUrlValue}
           id="taskActionUrlToBeSaved"
-          inputRef={taskUrlFldRef}
+          inputRef={taskUrlInputRef}
           label="Task Action URL"
           margin="dense"
           name="taskActionUrl"

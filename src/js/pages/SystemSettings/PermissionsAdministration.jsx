@@ -39,13 +39,17 @@ const PermissionsAdministration = ({ classes }) => {
     setPeopleWorkingArray(sorted);
   }, [allPeopleCache]);
 
-  const adminFldRef = useRef('');
-  const hiringFldRef = useRef('');
-  const leadFldRef = useRef('');
-  const internFldRef = useRef('');
-  const activeFldRef = useRef('');
-  const leaveFldRef = useRef('');
-  const resignedFldRef = useRef('');
+  const adminInputRef = useRef('');
+  const hrOfferAdminInputRef = useRef('');
+  const hrAdminInputRef = useRef('');
+  const hrGen1InputRef = useRef('');
+  const hrGen2InputRef = useRef('');
+  const hiringInputRef = useRef('');
+  const leadInputRef = useRef('');
+  const internInputRef = useRef('');
+  const activeInputRef = useRef('');
+  const leaveInputRef = useRef('');
+  const resignedInputRef = useRef('');
 
   const SET = {
     ENABLE: true,
@@ -109,6 +113,18 @@ const PermissionsAdministration = ({ classes }) => {
       switch (pieces[1]) {
         case 'admin':
           person.isAdmin = event.target.checked;
+          break;
+        case 'hradmin':
+          person.isHRAdmin = event.target.checked;
+          break;
+        case 'hrofferadmin':
+          person.isHROfferAdmin = event.target.checked;
+          break;
+        case 'hrgen1':
+          person.isHRGeneralist1 = event.target.checked;
+          break;
+        case 'hrgen2':
+          person.isHRGeneralist2 = event.target.checked;
           break;
         case 'hiring':
           person.isHiringManager = event.target.checked;
@@ -179,9 +195,13 @@ const PermissionsAdministration = ({ classes }) => {
       <table style={{ paddingTop: 20, borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <Th $cellwidth={300} style={{ textAlign: 'left' }}>Name</Th>
-            <Th $cellwidth={150} style={{ textAlign: 'left' }}>Email</Th>
+            <Th $cellwidth={250} style={{ textAlign: 'left' }}>Name</Th>
+            <Th $cellwidth={125} style={{ textAlign: 'left' }}>Email</Th>
             <Th $cellwidth={25}>Admin</Th>
+            <Th $cellwidth={25}>HR Admin</Th>
+            <Th $cellwidth={25}>HR Offer Admin</Th>
+            <Th $cellwidth={25}>HR Gen 1</Th>
+            <Th $cellwidth={25}>HR Gen 2</Th>
             <Th $cellwidth={25}>Hiring Manager</Th>
             <Th $cellwidth={25}>Lead</Th>
             <Th $cellwidth={25}>Intern</Th>
@@ -203,7 +223,47 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-admin-${person.id}`}
-                  inputRef={adminFldRef}
+                  inputRef={adminInputRef}
+                  onChange={onClickCheckbox}
+                />
+              </Td>
+              <Td>
+                <Checkbox
+                  checked={person.isHRAdmin}
+                  className={classes.checkboxDoneRoot}
+                  color="primary"
+                  id={`checkbox-hradmin-${person.id}`}
+                  inputRef={hrAdminInputRef}
+                  onChange={onClickCheckbox}
+                />
+              </Td>
+              <Td>
+                <Checkbox
+                  checked={person.isHROfferAdmin}
+                  className={classes.checkboxDoneRoot}
+                  color="primary"
+                  id={`checkbox-hrofferadmin-${person.id}`}
+                  inputRef={hrOfferAdminInputRef}
+                  onChange={onClickCheckbox}
+                />
+              </Td>
+              <Td>
+                <Checkbox
+                  checked={person.isHRGeneralist1}
+                  className={classes.checkboxDoneRoot}
+                  color="primary"
+                  id={`checkbox-hrgen1-${person.id}`}
+                  inputRef={hrGen1InputRef}
+                  onChange={onClickCheckbox}
+                />
+              </Td>
+              <Td>
+                <Checkbox
+                  checked={person.isHRGeneralist2}
+                  className={classes.checkboxDoneRoot}
+                  color="primary"
+                  id={`checkbox-hrgen2-${person.id}`}
+                  inputRef={hrGen2InputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -213,7 +273,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-hiring-${person.id}`}
-                  inputRef={hiringFldRef}
+                  inputRef={hiringInputRef}
                   inputProps={{ 'aria-label': 'controlled' }}
                   onChange={onClickCheckbox}
                 />
@@ -224,7 +284,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-lead-${person.id}`}
-                  inputRef={leadFldRef}
+                  inputRef={leadInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -234,7 +294,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-intern-${person.id}`}
-                  inputRef={internFldRef}
+                  inputRef={internInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -244,7 +304,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-active-${person.id}`}
-                  inputRef={activeFldRef}
+                  inputRef={activeInputRef}
                   name="activeCheckBox"
                   onChange={onClickCheckbox}
                 />
@@ -255,7 +315,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-leave-${person.id}`}
-                  inputRef={leaveFldRef}
+                  inputRef={leaveInputRef}
                   onChange={onClickCheckbox}
                 />
               </Td>
@@ -265,7 +325,7 @@ const PermissionsAdministration = ({ classes }) => {
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-resigned-${person.id}`}
-                  inputRef={resignedFldRef}
+                  inputRef={resignedInputRef}
                   // sx={{ display: 'block', margin: 'auto' }}
                   onChange={onClickCheckbox}
                 />

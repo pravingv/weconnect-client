@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router';
 import convertToInteger from '../common/utils/convertToInteger';
 import { renderLog } from '../common/utils/logging';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
+import EditMeetingForm from '../components/Meeting/EditMeetingForm';
 import TeamHeader from '../components/Team/TeamHeader';
 import TeamMemberList from '../components/Team/TeamMemberList';
 import webAppConfig from '../config';
@@ -58,6 +59,13 @@ const TeamHome = ({ classes }) => {
       setTeam(allTeamsCache[teamId]);
     }
   }, [allTeamsCache, teamId]);
+
+  const addMeetingClick = () => {
+    console.log('TeamHome addMeetingClick, teamId:', teamId);
+    setAppContextValue('editMeetingDrawerOpen', true);
+    setAppContextValue('editMeetingDrawerLabel', 'Add Meeting');
+    setAppContextValue('editMeetingDrawerTeamId', teamId);
+  };
 
   const addTeamMemberClick = () => {
     // console.log('TeamHome addTeamMemberClick, teamId:', teamId);
@@ -118,6 +126,19 @@ const TeamHome = ({ classes }) => {
               sx={{ marginTop: '30px' }}
             >
               Add Team Member
+            </Button>
+          </div>
+        )}
+        {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+          <div>
+            <Button
+              classes={{ root: classes.addTeamMemberButtonRoot }}
+              color="primary"
+              variant="outlined"
+              onClick={addMeetingClick}
+              sx={{ marginTop: '30px' }}
+            >
+              Add Meeting
             </Button>
           </div>
         )}

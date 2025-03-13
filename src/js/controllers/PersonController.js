@@ -25,8 +25,8 @@ export const getPersonAwayLabel = (personAwayReason) => {
   switch (personAwayReason) {
     case 'isLeaveOfAbsence':
       return 'Leave of Absence';
-    case 'isMedicalLeave':
-      return 'Medical Leave';
+    case 'isNotFeelingWell':
+      return 'Not feeling well';
     case 'isNonResponsive':
       return 'Has stopped responding to management contact';
     case 'isNotAttending':
@@ -35,7 +35,7 @@ export const getPersonAwayLabel = (personAwayReason) => {
       if (webAppConfig.ORGANIZATION_NAME) {
         return `Resigning from ${webAppConfig.ORGANIZATION_NAME}`;
       } else {
-        return 'Resigned';
+        return 'Resigning';
       }
     case 'isVacation':
       return 'Vacation';
