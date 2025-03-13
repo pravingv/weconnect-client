@@ -60,9 +60,9 @@ const EditProfileDrawer = () => {
 
   const navOptionsComponent = profileNavOptions.map((option) => (
     <NavLinkContainer
-          isactive={displayProfileOption === option.link}
-          onClick={() => onNavLinkClick(option.link)}
-          key={option.link}
+      isactive={displayProfileOption === option.link}
+      onClick={() => onNavLinkClick(option.link)}
+      key={option.link}
     >
       {option.icon}
       <NavLink>
@@ -105,15 +105,15 @@ const MenuIconWrapper = styled.button`
   display: none;
 
   @media (max-width: 768px) {
-      align-items: center;
-      border: none;
-      color: ${DesignTokenColors.whiteUI};
-      background: transparent;
-      display: flex;
-      border-right: 1px solid ${DesignTokenColors.whiteUI};
-      justify-content: center;
-      margin-right: 8px;
-      padding: 4px 16px 4px 4px;
+    align-items: center;
+    border: none;
+    color: ${DesignTokenColors.whiteUI};
+    background: transparent;
+    display: flex;
+    border-right: 1px solid ${DesignTokenColors.whiteUI};
+    justify-content: center;
+    margin-right: 8px;
+    padding: 4px 16px 4px 4px;
   }
 `;
 
