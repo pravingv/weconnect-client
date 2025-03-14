@@ -1,34 +1,31 @@
-import { Info, Launch } from '@mui/icons-material';
-import { Checkbox, FormControlLabel } from '@mui/material'; // FormLabel, Radio, RadioGroup,
+import { CheckCircleOutline, ExpandLess, ExpandMore, InfoOutlined } from '@mui/icons-material';
 import Tooltip from '@mui/material/Tooltip';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import React, { Suspense, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { renderLog } from '../../common/utils/logging';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useSaveTaskMutation } from '../../react-query/mutations';
+import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsActiveJSX';
 
 
-const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
-
-const TaskSummaryRow = ({ classes, hideIfCompleted, personId, rowNumberForDisplay, taskDefinition, task }) => {
+const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => {
   renderLog('TaskSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { mutate: saveTask } = useSaveTaskMutation();
 
-  const doneCheckboxInputRef = useRef('');
+  const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
 
-  const updateTaskFieldInstant = (event) => {
-    console.log('updateTaskFieldInstant event:', event);
-    const elementId = event.target.id;
-    console.log(elementId);
+  const updateTaskFieldInstant = (isDone) => {
+    // console.log('updateTaskFieldInstant isDone:', isDone);
 
     const requestParams = makeRequestParams({
       personId,
       taskDefinitionId: task.taskDefinitionId,
     }, {
-      statusDone: !event.target.checked,
+      statusDone: isDone,
     });
     saveTask(requestParams);
   };
@@ -36,93 +33,72 @@ const TaskSummaryRow = ({ classes, hideIfCompleted, personId, rowNumberForDispla
   if (hideIfCompleted && task.statusDone) {
     return null;
   }
+
   // console.log('TaskSummaryRow taskDefinition:', taskDefinition);
+  const taskNameToDisplay = task.statusDone ? taskDefinition.taskNameCompleted || taskDefinition.taskName : taskDefinition.taskName;
   return (
-    <OneTaskWrapper key={`teamMember-${task.taskDefinitionId}`}>
-      {rowNumberForDisplay && (
-        <TaskCell id={`index-personId-${task.taskDefinitionId}`} width={15}>
-          <GraySpan>
-            {rowNumberForDisplay}
-          </GraySpan>
+    <OneTaskWrapper key={`teamMemberRow-${personId}-${task.taskDefinitionId}`}>
+      <OneTaskTitle key={`teamMemberTitle-${personId}-${task.taskDefinitionId}`}>
+        <TaskCell id={`taskDone-${personId}-${task.taskDefinitionId}`} width={25}>
+          {task.statusDone && (
+            <CheckCircleOutline />
+          )}
         </TaskCell>
-      )}
-      <TaskCell id={`taskName-${task.taskDefinitionId}`} width={300}>
-        {taskDefinition.taskDescription ? (
-          <Tooltip arrow id={`taskDescription-${task.taskDefinitionId}`} title={taskDefinition.taskDescription}>
-            <span>{taskDefinition.taskName}</span>
-          </Tooltip>
-        ) : (
-          <span>{taskDefinition.taskName}</span>
-        )}
-      </TaskCell>
-      <TaskCell id={`statusDoneCell-${task.taskDefinitionId}`} width={75}>
-        {task.statusDone ? (
-          <CheckboxDoneWrapper>
-            <Checkbox
-              checked
-              className={classes.checkboxDoneRoot}
-              color="primary"
-              disabled
-              id={`statusDoneCheckbox-${task.taskDefinitionId}`}
-              inputRef={doneCheckboxInputRef}
-              name="statusDone"
-            />
-            <CheckboxDone>Done</CheckboxDone>
-          </CheckboxDoneWrapper>
-        ) : (
-          <CheckboxLabel
-            classes={{ label: classes.checkboxLabel }}
-            control={(
-              <Checkbox
-                className={classes.checkboxRoot}
-                color="primary"
-                id={`statusDoneCheckbox-${task.taskDefinitionId}`}
-                inputRef={doneCheckboxInputRef}
-                name="statusDone"
-                onChange={updateTaskFieldInstant}
+        <TaskCell id={`index-${personId}-${task.taskDefinitionId}`} width={25}>
+          {taskDetailsOpen ? (
+            <ExpandLess onClick={() => setTaskDetailsOpen(false)} />
+          ) : (
+            <ExpandMore onClick={() => setTaskDetailsOpen(true)} />
+          )}
+        </TaskCell>
+        <TaskCell id={`taskName-${personId}-${task.taskDefinitionId}`} width={400}>
+          <span onClick={() => setTaskDetailsOpen(!taskDetailsOpen)}>{taskNameToDisplay}</span>
+          {(taskDefinition.taskWhyWeDoIt) && (
+            <Tooltip
+              arrow
+              enterTouchDelay={0} // show with click in mobile
+              id={`taskWhyWeDoIt-tooltip-${task.taskDefinitionId}`}
+              leaveTouchDelay={3000}
+              title={taskDefinition.taskWhyWeDoIt}
+            >
+              <InfoOutlinedStyled />
+            </Tooltip>
+          )}
+        </TaskCell>
+      </OneTaskTitle>
+      {taskDetailsOpen && (
+        <OneTaskDetails>
+          <TaskCell id={`taskDone-${personId}-${task.taskDefinitionId}`} width={50}>
+            &nbsp;
+          </TaskCell>
+          <TaskCellOpen id={`statusDoneCell-${task.taskDefinitionId}`}>
+            <div>
+              <DisplayWhatToDoTextAsActiveJSX
+                // task={task}
+                taskDefinition={taskDefinition}
+                personId={personId}
               />
-            )}
-            label="Done?"
-          />
-        )}
-      </TaskCell>
-      <TaskCell id={`taskInstructions-${task.taskDefinitionId}`} width={24}>
-        {(taskDefinition.taskInstructions) && (
-          <Tooltip
-            arrow
-            enterTouchDelay={0} // show with click in mobile
-            id={`taskDescription-${task.taskDefinitionId}`}
-            leaveTouchDelay={3000}
-            title={taskDefinition.taskInstructions}
-          >
-            <InfoStyled />
-          </Tooltip>
-        )}
-      </TaskCell>
-      <TaskCell id={`taskActionUrlDiv-${task.taskDefinitionId}`} width={24}>
-        {(taskDefinition.taskActionUrl) && (
-          <Suspense fallback={<></>}>
-            <OpenExternalWebSite
-              linkIdAttribute={`taskActionUrl-${task.taskDefinitionId}`}
-              url={taskDefinition.taskActionUrl}
-              target="_blank"
-              body={(
-                <Tooltip arrow id={`taskActionUrlTooltip-${task.taskDefinitionId}`} title={taskDefinition.taskActionUrl}>
-                  <LaunchStyled />
-                </Tooltip>
+            </div>
+            <div>
+              {task.statusDone ? (
+                <CheckboxDone>
+                  Completed by Jane Dough (Apr 17, 2025)
+                </CheckboxDone>
+              ) : (
+                <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
+                  Mark completed
+                </SpanWithLinkStyle>
               )}
-            />
-          </Suspense>
-        )}
-      </TaskCell>
+            </div>
+          </TaskCellOpen>
+        </OneTaskDetails>
+      )}
     </OneTaskWrapper>
   );
 };
 TaskSummaryRow.propTypes = {
-  classes: PropTypes.object.isRequired,
   hideIfCompleted: PropTypes.bool.isRequired,
   personId: PropTypes.number.isRequired,
-  rowNumberForDisplay: PropTypes.number.isRequired,
   taskDefinition: PropTypes.object.isRequired,
   task: PropTypes.object.isRequired,
 };
@@ -146,41 +122,30 @@ const styles = () => ({
 
 const CheckboxDone = styled('div')`
   color: ${DesignTokenColors.neutral300};
-  margin-left: -6px;
 `;
 
-const CheckboxDoneWrapper = styled('div')`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-`;
-
-const CheckboxLabel = styled(FormControlLabel)`
-  margin-bottom: 0 !important;
-`;
-
-const InfoStyled = styled(Info)`
+const InfoOutlinedStyled = styled(InfoOutlined)`
   color: ${DesignTokenColors.neutral300};
   height: 20px;
   margin-left: 2px;
   width: 20px;
 `;
 
-const GraySpan = styled('span')`
-  color: ${DesignTokenColors.neutral400};
-`;
-
-const LaunchStyled = styled(Launch)`
-  color: ${DesignTokenColors.primary500};
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-`;
-
-const OneTaskWrapper = styled('div')`
+const OneTaskDetails = styled('div')`
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  margin-bottom: 10px;
+`;
+
+const OneTaskTitle = styled('div')`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+const OneTaskWrapper = styled('div')`
 `;
 
 const TaskCell = styled('div', {
@@ -190,12 +155,15 @@ const TaskCell = styled('div', {
   // border-bottom: 1px solid #ccc;
   ${(smallFont && !smallestFont) ? 'font-size: .9em;' : ''};
   ${(smallestFont && !smallFont) ? 'font-size: .8em;' : ''};
-  height: 28px;
   ${width ? `max-width: ${width}px;` : ''};
   ${width ? `min-width: ${width}px;` : ''};
   overflow: hidden;
   white-space: nowrap;
   ${width ? `width: ${width}px;` : ''};
 `));
+
+const TaskCellOpen = styled('div')`
+  align-content: center;
+`;
 
 export default withStyles(styles)(TaskSummaryRow);

@@ -33,6 +33,14 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
     }
   };
 
+  const editPersonTasksClick = (hasEditRights = true) => {
+    if (hasEditRights) {
+      setAppContextValue('editPersonTasksDrawerLabel', '');
+      setAppContextValue('editPersonTasksDrawerOpen', true);
+      setAppContextValue('editPersonTasksPersonId', person.personId);
+    }
+  };
+
   const personProfileClick = () => {
     setAppContextValue('personProfileDrawerOpen', true);
     setAppContextValue('personDrawersPerson', person);
@@ -88,6 +96,22 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
       >
         {person.jobTitle}
       </PersonCell>
+      {canEditPerson ? (
+        <PersonCell
+          id={`editPersonTasks-personId-${person.personId}`}
+          onClick={() => editPersonTasksClick(hasEditRights)}
+          style={{ cursor: 'pointer' }}
+          $cellwidth={20}
+        >
+          T
+        </PersonCell>
+      ) : (
+        <PersonCell
+          $cellwidth={20}
+        >
+          &nbsp;
+        </PersonCell>
+      )}
       {canEditPerson ? (
         <PersonCell
           id={`editPerson-personId-${person.personId}`}

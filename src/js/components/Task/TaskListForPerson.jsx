@@ -10,7 +10,7 @@ const TaskListForPerson = ({ personId, showCompletedTasks, taskDefinitionList, t
   let taskDefinition = {};
   return (
     <TaskListWrapper>
-      {taskListForPersonId.map((task, index) => {
+      {taskListForPersonId.map((task) => {
         taskDefinition = taskDefinitionList.find((taskDef) => taskDef.taskDefinitionId === task.taskDefinitionId) || {};
         return (
           <TaskSummaryRow
@@ -19,7 +19,6 @@ const TaskListForPerson = ({ personId, showCompletedTasks, taskDefinitionList, t
             personId={personId}
             taskDefinition={taskDefinition}
             task={task}
-            rowNumberForDisplay={index + 1}
           />
         );
       })}

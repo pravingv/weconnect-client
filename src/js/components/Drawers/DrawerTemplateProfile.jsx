@@ -9,7 +9,7 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { cordovaDrawerTopMargin } from '../../utils/cordovaOffsets';
 import { DrawerHeaderAnimateDownInnerContainer, DrawerHeaderAnimateDownOuterContainer, DrawerHeaderWrapper, DrawerTitle } from '../Style/drawerLayoutStyles';
-import DesignTokenColors from "../../common/components/Style/DesignTokenColors";
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 
 const DrawerTemplateProfile = (props) => {
   const { classes, drawerId, drawerOpenGlobalVariableName, headerFixedJsx, headerTitleJsx, mainContentJsx, onDrawerClose } = props;
