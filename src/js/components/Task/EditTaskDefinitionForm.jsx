@@ -15,8 +15,8 @@ import { useTaskDefinitionSaveMutation } from '../../react-query/mutations';
 //   'taskGroupId',
 //   'taskActionUrl',
 //   'taskName',
-//   'taskDescription',
-//   'taskInstructions',
+//   'taskWhyWeDoIt',
+//   'taskWhatToDo',
 // ];
 
 const EditTaskDefinitionForm = ({ classes }) => {
@@ -24,29 +24,37 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { mutate: taskDefinitionSave } = useTaskDefinitionSaveMutation();
 
+  const [questionnaireIdValue, setQuestionnaireIdValue] = useState('');
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
   const [taskDefinition] = useState(getAppContextValue('editTaskDefinitionDrawerTaskDefinition'));
+  const [taskNameCompletedValue, setTaskNameCompletedValue] = useState('');
   const [taskNameValue, setTaskNameValue] = useState('');
-  const [taskDescValue, setTaskDescValue] = useState('');
-  const [taskInstValue, setTaskInstValue] = useState('');
+  const [taskWhyWeDoItValue, setTaskWhyWeDoItValue] = useState('');
+  const [taskWhatToDoValue, setTaskWhatToDoValue] = useState('');
   const [taskUrlValue, setTaskUrlValue] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
 
+  const questionnaireIdInputRef = useRef('');
+  const taskNameCompletedInputRef = useRef('');
   const taskNameInputRef = useRef('');
-  const taskDescInputRef = useRef('');
-  const taskInstInputRef = useRef('');
+  const taskWhyWeDoItInputRef = useRef('');
+  const taskWhatToDoInputRef = useRef('');
   const taskUrlInputRef = useRef('');
 
   useEffect(() => {
     if (taskDefinition) {
+      setQuestionnaireIdValue(taskDefinition.questionnaireId);
+      setTaskNameCompletedValue(taskDefinition.taskNameCompleted);
       setTaskNameValue(taskDefinition.taskName);
-      setTaskDescValue(taskDefinition.taskDescription);
-      setTaskInstValue(taskDefinition.taskInstructions);
+      setTaskWhyWeDoItValue(taskDefinition.taskWhyWeDoIt);
+      setTaskWhatToDoValue(taskDefinition.taskWhatToDo);
       setTaskUrlValue(taskDefinition.taskActionUrl);
     } else {
+      setQuestionnaireIdValue('');
+      setTaskNameCompletedValue('');
       setTaskNameValue('');
-      setTaskDescValue('');
-      setTaskInstValue('');
+      setTaskWhyWeDoItValue('');
+      setTaskWhatToDoValue('');
       setTaskUrlValue('');
     }
   }, [taskDefinition]);
@@ -56,9 +64,11 @@ const EditTaskDefinitionForm = ({ classes }) => {
       taskDefinitionId: taskDefinition ? taskDefinition.id : '-1',
       taskGroupId: taskGroup.taskGroupId,
     }, {
+      questionnaireId: questionnaireIdInputRef.current.value,
       taskName: taskNameInputRef.current.value,
-      taskDescription: taskDescInputRef.current.value,
-      taskInstructions: taskInstInputRef.current.value,
+      taskNameCompleted: taskNameCompletedInputRef.current.value,
+      taskWhatToDo: taskWhatToDoInputRef.current.value,
+      taskWhyWeDoIt: taskWhyWeDoItInputRef.current.value,
       taskActionUrl: taskUrlInputRef.current.value,
     });
     taskDefinitionSave(requestParams);
@@ -85,34 +95,49 @@ const EditTaskDefinitionForm = ({ classes }) => {
           defaultValue={taskNameValue}
           id="taskNameToBeSaved"
           inputRef={taskNameInputRef}
-          label="Task Name"
+          label="Task Name (Prior to Completion)"
           margin="dense"
+          multiline
           name="taskName"
           onChange={updateSaveButton}
-          placeholder="Name of one task"
+          placeholder="Name of one task, before completion"
+          rows={2}
           variant="outlined"
         />
         <TextField
-          defaultValue={taskDescValue}
-          id="taskDescriptionToBeSaved"
-          inputRef={taskDescInputRef}
-          label="Description of this task"
+          defaultValue={taskNameCompletedValue}
+          id="taskNameCompletedToBeSaved"
+          inputRef={taskNameCompletedInputRef}
+          label="Task Name (Once Completed)"
           margin="dense"
           multiline
-          name="taskDescription"
+          name="taskNameCompleted"
           onChange={updateSaveButton}
-          placeholder="Task description"
+          placeholder="Name of task, after completion"
+          rows={2}
+          variant="outlined"
+        />
+        <TextField
+          defaultValue={taskWhyWeDoItValue}
+          id="taskWhyWeDoItToBeSaved"
+          inputRef={taskWhyWeDoItInputRef}
+          label="Why we do this task"
+          margin="dense"
+          multiline
+          name="taskWhyWeDoIt"
+          onChange={updateSaveButton}
+          placeholder="Why we do this task"
           rows={6}
           variant="outlined"
         />
         <TextField
-          defaultValue={taskInstValue}
-          id="taskInstructionsToBeSaved"
-          inputRef={taskInstInputRef}
-          label="Instructions for completing this task"
+          defaultValue={taskWhatToDoValue}
+          id="taskWhatToDoToBeSaved"
+          inputRef={taskWhatToDoInputRef}
+          label="What to do to complete this task"
           margin="dense"
           multiline
-          name="taskInstructions"
+          name="taskWhatToDo"
           onChange={updateSaveButton}
           placeholder="Instructions for how to complete this task"
           rows={6}
@@ -127,6 +152,17 @@ const EditTaskDefinitionForm = ({ classes }) => {
           name="taskActionUrl"
           onChange={updateSaveButton}
           placeholder="Web address of the task"
+          variant="outlined"
+        />
+        <TextField
+          defaultValue={questionnaireIdValue}
+          id="questionnaireIdToBeSaved"
+          inputRef={questionnaireIdInputRef}
+          label="Questionnaire ID (If needed for this task)"
+          margin="dense"
+          name="questionnaireId"
+          onChange={updateSaveButton}
+          placeholder="Id of the questionnaire to be completed for this task"
           variant="outlined"
         />
         <Button

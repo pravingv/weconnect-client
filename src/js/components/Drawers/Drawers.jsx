@@ -4,12 +4,13 @@ import AddPersonDrawer from './AddPersonDrawer';
 import AddTeamDrawer from './AddTeamDrawer';
 import EditMeetingDrawer from './EditMeetingDrawer';
 import EditPersonDrawer from './EditPersonDrawer';
+import EditPersonTasksDrawer from './EditPersonTasksDrawer';
+import EditProfileDrawer from './EditProfileDrawer';
 import EditQuestionDrawer from './EditQuestionDrawer';
 import EditQuestionnaireDrawer from './EditQuestionnaireDrawer';
 import EditTaskDefinitionDrawer from './EditTaskDefinitionDrawer';
 import EditTaskGroupDrawer from './EditTaskGroupDrawer';
 import PersonProfileDrawer from './PersonProfileDrawer';
-import EditProfileDrawer from "./EditProfileDrawer";
 
 
 const Drawers = () => {
@@ -22,11 +23,12 @@ const Drawers = () => {
       <AddTeamDrawer />
       <EditMeetingDrawer />
       <EditPersonDrawer />
+      <EditPersonTasksDrawer />
+      <EditProfileDrawer />
       <EditQuestionDrawer />
       <EditQuestionnaireDrawer />
       <EditTaskDefinitionDrawer />
       <EditTaskGroupDrawer />
-      <EditProfileDrawer />
     </>
   );
 };

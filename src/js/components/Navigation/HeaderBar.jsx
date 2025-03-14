@@ -72,8 +72,10 @@ const HeaderBar = ({ hideTabs }) => {
       case 'questionnaire':
       case 'system-settings':
       case 'task-group':
-        setTabsValue('3');
-        // console.log('initializeTabValue  setTabsValue: 3');
+        if (viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights)) {
+          setTabsValue('3');
+          // console.log('initializeTabValue  setTabsValue: 3');
+        }
         break;
       default:
         setTabsValue('1');

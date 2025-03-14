@@ -55,25 +55,6 @@ export const useGetPersonById = (personId) => {
   }
 };
 
-export const useGetFullNamePreferred = (personId) => {
-  const person = useGetPersonById(personId);
-  let fullName = '';
-  if (person.id >= 0) {
-    if (person.firstNamePreferred) {
-      fullName += person.firstNamePreferred;
-    } else if (person.firstName) {
-      fullName += person.firstName;
-    }
-    if (fullName.length > 0 && person.lastName) {
-      fullName += ' ';
-    }
-    if (person.lastName) {
-      fullName += person.lastName;
-    }
-  }
-  return fullName;
-};
-
 // Needed to avoid Dependency cycle problem, and to get this string from within maps
 export const getFullNamePreferredPerson = (person) => {
   let fullName = '';
@@ -91,6 +72,25 @@ export const getFullNamePreferredPerson = (person) => {
     }
   }
   return fullName;
+};
+
+export const useGetFullNamePreferred = (personId) => {
+  const person = useGetPersonById(personId);
+  return getFullNamePreferredPerson(person);
+};
+
+export const getPreferredEmail = (person) => {
+  let preferredEmail = '';
+  if (person.id >= 0) {
+    if (person.emailPreferred) {
+      preferredEmail = person.emailPreferred;
+    } else if (person.emailOfficial) {
+      preferredEmail = person.emailOfficial;
+    } else if (person.emailPersonal) {
+      preferredEmail = person.emailPersonal;
+    }
+  }
+  return preferredEmail;
 };
 
 export const usePersonSave = () => {

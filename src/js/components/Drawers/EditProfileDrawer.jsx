@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LockIcon from '@mui/icons-material/Lock';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import MenuIcon from '@mui/icons-material/Menu';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import DrawerTemplateProfile from './DrawerTemplateProfile';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
 
 const EditProfileDrawer = () => {
-  const [headerTitleJSX] = useState(<><MenuIconWrapper onClick={() => onMenuClick()}><MenuIcon /></MenuIconWrapper><YourAccountWrapper><AccountCircleIcon /><p>Your account</p></YourAccountWrapper></>);
   const [headerFixedJsx] = useState(<></>);
   const [displayProfileOption, setDisplayProfileOption] = useState('Name & Photo');
   const [displayProfileComponent, setDisplayProfileComponent] = useState();
   const [viewLink, setViewLink] = useState(false);
+  const [headerTitleJSX] = useState(<><MenuIconWrapper onClick={() => setViewLink(true)}><MenuIcon /></MenuIconWrapper><YourAccountWrapper><AccountCircleIcon /><p>Your account</p></YourAccountWrapper></>);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   // checks window width for responsiveness
   useEffect(() => {
@@ -52,10 +52,6 @@ const EditProfileDrawer = () => {
   const onNavLinkClick = (link) => {
     setDisplayProfileOption(link);
     setViewLink(true);
-  };
-
-  const onMenuClick = () => {
-    setViewLink(false);
   };
 
   const navOptionsComponent = profileNavOptions.map((option) => (

@@ -43,7 +43,6 @@ const EditQuestionForm = ({ classes }) => {
   const [requireAnswerValue, setRequireAnswerValue] = useState(false);
   const [statusActiveValue, setStatusActiveValue]  = useState(true);
 
-  // eslint-disable-next-line no-unused-vars
   const [fieldMappingRuleCopied, setFieldMappingRuleCopied] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showFieldMappingOptions, setShowFieldMappingOptions] = useState(false);

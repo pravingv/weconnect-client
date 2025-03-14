@@ -8,6 +8,7 @@ import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 // import { useGetPersonById, usePersonSave } from '../../models/PersonModel';
 
 const EditPersonForm = ({ classes }) => {
@@ -17,30 +18,38 @@ const EditPersonForm = ({ classes }) => {
   // const { mutate: personSave } = usePersonSave();
 
   const [saveButtonActive, setSaveButtonActive] = useState(false);
+  const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [initialPerson] = useState(getAppContextValue('personDrawersPerson'));
   // const [initialPerson] = useState(useGetPersonById(getAppContextValue('personDrawersPersonId')));
   const [activePerson, setActivePerson] = useState({ ...initialPerson });
 
+  const emailOfficialInputRef = useRef('');
   const emailPersonalInputRef = useRef('');
+  const emailPreferredInputRef = useRef('');
   const firstNameInputRef = useRef('');
   const firstNamePreferredInputRef = useRef('');
+  const jazzHrUrlInputRef = useRef('');
   const jobTitleInputRef = useRef('');
   const lastNameInputRef = useRef('');
+  const linkedInUrlInputRef = useRef('');
   const locationInputRef = useRef('');
   const stateCodeInputRef = useRef('');
 
   const savePerson = () => {
+    activePerson.emailOfficial = emailOfficialInputRef.current.value;
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
+    activePerson.emailPreferred = emailPreferredInputRef.current.value;
     activePerson.firstName = firstNameInputRef.current.value;
     activePerson.firstNamePreferred = firstNamePreferredInputRef.current.value;
+    activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
     activePerson.jobTitle = jobTitleInputRef.current.value;
     activePerson.lastName = lastNameInputRef.current.value;
+    activePerson.linkedInUrl = linkedInUrlInputRef.current.value;
     activePerson.location = locationInputRef.current.value;
     activePerson.stateCode = stateCodeInputRef.current.value;
     setActivePerson(activePerson);
 
     // console.log('savePerson data:', JSON.stringify(activePerson));
-
     const data = {};
     Object.keys(activePerson).forEach((key) => {
       const initialValue = initialPerson[key] || '';
@@ -97,13 +106,60 @@ const EditPersonForm = ({ classes }) => {
         <TextField
           defaultValue={activePerson.emailPersonal || ''}
           id="emailPersonalToBeSaved"
-          label="Email Address, Personal"
-          name="emailPersonal"
           inputRef={emailPersonalInputRef}
+          label="Email Address, Personal"
           margin="dense"
-          variant="outlined"
+          name="emailPersonal"
           onChange={() => setSaveButtonActive(true)}
           placeholder="Email Address, Personal"
+          variant="outlined"
+        />
+        <TextField
+          defaultValue={activePerson.emailOfficial || ''}
+          id="emailOfficialToBeSaved"
+          inputRef={emailOfficialInputRef}
+          label={`Email Address, ${webAppConfig.ORGANIZATION_NAME} Official`}
+          margin="dense"
+          name="emailOfficial"
+          onChange={() => setSaveButtonActive(true)}
+          placeholder={`${webAppConfig.ORGANIZATION_NAME} email address`}
+          variant="outlined"
+        />
+        <div>
+          {!(showEmailPreferred) && (
+            <SpanWithLinkStyle onClick={() => setShowEmailPreferred(true)}>
+              Edit preferred: {activePerson.emailPreferred || activePerson.emailOfficial}
+            </SpanWithLinkStyle>
+          )}
+        </div>
+        <TextField
+          defaultValue={activePerson.emailPreferred || ''}
+          id="emailPreferredToBeSaved"
+          inputRef={emailPreferredInputRef}
+          label="Email Address, Preferred"
+          margin="dense"
+          name="emailPreferred"
+          onChange={() => setSaveButtonActive(true)}
+          placeholder="Preferred Email Address"
+          sx={!showEmailPreferred && {
+            position: 'absolute',
+            left: '-9999px',
+            width: '1px',
+            height: '1px',
+            overflow: 'hidden',
+          }}
+          variant="outlined"
+        />
+        <TextField
+          defaultValue={activePerson.jazzHrUrl || ''}
+          id="jazzHrUrlToBeSaved"
+          inputRef={jazzHrUrlInputRef}
+          label="JazzHR Profile URL"
+          margin="dense"
+          name="jazzHrUrlToBeSaved"
+          onChange={() => setSaveButtonActive(true)}
+          placeholder="Profile URL on JazzHR"
+          variant="outlined"
         />
         <TextField
           defaultValue={activePerson.location || ''}
@@ -136,6 +192,17 @@ const EditPersonForm = ({ classes }) => {
           name="jobTitle"
           onChange={() => setSaveButtonActive(true)}
           placeholder={`Job Title here at ${webAppConfig.ORGANIZATION_NAME}`}
+          variant="outlined"
+        />
+        <TextField
+          defaultValue={activePerson.linkedInUrl || ''}
+          id="linkedInUrlToBeSaved"
+          inputRef={linkedInUrlInputRef}
+          label="LinkedIn URL"
+          margin="dense"
+          name="linkedInUrlToBeSaved"
+          onChange={() => setSaveButtonActive(true)}
+          placeholder="LinkedIn URL"
           variant="outlined"
         />
         <Button

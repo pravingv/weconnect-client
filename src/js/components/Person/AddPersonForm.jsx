@@ -17,9 +17,10 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
   const [teamName, setTeamName] = useState('');
   const [saveButtonActive, setSaveButtonActive] = React.useState(false);
 
-  const firstNameInputRef = useRef('');
-  const lastNameInputRef = useRef('');
   const emailInputRef = useRef('');
+  const firstNameInputRef = useRef('');
+  const jazzHrUrlInputRef = useRef('');
+  const lastNameInputRef = useRef('');
 
   useEffect(() => {  // Replaces onAppObservableStoreChange and will be called whenever the context value changes
     // console.log('AddPersonForm: Context value changed:', true);
@@ -33,6 +34,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
   const saveNewPerson = () => {
     const data = {
       firstName: firstNameInputRef.current.value,
+      jazzHrUrl: jazzHrUrlInputRef.current.value,
       lastName: lastNameInputRef.current.value,
       emailPersonal: emailInputRef.current.value,
     };
@@ -92,6 +94,16 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
           name="emailPersonalToBeSaved"
           onChange={() => updateSaveButton()}
           placeholder="Email Address, Personal"
+          variant="outlined"
+        />
+        <TextField
+          id="jazzHrUrlToBeSaved"
+          inputRef={jazzHrUrlInputRef}
+          label="JazzHR Profile URL"
+          margin="dense"
+          name="jazzHrUrlToBeSaved"
+          onChange={() => updateSaveButton()}
+          placeholder="Profile URL on JazzHR"
           variant="outlined"
         />
         <Button
