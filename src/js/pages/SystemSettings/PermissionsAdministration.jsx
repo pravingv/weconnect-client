@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { MatchingPerson, SearchBarWrapper } from '../../components/Style/sharedStyles';
+import { SearchBarWrapper } from '../../components/Style/sharedStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
@@ -28,7 +28,6 @@ const PermissionsAdministration = ({ classes }) => {
   const [canEditPermissionsAnyone, setCanEditPermissionsAnyone] = useState(false);
 
   const searchByNameRef = useRef('');
-  const searchByEmailRef = useRef('');
   const filterState = useRef({
     admin: true,
     hrOfferAdmin: true,
@@ -132,7 +131,7 @@ const PermissionsAdministration = ({ classes }) => {
   };
 
   const onClickCheckbox = (event) => {
-    console.log(event);
+    // console.log(event);
     // eslint-disable-next-line no-unused-vars
     if (canEditPermissionsAnyone) {
       const pieces = event.target.id.split('-');
@@ -156,22 +155,30 @@ const PermissionsAdministration = ({ classes }) => {
       }
       setButtonState(SET.ENABLE, personId);
       setUpdateCount(updateCount + 1);  // setting array of arrays does not cause a re-render, due to nesting?
-      setPeopleWorkingArrayFiltered(peopleWorkingArrayFiltered);  // TODO: Does this do anything???????
+      setPeopleWorkingArrayFiltered(peopleWorkingArrayFiltered);  // Does this do anything???????
     }
   };
 
-  const searchFunction = () => {
-    // As the list of staff persons grows, searching through the allPeopleCache, and even maintaining an allPeopleCache will require too much memory and bandwidth
-    // Eventually we should send search queries to the server, and get just the people we are interested in
-  };
-
-  const filterClicked = (event) => {
-    const id = event.currentTarget.id.replace('Filter', '');
-    const element = Object.entries(filterState.current).find((key) => key[0] === id);
-    console.log('filter clicked: ', id);
-    filterState.current[element[0]] = !element[1];
-    console.log('filter clicked: ', element);
-    setPeopleWorkingArrayFiltered(peopleWorkingArray.filter((person) => includePersonInFilteredArray(person)));
+  const searchAndFilterFunction = (event) => {
+    let { id } = event.currentTarget;
+    if (id.includes('Filter')) {
+      // Update filterState array
+      id = id.replace('Filter', '');
+      const element = Object.entries(filterState.current).find((key) => key[0] === id);
+      console.log('filter clicked: ', id);
+      filterState.current[element[0]] = !element[1];
+      console.log('filter clicked: ', element);
+    }
+    // Remove any search limiting from the dataset, but re-add the column filtering
+    const filteredPeople = peopleWorkingArray.filter((person) => includePersonInFilteredArray(person));
+    const srch = searchByNameRef.current.value;
+    if (srch.length > 0) {
+      const filteredSearchedPeople =
+        filteredPeople.filter((person) => getFullNamePreferredPerson(person).toLowerCase().includes(srch.toLowerCase()));
+      setPeopleWorkingArrayFiltered(filteredSearchedPeople);
+    } else {
+      setPeopleWorkingArrayFiltered(filteredPeople);
+    }
   };
 
   const TableHeaderButton = (params) => {
@@ -179,7 +186,7 @@ const PermissionsAdministration = ({ classes }) => {
     const filterStateKey = id.replace('Filter', '');
     return (
       <Th $cellwidth={25} $padding={false}>
-        <Button id={id} size="small" onClick={filterClicked} sx={{ color: filterState.current[filterStateKey] ? '#206DB3;' : 'grey' }}>
+        <Button id={id} size="small" onClick={searchAndFilterFunction} sx={{ color: filterState.current[filterStateKey] ? '#206DB3;' : 'grey' }}>
           {text}
         </Button>
       </Th>
@@ -194,22 +201,11 @@ const PermissionsAdministration = ({ classes }) => {
           label="Search by name"
           inputRef={searchByNameRef}
           name="searchByName"
-          onChange={searchFunction}
+          onChange={searchAndFilterFunction}
           placeholder="Search by name"
           defaultValue=""
           sx={{ minWidth: '200px', marginRight: '15px' }}
         />
-        <TextField
-          id="search_input"
-          label="Search by email"
-          inputRef={searchByEmailRef}
-          name="searchByEmail"
-          onChange={searchFunction}
-          placeholder="Search by email"
-          defaultValue=""
-          sx={{ minWidth: '200px' }}
-        />
-        <MatchingPerson>Search is not yet implemented</MatchingPerson>
       </SearchBarWrapper>
       {!canEditPermissionsAnyone && (
         <ErrorText>
