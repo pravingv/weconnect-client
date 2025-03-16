@@ -4,8 +4,8 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router';
 import styled from 'styled-components';
 import SearchBar2024 from '../common/components/Search/SearchBar2024';
-import DesignTokenColors from '../common/components/Style/DesignTokenColors';
 import { renderLog } from '../common/utils/logging';
+import { ActionBarItem, ActionBarSection, SearchBarWrapper } from '../components/Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TeamHeader from '../components/Team/TeamHeader';
@@ -23,7 +23,7 @@ import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 const Teams = () => {
   renderLog('Teams');
   const { apiDataCache, setAppContextValue, getAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights, allPeopleCache, allTeamsCache } = apiDataCache;
+  const { allPeopleCache, allTeamsCache, viewerAccessRights } = apiDataCache;
   const dispatch = useConnectDispatch();
 
   const [searchText, setSearchText] = useState('');
@@ -86,6 +86,7 @@ const Teams = () => {
     setAppContextValue('addPersonDrawerOpen', true);
     setAppContextValue('AddPersonDrawerLabel', 'Add Person');
   };
+
   const hideInactiveClick = () => {
     setHideInactive(!hideInactive);
   };
@@ -111,7 +112,11 @@ const Teams = () => {
       teamId = team.teamId;
       const updatedTeamMemberList = getTeamMembersListByTeamId(teamId, apiDataCache);
       if (searchText) {
-        numberOfTeamMembersFound = updatedTeamMemberList.filter((person) => isSearchTextFoundInPerson(searchText, person)).length;
+        // numberOfTeamMembersFound = updatedTeamMemberList.filter((person) => isSearchTextFoundInPerson(searchText, person)).length;
+        numberOfTeamMembersFound = updatedTeamMemberList.filter((person) => {
+          const personResults = isSearchTextFoundInPerson(searchText, person);
+          return personResults.allSearchWordsWereFound;
+        }).length;
       } else {
         numberOfTeamMembersFound = updatedTeamMemberList.length;
       }
@@ -146,7 +151,7 @@ const Teams = () => {
         {/* Don't think we can do this anymore ... <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/team-home`} /> */}
       </Helmet>
       <PageContentContainer>
-        <ActionBarWrapper>
+        <TeamsActionBarWrapper>
           <SearchBarWrapper>
             <SearchBar2024
               clearFunction={clearFunction}
@@ -189,7 +194,7 @@ const Teams = () => {
               </SpanWithLinkStyle>
             </ActionBarItem>
           </ActionBarSection>
-        </ActionBarWrapper>
+        </TeamsActionBarWrapper>
         {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the personIds of team members */}
         {teamList.map((team, index) => {
@@ -233,31 +238,14 @@ Teams.propTypes = {
 const styles = () => ({
 });
 
-const ActionBarItem = styled('div')`
-  padding-right: 15px;
+const OneTeamWrapper = styled('div')`
 `;
 
-const ActionBarSection = styled('div')`
-  align-items: center;
-  border-right: 1px solid ${DesignTokenColors.neutralUI200};
-  display: flex;
-  font-size: .8em;
-  justify-content: flex-start;
-  padding-left: 15px;
-`;
-
-const ActionBarWrapper = styled('div')`
+const TeamsActionBarWrapper = styled('div')`
   align-items: center;
   display: flex;
   justify-content: flex-start;
   margin-top: 40px;  // Temporary hack
-`;
-
-const OneTeamWrapper = styled('div')`
-`;
-
-const SearchBarWrapper = styled('div')`
-  margin-right: 10px;
 `;
 
 export default withStyles(styles)(Teams);

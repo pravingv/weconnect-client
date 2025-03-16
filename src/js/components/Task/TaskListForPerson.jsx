@@ -3,16 +3,32 @@ import React from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import TaskSummaryRow from './TaskSummaryRow';
+import { isSearchTextFoundInTask } from '../../controllers/TaskController';
 
 
-const TaskListForPerson = ({ personId, showCompletedTasks, taskDefinitionList, taskListForPersonId }) => {
+const TaskListForPerson = ({ personId, searchText, showCompletedTasks, taskDefinitionList, taskListForPersonId }) => {
   renderLog('TaskListForPerson');  // Set LOG_RENDER_EVENTS to log all renders
-  let taskDefinition = {};
+  // console.log('=== TaskListForPerson searchText:', searchText);
+  // isSearchTextFoundInTask(searchText, task, taskDefinitionList)
+
+  const showTask = (task) => {
+    // console.log('=== *** showTask:', task, ', searchText:', searchText, ', taskDefinitionList:', taskDefinitionList);
+    // if (!task || task.taskDefinitionId < 1) return false; // Invalid task or task.id
+    if (searchText) {
+      const results = isSearchTextFoundInTask(searchText, task, taskDefinitionList);
+      return results.allSearchWordsWereFound;
+    } else {
+      return true; // Show the task if no searchText is provided
+    }
+  };
+
   return (
     <TaskListWrapper>
       {taskListForPersonId.map((task) => {
-        taskDefinition = taskDefinitionList.find((taskDef) => taskDef.taskDefinitionId === task.taskDefinitionId) || {};
-        return (
+        const taskDefinition = taskDefinitionList.find((taskDef) => taskDef.taskDefinitionId === task.taskDefinitionId) || {};
+        const showTaskTemp =  showTask(task, searchText, taskDefinitionList);
+        // console.log('*** showTaskTemp:', showTaskTemp);
+        return showTaskTemp ? (
           <TaskSummaryRow
             hideIfCompleted={!showCompletedTasks}
             key={`taskSummaryRow-${task.personId}-${task.taskDefinitionId}`}
@@ -20,13 +36,14 @@ const TaskListForPerson = ({ personId, showCompletedTasks, taskDefinitionList, t
             taskDefinition={taskDefinition}
             task={task}
           />
-        );
+        ) : null;
       })}
     </TaskListWrapper>
   );
 };
 TaskListForPerson.propTypes = {
   personId: PropTypes.number.isRequired,
+  searchText: PropTypes.string,
   showCompletedTasks: PropTypes.bool,
   taskDefinitionList: PropTypes.array,
   taskListForPersonId: PropTypes.array,

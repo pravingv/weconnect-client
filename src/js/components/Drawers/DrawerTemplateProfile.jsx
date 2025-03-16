@@ -195,6 +195,7 @@ const styles = () => ({
   },
   profileHeader: {
     backgroundColor: DesignTokenColors.neutral500,
+    minHeight: 'auto',
     width: '100%',
   },
   profileTitle: {

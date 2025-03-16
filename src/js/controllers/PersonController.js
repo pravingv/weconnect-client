@@ -2,6 +2,7 @@
 // Functions for manipulating data related to the person table.
 import { PERSON_AWAY_REASONS } from '../models/PersonModel';
 import webAppConfig from '../config';
+import arrayContains from '../common/utils/arrayContains';
 
 export const getPersonAwayReason = (personAway) => {
   let personAwayReasonFound = 'isVacation'; // Default to vacation if none of the other reasons are found
@@ -59,6 +60,7 @@ export const searchWordFoundInOnePerson = (searchWord, person) => {
   const normalizedSearchWord = searchWord.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   fieldsToSearch.forEach((fieldValue) => {
     const personFieldValue = person[fieldValue];
+    // console.log('searchWordFoundInOnePerson, fieldValue: ', fieldValue, ', personFieldValue:', personFieldValue);
     if (personFieldValue) {
       const normalizedPersonFieldValue = personFieldValue.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       if (normalizedPersonFieldValue.includes(normalizedSearchWord)) {
@@ -76,14 +78,24 @@ export const isSearchTextFoundInPerson = (incomingSearchText, person) => {
   let atLeastOneSearchWordFound = false;
   let allSearchWordsFound = true;
   let searchWordFound = false;
+  const searchWordsFoundList = [];
+  // console.log('isSearchTextFoundInPerson BEFORE searchWords:', searchWords, ', person:', person);
   searchWords.forEach((searchWord) => {
     searchWordFound = searchWordFoundInOnePerson(searchWord, person);
+    // console.log('isSearchTextFoundInPerson, searchWord: ', searchWord, ', searchWordFound:', searchWordFound);
     if (searchWordFound) {
       atLeastOneSearchWordFound = true;
+      if (!arrayContains(searchWord, searchWordsFoundList)) {
+        searchWordsFoundList.push(searchWord);
+        // console.log('isSearchTextFoundInPerson FOUND, searchWord: ', searchWord, ', searchWordFound:', searchWordFound);
+      }
     }
     if (!searchWordFound) {
       allSearchWordsFound = false;
     }
   });
-  return atLeastOneSearchWordFound && allSearchWordsFound;
+  return {
+    searchWordsFoundList,
+    allSearchWordsWereFound: atLeastOneSearchWordFound && allSearchWordsFound,
+  };
 };

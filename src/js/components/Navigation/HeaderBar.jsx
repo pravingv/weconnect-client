@@ -1,4 +1,5 @@
 import { Button, Tab, Tabs } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
@@ -9,24 +10,23 @@ import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { normalizedHrefPage } from '../../common/utils/hrefUtils';
 import { authLog, renderLog, routingLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
-import { useLogoutMutation } from '../../react-query/mutations';
-import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
 import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
 
+const HEADER_TAB_DASHBOARD = 1;
+const HEADER_TAB_TASKS = 2;
+const HEADER_TAB_TEAMS = 3;
+const HEADER_TAB_SETTINGS = 4;
 
-// eslint-disable-next-line no-unused-vars
 const HeaderBar = ({ hideTabs }) => {
   renderLog('HeaderBar');
   const navigate = useNavigate();
-  const { apiDataCache, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
-  const { mutate: mutateLogout } = useLogoutMutation();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
 
   const [scrolledDown] = useState(false);
-  const [tabsValue, setTabsValue] = useState('1');
+  const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [showTabs, setShowTabs] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
@@ -48,38 +48,28 @@ const HeaderBar = ({ hideTabs }) => {
     }
   }, [apiDataCache]);
 
-  const logoutApi = async () => {
-    // I don't think we want to make the weConnectQueryFn call here since we are about to call mutateLogout
-    const data = await weConnectQueryFn('logout', {}, METHOD.POST);
-    // console.log(`/logout response in HeaderBar -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
-    clearSignedInGlobals(setAppContextValue, getAppContextData);
-    navigate('/login');
-    mutateLogout();
-  };
-
   const initializeTabValue = () => {
     // console.log('initializeTabValue normalizedHrefPage():', normalizedHrefPage());
     switch (normalizedHrefPage()) {
+      case 'dashboard':
+        setTabsValue(HEADER_TAB_DASHBOARD);
+        break;
       case 'tasks':
-        setTabsValue('1');
-        // console.log('initializeTabValue  setTabsValue: 1');
+        setTabsValue(HEADER_TAB_TASKS);
         break;
       case 'team-home':
       case 'teams':
-        setTabsValue('2');
-        // console.log('initializeTabValue  setTabsValue: 2');
+        setTabsValue(HEADER_TAB_TEAMS);
         break;
       case 'questionnaire':
       case 'system-settings':
       case 'task-group':
         if (viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights)) {
-          setTabsValue('3');
-          // console.log('initializeTabValue  setTabsValue: 3');
+          setTabsValue(HEADER_TAB_SETTINGS);
         }
         break;
       default:
-        setTabsValue('1');
-        // console.log('initializeTabValue  setTabsValue default: 1');
+        setTabsValue(HEADER_TAB_DASHBOARD);
         break;
     }
   };
@@ -97,13 +87,16 @@ const HeaderBar = ({ hideTabs }) => {
     // setTabsValue(newValue);
     if (newValue) {
       switch (newValue) {
-        case '1':
+        case HEADER_TAB_DASHBOARD:
+          navigate('/dashboard');
+          break;
+        case HEADER_TAB_TASKS:
           navigate('/tasks');
           break;
-        case '2':
+        case HEADER_TAB_TEAMS:
           navigate('/teams');
           break;
-        case '3':
+        case HEADER_TAB_SETTINGS:
           navigate('/system-settings');
           break;
         default:
@@ -119,13 +112,16 @@ const HeaderBar = ({ hideTabs }) => {
     // setTabsValue(newValue);
     if (newValue) {
       switch (newValue) {
-        case '1':
+        case HEADER_TAB_DASHBOARD:
+          navigate('/dashboard');
+          break;
+        case HEADER_TAB_TASKS:
           navigate('/tasks');
           break;
-        case '2':
+        case HEADER_TAB_TEAMS:
           navigate('/teams');
           break;
-        case '3':
+        case HEADER_TAB_SETTINGS:
           navigate('/system-settings');
           break;
         default:
@@ -174,27 +170,23 @@ const HeaderBar = ({ hideTabs }) => {
               onChange={handleTabChange}
               aria-label="Tabs selector"
             >
-              <Tab value="1" label="Dashboard" onClick={() => handleTabChangeClick('1')} />
-              <Tab value="2" label="Teams" onClick={() => handleTabChangeClick('2')} />
+              <Tab value={HEADER_TAB_DASHBOARD} label="Dashboard" onClick={() => handleTabChangeClick(HEADER_TAB_DASHBOARD)} />
+              <Tab value={HEADER_TAB_TASKS} label="Tasks" onClick={() => handleTabChangeClick(HEADER_TAB_TASKS)} />
+              <Tab value={HEADER_TAB_TEAMS} label="Teams" onClick={() => handleTabChangeClick(HEADER_TAB_TEAMS)} />
               {viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights) && (
-                <Tab value="3" label="Settings" onClick={() => handleTabChangeClick('3')} />
+                <Tab value={HEADER_TAB_SETTINGS} label="Settings" onClick={() => handleTabChangeClick(HEADER_TAB_SETTINGS)} />
               )}
             </Tabs>
           )}
         </TopRowOneMiddleContainer>
         <TopRowOneRightContainer className="u-cursor--pointer">
           <Button
-            onClick={() => editProfileClick()}
-          >
-            Edit Profile
-          </Button>
-          <Button
             variant="outlined"
             sx={{ border: 'none' }}
             id="signInButton"
-            onClick={() => (isAuthenticated ? logoutApi() : navigate('/login'))}
+            onClick={() => (isAuthenticated ? editProfileClick() : navigate('/login'))}
           >
-            {isAuthenticated ? 'Sign Out' : 'Sign In'}
+            {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
           </Button>
         </TopRowOneRightContainer>
         <TopRowTwoLeftContainer>

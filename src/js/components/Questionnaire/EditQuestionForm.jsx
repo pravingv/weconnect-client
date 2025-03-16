@@ -100,6 +100,7 @@ const EditQuestionForm = ({ classes }) => {
     const params = {
       answerType: radioValue,
       fieldMappingRule: fieldMappingRuleInputRef.current.value,
+      // questionOrder
       questionPlaceholder: placeholderInputRef.current.value,
       questionInstructions: questionInstructionsInputRef.current.value,
       questionText: questionTextInputRef.current.value,
