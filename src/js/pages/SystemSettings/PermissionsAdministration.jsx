@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { MatchingPerson, SearchBarWrapper } from '../../components/Style/sharedStyles';
+import { SearchBarWrapper } from '../../components/Style/sharedStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
@@ -23,38 +23,65 @@ const PermissionsAdministration = ({ classes }) => {
   const { allPeopleCache, viewerAccessRights } = apiDataCache;
 
   const [peopleWorkingArray, setPeopleWorkingArray] = useState(); // Object.values(allPeopleCacheCopy1));
+  const [peopleWorkingArrayFiltered, setPeopleWorkingArrayFiltered] = useState(); // Object.values(allPeopleCacheCopy1));
   const [updateCount, setUpdateCount] = useState(0);
   const [canEditPermissionsAnyone, setCanEditPermissionsAnyone] = useState(false);
 
   const searchByNameRef = useRef('');
-  const searchByEmailRef = useRef('');
+  const filterState = useRef({
+    admin: true,
+    hrOfferAdmin: true,
+    hrAdmin: true,
+    hrGen1: true,
+    hrGen2: true,
+    hiring: true,
+    lead: true,
+    intern: true,
+    active: true,
+    leave: false,
+    resigned: false,
+  });
+  const adminInputRef = useRef();
+  const hrOfferAdminInputRef = useRef();
+  const hrAdminInputRef = useRef();
+  const hrGen1InputRef = useRef();
+  const hrGen2InputRef = useRef();
+  const hiringInputRef = useRef();
+  const leadInputRef = useRef();
+  const internInputRef = useRef();
+  const activeInputRef = useRef();
+  const leaveInputRef = useRef();
+  const resignedInputRef = useRef();
 
   useEffect(() => {
     setCanEditPermissionsAnyone(viewerCanSeeOrDo('canEditPermissionsAnyone', viewerAccessRights));
   }, [viewerAccessRights]);
 
-  useEffect(() => {
-    const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
-    const sorted = alphabetizePeoplesObject(allPeopleCacheCopy2);
-    setPeopleWorkingArray(sorted);
-  }, [allPeopleCache]);
-
-  const adminInputRef = useRef('');
-  const hrOfferAdminInputRef = useRef('');
-  const hrAdminInputRef = useRef('');
-  const hrGen1InputRef = useRef('');
-  const hrGen2InputRef = useRef('');
-  const hiringInputRef = useRef('');
-  const leadInputRef = useRef('');
-  const internInputRef = useRef('');
-  const activeInputRef = useRef('');
-  const leaveInputRef = useRef('');
-  const resignedInputRef = useRef('');
-
   const SET = {
     ENABLE: true,
     DISABLE: false,
   };
+
+  const includePersonInFilteredArray = (person) => {
+    if (person.isAdmin === true && filterState.current.admin === false) return false;
+    if (person.isHROfferAdmin === true && filterState.current.hrOfferAdmin === false) return false;
+    if (person.isHRAdmin === true && filterState.current.hrAdmin === false) return false;
+    if (person.isHRGeneralist1 === true && filterState.current.hrGen1 === false) return false;
+    if (person.isHRGeneralist2 === true && filterState.current.hrGen2 === false) return false;
+    if (person.isHiringManager === true && filterState.current.hiring === false) return false;
+    if (person.isTeamLead === true && filterState.current.lead === false) return false;
+    if (person.isIntern === true && filterState.current.intern === false) return false;
+    if (person.statusActive === true && filterState.current.active === false) return false;
+    if (person.statusOnLeave === true && filterState.current.leave === false) return false;
+    return !(person.statusResigned === true && filterState.current.resigned === false);
+  };
+
+  useEffect(() => {
+    const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
+    const sorted = alphabetizePeoplesObject(allPeopleCacheCopy2);
+    setPeopleWorkingArray(sorted);
+    setPeopleWorkingArrayFiltered(sorted.filter((person) => includePersonInFilteredArray(person)));
+  }, [allPeopleCache]);
 
   const setButtonState = (set, personId) => {
     const saveButton = $(`#person-save-${personId}`);
@@ -71,7 +98,7 @@ const PermissionsAdministration = ({ classes }) => {
   const cancelClicked  = (event) => {
     const pieces = event.target.id.split('-');
     const personId = parseInt(pieces[2]);
-    const activePerson = peopleWorkingArray.find((p) => parseInt(p.id) === personId);
+    const activePerson = peopleWorkingArrayFiltered.find((p) => parseInt(p.id) === personId);
     const personCached = Object.values(allPeopleCache).find((p) => p.id === personId);
     Object.assign(activePerson, personCached);
     setButtonState(SET.DISABLE, personId);
@@ -80,7 +107,7 @@ const PermissionsAdministration = ({ classes }) => {
 
   const saveClicked = (event) => {
     const personId = parseInt(event.target.id.split('-')[2]);
-    const activePerson = peopleWorkingArray.find((p) => parseInt(p.id) === personId);
+    const activePerson = peopleWorkingArrayFiltered.find((p) => parseInt(p.id) === personId);
     const personCached = Object.values(allPeopleCache).find((p) => parseInt(p.id) === personId);
 
     const data = {};
@@ -104,63 +131,67 @@ const PermissionsAdministration = ({ classes }) => {
   };
 
   const onClickCheckbox = (event) => {
-    console.log(event);
+    // console.log(event);
     // eslint-disable-next-line no-unused-vars
     if (canEditPermissionsAnyone) {
       const pieces = event.target.id.split('-');
       const personId = parseInt(pieces[2]);
-      const person = peopleWorkingArray.find((p) => parseInt(p.id) === personId);
+      const person = peopleWorkingArrayFiltered.find((p) => parseInt(p.id) === personId);
       switch (pieces[1]) {
-        case 'admin':
-          person.isAdmin = event.target.checked;
-          break;
-        case 'hradmin':
-          person.isHRAdmin = event.target.checked;
-          break;
-        case 'hrofferadmin':
-          person.isHROfferAdmin = event.target.checked;
-          break;
-        case 'hrgen1':
-          person.isHRGeneralist1 = event.target.checked;
-          break;
-        case 'hrgen2':
-          person.isHRGeneralist2 = event.target.checked;
-          break;
-        case 'hiring':
-          person.isHiringManager = event.target.checked;
-          break;
-        case 'lead':
-          person.isTeamLead = event.target.checked;
-          break;
-        case 'intern':
-          person.isIntern = event.target.checked;
-          break;
-        case 'active':
-          person.statusActive = event.target.checked;
-          break;
-        case 'leave':
-          person.statusOnLeave = event.target.checked;
-          break;
-        case 'resigned':
-          person.statusResigned = event.target.checked;
-          break;
+        case 'admin':        person.isAdmin = event.target.checked; break;
+        case 'hradmin':      person.isHRAdmin = event.target.checked; break;
+        case 'hrofferadmin': person.isHROfferAdmin = event.target.checked; break;
+        case 'hrgen1':       person.isHRGeneralist1 = event.target.checked; break;
+        case 'hrgen2':       person.isHRGeneralist2 = event.target.checked; break;
+        case 'hiring':       person.isHiringManager = event.target.checked; break;
+        case 'lead':         person.isTeamLead = event.target.checked; break;
+        case 'intern':       person.isIntern = event.target.checked; break;
+        case 'active':       person.statusActive = event.target.checked; break;
+        case 'leave':        person.statusOnLeave = event.target.checked; break;
+        case 'resigned':     person.statusResigned = event.target.checked; break;
         default:
           console.log('ERROR onClickCheckbox received invalid target id: ', event.target.id);
           return;
       }
       setButtonState(SET.ENABLE, personId);
       setUpdateCount(updateCount + 1);  // setting array of arrays does not cause a re-render, due to nesting?
-      setPeopleWorkingArray(peopleWorkingArray);
+      setPeopleWorkingArrayFiltered(peopleWorkingArrayFiltered);  // Does this do anything???????
     }
   };
 
-  const searchFunction = () => {
-    // As the list of staff persons grows, searching through the allPeopleCache, and even maintaining an allPeopleCache will require too much memory and bandwidth
-    // Eventually we should send search queries to the server, and get just the people we are interested in
-    // Probably there should be search limiter checkboxes like ... only get Active staff by default.
-    // I don't want to build this out now, in case the UI team redesigns or eliminates this page
+  const searchAndFilterFunction = (event) => {
+    let { id } = event.currentTarget;
+    if (id.includes('Filter')) {
+      // Update filterState array
+      id = id.replace('Filter', '');
+      const element = Object.entries(filterState.current).find((key) => key[0] === id);
+      console.log('filter clicked: ', id);
+      filterState.current[element[0]] = !element[1];
+      console.log('filter clicked: ', element);
+    }
+    // Remove any search limiting from the dataset, but re-add the column filtering
+    const filteredPeople = peopleWorkingArray.filter((person) => includePersonInFilteredArray(person));
+    const srch = searchByNameRef.current.value;
+    if (srch.length > 0) {
+      const filteredSearchedPeople =
+        filteredPeople.filter((person) => getFullNamePreferredPerson(person).toLowerCase().includes(srch.toLowerCase()));
+      setPeopleWorkingArrayFiltered(filteredSearchedPeople);
+    } else {
+      setPeopleWorkingArrayFiltered(filteredPeople);
+    }
   };
 
+  const TableHeaderButton = (params) => {
+    const { id, text } = params;
+    const filterStateKey = id.replace('Filter', '');
+    return (
+      <Th $cellwidth={25} $padding={false}>
+        <Button id={id} size="small" onClick={searchAndFilterFunction} sx={{ color: filterState.current[filterStateKey] ? '#206DB3;' : 'grey' }}>
+          {text}
+        </Button>
+      </Th>
+    );
+  };
 
   return (
     <PermissionsWrapper>
@@ -170,22 +201,11 @@ const PermissionsAdministration = ({ classes }) => {
           label="Search by name"
           inputRef={searchByNameRef}
           name="searchByName"
-          onChange={searchFunction}
+          onChange={searchAndFilterFunction}
           placeholder="Search by name"
           defaultValue=""
           sx={{ minWidth: '200px', marginRight: '15px' }}
         />
-        <TextField
-          id="search_input"
-          label="Search by email"
-          inputRef={searchByEmailRef}
-          name="searchByEmail"
-          onChange={searchFunction}
-          placeholder="Search by email"
-          defaultValue=""
-          sx={{ minWidth: '200px' }}
-        />
-        <MatchingPerson>Search is not yet implemented</MatchingPerson>
       </SearchBarWrapper>
       {!canEditPermissionsAnyone && (
         <ErrorText>
@@ -197,23 +217,23 @@ const PermissionsAdministration = ({ classes }) => {
           <tr>
             <Th $cellwidth={250} style={{ textAlign: 'left' }}>Name</Th>
             <Th $cellwidth={125} style={{ textAlign: 'left' }}>Email</Th>
-            <Th $cellwidth={25}>Admin</Th>
-            <Th $cellwidth={25}>HR Admin</Th>
-            <Th $cellwidth={25}>HR Offer Admin</Th>
-            <Th $cellwidth={25}>HR Gen 1</Th>
-            <Th $cellwidth={25}>HR Gen 2</Th>
-            <Th $cellwidth={25}>Hiring Manager</Th>
-            <Th $cellwidth={25}>Lead</Th>
-            <Th $cellwidth={25}>Intern</Th>
-            <Th $cellwidth={25}>Active</Th>
-            <Th $cellwidth={25}>Leave</Th>
-            <Th $cellwidth={25}>Resigned</Th>
-            <Th $cellwidth={25}>&nbsp;</Th>
+            <TableHeaderButton id="adminFilter" text="Admin" />
+            <TableHeaderButton id="hrAdminFilter" text="HR Admin" />
+            <TableHeaderButton id="hrOfferAdminFilter" text="HR Offer Admin" />
+            <TableHeaderButton id="hrGen1Filter" text="HR Gen 1" />
+            <TableHeaderButton id="hrGen2Filter" text="HR Gen 2" />
+            <TableHeaderButton id="hiringFilter" text="Hiring Manager" />
+            <TableHeaderButton id="leadFilter" text="Lead" />
+            <TableHeaderButton id="internFilter" text="Intern" />
+            <TableHeaderButton id="activeFilter" text="Active" />
+            <TableHeaderButton id="leaveFilter" text="Leave" />
+            <TableHeaderButton id="resignedFilter" text="Resigned" />
+            <Th $cellwidth={25}>{peopleWorkingArrayFiltered?.length} Staff</Th>
             <Th $cellwidth={25}>&nbsp;</Th>
           </tr>
         </thead>
         <tbody>
-          {peopleWorkingArray?.map((person) => (
+          {peopleWorkingArrayFiltered?.map((person) => (
             <Tr key={person.id}>
               <td style={{ paddingRight: 20, fontWeight: 500 }}>{getFullNamePreferredPerson(person)}</td>
               <td style={{ paddingRight: 20 }}>{person.emailPersonal}</td>
@@ -388,7 +408,7 @@ const Tr = styled.tr`
 `;
 
 const Th = styled.th`
-  padding: 10px 10px 10px 0;
+  padding: ${(props) => (props.$padding ? '10px 10px 10px 0' : '')};
   min-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
 `;
 

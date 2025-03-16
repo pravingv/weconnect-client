@@ -139,7 +139,7 @@ const SystemSettings = ({ classes }) => {
         </title>
         <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/system-settings`} />
       </Helmet>
-      <PageContentContainer>
+      <PageContentContainer style={{ maxWidth: '1200px' }}>
         <h1>
           System Settings
         </h1>
