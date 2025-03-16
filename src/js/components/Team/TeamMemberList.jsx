@@ -77,7 +77,8 @@ const TeamMemberList = ({ searchText, teamId, team, hideInactive }) => { // team
   const showPerson = (person, searchTextLocal) => {
     if (!person || person.id < 0) return false; // Invalid person or personId
     if (searchTextLocal) {
-      return isSearchTextFoundInPerson(searchTextLocal, person);
+      const results = isSearchTextFoundInPerson(searchTextLocal, person);
+      return results.allSearchWordsWereFound;
     } else {
       return true; // Show the person if no searchText is provided
     }

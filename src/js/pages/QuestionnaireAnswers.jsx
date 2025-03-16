@@ -22,7 +22,6 @@ import {
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 
 
-// eslint-disable-next-line no-unused-vars
 const QuestionnaireAnswers = ({ classes }) => {
   renderLog('QuestionnaireAnswers');
   const { apiDataCache } = useConnectAppContext();
