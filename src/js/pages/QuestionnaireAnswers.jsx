@@ -106,7 +106,10 @@ const QuestionnaireAnswers = ({ classes }) => {
               )}
               <QuestionFormWrapper>
                 <TextField
-                  classes={(question.answerType === 'INTEGER') ? {} : { root: classes.formControl }}
+                  classes={(question.answerType === 'INTEGER') ? {} : {
+                    root: classes.inputFullWidth,
+                  }}
+                  disabled
                   id={`questionAnswerToBeSaved-${question.id}`}
                   name={`questionAnswer-${question.id}`}
                   margin="dense"
@@ -129,6 +132,9 @@ QuestionnaireAnswers.propTypes = {
 const styles = (theme) => ({
   ballotButtonIconRoot: {
     marginRight: 8,
+  },
+  inputFullWidth: {
+    width: '100%',
   },
   formControl: {
     width: '100%',

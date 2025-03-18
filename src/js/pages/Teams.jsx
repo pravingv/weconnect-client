@@ -69,14 +69,6 @@ const Teams = () => {
     }
   }, [allPeopleCache, allTeamsCache]);
 
-  useEffect(() => {
-    const personProfile = getAppContextValue('personProfileDrawerOpen');
-    if (personProfile === undefined) {
-      setAppContextValue('personProfileDrawerOpen', false);
-      setAppContextValue('addTeamDrawerOpen', false);
-    }
-  }, []);
-
   const addTeamClick = () => {
     setAppContextValue('addTeamDrawerOpen', true);
     setAppContextValue('AddTeamDrawerLabel', 'Add Team');

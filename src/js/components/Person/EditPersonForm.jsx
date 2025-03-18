@@ -128,7 +128,7 @@ const EditPersonForm = ({ classes }) => {
         <div>
           {!(showEmailPreferred) && (
             <SpanWithLinkStyle onClick={() => setShowEmailPreferred(true)}>
-              Edit preferred: {activePerson.emailPreferred || activePerson.emailOfficial}
+              Edit preferred email ({activePerson.emailPreferred || activePerson.emailOfficial || 'none'})
             </SpanWithLinkStyle>
           )}
         </div>

@@ -14,7 +14,7 @@ const EditPersonTasksDrawerMainContent = () => {
   const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { allPeopleCache, allTaskDefinitionsCache, allTasksCache } = apiDataCache;
   const dispatch = useConnectDispatch();
-  const personId = getAppContextValue('editPersonTasksPersonId');
+  const personId = getAppContextValue('personDrawersPersonId');
   const person = useGetPersonById(personId);
 
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);

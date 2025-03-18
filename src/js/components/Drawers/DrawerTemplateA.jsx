@@ -34,6 +34,8 @@ const DrawerTemplateA = (props) => {
 
   const onDrawerCloseLocal = () => {
     setAppContextValue(drawerOpenGlobalVariableName, false);
+    setAppContextValue('personDrawersPerson', {});
+    setAppContextValue('personDrawersPersonId', 0);
     if (onDrawerClose) {
       onDrawerClose();
     }

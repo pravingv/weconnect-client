@@ -3,14 +3,14 @@ import { renderLog } from '../../common/utils/logging';
 import AddPersonDrawer from './AddPersonDrawer';
 import AddTeamDrawer from './AddTeamDrawer';
 import EditMeetingDrawer from './EditMeetingDrawer';
-import EditPersonDrawer from './EditPersonDrawer';
-import EditPersonTasksDrawer from './EditPersonTasksDrawer';
-import EditProfileDrawer from './EditProfileDrawer';
+// import EditPersonDrawer from './EditPersonDrawer';
+// import EditPersonTasksDrawer from './EditPersonTasksDrawer';
 import EditQuestionDrawer from './EditQuestionDrawer';
 import EditQuestionnaireDrawer from './EditQuestionnaireDrawer';
 import EditTaskDefinitionDrawer from './EditTaskDefinitionDrawer';
 import EditTaskGroupDrawer from './EditTaskGroupDrawer';
-import PersonProfileDrawer from './PersonProfileDrawer';
+import HeaderProfileDrawer from './HeaderProfileDrawer';
+// import PersonProfileDrawer from './PersonProfileDrawer';
 
 
 const Drawers = () => {
@@ -18,17 +18,17 @@ const Drawers = () => {
 
   return (
     <>
-      <PersonProfileDrawer />
+      {/* <PersonProfileDrawer /> */}
       <AddPersonDrawer />
       <AddTeamDrawer />
       <EditMeetingDrawer />
-      <EditPersonDrawer />
-      <EditPersonTasksDrawer />
-      <EditProfileDrawer />
+      {/* <EditPersonDrawer /> */}
+      {/* <EditPersonTasksDrawer /> */}
       <EditQuestionDrawer />
       <EditQuestionnaireDrawer />
       <EditTaskDefinitionDrawer />
       <EditTaskGroupDrawer />
+      <HeaderProfileDrawer />
     </>
   );
 };
