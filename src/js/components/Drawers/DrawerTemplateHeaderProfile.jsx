@@ -11,9 +11,9 @@ import { cordovaDrawerTopMargin } from '../../utils/cordovaOffsets';
 import { DrawerHeaderAnimateDownInnerContainer, DrawerHeaderAnimateDownOuterContainer, DrawerHeaderWrapper, DrawerTitle } from '../Style/drawerLayoutStyles';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 
-const DrawerTemplateProfile = (props) => {
+const DrawerTemplateHeaderProfile = (props) => {
   const { classes, drawerId, drawerOpenGlobalVariableName, headerFixedJsx, headerTitleJsx, mainContentJsx, onDrawerClose } = props;
-  renderLog(`DrawerTemplateProfile (${drawerId})`);  // Set LOG_RENDER_EVENTS to log all renders
+  renderLog(`DrawerTemplateHeaderProfile (${drawerId})`);  // Set LOG_RENDER_EVENTS to log all renders
   const { getAppContextData, setAppContextValue, getAppContextValue } = useConnectAppContext();
 
   // eslint-disable-next-line no-unused-vars
@@ -31,14 +31,17 @@ const DrawerTemplateProfile = (props) => {
   };
 
   const onDrawerCloseLocal = () => {
+    // console.log('HeaderProfileDrawer onDrawerCloseLocal');
     setAppContextValue(drawerOpenGlobalVariableName, false);
+    setAppContextValue('personDrawersPerson', {});
+    setAppContextValue('personDrawersPersonId', 0);
     if (onDrawerClose) {
       onDrawerClose();
     }
   };
 
   useEffect(() => {
-    // console.log('DrawerTemplateA: Context value changed: ',
+    // console.log('DrawerTemplateHeaderProfile: Context value changed: ',
     //   drawerId, drawerOpenGlobalVariableName, getAppContextValue(drawerOpenGlobalVariableName));
     // TEMP DALE: setScrolledDown(getAppContextValue('scrolledDownDrawer'));
   }, [getAppContextData]);
@@ -97,13 +100,13 @@ const DrawerTemplateProfile = (props) => {
           {headerFixedJsx}
         </DrawerHeaderAnimateDownInnerContainer>
       </DrawerHeaderAnimateDownOuterContainer>
-      <DrawerTemplateProfileWrapper>
+      <DrawerTemplateHeaderProfileWrapper>
         {mainContentJsx}
-      </DrawerTemplateProfileWrapper>
+      </DrawerTemplateHeaderProfileWrapper>
     </Drawer>
   );
 };
-DrawerTemplateProfile.propTypes = {
+DrawerTemplateHeaderProfile.propTypes = {
   classes: PropTypes.object.isRequired,
   drawerId: PropTypes.string,
   drawerOpenGlobalVariableName: PropTypes.string,
@@ -210,7 +213,7 @@ const styles = () => ({
   },
 });
 
-const DrawerTemplateProfileWrapper = styled('div')`
+const DrawerTemplateHeaderProfileWrapper = styled('div')`
   margin: 0 15px;
   min-width: 300px;
 `;
@@ -220,4 +223,4 @@ const CloseDrawerIconWrapper = styled('div')`
   justify-content: flex-end;
 `;
 
-export default withStyles(styles)(DrawerTemplateProfile);
+export default withStyles(styles)(DrawerTemplateHeaderProfile);

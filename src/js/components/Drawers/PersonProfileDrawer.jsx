@@ -6,6 +6,7 @@ import { renderLog } from '../../common/utils/logging';
 import PersonProfileDrawerMainContent from '../Person/PersonProfileDrawerMainContent';
 
 
+// TODO Deprecate this drawer soon 2025-Mar-16
 const PersonProfileDrawer = () => {
   renderLog('PersonProfileDrawer');  // Set LOG_RENDER_EVENTS to log all renders
 
@@ -13,9 +14,10 @@ const PersonProfileDrawer = () => {
     <DrawerTemplateA
       drawerId="personProfileDrawer"
       drawerOpenGlobalVariableName="personProfileDrawerOpen"
-      mainContentJsx={<PersonProfileDrawerMainContent />}
       headerTitleJsx={<></>}
       headerFixedJsx={<></>}
+      mainContentJsx={<PersonProfileDrawerMainContent />}
+      // onDrawerClose={() => {}}
     />
   );
 };

@@ -3,15 +3,15 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
-import CopyQuestionnaireLink from '../Questionnaire/CopyQuestionnaireLink';
-import { useGetFullNamePreferred } from '../../models/PersonModel';
+import CopyQuestionnaireLink from './CopyQuestionnaireLink';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
+import QuestionnaireResponsesList from './QuestionnaireResponsesList';
 
 
-const PersonProfile = ({ personId }) => {
-  renderLog('PersonProfile');  // Set LOG_RENDER_EVENTS to log all renders
+const ViewQuestionnairesForPerson = ({ personId }) => {
+  renderLog('ViewQuestionnairesForPerson');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache } = useConnectAppContext();
   const { allQuestionnairesCache } = apiDataCache;
   const dispatch = useConnectDispatch();
@@ -34,14 +34,11 @@ const PersonProfile = ({ personId }) => {
   }, [allQuestionnairesCache]);
 
   return (
-    <PersonProfileWrapper>
-      <FullName>
-        {useGetFullNamePreferred(personId)}
-      </FullName>
-      {/* <PersonDetails /> This was commented out as of January 28th, 2025 */}
+    <ViewQuestionnairesForPersonWrapper>
+      <QuestionnaireResponsesList personId={personId} />
       <ShowQuestionnaireOptions>
         <div>
-          Questionnaires
+          Questionnaires to Answer
           {' '}
           (
           {showQuestionnaireList ? (
@@ -62,15 +59,12 @@ const PersonProfile = ({ personId }) => {
           ))}
         </QuestionnaireOptions>
       )}
-    </PersonProfileWrapper>
+    </ViewQuestionnairesForPersonWrapper>
   );
 };
-PersonProfile.propTypes = {
+ViewQuestionnairesForPerson.propTypes = {
   personId: PropTypes.number,
 };
-
-const FullName = styled('h2')`
-`;
 
 const OneQuestionnaire = styled('div')`
   display: flex;
@@ -78,7 +72,7 @@ const OneQuestionnaire = styled('div')`
   margin-bottom: 10px;
 `;
 
-const PersonProfileWrapper = styled('div')`
+const ViewQuestionnairesForPersonWrapper = styled('div')`
 `;
 
 const QuestionnaireOptions = styled('div')`
@@ -87,4 +81,4 @@ const QuestionnaireOptions = styled('div')`
 const ShowQuestionnaireOptions = styled('div')`
 `;
 
-export default PersonProfile;
+export default ViewQuestionnairesForPerson;

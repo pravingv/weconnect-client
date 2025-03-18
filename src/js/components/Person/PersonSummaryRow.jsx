@@ -27,7 +27,7 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
 
   const editPersonClick = (hasEditRights = true) => {
     if (hasEditRights) {
-      setAppContextValue('editPersonDrawerOpen', true);
+      setAppContextValue('headerProfileDrawerOpen', true);
       setAppContextValue('personDrawersPerson', person);
       setAppContextValue('personDrawersPersonId', person.personId);
     }
@@ -35,14 +35,19 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
 
   const editPersonTasksClick = (hasEditRights = true) => {
     if (hasEditRights) {
-      setAppContextValue('editPersonTasksDrawerLabel', '');
-      setAppContextValue('editPersonTasksDrawerOpen', true);
-      setAppContextValue('editPersonTasksPersonId', person.personId);
+      setAppContextValue('headerProfileDrawerOpen', true);
+      setAppContextValue('headerProfileSection', 'personTasks');
+      setAppContextValue('personDrawersPerson', person);
+      setAppContextValue('personDrawersPersonId', person.personId);
+      // setAppContextValue('editPersonTasksDrawerLabel', '');
+      // setAppContextValue('editPersonTasksDrawerOpen', true);
+      // setAppContextValue('editPersonTasksPersonId', person.personId);
     }
   };
 
   const personProfileClick = () => {
-    setAppContextValue('personProfileDrawerOpen', true);
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('headerProfileSection', 'visibleProfile');
     setAppContextValue('personDrawersPerson', person);
     setAppContextValue('personDrawersPersonId', person.personId);
   };

@@ -5,6 +5,7 @@ import DrawerTemplateA from './DrawerTemplateA';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getFullNamePreferredPerson, useGetPersonById } from '../../models/PersonModel';
 
+// TODO Deprecate this drawer soon 2025-Mar-16
 const EditPersonTasksDrawer = () => {
   renderLog('EditPersonTasksDrawer');
   const { getAppContextValue } = useConnectAppContext();

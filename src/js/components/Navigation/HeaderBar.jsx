@@ -74,14 +74,14 @@ const HeaderBar = ({ hideTabs }) => {
     }
   };
 
-  const authP = getAppContextValue('authenticatedPerson');
+  const authenticatedPerson = getAppContextValue('authenticatedPerson');
   useEffect(() => {
     // Track new user logging in, possibly after a reset password, and display the resulting appropriate tabs
     // console.log('useEffect  authenticatedPerson changed');
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authP]);
+  }, [authenticatedPerson]);
 
   const handleTabChange = (event, newValue) => {
     // setTabsValue(newValue);
@@ -150,8 +150,11 @@ const HeaderBar = ({ hideTabs }) => {
 
   // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
 
-  const editProfileClick = () => {
-    setAppContextValue('editProfileDrawerOpen', true);
+  const headerProfileClick = () => {
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('headerProfileSection', 'nameAndPhoto');
+    setAppContextValue('personDrawersPerson', authenticatedPerson);
+    setAppContextValue('personDrawersPersonId', authenticatedPerson.personId);
   };
   return (
     <HeaderBarWrapper
@@ -184,7 +187,7 @@ const HeaderBar = ({ hideTabs }) => {
             variant="outlined"
             sx={{ border: 'none' }}
             id="signInButton"
-            onClick={() => (isAuthenticated ? editProfileClick() : navigate('/login'))}
+            onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
           >
             {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
           </Button>

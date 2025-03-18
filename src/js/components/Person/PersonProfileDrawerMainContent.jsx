@@ -4,10 +4,11 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import EditPersonAwayForm from './EditPersonAwayForm';
 import QuestionnaireResponsesList from '../Questionnaire/QuestionnaireResponsesList';
-import PersonProfile from './PersonProfile';
+import VisibleProfile from './VisibleProfile';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 
 
+// TODO Deprecate this drawer soon 2025-Mar-16
 const PersonProfileDrawerMainContent = () => {
   renderLog('PersonProfileDrawerMainContent');
   const { getAppContextValue } = useConnectAppContext();
@@ -17,24 +18,7 @@ const PersonProfileDrawerMainContent = () => {
 
   return (
     <PersonProfileDrawerMainContentWrapper>
-      <PersonProfile personId={personId} />
-      <QuestionnaireResponsesList personId={personId} />
-      <PersonAwayTitleAndToggle>
-        <PersonAwayTitle>
-          My availability
-        </PersonAwayTitle>
-        {' '}
-        (
-        {showPersonAway ? (
-          <SpanWithLinkStyle onClick={() => setShowPersonAway(false)}>hide</SpanWithLinkStyle>
-        ) : (
-          <SpanWithLinkStyle onClick={() => setShowPersonAway(true)}>show</SpanWithLinkStyle>
-        )}
-        )
-      </PersonAwayTitleAndToggle>
-      {showPersonAway && (
-        <EditPersonAwayForm personId={personId} />
-      )}
+      <VisibleProfile personId={personId} />
     </PersonProfileDrawerMainContentWrapper>
   );
 };
