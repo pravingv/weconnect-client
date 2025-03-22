@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router';
+import styled from 'styled-components';
 import convertToInteger from '../common/utils/convertToInteger';
 import { renderLog } from '../common/utils/logging';
+import { ActionBarItem, ActionBarSection } from '../components/Style/actionBarStyles';
+import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
-import EditMeetingForm from '../components/Meeting/EditMeetingForm';
 import TeamHeader from '../components/Team/TeamHeader';
 import TeamMemberList from '../components/Team/TeamMemberList';
 import webAppConfig from '../config';
@@ -26,6 +28,7 @@ const TeamHome = ({ classes }) => {
   const { mutate: removeTeamMutation } = useRemoveTeamMutation();
 
   const params  = useParams();
+  const [hideInactive, setHideInactive] = useState(true);
   const [team, setTeam] = useState(useGetTeamById(convertToInteger(params.teamId)));
   const [teamId] = useState(convertToInteger(params.teamId));
 
@@ -74,6 +77,10 @@ const TeamHome = ({ classes }) => {
     setAppContextValue('addPersonDrawerTeam', team);
   };
 
+  const hideInactiveClick = () => {
+    setHideInactive(!hideInactive);
+  };
+
   const removeTeamClick = () => {
     // console.log('removeTeamMutation team: ', teamLocal.id);
     removeTeamMutation({ teamId });
@@ -101,6 +108,22 @@ const TeamHome = ({ classes }) => {
           {' '}
           <Link to="/teams">team list</Link>
         </div>
+        <TeamHomeActionBarWrapper>
+          <ActionBarSection>
+            {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+              <ActionBarItem>
+                <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
+                  Add team member
+                </SpanWithLinkStyle>
+              </ActionBarItem>
+            )}
+            <ActionBarItem>
+              <SpanWithLinkStyle onClick={() => hideInactiveClick()}>
+                {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'}
+              </SpanWithLinkStyle>
+            </ActionBarItem>
+          </ActionBarSection>
+        </TeamHomeActionBarWrapper>
         {(teamId && team) && (
           <>
             <TeamHeader
@@ -111,6 +134,7 @@ const TeamHome = ({ classes }) => {
             />
             {/* PLEASE DO NOT REMOVE PASSED team */}
             <TeamMemberList
+              hideInactive={hideInactive}
               team={team}
               teamId={teamId}
             />
@@ -184,5 +208,12 @@ const styles = (theme) => ({
 
 // const TeamMember = styled('div')`
 // `;
+
+const TeamHomeActionBarWrapper = styled('div')`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 40px;  // Temporary hack
+`;
 
 export default withStyles(styles)(TeamHome);

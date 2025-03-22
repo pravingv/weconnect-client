@@ -25,10 +25,10 @@ const HeaderBar = ({ hideTabs }) => {
   const navigate = useNavigate();
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
 
-  const [scrolledDown] = useState(false);
-  const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
-  const [showTabs, setShowTabs] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [scrolledDown] = useState(false);
+  const [showTabs, setShowTabs] = useState(true);
+  const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
 
   const isAuth = getAppContextValue('isAuthenticated');
