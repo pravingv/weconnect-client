@@ -31,7 +31,6 @@ const DrawerTemplateHeaderProfile = (props) => {
   };
 
   const onDrawerCloseLocal = () => {
-    // console.log('HeaderProfileDrawer onDrawerCloseLocal');
     setAppContextValue(drawerOpenGlobalVariableName, false);
     setAppContextValue('personDrawersPerson', {});
     setAppContextValue('personDrawersPersonId', 0);

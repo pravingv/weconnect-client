@@ -14,14 +14,6 @@ import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonAwaySaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 
-// const PERSON_AWAY_FIELDS_ACCEPTED = [
-//   'awayDescription',
-//   'awayDescriptionForTeamLeads',
-//   'dateEnd',
-//   'dateEndEstimated',
-//   'dateStart',
-//   'dateSubmitted',
-// ];
 
 const EditPersonAwayForm = ({ classes, personId }) => {
   renderLog('EditPersonAwayForm');
@@ -31,18 +23,18 @@ const EditPersonAwayForm = ({ classes, personId }) => {
   const [awayDescriptionValue, setAwayDescriptionValue] = useState('');
   const [awayReasonRadioValue, setAwayReasonRadioValue] = useState('isVacation');
   const [personAway] = useState({});
-  const [dateEnd, setDateEnd] = useState(dayjs().add(1, 'week'));
-  const [dateEndEstimated, setDateEndEstimated] = useState(dayjs().add(1, 'week'));
+  const [dateEndDate, setDateEndDate] = useState(dayjs().add(1, 'week'));
+  const [dateEndDateEstimated, setDateEndDateEstimated] = useState(dayjs().add(1, 'week'));
   const [saveButtonActive, setSaveButtonActive] = useState(true);
   const [showAwayDescriptionForTeamLeads, setShowAwayDescriptionForTeamLeads] = useState(false);
-  const [dateStart, setDateStart] = useState(dayjs());
+  const [dateStartDate, setDateStartDate] = useState(dayjs());
 
   const awayReasonInputRef = useRef('');
   const awayDescriptionForTeamLeadsInputRef = useRef('');
   const awayDescriptionInputRef = useRef('');
-  const dateEndEstimatedInputRef = useRef('');
-  const dateEndInputRef = useRef('');
-  const dateStartInputRef = useRef('');
+  const dateEndDateEstimatedInputRef = useRef('');
+  const dateEndDateInputRef = useRef('');
+  const dateStartDateInputRef = useRef('');
 
   useEffect(() => {
     if (personAway) {
@@ -67,9 +59,9 @@ const EditPersonAwayForm = ({ classes, personId }) => {
       ...updatedPersonAwayIsValues,
       awayDescription: awayDescriptionInputRef.current.value,
       awayDescriptionForTeamLeads: awayDescriptionForTeamLeadsInputRef.current.value,
-      dateEnd: dateEnd.format('YYYY-MM-DD'),
-      dateEndEstimated: dateEndEstimated.format('YYYY-MM-DD'),
-      dateStart: dateStart.format('YYYY-MM-DD'),
+      dateEndDate: dateEndDate.format('YYYY-MM-DD'),
+      dateEndDateEstimated: dateEndDateEstimated.format('YYYY-MM-DD'),
+      dateStartDate: dateStartDate.format('YYYY-MM-DD'),
     };
     console.log('savePersonAway params:', params);
     const requestParams = makeRequestParams(plainParams, params);
@@ -164,16 +156,16 @@ const EditPersonAwayForm = ({ classes, personId }) => {
           <DateOptionsWrapper>
             <DateWrapper>
               <DatePicker
-                defaultValue={dateStart}
+                defaultValue={dateStartDate}
                 label="Start Date"
                 onChange={(newValue) => {
-                  setDateStart(newValue);
+                  setDateStartDate(newValue);
                   updateSaveButton();
                 }}
                 renderInput={() => (
                   <TextField
-                    defaultValue={dateStart}
-                    inputRef={dateStartInputRef}
+                    defaultValue={dateStartDate}
+                    inputRef={dateStartDateInputRef}
                     margin="dense"
                   />
                 )}
@@ -181,16 +173,16 @@ const EditPersonAwayForm = ({ classes, personId }) => {
             </DateWrapper>
             <DateWrapper>
               <DatePicker
-                defaultValue={dateEndEstimated}
+                defaultValue={dateEndDateEstimated}
                 label="End Date (Estimated)"
                 onChange={(newValue) => {
-                  setDateEndEstimated(newValue);
+                  setDateEndDateEstimated(newValue);
                   updateSaveButton();
                 }}
                 renderInput={() => (
                   <TextField
-                    defaultValue={dateEnd}
-                    inputRef={dateEndEstimatedInputRef}
+                    defaultValue={dateEndDate} // More Up-to-date use of DatePicker is in EditPersonForm
+                    inputRef={dateEndDateEstimatedInputRef}
                     margin="dense"
                   />
                 )}
@@ -198,16 +190,16 @@ const EditPersonAwayForm = ({ classes, personId }) => {
             </DateWrapper>
             <DateWrapper>
               <DatePicker
-                defaultValue={dateEnd}
+                defaultValue={dateEndDate}
                 label="End Date (Actual)"
                 onChange={(newValue) => {
-                  setDateEnd(newValue);
+                  setDateEndDate(newValue);
                   updateSaveButton();
                 }}
                 renderInput={() => (
                   <TextField
-                    defaultValue={dateEnd}
-                    inputRef={dateEndInputRef}
+                    defaultValue={dateEndDate}
+                    inputRef={dateEndDateInputRef}
                     margin="dense"
                   />
                 )}

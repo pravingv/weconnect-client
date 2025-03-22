@@ -11,6 +11,15 @@ export const viewerCanSeeOrDo = (accessRightName, viewerAccessRights) => {
   return viewerAccessRights[accessRightName] || false;
 };
 
+export const viewerCanSeeOrDoFromList = (accessRightNameList, viewerAccessRights) => {
+  if (!viewerAccessRights) {
+    return false;
+  } else if (!accessRightNameList || accessRightNameList.length === 0) {
+    return false;
+  }
+  return accessRightNameList.some((accessRightName) => viewerCanSeeOrDo(accessRightName, viewerAccessRights));
+};
+
 export const viewerCanSeeOrDoForThisTeam = (accessRightName, teamId = -1, teamAccessRights = {}) => {
   if (!accessRightName || !teamId || !teamAccessRights) {
     return false;

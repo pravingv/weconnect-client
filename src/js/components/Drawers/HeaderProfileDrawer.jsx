@@ -7,6 +7,7 @@ import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { viewerCanSeeOrDoFromList } from '../../models/AuthModel';
 import { getFullNamePreferredPerson, useGetPersonById } from '../../models/PersonModel';
 import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
@@ -17,13 +18,15 @@ import VisibleProfile from '../Person/VisibleProfile';
 import EditPersonAwayForm from '../Person/EditPersonAwayForm';
 
 const HeaderProfileDrawer = () => {
-  const { getAppContextData, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextData, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { viewerAccessRights } = apiDataCache;
 
   const [headerFixedJsx] = useState(<></>);
   const [displayProfileOption, setDisplayProfileOption] = useState('nameAndPhoto');
   const [displayProfileComponent, setDisplayProfileComponent] = useState();
   const [headerProfileSectionSetFromAppContext, setHeaderProfileSectionSetFromAppContext] = useState(false);
   const [showLinksToProfilePages, setShowLinksToProfilePages] = useState(true);
+  const [viewerIsThisAuthenticatedPerson, setViewerIsThisAuthenticatedPerson] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const { mutate: mutateLogout } = useLogoutMutation();
@@ -41,14 +44,22 @@ const HeaderProfileDrawer = () => {
     return () => window.removeEventListener('resize', handleWindowWidth);
   }, []);
 
+  useEffect(() => {
+    setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('personDrawersPersonId') === authenticatedPerson.personId);
+  }, [getAppContextValue, authenticatedPerson]);
+
   const profileNavOptions = [
     { icon: <AccountCircle />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
-    { icon: <ManageAccounts />, linkName: 'nameAndPhoto', linkTextJsx: <>Edit Info</> },
-    // { icon: <LockIcon />, linkName: 'securityAndSignIn', linkTextJsx: <>Security & Sign In</> },
-    { icon: <CalendarMonth />, linkName: 'personAvailability', linkTextJsx: <>Availability</> },
-    { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Task Status</> },
-    { icon: <Quiz />, linkName: 'personQuestionnaires', linkTextJsx: <>Questionnaires</> },
   ];
+
+  if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDoFromList(['canEditPersonAnyone'], viewerAccessRights)) {
+    profileNavOptions.push(
+      { icon: <ManageAccounts />, linkName: 'nameAndPhoto', linkTextJsx: <>Edit Info</> },
+      { icon: <CalendarMonth />, linkName: 'personAvailability', linkTextJsx: <>Availability</> },
+      { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Task Status</> },
+      { icon: <Quiz />, linkName: 'personQuestionnaires', linkTextJsx: <>Questionnaires</> },
+    );
+  }
 
   // useEffect to handle which component to display from nav
   useEffect(() => {
@@ -181,7 +192,7 @@ const HeaderProfileDrawer = () => {
           <Menu />
         </MenuIconWrapper>
       )}
-      {authenticatedPerson && getAppContextValue('personDrawersPersonId') === authenticatedPerson.personId ? (
+      {viewerIsThisAuthenticatedPerson ? (
         <YourAccountWrapper>
           <AccountCircleStyled />
           <p>Your account</p>
