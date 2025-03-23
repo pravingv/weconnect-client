@@ -9,7 +9,6 @@ import { ActionBarItem, ActionBarSection, SearchBarWrapper } from '../components
 import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TeamHeader from '../components/Team/TeamHeader';
-import TeamMemberList from '../components/Team/TeamMemberList';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
 import { isSearchTextFoundInPerson } from '../controllers/PersonController';
@@ -189,26 +188,17 @@ const Teams = () => {
         </TeamsActionBarWrapper>
         {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the personIds of team members */}
-        {teamList.map((team, index) => {
+        {teamList.map((team) => {
           if (showTeam(team)) {
             return (
               <OneTeamWrapper key={`team-${team.id}`}>
                 <TeamHeader
-                  team={team}
-                  showHeaderLabels={(index === 0) && showAllTeamMembers && (team.teamMemberList && team.teamMemberList.length > 0)}
+                  hideInactive={hideInactive}
+                  searchText={searchText}
+                  showAllTeamMembersFromParent={showAllTeamMembers}
                   showIcons
+                  team={team}
                 />
-                {showAllTeamMembers && (
-                  <>
-                    {/* DO NOT REMOVE PASSED IN team */}
-                    <TeamMemberList
-                      searchText={searchText}
-                      team={team}
-                      teamId={team.id}
-                      hideInactive={hideInactive}
-                    />
-                  </>
-                )}
               </OneTeamWrapper>
             );
           } else {
