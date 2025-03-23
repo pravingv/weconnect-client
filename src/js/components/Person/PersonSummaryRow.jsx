@@ -82,21 +82,21 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
           textDecoration: 'underline',
           color: DesignTokenColors.primary500,
         }}
-        $cellwidth={250}
+        $cellwidth={180}
       >
         {/* {`${person.firstName} ${person.lastName}`} */}
         {getFullNamePreferredPerson(person)} {/* 2/6/25 currently if you save a first name preferred, it shows up here, but will not be searchable on add team member If you */}
       </PersonCell>
       <PersonCell
         id={`location-personId-${person.personId}`}
-        $cellwidth={300}
+        $cellwidth={150}
         $smallfont
       >
         {person.location}
       </PersonCell>
       <PersonCell
         id={`jobTitle-personId-${person.personId}`}
-        $cellwidth={300}
+        $cellwidth={200}
         $smallestfont
       >
         {person.jobTitle}

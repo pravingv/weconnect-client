@@ -9,6 +9,7 @@ import { normalizedHref } from './js/common/utils/hrefUtils';
 import initializejQuery from './js/common/utils/initializejQuery';
 import { renderLog } from './js/common/utils/logging';
 import Drawers from './js/components/Drawers/Drawers';
+import TasksDataRetrieve from './js/components/Task/TasksDataRetrieve';
 import PrivateRoute from './js/components/PrivateRoute';
 import webAppConfig from './js/config';
 import ConnectAppContext from './js/contexts/ConnectAppContext';
@@ -92,6 +93,7 @@ function App () {
                     </Route>
                     <Route path="*" element={<PageNotFound />} />
                   </Routes>
+                  <TasksDataRetrieve />
                   {/* <Footer /> has problems */}
                   {showDevtools && (
                     <ReactQueryDevtools />

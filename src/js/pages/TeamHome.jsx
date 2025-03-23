@@ -11,7 +11,6 @@ import { ActionBarItem, ActionBarSection } from '../components/Style/actionBarSt
 import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TeamHeader from '../components/Team/TeamHeader';
-import TeamMemberList from '../components/Team/TeamMemberList';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../models/AuthModel';
@@ -128,15 +127,9 @@ const TeamHome = ({ classes }) => {
           <>
             <TeamHeader
               team={team}
-              showHeaderLabels
-              // showHeaderLabels={(teamMemberList && teamMemberList.length > 0)}
+              showAllTeamMembersFromParent
+              // showAllTeamMembers={(teamMemberList && teamMemberList.length > 0)}
               showIcons={false}
-            />
-            {/* PLEASE DO NOT REMOVE PASSED team */}
-            <TeamMemberList
-              hideInactive={hideInactive}
-              team={team}
-              teamId={teamId}
             />
           </>
         )}

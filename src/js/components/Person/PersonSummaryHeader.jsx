@@ -8,15 +8,14 @@ const PersonSummaryHeader = () => {
 
   return (
     <OnePersonHeader>
-      {/* Width (below) of this PersonHeaderCell comes from the combined widths of the first x columns in PersonMemberList */}
-      <PersonHeaderCell $largefont $titleCell $cellwidth={250}>
-        &nbsp;
+      <PersonHeaderCell $cellwidth={180}>
+        Name
       </PersonHeaderCell>
-      <PersonHeaderCell $cellwidth={300}>
+      <PersonHeaderCell $cellwidth={150}>
         Location
       </PersonHeaderCell>
-      <PersonHeaderCell $cellwidth={300}>
-        Title / Volunteering Love
+      <PersonHeaderCell $cellwidth={200}>
+        Title
       </PersonHeaderCell>
       {/* Edit icon */}
       <PersonHeaderCell $cellwidth={20} />
@@ -36,7 +35,6 @@ const PersonHeaderCell = styled.div`
   align-content: center;
   height: 22px;
   font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};
-  font-weight: ${(props) => (props?.$titleCell ? ';' : '550;')}
   min-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   max-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
