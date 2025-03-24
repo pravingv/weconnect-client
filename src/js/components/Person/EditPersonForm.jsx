@@ -370,7 +370,10 @@ const styles = (theme) => ({
   },
   showThisField: {},
   savePersonButton: {
-    width: 300,
+    bottom: 0,
+    position: 'sticky',
+    width: '330px',
+    zIndex: 20,
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
@@ -392,7 +395,9 @@ const DateWrapper = styled('div')`
 `;
 
 const EditPersonFormWrapper = styled('div')`
-  margin-bottom: 60px;
+  margin: 0 auto;
+  max-width: 600px;
+  padding-bottom: 40px;
 `;
 
 const HRTeamFieldsTitle = styled('div')`
