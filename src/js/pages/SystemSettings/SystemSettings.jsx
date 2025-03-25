@@ -121,7 +121,7 @@ const SystemSettings = ({ classes }) => {
     navigate(`/questionnaire/${questionnaire.questionnaireId}`);
   };
 
-  if (!viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights)) {
+  if (!viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
     return (
       <PageContentContainer>
         <h1>You do not have permission to access this page.</h1>

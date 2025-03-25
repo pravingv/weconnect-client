@@ -193,7 +193,7 @@ const Tasks = () => {
             </ActionBarItem>
           </ActionBarSection>
           <ActionBarSection>
-            {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
                   Add team member

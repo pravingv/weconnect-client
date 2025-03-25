@@ -19,8 +19,8 @@ const QuestionnaireResponsesList = ({ personId }) => {
   const { allQuestionsCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
-  // const [person] = useState(getAppContextValue('personDrawersPerson'));
-  const [person] = useState(useGetPersonById(getAppContextValue('personDrawersPersonId')));
+  // const [person] = useState(getAppContextValue('profileDrawerPerson'));
+  const [person] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
   const [questionnaireList, setQuestionnaireList] = useState([]);
 
   // Although we are sending a list, there will only be one person id, if there were more, just append them with commas

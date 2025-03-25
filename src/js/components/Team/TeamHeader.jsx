@@ -9,13 +9,17 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { EditStyled } from '../Style/iconStyles';
 import TeamMemberList from './TeamMemberList';
+import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 
 
-const TeamHeader = ({ hideInactive, searchText, showAllTeamMembersFromParent, showIcons, team }) => {
+const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, searchText, showAllTeamMembersFromParent, showIcons, team }) => {
   renderLog('TeamHeader');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
 
+  const [expandAllTeamMembers, setExpandAllTeamMembers] = useState(expandAllTeamMembersFromParent);
+  const [hideInactive, setHideInactive] = useState(hideInactiveFromParent);
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(showAllTeamMembersFromParent);
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
   let teamLocal = team;
@@ -23,11 +27,23 @@ const TeamHeader = ({ hideInactive, searchText, showAllTeamMembersFromParent, sh
     teamLocal = getAppContextValue('teamForAddTeamDrawer');
   }
 
+  const addTeamMemberClick = () => {
+    // console.log('TeamHome addTeamMemberClick, teamId:', teamId);
+    setAppContextValue('addPersonDrawerOpen', true);
+    setAppContextValue('AddPersonDrawerLabel', 'Add Team Member');
+    setAppContextValue('addPersonDrawerTeam', team);
+  };
+
   const editTeamClick = () => {
     // console.log('editTeamClick: ', teamLocal);
     setAppContextValue('addTeamDrawerOpen', true);
     setAppContextValue('AddTeamDrawerLabel', 'Edit Team Name');
     setAppContextValue('teamForAddTeamDrawer', teamLocal);
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const hideInactiveClick = () => {
+    setHideInactive(!hideInactive);
   };
 
   useEffect(() => {
@@ -53,17 +69,54 @@ const TeamHeader = ({ hideInactive, searchText, showAllTeamMembersFromParent, sh
               <KeyboardArrowDownStyled />
             )}
           </TeamHeaderCell>
-          <TeamHeaderCell $cellwidth={showAllTeamMembers ? 215 : 500} $largefont $titlecell>
+          <TeamHeaderCell $cellwidth={215} $largefont $titlecell>
             {teamLocal && (
               <Link to={`/team-home/${teamLocal.id}`}>
                 {teamLocal.teamName}
               </Link>
             )}
           </TeamHeaderCell>
+          <ActionBarSection>
+            <ActionBarItem>
+              <SpanWithLinkStyle onClick={() => setShowAllTeamMembers(!showAllTeamMembers)}>
+                {showAllTeamMembers ? 'Hide team' : 'Show team'}
+              </SpanWithLinkStyle>
+            </ActionBarItem>
+            {showAllTeamMembers && (
+              <ActionBarItem>
+                <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(!expandAllTeamMembers)}>
+                  {expandAllTeamMembers ? 'Close all' : 'Open all'}
+                </SpanWithLinkStyle>
+              </ActionBarItem>
+            )}
+            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
+              <ActionBarItem>
+                <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
+                  Add team member
+                </SpanWithLinkStyle>
+              </ActionBarItem>
+            )}
+            {/* <ActionBarItem> */}
+            {/*  <SpanWithLinkStyle onClick={() => hideInactiveClick()}> */}
+            {/*    {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'} */}
+            {/*  </SpanWithLinkStyle> */}
+            {/* </ActionBarItem> */}
+          </ActionBarSection>
+          {/* Edit icon */}
+          {showIcons && (
+            <>
+              {viewerCanSeeOrDo(['canEditTeamAnyTeam'], viewerAccessRights) && (
+                <TeamHeaderCell $cellwidth={20} onClick={editTeamClick} $titleCell>
+                  <EditStyled />
+                </TeamHeaderCell>
+              )}
+            </>
+          )}
         </TeamHeaderMainRow>
         {showAllTeamMembers && (
           <TeamHeaderPersonColumnTitles>
-            {/* Width (below) of this TeamHeaderCell comes from the combined widths of the first x columns in TeamMemberList */}
+            {/* Please leave cellwidth values as-is unless you are also modifying PersonSummaryRow */}
+            <TeamHeaderCell $cellwidth={20} />
             <TeamHeaderCell $cellwidth={25} />
             <TeamHeaderCell $cellwidth={180}>
               Name
@@ -74,20 +127,10 @@ const TeamHeader = ({ hideInactive, searchText, showAllTeamMembersFromParent, sh
             <TeamHeaderCell $cellwidth={200}>
               Title
             </TeamHeaderCell>
-            {/* Edit icon */}
-            {showIcons && (
-              <>
-                {viewerCanSeeOrDo('canEditTeamAnyTeam', viewerAccessRights) && (
-                  <TeamHeaderCell $cellwidth={20} onClick={editTeamClick}>
-                    <EditStyled />
-                  </TeamHeaderCell>
-                )}
-              </>
-            )}
-            {/* Delete icon - Moved to TeamHome */}
-            {showIcons && (
-              <></>
-            )}
+            <TeamHeaderCell $cellwidth={150} />
+            <TeamHeaderCell $cellwidth={100} $rightAlign>
+              Volunteer for
+            </TeamHeaderCell>
           </TeamHeaderPersonColumnTitles>
         )}
       </OneTeamHeaderOuterWrapper>
@@ -95,10 +138,11 @@ const TeamHeader = ({ hideInactive, searchText, showAllTeamMembersFromParent, sh
         <>
           {/* DO NOT REMOVE PASSED IN team */}
           <TeamMemberList
+            expandAllTeamMembers={expandAllTeamMembers}
+            hideInactive={hideInactive}
             searchText={searchText}
             team={team}
             teamId={team.id}
-            hideInactive={hideInactive}
           />
         </>
       )}
@@ -106,8 +150,8 @@ const TeamHeader = ({ hideInactive, searchText, showAllTeamMembersFromParent, sh
   );
 };
 TeamHeader.propTypes = {
-  hideInactive: PropTypes.bool,
-  searchText: PropTypes.bool,
+  hideInactiveFromParent: PropTypes.bool,
+  searchText: PropTypes.string,
   showIcons: PropTypes.bool,
   showAllTeamMembersFromParent: PropTypes.bool,
   team: PropTypes.object,
@@ -154,6 +198,8 @@ const TeamHeaderPersonColumnTitles = styled('div')`
 const TeamHeaderCell = styled.div`
   align-content: center;
   border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
+  ${(props) => (props.$rightAlign ? 'display: flex;' : '')};
+  ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};
   height: 22px;
   max-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};

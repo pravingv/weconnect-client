@@ -19,7 +19,7 @@ const UploadCSV = (classes) => {
   const [resultsText, setResultsText] = useState([]);
 
 
-  const [isAdmin] = useState(viewerCanSeeOrDo('canEditPermissionsAnyone', viewerAccessRights));
+  const [isAdmin] = useState(viewerCanSeeOrDo(['canEditPermissionsAnyone'], viewerAccessRights));
 
   const { openFilePicker, filesContent, loading, errors } = useFilePicker({
     accept: '.csv',

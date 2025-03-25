@@ -109,7 +109,7 @@ const TeamHome = ({ classes }) => {
         </div>
         <TeamHomeActionBarWrapper>
           <ActionBarSection>
-            {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
                   Add team member
@@ -133,7 +133,7 @@ const TeamHome = ({ classes }) => {
             />
           </>
         )}
-        {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+        {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
           <div>
             <Button
               classes={{ root: classes.addTeamMemberButtonRoot }}
@@ -146,7 +146,7 @@ const TeamHome = ({ classes }) => {
             </Button>
           </div>
         )}
-        {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+        {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
           <div>
             <Button
               classes={{ root: classes.addTeamMemberButtonRoot }}
@@ -159,7 +159,7 @@ const TeamHome = ({ classes }) => {
             </Button>
           </div>
         )}
-        {viewerCanSeeOrDo('canRemoveTeam', viewerAccessRights) && (
+        {viewerCanSeeOrDo(['canRemoveTeam'], viewerAccessRights) && (
           <div>
             <Button
               classes={{ root: classes.deleteTeamButtonRoot }}

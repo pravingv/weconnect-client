@@ -294,7 +294,7 @@ const Login = ({ classes }) => {
   };
 
   // console.log(getAppContextData());
-  const isAdmin = viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights);
+  const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
   const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   const displayVerify =
     !isForSomeOneElse &&
