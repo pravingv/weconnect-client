@@ -14,6 +14,7 @@ import PrivateRoute from './js/components/PrivateRoute';
 import webAppConfig from './js/config';
 import ConnectAppContext from './js/contexts/ConnectAppContext';
 import Login from './js/pages/Login';
+import initializeMoment from './js/common/utils/initializeMoment';
 
 
 // Root URL pages
@@ -65,6 +66,11 @@ function App () {
     console.log('--------- setShowHeaderFooter: ', showHeaderFooter);
     setHideHeader(!showHeaderFooter);
   };
+
+  if (typeof window.moment === 'undefined') {
+    // If we don't do this, the dates used for the "Volunteer for" don't render correctly on the first load.
+    initializeMoment(() => {});
+  }
 
   return (
     <>

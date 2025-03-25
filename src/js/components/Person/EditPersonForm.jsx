@@ -10,7 +10,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { viewerCanSeeOrDoFromList } from '../../models/AuthModel';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
@@ -26,8 +26,8 @@ const EditPersonForm = ({ classes }) => {
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
-  const [initialPerson] = useState(getAppContextValue('personDrawersPerson'));
-  // const [initialPerson] = useState(useGetPersonById(getAppContextValue('personDrawersPersonId')));
+  const [initialPerson] = useState(getAppContextValue('profileDrawerPerson'));
+  // const [initialPerson] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
   const [activePerson, setActivePerson] = useState({ ...initialPerson });
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
 
@@ -49,7 +49,7 @@ const EditPersonForm = ({ classes }) => {
   const statusOfferLetterSignedInputRef = useRef(false);
 
   useEffect(() => {
-    setViewerIsOnHrTeam(viewerCanSeeOrDoFromList(['canEditPersonAnyone'], viewerAccessRights));
+    setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
   const getDateDefaultValue = (dateString) => {
@@ -370,10 +370,11 @@ const styles = (theme) => ({
   },
   showThisField: {},
   savePersonButton: {
-    bottom: 0,
-    position: 'sticky',
-    width: '330px',
-    zIndex: 20,
+    width: '300px',
+    // bottom: 0, // WV-1032
+    // position: 'sticky', // WV-1032
+    // width: '330px', // WV-1032
+    // zIndex: 20, // WV-1032
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
@@ -395,9 +396,10 @@ const DateWrapper = styled('div')`
 `;
 
 const EditPersonFormWrapper = styled('div')`
-  margin: 0 auto;
-  max-width: 600px;
-  padding-bottom: 40px;
+  margin-bottom: 60px;
+  //margin: 0 auto; // WV-1032
+  //max-width: 600px; // WV-1032
+  //padding-bottom: 40px; // WV-1032
 `;
 
 const HRTeamFieldsTitle = styled('div')`

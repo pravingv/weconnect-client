@@ -153,26 +153,41 @@ const Teams = () => {
           </SearchBarWrapper>
           <ActionBarSection>
             <ActionBarItem>
-              {showAllTeamMembers ? (
-                <SpanWithLinkStyle onClick={() => setShowAllTeamMembers(false)}>
-                  Collapse all
-                </SpanWithLinkStyle>
-              ) : (
-                <SpanWithLinkStyle onClick={() => setShowAllTeamMembers(true)}>
-                  Expand all
-                </SpanWithLinkStyle>
-              )}
+              <SpanWithLinkStyle
+                onClick={() => {
+                  // Force the expansion of all
+                  setShowAllTeamMembers(undefined);
+                  setTimeout(() => {
+                    setShowAllTeamMembers(true);
+                  }, 100);
+                }}
+              >
+                Expand all
+              </SpanWithLinkStyle>
+            </ActionBarItem>
+            <ActionBarItem>
+              <SpanWithLinkStyle
+                onClick={() => {
+                  // Force the closing of all
+                  setShowAllTeamMembers(undefined);
+                  setTimeout(() => {
+                    setShowAllTeamMembers(false);
+                  }, 100);
+                }}
+              >
+                Collapse all
+              </SpanWithLinkStyle>
             </ActionBarItem>
           </ActionBarSection>
           <ActionBarSection>
-            {viewerCanSeeOrDo('canAddTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamClick()}>
                   Add team
                 </SpanWithLinkStyle>
               </ActionBarItem>
             )}
-            {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
                   Add team member

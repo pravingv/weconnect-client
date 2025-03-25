@@ -7,7 +7,7 @@ import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { viewerCanSeeOrDoFromList } from '../../models/AuthModel';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson, useGetPersonById } from '../../models/PersonModel';
 import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
@@ -31,7 +31,7 @@ const HeaderProfileDrawer = () => {
 
   const { mutate: mutateLogout } = useLogoutMutation();
   const navigate = useNavigate();
-  const personViewedInDrawer = useGetPersonById(getAppContextValue('personDrawersPersonId'));
+  const personViewedInDrawer = useGetPersonById(getAppContextValue('profileDrawerPersonId'));
   const personViewedInDrawerFullName = getFullNamePreferredPerson(personViewedInDrawer);
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
 
@@ -45,18 +45,18 @@ const HeaderProfileDrawer = () => {
   }, []);
 
   useEffect(() => {
-    setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('personDrawersPersonId') === authenticatedPerson.personId);
+    setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('profileDrawerPersonId') === authenticatedPerson.personId);
   }, [getAppContextValue, authenticatedPerson]);
 
   const profileNavOptions = [
     { icon: <AccountCircle />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
   ];
 
-  if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDoFromList(['canEditPersonAnyone'], viewerAccessRights)) {
+  if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights)) {
     profileNavOptions.push(
       { icon: <ManageAccounts />, linkName: 'nameAndPhoto', linkTextJsx: <>Edit Info</> },
       { icon: <CalendarMonth />, linkName: 'personAvailability', linkTextJsx: <>Availability</> },
-      { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Task Status</> },
+      { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Onboarding Tasks</> },
       { icon: <Quiz />, linkName: 'personQuestionnaires', linkTextJsx: <>Questionnaires</> },
     );
   }
@@ -96,7 +96,7 @@ const HeaderProfileDrawer = () => {
       case 'personTasks':
         component = (
           <>
-            <ProfileComponentTitle>Task Status</ProfileComponentTitle>
+            <ProfileComponentTitle>Onboarding Tasks</ProfileComponentTitle>
             <EditPersonTasksDrawerMainContent />
           </>
         );
@@ -277,7 +277,8 @@ const YourAccountWrapper = styled.div`
 const EditProfileDrawerWrapper = styled.div`
   display: flex;
   gap: 32px;
-  margin-top: 80px;
+  margin-top: 16px;
+  //margin-top: 80px; // WV-1032
 `;
 
 const NavLinksContainer = styled.div`

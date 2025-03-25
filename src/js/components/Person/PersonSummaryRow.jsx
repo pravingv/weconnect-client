@@ -1,26 +1,48 @@
+import { ContentCopy, KeyboardArrowDown, KeyboardArrowUp, MoreHoriz } from '@mui/icons-material';
+import Popover from '@mui/material/Popover';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
+import PersonDetailsQuickLinks from './PersonDetailsQuickLinks';
+import PersonDetailsEmailsAndStartDate from './PersonDetailsEmailsAndStartDate';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
 import { useRemoveTeamMemberMutation } from '../../react-query/mutations';
-import { DeleteStyled, EditStyled } from '../Style/iconStyles';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
-// import { useRemoveTeamMemberMutationDiverged } from '../../models/TeamModel';
+import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
+import { formatDateMMMDoYYYY, timeFromDate } from '../../common/utils/dateFormat';
+import webAppConfig from '../../config';
 
 
-const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
+const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId }) => {
   renderLog('PersonSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
   const { mutate: removeTeamMember } = useRemoveTeamMemberMutation();
 
-  // const [person, setPerson] = useState(useGetPersonById(personId));  2/5/2025 does not work
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [personRowUnfurled, setPersonRowUnfurled] = useState(personRowUnfurledFromParent);
+  const [personRowUnfurledFromParentAlreadySet, setPersonRowUnfurledFromParentAlreadySet] = useState(personRowUnfurledFromParent);
+  const [quickLinkCopied, setQuickLinkCopied] = useState('');
+
+  const copyQuickLink = () => {
+    setQuickLinkCopied('Copied!');
+    setTimeout(() => {
+      setQuickLinkCopied('');
+    }, 1500);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
 
   const removeTeamMemberClick = () => {
+    handlePopoverClose();
     const params = { personId: person.personId, teamId };
     removeTeamMember(params);
   };
@@ -28,137 +50,218 @@ const PersonSummaryRow = ({ person, rowNumberForDisplay, teamId }) => {
   const editPersonClick = (hasEditRights = true) => {
     if (hasEditRights) {
       setAppContextValue('headerProfileDrawerOpen', true);
-      setAppContextValue('personDrawersPerson', person);
-      setAppContextValue('personDrawersPersonId', person.personId);
+      setAppContextValue('profileDrawerPerson', person);
+      setAppContextValue('profileDrawerPersonId', person.personId);
     }
   };
 
   const editPersonTasksClick = (hasEditRights = true) => {
     if (hasEditRights) {
+      handlePopoverClose();
       setAppContextValue('headerProfileDrawerOpen', true);
       setAppContextValue('headerProfileSection', 'personTasks');
-      setAppContextValue('personDrawersPerson', person);
-      setAppContextValue('personDrawersPersonId', person.personId);
-      // setAppContextValue('editPersonTasksDrawerLabel', '');
-      // setAppContextValue('editPersonTasksDrawerOpen', true);
-      // setAppContextValue('editPersonTasksPersonId', person.personId);
+      setAppContextValue('profileDrawerPerson', person);
+      setAppContextValue('profileDrawerPersonId', person.personId);
     }
   };
 
-  const personProfileClick = () => {
-    setAppContextValue('headerProfileDrawerOpen', true);
-    setAppContextValue('headerProfileSection', 'visibleProfile');
-    setAppContextValue('personDrawersPerson', person);
-    setAppContextValue('personDrawersPersonId', person.personId);
+  const onDotButtonClick = (e) => {
+    setAnchorEl(e.currentTarget);
   };
 
-  // useEffect(() => {
-  //   console.log('PersonSummaryRow person: ', person, ' useEffect apiDataCache:', apiDataCache);
-  //   const { allPeopleCache } = apiDataCache;
-  //   if (allPeopleCache) {
-  //     setPerson(allPeopleCache[personId] || {});
-  //   }
-  // }, [apiDataCache]);
+  const personProfileClick = () => {
+    handlePopoverClose();
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('headerProfileSection', 'visibleProfile');
+    setAppContextValue('profileDrawerPerson', person);
+    setAppContextValue('profileDrawerPersonId', person.personId);
+  };
 
-  const canEditPerson = viewerCanSeeOrDo('canEditPersonAnyone', viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
-  const hasEditRights = true;
+  useEffect(() => {
+    if (personRowUnfurledFromParent !== personRowUnfurledFromParentAlreadySet) {
+      setPersonRowUnfurled(personRowUnfurledFromParent);
+      setPersonRowUnfurledFromParentAlreadySet(personRowUnfurledFromParent);
+    }
+  }, [personRowUnfurled, personRowUnfurledFromParent, personRowUnfurledFromParentAlreadySet]);
+
+  const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
   return (
-    <OnePersonWrapper key={`teamMember-${person.personId}`}>
-      {rowNumberForDisplay && (
+    <OnePersonOuterWrapper>
+      <PersonMainRow key={`teamMember-${person.personId}`}>
+        <PersonCell
+          $cellwidth={20}
+        >
+          &nbsp;
+        </PersonCell>
         <PersonCell
           id={`index-personId-${person.personId}`}
           $cellwidth={25}
+          onClick={() => setPersonRowUnfurled(!personRowUnfurled)}
         >
-          <GraySpan>
-            {rowNumberForDisplay}
-          </GraySpan>
+          {personRowUnfurled ? (
+            <KeyboardArrowUpStyled />
+          ) : (
+            <KeyboardArrowDownStyled />
+          )}
         </PersonCell>
-      )}
-      <PersonCell
-        id={`fullNamePreferred-personId-${person.personId}`}
-        onClick={() => personProfileClick(person)}
-        style={{
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          color: DesignTokenColors.primary500,
-        }}
-        $cellwidth={180}
-      >
-        {/* {`${person.firstName} ${person.lastName}`} */}
-        {getFullNamePreferredPerson(person)} {/* 2/6/25 currently if you save a first name preferred, it shows up here, but will not be searchable on add team member If you */}
-      </PersonCell>
-      <PersonCell
-        id={`location-personId-${person.personId}`}
-        $cellwidth={150}
-        $smallfont
-      >
-        {person.location}
-      </PersonCell>
-      <PersonCell
-        id={`jobTitle-personId-${person.personId}`}
-        $cellwidth={200}
-        $smallestfont
-      >
-        {person.jobTitle}
-      </PersonCell>
-      {canEditPerson ? (
         <PersonCell
-          id={`editPersonTasks-personId-${person.personId}`}
-          onClick={() => editPersonTasksClick(hasEditRights)}
-          style={{ cursor: 'pointer' }}
-          $cellwidth={20}
+          id={`fullNamePreferred-personId-${person.personId}`}
+          onClick={() => setPersonRowUnfurled(!personRowUnfurled)}
+          $cellwidth={180}
         >
-          T
+          <SpanWithLinkStyle>
+            {getFullNamePreferredPerson(person)}
+          </SpanWithLinkStyle>
         </PersonCell>
-      ) : (
         <PersonCell
-          $cellwidth={20}
+          id={`location-personId-${person.personId}`}
+          $cellwidth={150}
+          $smallfont
         >
-          &nbsp;
+          {person.location}
         </PersonCell>
-      )}
-      {canEditPerson ? (
         <PersonCell
-          id={`editPerson-personId-${person.personId}`}
-          onClick={() => editPersonClick(hasEditRights)}
-          style={{ cursor: 'pointer' }}
-          $cellwidth={20}
+          id={`jobTitle-personId-${person.personId}`}
+          $cellwidth={200}
+          $smallestfont
         >
-          <EditStyled />
+          {person.jobTitle}
         </PersonCell>
-      ) : (
-        <PersonCell
-          $cellwidth={20}
-        >
-          &nbsp;
-        </PersonCell>
-      )}
-      {teamId > 0 && (
-        <>
-          {viewerCanSeeOrDo('canRemoveTeamMemberAnyTeam', viewerAccessRights) ? (
+        <HideOnHover>
+          <PersonCell
+            $cellwidth={250}
+            $rightAlign
+            $smallestfont
+          >
+            <div>
+              {!person.statusOfferLetterSigned && (
+                <span>
+                  {/* Not signed */}
+                </span>
+              )}
+              {person.dateStartDate && (
+                <span>
+                  {person.statusOfferLetterSigned ? (
+                    <span>{timeFromDate(person.dateStartDate, true)}</span>
+                  ) : (
+                    <span>{formatDateMMMDoYYYY(person.dateStartDate)} start</span>
+                  )}
+                </span>
+              )}
+            </div>
+          </PersonCell>
+        </HideOnHover>
+        <ShowOnHover>
+          {person.emailOfficial ? (
             <PersonCell
-              id={`removeMember-personId-${person.personId}`}
-              onClick={() => removeTeamMemberClick(person)}
-              style={{ cursor: 'pointer' }}
-              $cellwidth={20}
+              $cellwidth={150}
+              $smallestfont
             >
-              <DeleteStyled />
+              {quickLinkCopied || (
+                <div>
+                  <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
+                    <span>
+                      <ContentCopyStyled />
+                      Copy {webAppConfig.ORGANIZATION_NAME || 'Official'} email
+                    </span>
+                  </CopyToClipboard>
+                </div>
+              )}
             </PersonCell>
           ) : (
             <PersonCell
-              $cellwidth={20}
+              $cellwidth={150}
+              $smallestfont
             >
               &nbsp;
             </PersonCell>
           )}
-        </>
+          {canEditPerson && (
+            <PersonCell
+              id={`editPerson-personId-${person.personId}`}
+              onClick={() => editPersonClick(true)}
+              $cellwidth={30}
+              $smallestfont
+            >
+              <SpanWithLinkStyle>
+                Edit
+              </SpanWithLinkStyle>
+            </PersonCell>
+          )}
+          <EditInviteeTripleDotWrapper>
+            <TripleDotButton type="button" aria-label="source" onClick={onDotButtonClick}>
+              <MoreHoriz />
+            </TripleDotButton>
+            <Popover
+              id={id}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handlePopoverClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+            >
+              <PopoverWrapper>
+                <PopoverNameAndMessageText>
+                  <StyledTypography onClick={() => personProfileClick()}>
+                    View
+                    {' '}
+                    {person.firstNamePreferred || person.firstName || 'person'}
+                    &apos;s
+                    {' '}
+                    profile
+                  </StyledTypography>
+                </PopoverNameAndMessageText>
+                {canEditPerson && (
+                  <PopoverTasks>
+                    <StyledTypography onClick={() => editPersonTasksClick(true)}>
+                      Onboarding tasks
+                    </StyledTypography>
+                  </PopoverTasks>
+                )}
+                {(teamId > 0 && viewerCanSeeOrDo(['canRemoveTeamMemberAnyTeam'], viewerAccessRights)) && (
+                  <PopoverViewDetailsText>
+                    <StyledTypography onClick={() => removeTeamMemberClick(person)}>
+                      Remove
+                      {' '}
+                      {person.firstNamePreferred || person.firstName || ''}
+                      {' '}
+                      from this team
+                    </StyledTypography>
+                  </PopoverViewDetailsText>
+                )}
+              </PopoverWrapper>
+            </Popover>
+          </EditInviteeTripleDotWrapper>
+        </ShowOnHover>
+      </PersonMainRow>
+      {personRowUnfurled && (
+        <PersonDetailsRow>
+          <DetailsRowSection>
+            <DetailsRowItem>
+              <PersonDetailsQuickLinks person={person} teamId={teamId} />
+            </DetailsRowItem>
+          </DetailsRowSection>
+          <DetailsRowSection>
+            <DetailsRowItem>
+              <PersonDetailsEmailsAndStartDate person={person} teamId={teamId} />
+            </DetailsRowItem>
+          </DetailsRowSection>
+        </PersonDetailsRow>
       )}
-    </OnePersonWrapper>
+    </OnePersonOuterWrapper>
   );
 };
 PersonSummaryRow.propTypes = {
+  personRowUnfurledFromParent: PropTypes.bool,
   person: PropTypes.object.isRequired,
-  rowNumberForDisplay: PropTypes.number,
   teamId: PropTypes.number,
 };
 
@@ -174,14 +277,70 @@ const styles = (theme) => ({
   },
 });
 
-const GraySpan = styled('span')`
-  color: ${DesignTokenColors.neutral400};
+const ContentCopyStyled = styled(ContentCopy)`
+  color: ${DesignTokenColors.neutral300};
+  height: 16px;
+  margin-left: 4px;
+  width: 16px;
 `;
 
-const OnePersonWrapper = styled('div')`
+const EditInviteeTripleDotWrapper = styled('div')`
+  color: ${DesignTokenColors.neutral900};
+  :hover {
+    color: ${DesignTokenColors.neutral400};
+    cursor: pointer;
+  }
+`;
+
+const KeyboardArrowDownStyled = styled(KeyboardArrowDown)`
+`;
+
+const KeyboardArrowUpStyled = styled(KeyboardArrowUp)`
+`;
+
+const OnePersonOuterWrapper = styled('div')`
+`;
+
+const HideOnHover = styled('div')`
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 250px;
+  max-width: 250px;
+  width: 250px;
+`;
+
+const ShowOnHover = styled('div')`
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 250px;
+  max-width: 250px;
+  width: 250px;
+`;
+
+const PersonDetailsRow = styled('div')`
+  align-items: flex-start;
+  display: flex;
   justify-content: flex-start;
+  margin-bottom: 20px;
+  margin-top: 15px;
+`;
+
+const PersonMainRow = styled('div')`
+  align-items: center;
+  display: flex;
+  height: 22px;
+  justify-content: flex-start;
+
+  &:hover {
+    ${HideOnHover} {
+      display: none;
+    }
+    ${ShowOnHover} {
+      display: flex;
+    }
+  }
 `;
 
 const fontSz = (smallfont, smallestfont) => {
@@ -196,6 +355,8 @@ const fontSz = (smallfont, smallestfont) => {
 const PersonCell = styled.div`
   align-content: center;
   border-bottom: 1px solid #ccc;
+  ${(props) => (props.$rightAlign ? 'display: flex;' : '')};
+  ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (fontSz(props?.$smallfont, props?.$smallestfont))}
   height: 22px;
   min-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
@@ -203,6 +364,35 @@ const PersonCell = styled.div`
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
+`;
+
+const PopoverWrapper = styled('div')`
+  padding: 5px;
+`;
+
+const PopoverNameAndMessageText = styled('div')`
+  padding: 6px;
+`;
+
+const PopoverTasks = styled('div')`
+  padding: 6px;
+`;
+
+const PopoverViewDetailsText = styled('div')`
+  padding: 6px;
+  cursor: pointer;
+`;
+
+const StyledTypography = styled('div')`
+  font-size: 12px;
+  cursor: pointer;
+`;
+
+const TripleDotButton = styled('button')`
+  background: transparent;
+  border: 0;
+  margin-right: -3px;
+  padding-right: 0;
 `;
 
 export default withStyles(styles)(PersonSummaryRow);

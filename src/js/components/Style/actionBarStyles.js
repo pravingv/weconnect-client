@@ -15,6 +15,18 @@ export const ActionBarSection = styled('div')`
   padding-left: 15px;
 `;
 
+export const DetailsRowItem = styled('div')`
+  padding-right: 15px;
+`;
+
+export const DetailsRowSection = styled('div')`
+  align-items: flex-start;
+  border-right: 1px solid ${DesignTokenColors.neutralUI200};
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 15px;
+`;
+
 export const SearchBarWrapper = styled('div')`
   margin-right: 10px;
 `;
