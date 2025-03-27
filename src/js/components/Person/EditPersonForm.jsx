@@ -370,11 +370,10 @@ const styles = (theme) => ({
   },
   showThisField: {},
   savePersonButton: {
-    width: '300px',
-    // bottom: 0, // WV-1032
-    // position: 'sticky', // WV-1032
-    // width: '330px', // WV-1032
-    // zIndex: 20, // WV-1032
+    bottom: 0,
+    position: 'sticky',
+    width: '330px',
+    zIndex: 20,
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
@@ -396,10 +395,10 @@ const DateWrapper = styled('div')`
 `;
 
 const EditPersonFormWrapper = styled('div')`
-  margin-bottom: 60px;
-  //margin: 0 auto; // WV-1032
-  //max-width: 600px; // WV-1032
-  //padding-bottom: 40px; // WV-1032
+  //margin-bottom: 60px;
+  margin: 0 auto; // WV-1032
+  max-width: 600px; // WV-1032
+  padding-bottom: 40px; // WV-1032
 `;
 
 const HRTeamFieldsTitle = styled('div')`
