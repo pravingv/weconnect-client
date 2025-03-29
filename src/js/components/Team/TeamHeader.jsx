@@ -77,15 +77,10 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
             )}
           </TeamHeaderCell>
           <ActionBarSection>
-            <ActionBarItem>
-              <SpanWithLinkStyle onClick={() => setShowAllTeamMembers(!showAllTeamMembers)}>
-                {showAllTeamMembers ? 'Hide team' : 'Show team'}
-              </SpanWithLinkStyle>
-            </ActionBarItem>
             {showAllTeamMembers && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(!expandAllTeamMembers)}>
-                  {expandAllTeamMembers ? 'Close all' : 'Open all'}
+                  {expandAllTeamMembers ? 'Collapse all' : 'Expand all'}
                 </SpanWithLinkStyle>
               </ActionBarItem>
             )}
@@ -96,11 +91,6 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
                 </SpanWithLinkStyle>
               </ActionBarItem>
             )}
-            {/* <ActionBarItem> */}
-            {/*  <SpanWithLinkStyle onClick={() => hideInactiveClick()}> */}
-            {/*    {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'} */}
-            {/*  </SpanWithLinkStyle> */}
-            {/* </ActionBarItem> */}
           </ActionBarSection>
           {/* Edit icon */}
           {showIcons && (
