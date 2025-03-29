@@ -377,6 +377,10 @@ const styles = (theme) => ({
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
+    '&.Mui-disabled': {
+      backgroundColor: '#e0e0e0 !important',
+      color: '#424242 !important',
+    },
   },
 });
 

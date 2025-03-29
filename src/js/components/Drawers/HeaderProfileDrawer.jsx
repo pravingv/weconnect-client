@@ -278,15 +278,18 @@ const EditProfileDrawerWrapper = styled.div`
   display: flex;
   gap: 32px;
   margin-top: 80px;
+  position: relative;
 `;
 
 const NavLinksContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: -16px;
+  position: fixed;
 `;
 
 const LinkComponentContainer = styled.div`
+  margin-left: 220px;
   width: 100%;
 `;
 
