@@ -289,8 +289,17 @@ const NavLinksContainer = styled.div`
 `;
 
 const LinkComponentContainer = styled.div`
-  margin-left: 220px;
   width: 100%;
+
+  @media (min-width: 768px) {
+    margin-left: 220px;
+    width: 70%;
+    margin-right: auto;
+  }
+
+  @media (min-width: 1024px) {
+    width: calc(100% - 220px);
+  }
 `;
 
 const NavLinkContainer = styled.div`
