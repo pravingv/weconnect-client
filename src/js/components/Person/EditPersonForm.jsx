@@ -40,13 +40,20 @@ const EditPersonForm = ({ classes }) => {
   const firstNameInputRef = useRef('');
   const firstNamePreferredInputRef = useRef('');
   const hoursPerWeekEstimateInputRef = useRef('');
+  const isHiringManagerInputRef = useRef(false);
+  const isInternInputRef = useRef(false);
+  const isTeamLeadInputRef = useRef(false);
   const jazzHrUrlInputRef = useRef('');
   const jobTitleInputRef = useRef('');
   const lastNameInputRef = useRef('');
   const linkedInUrlInputRef = useRef('');
   const locationInputRef = useRef('');
   const stateCodeInputRef = useRef('');
+  const statusActiveInputRef = useRef(false);
+  const statusOfferApprovedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
+  const statusOnLeaveInputRef = useRef(false);
+  const statusResignedInputRef = useRef(false);
 
   useEffect(() => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
@@ -74,8 +81,12 @@ const EditPersonForm = ({ classes }) => {
       activePerson.dateStartDate = dateStartDateInputRef.current.value;
       activePerson.emailOfficial = emailOfficialInputRef.current.value;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
+      activePerson.isHiringManager = isHiringManagerInputRef.current.checked;
+      activePerson.isIntern = isInternInputRef.current.checked;
+      activePerson.isTeamLead = isTeamLeadInputRef.current.checked;
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
       activePerson.jobTitle = jobTitleInputRef.current.value;
+      activePerson.statusOfferApproved = statusOfferApprovedInputRef.current.checked;
       activePerson.statusOfferLetterSigned = statusOfferLetterSignedInputRef.current.checked;
     }
     // console.log('savePerson data:', JSON.stringify(activePerson));
@@ -228,6 +239,27 @@ const EditPersonForm = ({ classes }) => {
           classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
           control={(
             <Checkbox
+              checked={activePerson.statusOfferApproved || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferApprovedToBeSaved"
+              inputRef={statusOfferApprovedInputRef}
+              name="statusOfferApproved"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOfferApproved: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`Hiring manager wants to make offer to ${activePerson.firstNamePreferred || activePerson.firstName}`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
               checked={activePerson.statusOfferLetterSigned || false}
               className={classes.checkboxRoot}
               color="primary"
@@ -336,6 +368,133 @@ const EditPersonForm = ({ classes }) => {
           onChange={() => setSaveButtonActive(true)}
           placeholder="Month and Day of Birth (Do not include year)"
           variant="outlined"
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusActive || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusActiveToBeSaved"
+              inputRef={statusActiveInputRef}
+              name="statusActive"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusActive: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is active`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.isTeamLead || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isTeamLeadToBeSaved"
+              inputRef={isTeamLeadInputRef}
+              name="isTeamLead"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  isTeamLead: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is a team lead`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.isHiringManager || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isHiringManagerToBeSaved"
+              inputRef={isHiringManagerInputRef}
+              name="isHiringManager"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  isHiringManager: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is a hiring manager`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.isIntern || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isInternToBeSaved"
+              inputRef={isInternInputRef}
+              name="isIntern"
+              onChange={(event) => {
+                console.log('isIntern event.target.checked', event.target.checked, ', event.target.value:', event.target.value);
+                setActivePerson((prev) => ({
+                  ...prev,
+                  isIntern: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is an intern`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusOnLeave || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOnLeaveToBeSaved"
+              inputRef={statusOnLeaveInputRef}
+              name="statusOnLeave"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOnLeave: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is on leave`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusResigned || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusResignedToBeSaved"
+              inputRef={statusResignedInputRef}
+              name="statusResigned"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusResigned: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} has resigned`}
         />
         <Button
           classes={{ root: classes.savePersonButton }}

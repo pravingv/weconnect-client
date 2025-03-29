@@ -71,6 +71,37 @@ export const searchWordFoundInOnePerson = (searchWord, person) => {
   return found;
 };
 
+export const isPeopleFiltersFoundInPerson = (person, getAppContextValue) => {
+  const inOfferProcess = person.statusOfferApproved === true && person.statusOfferLetterSigned !== true;
+  let personIsVisible = false;
+  if (getAppContextValue('isInternPeopleFilter') === true) {
+    if (person.isIntern === true) {
+      personIsVisible = true;
+    }
+  } else if (getAppContextValue('isHiringManagerPeopleFilter') === true) {
+    if (person.isHiringManager === true) {
+      personIsVisible = true;
+    }
+  } else if (getAppContextValue('isTeamLeadPeopleFilter') === true) {
+    if (person.isTeamLead === true) {  // adjust to be team-by-team
+      personIsVisible = true;
+    }
+  } else if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
+    if (inOfferProcess) {
+      personIsVisible = true;
+    }
+  } else if (getAppContextValue('statusOnLeavePeopleFilter') === true) {
+    if (person.statusOnLeave === true) {  // adjust to be team-by-team
+      personIsVisible = true;
+    }
+  } else if (getAppContextValue('statusResignedPeopleFilter') === true) {
+    if (person.statusResigned === true) {  // adjust to be team-by-team
+      personIsVisible = true;
+    }
+  }
+  return personIsVisible;
+};
+
 export const isSearchTextFoundInPerson = (incomingSearchText, person) => {
   if (!person || person.personId < 0) return false; // Invalid person or personId
   if (!incomingSearchText || (incomingSearchText && incomingSearchText.length === 0)) return true; // No searchText provided
