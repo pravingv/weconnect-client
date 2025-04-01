@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { isSearchTextFoundInPerson } from '../../controllers/PersonController';
+import { isPeopleFiltersFoundInPerson, isSearchTextFoundInPerson } from '../../controllers/PersonController';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import { getTeamMembersListByTeamId } from '../../models/TeamModel';
@@ -11,9 +11,9 @@ import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import PersonSummaryRow from '../Person/PersonSummaryRow';
 
 // DO NOT REMOVE PASSED in TEAM
-const TeamMemberList = ({ searchText, teamId, team, hideInactive }) => { // teamMemberList
+const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId, team }) => { // teamMemberList
   renderLog('TeamMemberList');
-  const { apiDataCache } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { allPeopleCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
@@ -76,11 +76,38 @@ const TeamMemberList = ({ searchText, teamId, team, hideInactive }) => { // team
 
   const showPerson = (person, searchTextLocal) => {
     if (!person || person.id < 0) return false; // Invalid person or personId
+    const inOfferProcess = person.statusOfferApproved === true && person.statusOfferLetterSigned !== true;
+    const statusActive = person.statusOfferLetterSigned === true || person.statusActive === true;
+    let personIsVisible;
+    const pigsCanFly = false;
     if (searchTextLocal) {
       const results = isSearchTextFoundInPerson(searchTextLocal, person);
       return results.allSearchWordsWereFound;
+    } else if (pigsCanFly) {
+      return true;
+    } else if (getAppContextValue('includeOrOnlyPeopleFilter') === 'INCLUDE') {
+      // Default is 'Active people' but we make people visible if the chosen filters below also match the person
+      personIsVisible = statusActive;
+      if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
+        if (inOfferProcess) {
+          personIsVisible = true;
+        }
+      }
+      if (getAppContextValue('statusOnLeavePeopleFilter') === true) {
+        if (person.statusOnLeave !== true) {  // adjust to be team-by-team
+          personIsVisible = true;
+        }
+      }
+      if (getAppContextValue('statusResignedPeopleFilter') === true) {
+        if (person.statusResigned !== true) {  // adjust to be team-by-team
+          personIsVisible = true;
+        }
+      }
+      return personIsVisible; // Show the person if no searchText is provided
+    } else if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY') {
+      return isPeopleFiltersFoundInPerson(person, getAppContextValue);
     } else {
-      return true; // Show the person if no searchText is provided
+      return personIsVisible; // Show the person if no searchText is provided, or there are any other filters
     }
   };
 
@@ -101,9 +128,9 @@ const TeamMemberList = ({ searchText, teamId, team, hideInactive }) => { // team
         if (showPerson(person, searchText) && isPersonActive(person)) {
           return (
             <PersonSummaryRow
+              personRowUnfurledFromParent={expandAllTeamMembers}
               key={`teamMember-${teamId}-${person.id}`}
               person={person}
-              rowNumberForDisplay={index + 1}
               teamId={teamId}
             />
           );
@@ -115,10 +142,11 @@ const TeamMemberList = ({ searchText, teamId, team, hideInactive }) => { // team
   );
 };
 TeamMemberList.propTypes = {
+  expandAllTeamMembers: PropTypes.bool,
+  hideInactive: PropTypes.bool.isRequired,
   searchText: PropTypes.string,
   teamId: PropTypes.any.isRequired,
   team: PropTypes.object.isRequired,
-  hideInactive: PropTypes.bool.isRequired,
 };
 
 const styles = () => ({

@@ -5,14 +5,14 @@ import { Link } from 'react-router';
 import styled from 'styled-components';
 import SearchBar2024 from '../common/components/Search/SearchBar2024';
 import { renderLog } from '../common/utils/logging';
+import FilterPeopleTripleDot from '../components/Person/FilterPeopleTripleDot';
 import { ActionBarItem, ActionBarSection, SearchBarWrapper } from '../components/Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TeamHeader from '../components/Team/TeamHeader';
-import TeamMemberList from '../components/Team/TeamMemberList';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
-import { isSearchTextFoundInPerson } from '../controllers/PersonController';
+import { isPeopleFiltersFoundInPerson, isSearchTextFoundInPerson } from '../controllers/PersonController';
 import { isSearchTextFoundInTeam } from '../controllers/TeamController';
 import capturePersonListRetrieveData from '../models/capturePersonListRetrieveData';
 import { viewerCanSeeOrDo } from '../models/AuthModel';
@@ -26,6 +26,7 @@ const Teams = () => {
   const { allPeopleCache, allTeamsCache, viewerAccessRights } = apiDataCache;
   const dispatch = useConnectDispatch();
 
+  const [mostRecentOnlyPeopleFilterChosen, setMostRecentOnlyPeopleFilterChosen] = useState('');
   const [searchText, setSearchText] = useState('');
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(true);
   const [hideInactive, setHideInactive] = useState(true);
@@ -79,9 +80,9 @@ const Teams = () => {
     setAppContextValue('AddPersonDrawerLabel', 'Add Person');
   };
 
-  const hideInactiveClick = () => {
-    setHideInactive(!hideInactive);
-  };
+  // const hideInactiveClick = () => {
+  //   setHideInactive(!hideInactive);
+  // };
 
   const updateTeamMembersFoundDictWithOneTeam = (teamId, numberOfTeamMembersFound, numberOfTeamMembersFoundDictLocal) => {
     const numberOfTeamMembersFoundDictRevised = { ...numberOfTeamMembersFoundDictLocal };
@@ -100,6 +101,8 @@ const Teams = () => {
     let numberOfTeamMembersFoundDictRevised = { ...numberOfTeamMembersFoundDict };
     let teamId;
     let numberOfTeamMembersFound;
+    const onlyFiltersSelected = getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY';
+    // console.log('searchText: ', searchText, ', onlyFiltersSelected: ', onlyFiltersSelected);
     teamList.forEach((team) => {
       teamId = team.teamId;
       const updatedTeamMemberList = getTeamMembersListByTeamId(teamId, apiDataCache);
@@ -109,25 +112,58 @@ const Teams = () => {
           const personResults = isSearchTextFoundInPerson(searchText, person);
           return personResults.allSearchWordsWereFound;
         }).length;
+      } else if (onlyFiltersSelected) {
+        numberOfTeamMembersFound = updatedTeamMemberList.filter((person) => {
+          return isPeopleFiltersFoundInPerson(person, getAppContextValue);
+        }).length;
       } else {
         numberOfTeamMembersFound = updatedTeamMemberList.length;
       }
       numberOfTeamMembersFoundDictRevised = updateTeamMembersFoundDictWithOneTeam(teamId, numberOfTeamMembersFound, numberOfTeamMembersFoundDictRevised);
     });
+    // console.log('teams useEffect, numberOfTeamMembersFoundDictRevised: ', numberOfTeamMembersFoundDictRevised);
     setAppContextValue('numberOfTeamMembersFoundDict', numberOfTeamMembersFoundDictRevised);
-  }, [apiDataCache, searchText, teamList]);
+  }, [apiDataCache, mostRecentOnlyPeopleFilterChosen, searchText, teamList]);
 
   const showTeam = (team) => {
     if (!team || team.teamId < 0) return false; // Invalid person or personId
+    const onlyFiltersSelected = getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY';
+    // console.log('onlyFiltersSelected: ', onlyFiltersSelected);
+    const numberOfTeamMembersFoundDict = getAppContextValue('numberOfTeamMembersFoundDict');
+    const teamMembersFound = numberOfTeamMembersFoundDict[team.teamId] && numberOfTeamMembersFoundDict[team.teamId] > 0;
+    // console.log('showTeam, team.teamId: ', team.teamId, ', team.teamName: ', team.teamName, ', teamMembersFound: ', teamMembersFound);
     if (searchText) {
-      const numberOfTeamMembersFoundDict = getAppContextValue('numberOfTeamMembersFoundDict');
-      const teamMembersFound = numberOfTeamMembersFoundDict[team.teamId] && numberOfTeamMembersFoundDict[team.teamId] > 0;
       // If the team has any members matching searchText, or team itself matches searchText, show it
+      // console.log('searchText: ', searchText, ', team.teamName: ', team.teamName);
       return !!(teamMembersFound) || isSearchTextFoundInTeam(searchText, team);
+    } else if (onlyFiltersSelected) {
+      return !!(teamMembersFound);
     } else {
       return true; // Show the team if no searchText is provided
     }
   };
+
+  useEffect(() => {
+    let mostRecentOnlyPeopleFilterChosenUpdated = '';
+    // console.log('getAppContextValue(\'isInternPeopleFilter\'): ', getAppContextValue('isInternPeopleFilter'));
+    if (getAppContextValue('isInternPeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'isInternPeopleFilter';
+    } else if (getAppContextValue('isHiringManagerPeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'isHiringManagerPeopleFilter';
+    } else if (getAppContextValue('isTeamLeadPeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'isTeamLeadPeopleFilter';
+    } else if (getAppContextValue('statusInOfferProcessPeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'statusInOfferProcessPeopleFilter';
+    } else if (getAppContextValue('statusOnLeavePeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'statusOnLeavePeopleFilter';
+    } else if (getAppContextValue('statusResignedPeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'statusResignedPeopleFilter';
+    }
+    // console.log('teams useEffect, mostRecentOnlyPeopleFilterChosen: ', mostRecentOnlyPeopleFilterChosen, ', mostRecentOnlyPeopleFilterChosenUpdated:', mostRecentOnlyPeopleFilterChosenUpdated);
+    if (mostRecentOnlyPeopleFilterChosenUpdated && mostRecentOnlyPeopleFilterChosenUpdated !== mostRecentOnlyPeopleFilterChosen) {
+      setMostRecentOnlyPeopleFilterChosen(mostRecentOnlyPeopleFilterChosenUpdated);
+    }
+  }, [getAppContextValue]);
 
   // const oneTeam = teamList.find((tm) => tm.teamId === 10);
   // console.log('teams render, team.length: ', teamList.length);
@@ -154,61 +190,68 @@ const Teams = () => {
           </SearchBarWrapper>
           <ActionBarSection>
             <ActionBarItem>
-              {showAllTeamMembers ? (
-                <SpanWithLinkStyle onClick={() => setShowAllTeamMembers(false)}>
-                  Collapse all
-                </SpanWithLinkStyle>
-              ) : (
-                <SpanWithLinkStyle onClick={() => setShowAllTeamMembers(true)}>
-                  Expand all
-                </SpanWithLinkStyle>
-              )}
+              <SpanWithLinkStyle
+                onClick={() => {
+                  // Force the expansion of all
+                  setShowAllTeamMembers(undefined);
+                  setTimeout(() => {
+                    setShowAllTeamMembers(true);
+                  }, 100);
+                }}
+              >
+                Expand all
+              </SpanWithLinkStyle>
+            </ActionBarItem>
+            <ActionBarItem>
+              <SpanWithLinkStyle
+                onClick={() => {
+                  // Force the closing of all
+                  setShowAllTeamMembers(undefined);
+                  setTimeout(() => {
+                    setShowAllTeamMembers(false);
+                  }, 100);
+                }}
+              >
+                Collapse all
+              </SpanWithLinkStyle>
             </ActionBarItem>
           </ActionBarSection>
           <ActionBarSection>
-            {viewerCanSeeOrDo('canAddTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamClick()}>
                   Add team
                 </SpanWithLinkStyle>
               </ActionBarItem>
             )}
-            {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
                   Add team member
                 </SpanWithLinkStyle>
               </ActionBarItem>
             )}
-            <ActionBarItem>
-              <SpanWithLinkStyle onClick={() => hideInactiveClick()}>
-                {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'}
-              </SpanWithLinkStyle>
-            </ActionBarItem>
+            {/* <ActionBarItem> */}
+            {/*  <SpanWithLinkStyle onClick={() => hideInactiveClick()}> */}
+            {/*    {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'} */}
+            {/*  </SpanWithLinkStyle> */}
+            {/* </ActionBarItem> */}
           </ActionBarSection>
+          <FilterPeopleTripleDot />
         </TeamsActionBarWrapper>
         {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the personIds of team members */}
-        {teamList.map((team, index) => {
+        {teamList.map((team) => {
           if (showTeam(team)) {
             return (
               <OneTeamWrapper key={`team-${team.id}`}>
                 <TeamHeader
-                  team={team}
-                  showHeaderLabels={(index === 0) && showAllTeamMembers && (team.teamMemberList && team.teamMemberList.length > 0)}
+                  hideInactive={hideInactive}
+                  searchText={searchText}
+                  showAllTeamMembersFromParent={showAllTeamMembers}
                   showIcons
+                  team={team}
                 />
-                {showAllTeamMembers && (
-                  <>
-                    {/* DO NOT REMOVE PASSED IN team */}
-                    <TeamMemberList
-                      searchText={searchText}
-                      team={team}
-                      teamId={team.id}
-                      hideInactive={hideInactive}
-                    />
-                  </>
-                )}
               </OneTeamWrapper>
             );
           } else {

@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import validator from 'validator';
 import { authLog, reactQueryLog, renderLog } from '../common/utils/logging';
@@ -24,6 +25,7 @@ const Login = ({ classes }) => {
   renderLog('Login');
   const { apiDataCache, apiDataCache: { viewerAccessRights }, getAppContextValue, setAppContextValue, getAppContextData } = useConnectAppContext();
   const dispatch = useConnectDispatch();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { mutate: mutateLogout } = useLogoutMutation();
 
@@ -64,10 +66,10 @@ const Login = ({ classes }) => {
       } else if (isAuthenticated && authenticatedPerson) {
         setSuccessLine(`Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}`);
         if (loginAttempted) {  // if we navigate to here directly, not as a result of a loginAPI
-          // setTimeout(() => {
-          //   navigate('/tasks');
-          setAppContextValue('navigatedFromLogin', true);
-          // }, 2000);
+          setTimeout(() => {
+            navigate('/dashboard');
+            setAppContextValue('navigatedFromLogin', true);
+          }, 2000);
         }
       } else if (!getAppContextValue('openVerifySecretCodeModalDialog')) {
         // console.log('======== appContextData in Login: Please sign in');
@@ -292,7 +294,7 @@ const Login = ({ classes }) => {
   };
 
   // console.log(getAppContextData());
-  const isAdmin = viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights);
+  const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
   const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   const displayVerify =
     !isForSomeOneElse &&

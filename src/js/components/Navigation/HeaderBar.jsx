@@ -25,10 +25,10 @@ const HeaderBar = ({ hideTabs }) => {
   const navigate = useNavigate();
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
 
-  const [scrolledDown] = useState(false);
-  const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
-  const [showTabs, setShowTabs] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [scrolledDown] = useState(false);
+  const [showTabs, setShowTabs] = useState(true);
+  const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
 
   const isAuth = getAppContextValue('isAuthenticated');
@@ -64,7 +64,7 @@ const HeaderBar = ({ hideTabs }) => {
       case 'questionnaire':
       case 'system-settings':
       case 'task-group':
-        if (viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights)) {
+        if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
           setTabsValue(HEADER_TAB_SETTINGS);
         }
         break;
@@ -153,8 +153,8 @@ const HeaderBar = ({ hideTabs }) => {
   const headerProfileClick = () => {
     setAppContextValue('headerProfileDrawerOpen', true);
     setAppContextValue('headerProfileSection', 'nameAndPhoto');
-    setAppContextValue('personDrawersPerson', authenticatedPerson);
-    setAppContextValue('personDrawersPersonId', authenticatedPerson.personId);
+    setAppContextValue('profileDrawerPerson', authenticatedPerson);
+    setAppContextValue('profileDrawerPersonId', authenticatedPerson.personId);
   };
   return (
     <HeaderBarWrapper
@@ -176,7 +176,7 @@ const HeaderBar = ({ hideTabs }) => {
               <Tab value={HEADER_TAB_DASHBOARD} label="Dashboard" onClick={() => handleTabChangeClick(HEADER_TAB_DASHBOARD)} />
               <Tab value={HEADER_TAB_TASKS} label="Tasks" onClick={() => handleTabChangeClick(HEADER_TAB_TASKS)} />
               <Tab value={HEADER_TAB_TEAMS} label="Teams" onClick={() => handleTabChangeClick(HEADER_TAB_TEAMS)} />
-              {viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights) && (
+              {viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights) && (
                 <Tab value={HEADER_TAB_SETTINGS} label="Settings" onClick={() => handleTabChangeClick(HEADER_TAB_SETTINGS)} />
               )}
             </Tabs>

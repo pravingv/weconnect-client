@@ -9,10 +9,12 @@ import { normalizedHref } from './js/common/utils/hrefUtils';
 import initializejQuery from './js/common/utils/initializejQuery';
 import { renderLog } from './js/common/utils/logging';
 import Drawers from './js/components/Drawers/Drawers';
+import TasksDataRetrieve from './js/components/Task/TasksDataRetrieve';
 import PrivateRoute from './js/components/PrivateRoute';
 import webAppConfig from './js/config';
 import ConnectAppContext from './js/contexts/ConnectAppContext';
 import Login from './js/pages/Login';
+import initializeMoment from './js/common/utils/initializeMoment';
 
 
 // Root URL pages
@@ -65,6 +67,11 @@ function App () {
     setHideHeader(!showHeaderFooter);
   };
 
+  if (typeof window.moment === 'undefined') {
+    // If we don't do this, the dates used for the "Volunteer for" don't render correctly on the first load.
+    initializeMoment(() => {});
+  }
+
   return (
     <>
       <StyledEngineProvider injectFirst>
@@ -92,6 +99,7 @@ function App () {
                     </Route>
                     <Route path="*" element={<PageNotFound />} />
                   </Routes>
+                  <TasksDataRetrieve />
                   {/* <Footer /> has problems */}
                   {showDevtools && (
                     <ReactQueryDevtools />

@@ -1,5 +1,4 @@
 import { withStyles } from '@mui/styles';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
@@ -25,8 +24,7 @@ import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 import { alphabetizePeoplesObject } from '../utils/utilities';
 
 
-// eslint-disable-next-line no-unused-vars
-const Tasks = ({ classes, match }) => {
+const Tasks = () => {
   renderLog('Tasks');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache, allTaskDefinitionsCache, allTasksCache, viewerAccessRights } = apiDataCache;
@@ -195,7 +193,7 @@ const Tasks = ({ classes, match }) => {
             </ActionBarItem>
           </ActionBarSection>
           <ActionBarSection>
-            {viewerCanSeeOrDo('canAddTeamMemberAnyTeam', viewerAccessRights) && (
+            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
                   Add team member
@@ -227,11 +225,6 @@ const Tasks = ({ classes, match }) => {
       </PageContentContainer>
     </div>
   );
-};
-Tasks.propTypes = {
-  classes: PropTypes.object.isRequired,
-  // match: PropTypes.object.isRequired,
-  match: PropTypes.object,
 };
 
 const styles = (theme) => ({

@@ -4,11 +4,20 @@
 import isEqual from 'lodash-es/isEqual';
 
 
-export const viewerCanSeeOrDo = (accessRightName, viewerAccessRights) => {
+export const viewerCanSeeOrDoOneAccessRight = (accessRightName, viewerAccessRights) => {
   if (!viewerAccessRights || !(accessRightName in viewerAccessRights)) {
     return false;
   }
   return viewerAccessRights[accessRightName] || false;
+};
+
+export const viewerCanSeeOrDo = (accessRightNameList, viewerAccessRights) => {
+  if (!viewerAccessRights) {
+    return false;
+  } else if (!accessRightNameList || accessRightNameList.length === 0) {
+    return false;
+  }
+  return accessRightNameList.some((accessRightName) => viewerCanSeeOrDoOneAccessRight(accessRightName, viewerAccessRights));
 };
 
 export const viewerCanSeeOrDoForThisTeam = (accessRightName, teamId = -1, teamAccessRights = {}) => {

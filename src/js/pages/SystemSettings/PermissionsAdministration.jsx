@@ -54,7 +54,7 @@ const PermissionsAdministration = ({ classes }) => {
   const resignedInputRef = useRef();
 
   useEffect(() => {
-    setCanEditPermissionsAnyone(viewerCanSeeOrDo('canEditPermissionsAnyone', viewerAccessRights));
+    setCanEditPermissionsAnyone(viewerCanSeeOrDo(['canEditPermissionsAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
   const SET = {
