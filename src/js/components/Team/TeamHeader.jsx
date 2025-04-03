@@ -11,9 +11,10 @@ import { EditStyled } from '../Style/iconStyles';
 import TeamMemberList from './TeamMemberList';
 import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
+import DesignTokenColors from "../../common/components/Style/DesignTokenColors";
 
 
-const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, searchText, showAllTeamMembersFromParent, showIcons, team }) => {
+const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, searchText, showAllTeamMembersFromParent, showIcons, team, classes }) => {
   renderLog('TeamHeader');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
@@ -71,7 +72,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
           </TeamHeaderCell>
           <TeamHeaderCell $cellwidth={215} $largefont $titlecell>
             {teamLocal && (
-              <Link to={`/team-home/${teamLocal.id}`}>
+              <Link className={classes.teamLocalNameLink} to={`/team-home/${teamLocal.id}`}>
                 {teamLocal.teamName}
               </Link>
             )}
@@ -145,6 +146,7 @@ TeamHeader.propTypes = {
   showIcons: PropTypes.bool,
   showAllTeamMembersFromParent: PropTypes.bool,
   team: PropTypes.object,
+  styles: PropTypes.object,
 };
 
 const styles = (theme) => ({
@@ -156,6 +158,11 @@ const styles = (theme) => ({
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
+  },
+  teamLocalNameLink: {
+    color: `${DesignTokenColors.neutral800}`,
+    fontWeight: 600,
+    textDecoration: 'none',
   },
 });
 
@@ -169,29 +176,39 @@ const OneTeamHeaderOuterWrapper = styled('div')`
 `;
 
 const OneTeamOuterWrapper = styled('div')`
+  border-top: 1px solid ${DesignTokenColors.neutralUI300};
+  border-left: 1px solid ${DesignTokenColors.neutralUI300};
+  border-right: 1px solid ${DesignTokenColors.neutralUI300};
+  margin-bottom: 15px;
 `;
 
 const TeamHeaderMainRow = styled('div')`
   align-items: center;
   display: flex;
   justify-content: flex-start;
-  margin-top: 10px;
+  height: 40px;
+  border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
+  //margin-top: 10px;
 `;
 
 const TeamHeaderPersonColumnTitles = styled('div')`
   align-items: center;
   display: flex;
   justify-content: flex-start;
-  margin-top: 10px;
+  height: 30px;
+  background-color: ${DesignTokenColors.neutral50};
+  border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
+  color: ${DesignTokenColors.neutral800};
+  //margin-top: 10px;
 `;
 
 const TeamHeaderCell = styled.div`
   align-content: center;
-  border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
+  // border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
   ${(props) => (props.$rightAlign ? 'display: flex;' : '')};
   ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};
-  height: 22px;
+  //height: 22px;
   max-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   min-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
