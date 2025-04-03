@@ -18,7 +18,7 @@ import { formatDateMMMDoYYYY, timeFromDate } from '../../common/utils/dateFormat
 import webAppConfig from '../../config';
 
 
-const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId }) => {
+const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes }) => {
   renderLog('PersonSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
@@ -74,7 +74,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId }) => {
           onClick={() => setPersonRowUnfurled(!personRowUnfurled)}
           $cellwidth={180}
         >
-          <SpanWithLinkStyle>
+          <SpanWithLinkStyle className={classes.teamMemberName}>
             {getFullNamePreferredPerson(person)}
           </SpanWithLinkStyle>
         </PersonCell>
@@ -189,6 +189,11 @@ const styles = (theme) => ({
       width: '100%',
     },
   },
+  teamMemberName: {
+    fontWeight: 600,
+    textDecoration: 'none',
+    color: `${DesignTokenColors.neutral800}`,
+  },
 });
 
 const ContentCopyStyled = styled(ContentCopy)`
@@ -205,6 +210,9 @@ const KeyboardArrowUpStyled = styled(KeyboardArrowUp)`
 `;
 
 const OnePersonOuterWrapper = styled('div')`
+  &:nth-child(even){
+    background-color: ${DesignTokenColors.neutral50};
+  }
 `;
 
 const HideOnHover = styled('div')`
@@ -229,8 +237,9 @@ const PersonDetailsRow = styled('div')`
   align-items: flex-start;
   display: flex;
   justify-content: flex-start;
-  margin-bottom: 20px;
-  margin-top: 15px;
+  padding-bottom: 20px;
+  padding-top: 15px;
+  border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
 `;
 
 const PersonMainRow = styled('div')`

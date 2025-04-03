@@ -9,6 +9,7 @@ import capturePersonListRetrieveData from '../../models/capturePersonListRetriev
 import { getTeamMembersListByTeamId } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import PersonSummaryRow from '../Person/PersonSummaryRow';
+import DesignTokenColors from "../../common/components/Style/DesignTokenColors";
 
 // DO NOT REMOVE PASSED in TEAM
 const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId, team }) => { // teamMemberList
