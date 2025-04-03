@@ -13,6 +13,7 @@ const METHOD = {
 const weConnectQueryFn = async (queryKey, params, isGet) => {
   // console.log('weConnectQueryFn : ', queryKey, params, isGet);
   const url = new URL(`${queryKey}/`, webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
+  console.log(queryKey, params, isGet);
   if (isGet) {
     url.search = new URLSearchParams(params);
   }

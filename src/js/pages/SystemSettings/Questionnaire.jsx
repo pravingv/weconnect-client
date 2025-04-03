@@ -2,13 +2,17 @@ import { Button } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+import { DndContext, useSensors, useSensor, PointerSensor, TouchSensor, closestCenter, KeyboardSensor } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
+import { CSS } from '@dnd-kit/utilities';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
 import { EditStyled } from '../../components/Style/iconStyles';
-import { SpanWithLinkStyle } from '../../components/Style/linkStyles';
+import { SpanWithLinkStyle, ButtonWithLinkStyle } from '../../components/Style/linkStyles';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
 import webAppConfig from '../../config';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
@@ -25,8 +29,26 @@ const Questionnaire = ({ classes }) => {
 
   const [questionList, setQuestionList] = useState([]);
   const [questionnaire, setQuestionnaire] = useState(getAppContextValue('selectedQuestionnaire'));
+  const [activeId, setActiveId] = useState(null);
 
   const targetQuestionnaireId = parseInt(useParams().questionnaireId, 10);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 0,
+        tolerance: 10,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -81,6 +103,59 @@ const Questionnaire = ({ classes }) => {
     setAppContextValue('editQuestionnaireDrawerLabel', 'Edit Questionnaire');
   };
 
+  const onQuestionDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setQuestionList((questions) => {
+        const oldQuestionId = questions.findIndex((question) => question.id === active.id);
+        const newQuestionId = questions.findIndex((question) => question.id === over.id);
+
+        return arrayMove(questions, oldQuestionId, newQuestionId);
+      });// mutation for prisma, array with question id and order
+    }
+    setActiveId(null);
+  };
+
+  const onQuestionDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const ReturnQuestionJSX = ({ question }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({ id: question.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <OneQuestionnaireWrapper
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        key={`questionnaire-${question.id}`}
+        id={question.id}
+        activeId={activeId}
+      >
+        {question.questionText}
+        {' '}
+        {question.requireAnswer && (
+          <RequiredStar> *</RequiredStar>
+        )}
+        <ButtonWithLinkStyle onClick={editQuestionClick}>
+          <EditStyled />
+        </ButtonWithLinkStyle>
+      </OneQuestionnaireWrapper>
+    );
+  };
+
   return (
     <>
       <Helmet>
@@ -102,9 +177,9 @@ const Questionnaire = ({ classes }) => {
               &gt;
               {' '}
               <QuestionnaireNameBreadcrumb>{questionnaire.questionnaireName}</QuestionnaireNameBreadcrumb>
-              <SpanWithLinkStyle onClick={editQuestionnaireClick}>
+              <ButtonWithLinkStyle onClick={editQuestionnaireClick}>
                 <EditStyled />
-              </SpanWithLinkStyle>
+              </ButtonWithLinkStyle>
             </>
           )}
         </QuestionnaireBreadcrumbWrapper>
@@ -119,20 +194,37 @@ const Questionnaire = ({ classes }) => {
           </InstructionsWrapper>
         )}
         {(questionList && questionList.length > 0) ? (
-          <QuestionListWrapper>
-            {questionList.map((question) => (
-              <OneQuestionnaireWrapper key={`questionnaire-${question.id}`}>
-                {question.questionText}
-                {' '}
-                {question.requireAnswer && (
-                  <RequiredStar> *</RequiredStar>
-                )}
-                <SpanWithLinkStyle onClick={() => editQuestionClick(question)}>
-                  <EditStyled />
-                </SpanWithLinkStyle>
-              </OneQuestionnaireWrapper>
-            ))}
-          </QuestionListWrapper>
+          <DndContext
+            sensors={sensors}
+            modifiers={[restrictToParentElement]}
+            collisionDetection={closestCenter}
+            onDragEnd={onQuestionDragEnd}
+            onDragStart={onQuestionDragStart} // used for applying border on drag
+          >
+            <QuestionListWrapper>
+              <SortableContext
+                items={questionList}
+                strategy={verticalListSortingStrategy}
+              >
+                {questionList.map((question) => (
+                  <ReturnQuestionJSX
+                    key={question.id}
+                    question={question}
+                  />
+                  // <OneQuestionnaireWrapper key={`questionnaire-${question.id}`}>
+                  //   {question.questionText}
+                  //   {' '}
+                  //   {question.requireAnswer && (
+                  //     <RequiredStar> *</RequiredStar>
+                  //   )}
+                  //   <SpanWithLinkStyle onClick={() => editQuestionClick(question)}>
+                  //     <EditStyled />
+                  //   </SpanWithLinkStyle>
+                  // </OneQuestionnaireWrapper>
+                ))}
+              </SortableContext>
+            </QuestionListWrapper>
+          </DndContext>
         ) : (
           <QuestionListWrapper>
             No Questions found for this questionnaire.
@@ -184,6 +276,11 @@ const QuestionnaireBreadcrumbWrapper = styled('div')`
 
 const OneQuestionnaireWrapper = styled('div')`
   margin-bottom: 20px;
+  cursor: move;
+  touch-action: none; //needed for draggability in mobile
+  border: ${(props) => (props.id === props.activeId ? `1px solid ${DesignTokenColors.neutral500}` : 'none')};
+  // background-color: ${(props) => (props.id === props.activeId ? `${DesignTokenColors.neutral50}` : 'none')};
+  border-radius: 4px;
 `;
 
 const QuestionListWrapper = styled('div')`

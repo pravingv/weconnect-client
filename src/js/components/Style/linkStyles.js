@@ -8,3 +8,13 @@ export const SpanWithLinkStyle = styled('span')`
   color: ${DesignTokenColors.primary500};
   cursor: pointer;
 `;
+
+export const ButtonWithLinkStyle = styled('button')`
+  text-decoration: underline;
+  color: ${DesignTokenColors.primary500};
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+`;
+
