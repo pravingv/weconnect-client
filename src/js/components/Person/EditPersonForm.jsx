@@ -50,6 +50,7 @@ const EditPersonForm = ({ classes }) => {
   const locationInputRef = useRef('');
   const stateCodeInputRef = useRef('');
   const statusActiveInputRef = useRef(false);
+  const statusAvailableForSpecialProjectsInputRef = useRef(false);
   const statusOfferApprovedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
   const statusOnLeaveInputRef = useRef(false);
@@ -495,6 +496,27 @@ const EditPersonForm = ({ classes }) => {
             />
           )}
           label={`${activePerson.firstNamePreferred || activePerson.firstName} has resigned`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusAvailableForSpecialProjects || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusAvailableForSpecialProjectsToBeSaved"
+              inputRef={statusAvailableForSpecialProjectsInputRef}
+              name="statusAvailableForSpecialProjects"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusAvailableForSpecialProjects: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is available for special projects`}
         />
         <Button
           classes={{ root: classes.savePersonButton }}

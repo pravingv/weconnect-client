@@ -31,18 +31,19 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
     setAnchorEl(e.currentTarget);
   };
 
-  const uncheckAllOnlyOptions = () => {
+  const uncheckAllExactMatchOptions = () => {
     setAppContextValue('isInternPeopleFilter', false);
     setAppContextValue('isHiringManagerPeopleFilter', false);
     setAppContextValue('isTeamLeadPeopleFilter', false);
+    setAppContextValue('statusAvailableForSpecialProjectsPeopleFilter', false);
     setAppContextValue('statusOnLeavePeopleFilter', false);
     setAppContextValue('statusResignedPeopleFilter', false);
     setAppContextValue('statusInOfferProcessPeopleFilter', false);
   };
 
   useEffect(() => {
-    if (getAppContextValue('includeOrOnlyPeopleFilter') === null || getAppContextValue('includeOrOnlyPeopleFilter') === undefined) {
-      setAppContextValue('includeOrOnlyPeopleFilter', 'INCLUDE');
+    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === null || getAppContextValue('peopleFilterExactMatchVsLogicalOr') === undefined) {
+      setAppContextValue('peopleFilterExactMatchVsLogicalOr', 'LOGICAL_OR');
     }
     if (getAppContextValue('statusInOfferProcessPeopleFilter') === null || getAppContextValue('statusInOfferProcessPeopleFilter') === undefined) {
       setAppContextValue('statusInOfferProcessPeopleFilter', true);
@@ -76,10 +77,16 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
             <FormLabel id="includeOrOnlyId">SHOW</FormLabel>
             <RadioGroup
               aria-labelledby="includeOrOnlyId"
-              value={getAppContextValue('includeOrOnlyPeopleFilter')}
+              value={getAppContextValue('peopleFilterExactMatchVsLogicalOr')}
               name="includeOrOnly"
               onChange={(event) => {
-                setAppContextValue('includeOrOnlyPeopleFilter', event.target.value);
+                setAppContextValue('peopleFilterExactMatchVsLogicalOr', event.target.value);
+                if (event.target.value === 'LOGICAL_OR') {
+                  // Uncheck options only offered for "EXACT_MATCH" options
+                  setAppContextValue('isHiringManagerPeopleFilter', false);
+                  setAppContextValue('isInternPeopleFilter', false);
+                  setAppContextValue('isTeamLeadPeopleFilter', false);
+                }
               }}
               row
               sx={{ paddingBottom: '20px' }}
@@ -88,13 +95,13 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 control={<Radio />}
                 key="includeKey"
                 label="Include"
-                value="INCLUDE"
+                value="LOGICAL_OR"
               />
               <FormControlLabel
                 control={<Radio />}
                 key="onlyKey"
                 label="Only"
-                value="ONLY"
+                value="EXACT_MATCH"
               />
             </RadioGroup>
           </FormControl>
@@ -109,8 +116,8 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   id="statusInOfferProcessPeopleFilterId"
                   name="statusInOfferProcessPeopleFilter"
                   onChange={(event) => {
-                    if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' && event.target.checked) {
-                      uncheckAllOnlyOptions();
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
                     }
                     setAppContextValue('statusInOfferProcessPeopleFilter', event.target.checked);
                   }}
@@ -129,8 +136,8 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   id="statusOnLeavePeopleFilterId"
                   name="statusOnLeavePeopleFilter"
                   onChange={(event) => {
-                    if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' && event.target.checked) {
-                      uncheckAllOnlyOptions();
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
                     }
                     setAppContextValue('statusOnLeavePeopleFilter', event.target.checked);
                   }}
@@ -149,8 +156,8 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   id="statusResignedPeopleFilterId"
                   name="statusResignedPeopleFilter"
                   onChange={(event) => {
-                    if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' && event.target.checked) {
-                      uncheckAllOnlyOptions();
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
                     }
                     setAppContextValue('statusResignedPeopleFilter', event.target.checked);
                   }}
@@ -160,7 +167,27 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
               label="Resigned (5)"
             />
             <CheckboxLabel
-              classes={getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+              classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+              control={(
+                <Checkbox
+                  checked={getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') || false}
+                  className={classes.checkboxRoot}
+                  color="primary"
+                  id="statusAvailableForSpecialProjectsPeopleFilterId"
+                  name="statusAvailableForSpecialProjectsPeopleFilter"
+                  onChange={(event) => {
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
+                    }
+                    setAppContextValue('statusAvailableForSpecialProjectsPeopleFilter', event.target.checked);
+                  }}
+                />
+              )}
+              // label={`Resigned (${webAppConfig.ORGANIZATION_NAME})`}
+              label="Available for Special Projects (1)"
+            />
+            <CheckboxLabel
+              classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
               control={(
                 <Checkbox
                   checked={getAppContextValue('isTeamLeadPeopleFilter') || false}
@@ -169,8 +196,8 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   id="isTeamLeadPeopleFilterId"
                   name="isTeamLeadPeopleFilter"
                   onChange={(event) => {
-                    if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' && event.target.checked) {
-                      uncheckAllOnlyOptions();
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
                     }
                     setAppContextValue('isTeamLeadPeopleFilter', event.target.checked);
                   }}
@@ -180,7 +207,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
               label="Team Leads (7)"
             />
             <CheckboxLabel
-              classes={getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+              classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
               control={(
                 <Checkbox
                   checked={getAppContextValue('isHiringManagerPeopleFilter') || false}
@@ -189,8 +216,8 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   id="isHiringManagerPeopleFilterId"
                   name="isHiringManagerPeopleFilter"
                   onChange={(event) => {
-                    if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' && event.target.checked) {
-                      uncheckAllOnlyOptions();
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
                     }
                     setAppContextValue('isHiringManagerPeopleFilter', event.target.checked);
                   }}
@@ -200,7 +227,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
               label="Hiring Managers (7)"
             />
             <CheckboxLabel
-              classes={getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+              classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
               control={(
                 <Checkbox
                   checked={getAppContextValue('isInternPeopleFilter') || false}
@@ -209,8 +236,8 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   id="isInternPeopleFilterId"
                   name="isInternPeopleFilter"
                   onChange={(event) => {
-                    if (getAppContextValue('includeOrOnlyPeopleFilter') === 'ONLY' && event.target.checked) {
-                      uncheckAllOnlyOptions();
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
                     }
                     setAppContextValue('isInternPeopleFilter', event.target.checked);
                   }}

@@ -97,6 +97,7 @@ const TeamHome = ({ classes }) => {
         {/* <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/team-home`} /> */}
       </Helmet>
       <PageContentContainer>
+        <TeamsActionBarWrapperSpacer />
         <h1>{team ? team.teamName : 'none'}</h1>
         <div>
           Team Home for
@@ -207,6 +208,10 @@ const TeamHomeActionBarWrapper = styled('div')`
   display: flex;
   justify-content: flex-start;
   margin-top: 40px;  // Temporary hack
+`;
+
+const TeamsActionBarWrapperSpacer = styled('div')`
+  margin-top: 60px;
 `;
 
 export default withStyles(styles)(TeamHome);
