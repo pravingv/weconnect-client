@@ -1,5 +1,5 @@
 import { ContentCopy } from '@mui/icons-material';
-import { Button, Checkbox, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@mui/material'; // FormLabel, Radio, RadioGroup,
+import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, Select, TextField } from '@mui/material'; // FormLabel, Radio, RadioGroup,
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
@@ -49,7 +49,6 @@ const EditQuestionForm = ({ classes }) => {
   const [radioValue, setRadioValue] = useState('STRING');
 
   const fieldMappingRuleInputRef = useRef('');
-  const formatRadioInputRef = useRef(true);
   const placeholderInputRef = useRef('');
   const questionInstructionsInputRef = useRef('');
   const questionTextInputRef = useRef('');
@@ -173,21 +172,29 @@ const EditQuestionForm = ({ classes }) => {
           placeholder="Text in the question input"
           variant="outlined"
         />
-        <FormControl>
-          <FormLabel id="demo-radio-buttons-group-label">Answer Type</FormLabel>
-          <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            inputRef={formatRadioInputRef}
+        <FormControl
+          variant="outlined"
+          className={`${classes.formControl} ${classes.answerTypeDropdown}`}
+        >
+          <InputLabel htmlFor="answer-type-dropdown">Answer Type</InputLabel>
+          <Select
+            native
+            variant="outlined"
             value={radioValue}
-            name="radio-buttons-group"
             onChange={handleRadioChange}
-            row
-            sx={{ paddingBottom: '20px' }}
+            label="Answer Type"
+            inputProps={{
+              name: 'answerType',
+              id: 'answer-type-dropdown',
+            }}
           >
-            <FormControlLabel value="STRING" control={<Radio />} label="String" />
-            <FormControlLabel value="BOOLEAN" control={<Radio />} label="Boolean" />
-            <FormControlLabel value="INTEGER" control={<Radio />} label="Integer" />
-          </RadioGroup>
+            <option value="">-- Choose answer type --</option>
+            <option value="BOOLEAN">BOOLEAN</option>
+            <option value="INTEGER">INTEGER</option>
+            <option value="MULTIPLE_CHOICE">MULTIPLE_CHOICE</option>
+            <option value="STRING">STRING</option>
+            <option value="TEXT">TEXT</option>
+          </Select>
         </FormControl>
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
@@ -199,7 +206,10 @@ const EditQuestionForm = ({ classes }) => {
               id="requireAnswerToBeSaved"
               inputRef={requireAnswerInputRef}
               name="requireAnswer"
-              onChange={() => updateSaveButton()}
+              onChange={(e) => {
+                setRequireAnswerValue(e.target.checked);
+                updateSaveButton();
+              }}
             />
           )}
           label="Require an answer to this question"
@@ -214,7 +224,10 @@ const EditQuestionForm = ({ classes }) => {
               id="statusActiveToBeSaved"
               inputRef={statusActiveInputRef}
               name="statusActive"
-              onChange={() => updateSaveButton()}
+              onChange={(e) => {
+                setStatusActiveValue(e.target.checked);
+                updateSaveButton();
+              }}
             />
           )}
           label="Question is active"
@@ -292,7 +305,12 @@ const styles = (theme) => ({
       width: '100%',
     },
   },
+  answerTypeDropdown: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
 });
+
 
 const CheckboxLabel = styled(FormControlLabel)`
   margin-bottom: 0 !important;
