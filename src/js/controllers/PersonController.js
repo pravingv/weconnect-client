@@ -71,7 +71,8 @@ export const searchWordFoundInOnePerson = (searchWord, person) => {
   return found;
 };
 
-export const isPeopleFiltersFoundInPerson = (person, getAppContextValue) => {
+export const onlyShowPersonWithPeopleFiltersExactMatch = (person, getAppContextValue) => {
+  // "Only" option, where we only show people who match the exact filters
   const inOfferProcess = person.statusOfferApproved === true && person.statusOfferLetterSigned !== true;
   let personIsVisible = false;
   if (getAppContextValue('isInternPeopleFilter') === true) {
@@ -98,8 +99,36 @@ export const isPeopleFiltersFoundInPerson = (person, getAppContextValue) => {
     if (person.statusResigned === true) {  // adjust to be team-by-team
       personIsVisible = true;
     }
+  } else if (getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') === true) {
+    if (person.statusAvailableForSpecialProjects === true) {  // adjust to be team-by-team
+      personIsVisible = true;
+    }
   }
   return personIsVisible;
+};
+
+export const onlyShowPersonWithPeopleFiltersLogicalOrMatch = (person, getAppContextValue) => {
+  // "Include" option, where we show people who match any of the filters
+  // Default is 'Active people' but we make people visible if the chosen filters below also match the person
+  const inOfferProcess = person.statusOfferApproved === true && person.statusOfferLetterSigned !== true;
+  const statusActive = person.statusActive === true; // person.statusOfferLetterSigned === true ||
+  let personIsVisible = statusActive;
+  if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
+    if (inOfferProcess) {
+      personIsVisible = true;
+    }
+  }
+  if (getAppContextValue('statusOnLeavePeopleFilter') === true) {
+    if (person.statusOnLeave !== true) {  // adjust to be team-by-team
+      personIsVisible = true;
+    }
+  }
+  if (getAppContextValue('statusResignedPeopleFilter') === true) {
+    if (person.statusResigned !== true) {  // adjust to be team-by-team
+      personIsVisible = true;
+    }
+  }
+  return personIsVisible; // Show the person if no searchText is provided
 };
 
 export const isSearchTextFoundInPerson = (incomingSearchText, person) => {

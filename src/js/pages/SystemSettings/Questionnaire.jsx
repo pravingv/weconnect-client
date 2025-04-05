@@ -149,7 +149,7 @@ const Questionnaire = ({ classes }) => {
         {question.requireAnswer && (
           <RequiredStar> *</RequiredStar>
         )}
-        <ButtonWithLinkStyle onClick={editQuestionClick}>
+        <ButtonWithLinkStyle onClick={() => editQuestionClick(question)}>
           <EditStyled />
         </ButtonWithLinkStyle>
       </OneQuestionnaireWrapper>

@@ -34,11 +34,14 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
     }, 1500);
   };
 
-  const editPersonClick = (hasEditRights = true) => {
+  const viewPersonClick = (hasEditRights = false) => {
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('profileDrawerPerson', person);
+    setAppContextValue('profileDrawerPersonId', person.personId);
     if (hasEditRights) {
-      setAppContextValue('headerProfileDrawerOpen', true);
-      setAppContextValue('profileDrawerPerson', person);
-      setAppContextValue('profileDrawerPersonId', person.personId);
+      setAppContextValue('headerProfileSection', 'nameAndPhoto');
+    } else {
+      setAppContextValue('headerProfileSection', 'visibleProfile');
     }
   };
 
@@ -71,7 +74,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
         </PersonCell>
         <PersonCell
           id={`fullNamePreferred-personId-${person.personId}`}
-          onClick={() => setPersonRowUnfurled(!personRowUnfurled)}
+          onClick={() => viewPersonClick()}
           $cellwidth={180}
         >
           <SpanWithLinkStyle className={classes.teamMemberName}>
@@ -144,7 +147,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
           {canEditPerson && (
             <PersonCell
               id={`editPerson-personId-${person.personId}`}
-              onClick={() => editPersonClick(true)}
+              onClick={() => viewPersonClick(canEditPerson)}
               $cellwidth={30}
               $smallestfont
             >
