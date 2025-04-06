@@ -16,7 +16,7 @@ import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 
 const Teams = () => {
   renderLog('Teams');
-  const { apiDataCache, getAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache, allTeamsCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
@@ -103,6 +103,10 @@ const Teams = () => {
       setShowAllTeamMembers(getAppContextValue('teamsActionBarShowAllTeamMembers'));
     }
   }, [getAppContextValue]);
+
+  useEffect(() => {
+    setAppContextValue('teamsActionBarShowAllTeamMembers', true);
+  }, []);
   // const oneTeam = teamList.find((tm) => tm.teamId === 10);
   // console.log('teams render, team.length: ', teamList.length);
   // console.log('teams render, team 10, (cyclorama ) team name: ', oneTeam && oneTeam.teamName);
@@ -118,63 +122,6 @@ const Teams = () => {
       </Helmet>
       <PageContentContainer>
         <TeamsActionBarWrapperSpacer />
-        {/*
-        <TeamsActionBarWrapper>
-          <SearchBarWrapper>
-            <SearchBar2024
-              clearFunction={clearFunction}
-              placeholder="Search existing teams"
-              searchFunction={searchFunction}
-              searchUpdateDelayTime={0}
-            />
-          </SearchBarWrapper>
-          <ActionBarSection>
-            <ActionBarItem>
-              <SpanWithLinkStyle
-                onClick={() => {
-                  // Force the expansion of all
-                  setShowAllTeamMembers(undefined);
-                  setTimeout(() => {
-                    setShowAllTeamMembers(true);
-                  }, 100);
-                }}
-              >
-                Expand all
-              </SpanWithLinkStyle>
-            </ActionBarItem>
-            <ActionBarItem>
-              <SpanWithLinkStyle
-                onClick={() => {
-                  // Force the closing of all
-                  setShowAllTeamMembers(undefined);
-                  setTimeout(() => {
-                    setShowAllTeamMembers(false);
-                  }, 100);
-                }}
-              >
-                Collapse all
-              </SpanWithLinkStyle>
-            </ActionBarItem>
-          </ActionBarSection>
-          <ActionBarSection>
-            {viewerCanSeeOrDo(['canAddTeam'], viewerAccessRights) && (
-              <ActionBarItem>
-                <SpanWithLinkStyle onClick={() => addTeamClick()}>
-                  Add team
-                </SpanWithLinkStyle>
-              </ActionBarItem>
-            )}
-            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
-              <ActionBarItem>
-                <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
-                  Add team member
-                </SpanWithLinkStyle>
-              </ActionBarItem>
-            )}
-          </ActionBarSection>
-          <FilterPeopleTripleDot />
-        </TeamsActionBarWrapper>
-        */}
         {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the personIds of team members */}
         {teamList.map((team) => {

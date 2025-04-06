@@ -12,12 +12,14 @@ import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
 import { EditStyled } from '../../components/Style/iconStyles';
-import { SpanWithLinkStyle, ButtonWithLinkStyle } from '../../components/Style/linkStyles';
+import { ButtonWithLinkStyle } from '../../components/Style/linkStyles';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
 import webAppConfig from '../../config';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { captureQuestionListRetrieveData, captureQuestionnaireListRetrieveData, getQuestionsForQuestionnaire } from '../../models/QuestionnaireModel';
+import { useQuestionListSaveMutation } from '../../react-query/mutations';
+import makeRequestParams from '../../react-query/makeRequestParams';
 
 
 const Questionnaire = ({ classes }) => {
@@ -26,6 +28,7 @@ const Questionnaire = ({ classes }) => {
   const { apiDataCache } = useConnectAppContext();
   const { allQuestionsCache, allQuestionnairesCache } = apiDataCache;
   const dispatch = useConnectDispatch();
+  const { mutate: questionListSave } = useQuestionListSaveMutation();
 
   const [questionList, setQuestionList] = useState([]);
   const [questionnaire, setQuestionnaire] = useState(getAppContextValue('selectedQuestionnaire'));
@@ -49,6 +52,10 @@ const Questionnaire = ({ classes }) => {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const sortQuestionsByOrder = (questions) => {
+    return [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
+  };
 
   const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -79,7 +86,7 @@ const Questionnaire = ({ classes }) => {
     // console.log('Questionnaire useEffect getQuestionsForQuestionnaire(targetQuestionnaireId):', targetQuestionnaireId);
     const questionsForCurrentQuestionnaire = getQuestionsForQuestionnaire(targetQuestionnaireId, allQuestionsCache) || [];
     if (questionsForCurrentQuestionnaire && questionsForCurrentQuestionnaire.length > 0) {
-      setQuestionList(questionsForCurrentQuestionnaire);
+      setQuestionList(sortQuestionsByOrder(questionsForCurrentQuestionnaire));
     }
   }, [allQuestionsCache, targetQuestionnaireId]);
 
@@ -105,13 +112,37 @@ const Questionnaire = ({ classes }) => {
 
   const onQuestionDragEnd = (event) => {
     const { active, over } = event;
+    // console.log('onQuestionDragEnd, active:', active, ', over:', over);
     if (active.id !== over.id) {
-      setQuestionList((questions) => {
-        const oldQuestionId = questions.findIndex((question) => question.id === active.id);
-        const newQuestionId = questions.findIndex((question) => question.id === over.id);
+      // Within each question in the questionList, we want to update the questionOrder value
+      const adjustQuestionList = (questions) => {
+        const oldQuestionIndex = questions.findIndex((question) => question.id === active.id);
+        const newQuestionIndex = questions.findIndex((question) => question.id === over.id);
+        // console.log('oldQuestionIndex:', oldQuestionIndex, ', newQuestionIndex:', newQuestionIndex);
 
-        return arrayMove(questions, oldQuestionId, newQuestionId);
-      });// mutation for prisma, array with question id and order
+        const movedQuestions = arrayMove(questions, oldQuestionIndex, newQuestionIndex);
+        // Update questionOrder based on new array indices
+        return movedQuestions.map((question, index) => ({
+          ...question,
+          questionOrder: index,
+        }));
+      };
+      const updatedQuestionList = adjustQuestionList(questionList);
+      // mutation for prisma, array with question id and order
+      // console.log('mutation for prisma, array with question id and order, updatedQuestionList:', updatedQuestionList);
+      let inputValues = {};
+
+      for (let i = 0; i < updatedQuestionList.length; i++) {
+        const question = updatedQuestionList[i];
+        inputValues = { ...inputValues, [`questionOrder-${question.id}`]: question.questionOrder };
+      }
+      const requestParams = makeRequestParams({
+        questionnaireId: questionnaire.id,
+        ...inputValues,
+      }, {});
+
+      questionListSave(requestParams);
+      setQuestionList(sortQuestionsByOrder(updatedQuestionList));
     }
     setActiveId(null);
   };
@@ -144,6 +175,9 @@ const Questionnaire = ({ classes }) => {
         id={question.id}
         activeId={activeId}
       >
+        {question.questionOrder + 1}
+        .
+        {' '}
         {question.questionText}
         {' '}
         {question.requireAnswer && (
@@ -211,23 +245,13 @@ const Questionnaire = ({ classes }) => {
                     key={question.id}
                     question={question}
                   />
-                  // <OneQuestionnaireWrapper key={`questionnaire-${question.id}`}>
-                  //   {question.questionText}
-                  //   {' '}
-                  //   {question.requireAnswer && (
-                  //     <RequiredStar> *</RequiredStar>
-                  //   )}
-                  //   <SpanWithLinkStyle onClick={() => editQuestionClick(question)}>
-                  //     <EditStyled />
-                  //   </SpanWithLinkStyle>
-                  // </OneQuestionnaireWrapper>
                 ))}
               </SortableContext>
             </QuestionListWrapper>
           </DndContext>
         ) : (
           <QuestionListWrapper>
-            No Questions found for this questionnaire.
+            No questions found for this questionnaire.
           </QuestionListWrapper>
         )}
         <AddButtonWrapper>

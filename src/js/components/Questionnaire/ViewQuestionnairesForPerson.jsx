@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import CopyQuestionnaireLink from './CopyQuestionnaireLink';
-import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
 import QuestionnaireResponsesList from './QuestionnaireResponsesList';
@@ -17,7 +16,6 @@ const ViewQuestionnairesForPerson = ({ personId }) => {
   const dispatch = useConnectDispatch();
 
   const [questionnaireList, setQuestionnaireList] = useState([]);
-  const [showQuestionnaireList, setShowQuestionnaireList] = useState(false);
 
   const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -39,26 +37,16 @@ const ViewQuestionnairesForPerson = ({ personId }) => {
       <ShowQuestionnaireOptions>
         <div>
           Questionnaires to Answer
-          {' '}
-          (
-          {showQuestionnaireList ? (
-            <SpanWithLinkStyle onClick={() => setShowQuestionnaireList(false)}>hide</SpanWithLinkStyle>
-          ) : (
-            <SpanWithLinkStyle onClick={() => setShowQuestionnaireList(true)}>show</SpanWithLinkStyle>
-          )}
-          )
         </div>
       </ShowQuestionnaireOptions>
-      {showQuestionnaireList && (
-        <QuestionnaireOptions>
-          {questionnaireList.map((questionnaire) => (
-            <OneQuestionnaire key={`questionnaire-${questionnaire.questionnaireId}`}>
-              <div>{questionnaire.questionnaireName}</div>
-              <CopyQuestionnaireLink personId={personId} questionnaireId={questionnaire.questionnaireId} />
-            </OneQuestionnaire>
-          ))}
-        </QuestionnaireOptions>
-      )}
+      <QuestionnaireOptions>
+        {questionnaireList.map((questionnaire) => (
+          <OneQuestionnaire key={`questionnaire-${questionnaire.questionnaireId}`}>
+            <div>{questionnaire.questionnaireName}</div>
+            <CopyQuestionnaireLink personId={personId} questionnaireId={questionnaire.questionnaireId} />
+          </OneQuestionnaire>
+        ))}
+      </QuestionnaireOptions>
     </ViewQuestionnairesForPersonWrapper>
   );
 };

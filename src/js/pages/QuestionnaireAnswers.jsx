@@ -56,6 +56,10 @@ const QuestionnaireAnswers = ({ classes }) => {
     }
   }, [answersListRetrieveResults, apiDataCache, dispatch]);
 
+  const sortQuestionsByOrder = (questions) => {
+    return [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
+  };
+
   useEffect(() => {
     // console.log('useEffect in QuestionnaireAnswers questionnaireId:', questionnaireId);
     // console.log('allQuestionnairesCache:', allQuestionnairesCache);
@@ -67,7 +71,7 @@ const QuestionnaireAnswers = ({ classes }) => {
   useEffect(() => {
     // console.log('useEffect in QuestionnaireAnswers (question-list-retrieve)');
     if (allQuestionsCache) {
-      setQuestionList(getQuestionsForQuestionnaire(questionnaireId, allQuestionsCache));
+      setQuestionList(sortQuestionsByOrder(getQuestionsForQuestionnaire(questionnaireId, allQuestionsCache)));
     }
   }, [allQuestionsCache]);
 
@@ -96,6 +100,9 @@ const QuestionnaireAnswers = ({ classes }) => {
           {questionList && questionList.map((question) => (
             <OneQuestionWrapper key={`question-${question.id}`}>
               <QuestionText>
+                {question.questionOrder + 1}
+                .
+                {' '}
                 {question.questionText}
                 {question.requireAnswer && <RequiredStar> *</RequiredStar>}
               </QuestionText>
