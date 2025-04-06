@@ -31,6 +31,15 @@ const useAddPersonToTeamMutation = () => {
   });
 };
 
+const useQuestionListSaveMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('question-list-save', params, METHOD.GET),
+    onError: (error) => console.log('error in useQuestionListSaveMutation: ', error),
+    onSuccess: () => queryClient.invalidateQueries('question-list-retrieve'),
+  });
+};
+
 const useQuestionSaveMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -46,10 +55,15 @@ const useAnswerListSaveMutation = () => {
     mutationFn: (params) => weConnectQueryFn('answer-list-save', params, METHOD.GET),
     onError: (error) => console.log('error in useAnswerListSaveMutation: ', error),
     onSuccess: () => {
+      // console.log('useAnswerListSaveMutation onSuccess true');
       // We request a fresh person-list-retrieve because some questionnaire responses get saved to the person table.
       // This can be optimized to be conditional and only request person-list-retrieve for questionnaires that update the person table.
       queryClient.invalidateQueries('person-list-retrieve');
-      queryClient.invalidateQueries('questionnaire-responses-list-retrieve');
+
+      queryClient.invalidateQueries({
+        queryKey: ['questionnaire-responses-list-retrieve'],
+      });
+      // TODO BUG: For some reason, neither of these invalidateQueries are causing an immediate re-fetch of the data.
     },
   });
 };
@@ -138,6 +152,7 @@ const useGetAuthMutation = () => {
   });
 };
 
+// eslint-disable-next-line arrow-body-style
 const usePasswordSaveMutation = () => {
   return useMutation({
     mutationFn: (params) => weConnectQueryFn('save-password', params, METHOD.PUT),
@@ -173,10 +188,15 @@ const usePersonRetrieveByEmailMutation = () => {
 };
 
 
-export { useRemoveTeamMutation, useRemoveTeamMemberMutation, useAddPersonToTeamMutation,
-  useQuestionnaireSaveMutation, useTaskDefinitionSaveMutation, useTaskGroupSaveMutation,
-  useMeetingSaveMutation,
-  usePersonAwaySaveMutation, usePasswordSaveMutation,
-  useQuestionSaveMutation, usePersonSaveMutation, useSaveTaskMutation, useAnswerListSaveMutation,
-  useLogoutMutation, useGetAuthMutation, usePersonRetrieveMutation, usePersonRetrieveByEmailMutation };
+export {
+  useAddPersonToTeamMutation, useAnswerListSaveMutation, useGetAuthMutation,
+  useLogoutMutation, useMeetingSaveMutation, usePasswordSaveMutation,
+  usePersonAwaySaveMutation, usePersonSaveMutation,
+  usePersonRetrieveMutation, usePersonRetrieveByEmailMutation,
+  useQuestionListSaveMutation, useQuestionnaireSaveMutation,
+  useQuestionSaveMutation,
+  useRemoveTeamMutation, useRemoveTeamMemberMutation,
+  useSaveTaskMutation,
+  useTaskDefinitionSaveMutation, useTaskGroupSaveMutation,
+};
 

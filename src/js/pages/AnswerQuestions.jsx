@@ -49,14 +49,14 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     if (personListRetrieveResults) {
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
     }
-  }, [personListRetrieveResults, allPeopleCache, dispatch]);
+  }, [personListRetrieveResults, allPeopleCache, dispatch, apiDataCache]);
 
   const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
     if (questionnaireListRetrieveResults) {
       captureQuestionnaireListRetrieveData(questionnaireListRetrieveResults, apiDataCache, dispatch);
     }
-  }, [questionnaireListRetrieveResults, allQuestionnairesCache]);
+  }, [questionnaireListRetrieveResults, allQuestionnairesCache, apiDataCache, dispatch]);
 
   const questionListRetrieveResults = useFetchData(['question-list-retrieve'], { questionnaireId: questionnaireId || '-1' }, METHOD.GET);
   useEffect(() => {
@@ -71,7 +71,11 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     if (answerListRetrieveResults) {
       captureAnswerListRetrieveData(answerListRetrieveResults, apiDataCache, dispatch);
     }
-  }, [allAnswersCache, answerListRetrieveResults]); // allAnswersCache
+  }, [answerListRetrieveResults, apiDataCache, dispatch]);
+
+  const sortQuestionsByOrder = (questions) => {
+    return [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
+  };
 
   useEffect(() => {
     if (allQuestionnairesCache) {
@@ -85,7 +89,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     // console.log('Questionnaire useEffect getQuestionsForQuestionnaire(questionnaireId):', questionnaireId);
     const questionsForCurrentQuestionnaire = getQuestionsForQuestionnaire(questionnaireId, allQuestionsCache) || [];
     if (questionsForCurrentQuestionnaire && questionsForCurrentQuestionnaire.length > 0) {
-      setQuestionList(questionsForCurrentQuestionnaire);
+      setQuestionList(sortQuestionsByOrder(questionsForCurrentQuestionnaire));
     }
   }, [allQuestionsCache, questionnaireId]);
 
@@ -146,7 +150,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     setSaveButtonActive(!inError && requiredValuesExist);
   };
 
-  const saveAnswers = () => {
+  const saveAnswers = async () => {
     let foundError = false;
     Object.keys(inputValues).forEach((key) => {
       const questionId = parseInt(key.match(/\d+/g));
@@ -172,16 +176,21 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
       setErrorMessage(undefined);
     }
 
-    const requestParams2 = makeRequestParams({
+    const saveParams = makeRequestParams({
       questionnaireId,
       personId,
       ...inputValues,
     }, {});
 
-    answerListSave(requestParams2);
-    // console.log('saveAnswers requestParams2:', requestParams2);
-    setSaveButtonActive(false);
-    setAnswersSubmitted(true);
+    try {
+      await answerListSave(saveParams);
+      setSaveButtonActive(false);
+      setAnswersSubmitted(true);
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error saving answers:', error);
+      setErrorMessage('There was an error saving your answers. Please try again.');
+    }
   };
 
   const isQuestionIdInError = (questionId) => inputValuesInError[questionId] === true;
@@ -237,63 +246,76 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
             </InstructionsWrapper>
           )}
         </QuestionsHeaderWrapper>
-        <FormControl classes={{ root: classes.formControl }}>
-          {questionList && questionList.map((question) => (
-            <OneQuestionWrapper key={`questionnaire-${question.id}`}>
-              <QuestionText>
-                {question.questionText}
-                {question.requireAnswer && <RequiredStar> *</RequiredStar>}
-              </QuestionText>
-              {question.questionInstructions && (
-                <QuestionInstructions>
-                  {question.questionInstructions}
-                </QuestionInstructions>
-              )}
-              {answersSubmitted ? (
-                <AnswerText>
-                  YOU ANSWERED:
+        {answersSubmitted ? (
+          <AnswerText>
+            {/* NOTE: 2025-04-06 We are turning off the entire form after submitting */}
+            {/* because there is a bug in useAnswerListSaveMutation that is preventing a fresh re-fetch of data from questionnaire-responses-list-retrieve. */}
+            {/* When that is fixed I'd prefer to show the "YOU ANSWERED" code below */}
+            Thank you for submitting your answers!
+          </AnswerText>
+        ) : (
+          <FormControl classes={{ root: classes.formControl }}>
+            {questionList && questionList.map((question) => (
+              <OneQuestionWrapper key={`questionnaire-${question.id}`}>
+                <QuestionText>
+                  {question.questionOrder + 1}
+                  .
                   {' '}
-                  {getAnswerValueToQuestion(question.id, personId, allAnswersCache)}
-                </AnswerText>
-              ) : (
-                <QuestionFormWrapper>
-                  <TextField
-                    classes={(question.answerType === 'INTEGER') ? {} : { root: classes.formControl }}
-                    defaultValue={getAnswerValueToQuestion(question.id, personId, allAnswersCache)}
-                    error={isQuestionIdInError(question.id)}
-                    helperText={isQuestionIdInError(question.id) ? helperTextIfQuestionIdInError(question.id) : ''}
-                    id={`questionAnswer-${question.id}`}
-                    InputProps={{
-                      style: { height: 'auto' },
-                    }}
-                    margin="dense"
-                    minRows={1}
-                    maxRows={4}
-                    multiline
-                    name={`questionAnswer-${question.id}`}
-                    onChange={() => updateQuestionAnswer(question.id)}
-                    placeholder={question.questionPlaceholder || ''}
-                    variant="outlined"
-                  />
-                </QuestionFormWrapper>
-              )}
-            </OneQuestionWrapper>
-          ))}
-          {!answersSubmitted && (
-            <ErrorLine>{errorMessage}</ErrorLine>
-          )}
-          <SaveButtonWrapper>
-            <Button
-              classes={{ root: classes.saveAnswersButton }}
-              color="primary"
-              disabled={!saveButtonActive}
-              variant="contained"
-              onClick={saveAnswers}
-            >
-              Save Your Answers
-            </Button>
-          </SaveButtonWrapper>
-        </FormControl>
+                  {question.questionText}
+                  {question.requireAnswer && <RequiredStar> *</RequiredStar>}
+                </QuestionText>
+                {question.questionInstructions && (
+                  <QuestionInstructions>
+                    {question.questionInstructions}
+                  </QuestionInstructions>
+                )}
+                {answersSubmitted ? (
+                  <AnswerText>
+                    YOU ANSWERED:
+                    {' '}
+                    {getAnswerValueToQuestion(question.id, personId, allAnswersCache)}
+                  </AnswerText>
+                ) : (
+                  <QuestionFormWrapper>
+                    <TextField
+                      classes={(question.answerType === 'INTEGER') ? {} : { root: classes.formControl }}
+                      defaultValue={getAnswerValueToQuestion(question.id, personId, allAnswersCache)}
+                      error={isQuestionIdInError(question.id)}
+                      helperText={isQuestionIdInError(question.id) ? helperTextIfQuestionIdInError(question.id) : ''}
+                      id={`questionAnswer-${question.id}`}
+                      InputProps={{
+                        style: { height: 'auto' },
+                      }}
+                      margin="dense"
+                      minRows={1}
+                      maxRows={4}
+                      multiline
+                      name={`questionAnswer-${question.id}`}
+                      onChange={() => updateQuestionAnswer(question.id)}
+                      placeholder={question.questionPlaceholder || ''}
+                      variant="outlined"
+                    />
+                  </QuestionFormWrapper>
+                )}
+              </OneQuestionWrapper>
+            ))}
+            {!answersSubmitted && (
+              <ErrorLine>{errorMessage}</ErrorLine>
+            )}
+            <SaveButtonWrapper>
+              <Button
+                classes={{ root: classes.saveAnswersButton }}
+                color="primary"
+                disabled={!saveButtonActive}
+                variant="contained"
+                onClick={saveAnswers}
+              >
+                Save Your Answers
+              </Button>
+            </SaveButtonWrapper>
+          </FormControl>
+        )}
+        <BottomMargin />
       </PageContentContainer>
     </div>
   );
@@ -311,9 +333,10 @@ const styles = (theme) => ({
     width: '100%',
   },
   saveAnswersButton: {
+    maxWidth: '90%',
     width: 300,
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      width: '90%',
     },
   },
 });
@@ -321,6 +344,10 @@ const styles = (theme) => ({
 const AnswerText = styled('div')`
   font-weight: 500;
   color: green;
+`;
+
+const BottomMargin = styled('div')`
+  margin-bottom: 80px;
 `;
 
 const ErrorLine = styled('div')`
@@ -360,7 +387,16 @@ const RequiredStar = styled('span')`
 `;
 
 const SaveButtonWrapper = styled('div')`
-  margin-top: 24px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  padding: 15px 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 `;
 
 const SuccessMessage = styled('div')`
