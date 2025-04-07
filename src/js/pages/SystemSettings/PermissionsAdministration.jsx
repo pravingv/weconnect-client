@@ -26,7 +26,6 @@ const PermissionsAdministration = ({ classes }) => {
   const [peopleWorkingArrayFiltered, setPeopleWorkingArrayFiltered] = useState(); // Object.values(allPeopleCacheCopy1));
   const [updateCount, setUpdateCount] = useState(0);
   const [canEditPermissionsAnyone, setCanEditPermissionsAnyone] = useState(false);
-  const [canDoAnythingIsAdmin, setCanDoAnythingIsAdmin] = useState(false);
 
   const searchByNameRef = useRef('');
   const filterState = useRef({
@@ -56,8 +55,6 @@ const PermissionsAdministration = ({ classes }) => {
 
   useEffect(() => {
     setCanEditPermissionsAnyone(viewerCanSeeOrDo(['canEditPermissionsAnyone'], viewerAccessRights));
-    setCanDoAnythingIsAdmin(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
-
   }, [viewerAccessRights]);
 
   const SET = {

@@ -23,10 +23,6 @@ const CreateNewGoogleUser = (params) => {
   const { isCreate } = params;
 
   const createGoogleUser = async () => {
-  //   if (!isCreate) {
-  //     return deleteGoogleUser();
-  //   }
-
     const firstName = firstNameInputRef.current.value;
     const lastName = lastNameInputRef.current.value;
     const primaryEmail = emailInputRef.current.value;
@@ -86,7 +82,6 @@ const CreateNewGoogleUser = (params) => {
       {isAdmin && (
         <ButtonPanel>
           <Button
-            // classes={{ root: classes.addQuestionnaireButtonRoot }}
             color="primary"
             variant="outlined"
             onClick={handleOpen}
