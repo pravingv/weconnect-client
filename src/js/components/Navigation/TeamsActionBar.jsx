@@ -1,4 +1,3 @@
-import { withStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SearchBar2024 from '../../common/components/Search/SearchBar2024';
@@ -27,7 +26,6 @@ const TeamsActionBar = () => {
   };
 
   const searchFunction = (incomingSearchText) => {
-    // console.log('AddTeamDrawerMainContent searchFunction incomingSearchText: ', incomingSearchText);
     setSearchText(incomingSearchText); // For local use only
     setAppContextValue('teamsActionBarSearchText', incomingSearchText);
   };
@@ -187,13 +185,10 @@ const TeamsActionBar = () => {
 TeamsActionBar.propTypes = {
 };
 
-const styles = () => ({
-});
-
 const TeamsActionBarWrapper = styled('div')`
   align-items: center;
   display: flex;
   justify-content: flex-start;
 `;
 
-export default withStyles(styles)(TeamsActionBar);
+export default TeamsActionBar;

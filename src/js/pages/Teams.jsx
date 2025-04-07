@@ -23,7 +23,6 @@ const Teams = () => {
   const [mostRecentOnlyPeopleFilterChosen, setMostRecentOnlyPeopleFilterChosen] = useState('');
   const [searchText, setSearchText] = useState('');
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(true);
-  const [hideInactive, setHideInactive] = useState(true);
   const [teamList, setTeamList] = useState([]);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
@@ -107,9 +106,7 @@ const Teams = () => {
   useEffect(() => {
     setAppContextValue('teamsActionBarShowAllTeamMembers', true);
   }, []);
-  // const oneTeam = teamList.find((tm) => tm.teamId === 10);
-  // console.log('teams render, team.length: ', teamList.length);
-  // console.log('teams render, team 10, (cyclorama ) team name: ', oneTeam && oneTeam.teamName);
+
   return (
     <div>
       <Helmet>
@@ -121,7 +118,7 @@ const Teams = () => {
         {/* Don't think we can do this anymore ... <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/team-home`} /> */}
       </Helmet>
       <PageContentContainer>
-        <TeamsActionBarWrapperSpacer />
+        <ActionBarWrapperSpacer />
         {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the personIds of team members */}
         {teamList.map((team) => {
@@ -129,7 +126,6 @@ const Teams = () => {
             return (
               <OneTeamWrapper key={`team-${team.id}`}>
                 <TeamHeader
-                  hideInactive={hideInactive}
                   searchText={searchText}
                   showAllTeamMembersFromParent={showAllTeamMembers}
                   showIcons
@@ -159,7 +155,7 @@ const styles = () => ({
 const OneTeamWrapper = styled('div')`
 `;
 
-const TeamsActionBarWrapperSpacer = styled('div')`
+const ActionBarWrapperSpacer = styled('div')`
   margin-top: 60px;
 `;
 
