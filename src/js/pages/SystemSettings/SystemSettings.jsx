@@ -17,6 +17,7 @@ import capturePersonListRetrieveData from '../../models/capturePersonListRetriev
 import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
+import CreateNewGoogleUser from './CreateNewGoogleUser';
 import PermissionsAdministration from './PermissionsAdministration';
 import UploadCSV from './UploadCSV';
 
@@ -30,6 +31,7 @@ const SystemSettings = ({ classes }) => {
   const [personIdsList, setPersonIdsList] = useState([]);
   const [questionnaireList, setQuestionnaireList] = useState([]);
   const [taskGroupList, setTaskGroupList] = useState([]);
+  const [canDoAnythingIsAdmin, setCanDoAnythingIsAdmin] = useState(false);
 
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -87,6 +89,10 @@ const SystemSettings = ({ classes }) => {
       setTaskGroupList(Object.values(allTaskGroupsCache));
     }
   }, [allTaskGroupsCache]);
+
+  useEffect(() => {
+    setCanDoAnythingIsAdmin(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
+  }, [viewerAccessRights]);
 
   const addQuestionnaireClick = () => {
     setAppContextValue('editQuestionnaireDrawerOpen', true);
@@ -196,7 +202,13 @@ const SystemSettings = ({ classes }) => {
         </AddButtonWrapper>
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
         <PermissionsAdministration />
-        <UploadCSV />
+        {canDoAnythingIsAdmin && (
+          <>
+            <UploadCSV />
+            <CreateNewGoogleUser isCreate />
+            <CreateNewGoogleUser isCreate={false} />
+          </>
+        )}
       </PageContentContainer>
     </div>
   );
