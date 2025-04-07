@@ -14,6 +14,7 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
 import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
+import TasksActionBar from './TasksActionBar';
 import TeamsActionBar from './TeamsActionBar';
 
 const HEADER_TAB_DASHBOARD = 1;
@@ -194,8 +195,14 @@ const HeaderBar = ({ hideTabs }) => {
           </Button>
         </TopRowOneRightContainer>
         <TopRowTwoLeftContainer>
-          {(normalizedHrefPage() === 'teams') && (
+          {(normalizedHrefPage() === 'teams') ? (
             <TeamsActionBar />
+          ) : (
+            <>
+              {(normalizedHrefPage() === 'tasks') && (
+                <TasksActionBar />
+              )}
+            </>
           )}
         </TopRowTwoLeftContainer>
       </TopOfPageHeader>
