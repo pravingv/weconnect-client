@@ -277,18 +277,29 @@ const YourAccountWrapper = styled.div`
 const EditProfileDrawerWrapper = styled.div`
   display: flex;
   gap: 32px;
-  margin-top: 16px;
-  //margin-top: 80px; // WV-1032
+  margin-top: 80px;
+  position: relative;
 `;
 
 const NavLinksContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: -16px;
+  position: fixed;
 `;
 
 const LinkComponentContainer = styled.div`
   width: 100%;
+
+  @media (min-width: 768px) {
+    margin-left: 220px;
+    width: 70%;
+    margin-right: auto;
+  }
+
+  @media (min-width: 1024px) {
+    width: calc(100% - 220px);
+  }
 `;
 
 const NavLinkContainer = styled.div`

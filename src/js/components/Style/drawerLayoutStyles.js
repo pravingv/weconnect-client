@@ -66,5 +66,4 @@ export const DrawerHeaderWrapper = styled('div')`
   align-items: center;
   margin-right: 0;
   min-height: 28px;
-  // position: fixed; // WV-1032
 `;

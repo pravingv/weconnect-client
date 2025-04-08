@@ -198,7 +198,8 @@ const styles = () => ({
   profileHeader: {
     backgroundColor: DesignTokenColors.neutral500,
     minHeight: 'auto',
-    width: '100%',
+    position: 'fixed',
+    width: '-webkit-fill-available',
   },
   profileTitle: {
     alignItems: 'center',
