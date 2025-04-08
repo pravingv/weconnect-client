@@ -18,7 +18,10 @@ import { captureQuestionnaireListRetrieveData } from '../../models/Questionnaire
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import CreateNewGoogleUser from './CreateNewGoogleUser';
+import GetOneGoogleUser from './GetOneGoogleUser';
+// import GrantGoogleDriveAccess from './GrantGoogleDriveAccess';
 import PermissionsAdministration from './PermissionsAdministration';
+import ResetGoogleUserPassword from './ResetGoogleUserPassword';
 import UploadCSV from './UploadCSV';
 
 
@@ -203,11 +206,22 @@ const SystemSettings = ({ classes }) => {
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
         <PermissionsAdministration />
         {canDoAnythingIsAdmin && (
-          <>
+          <div style={{ paddingTop: '.8rem' }}>
             <UploadCSV />
-            <CreateNewGoogleUser isCreate />
-            <CreateNewGoogleUser isCreate={false} />
-          </>
+            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
+              <CreateNewGoogleUser isCreate />
+              <CreateNewGoogleUser isCreate={false} />
+            </div>
+            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
+              <GetOneGoogleUser getAll={false} />
+              <GetOneGoogleUser getAll />
+              <ResetGoogleUserPassword />
+            </div>
+            {/* <div style={{ display: 'flex', paddingTop: '.5rem'  }}> */}
+            {/*  <GrantGoogleDriveAccess isGrant  /> */}
+            {/*  <GrantGoogleDriveAccess isGrant={false} /> */}
+            {/* </div> */}
+          </div>
         )}
       </PageContentContainer>
     </div>

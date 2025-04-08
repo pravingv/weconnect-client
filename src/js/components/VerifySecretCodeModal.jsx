@@ -91,7 +91,7 @@ const VerifySecretCodeModal = ({ classes, person }) => {
   }, [nextFocus]);
 
   const extractDigits = (str) => {
-    const digitsLocal = str.match(/\d/g);
+    const digitsLocal = str.match(/\d{6}/g);
     return digitsLocal?.length ? digitsLocal.join('') : '';
   };
 

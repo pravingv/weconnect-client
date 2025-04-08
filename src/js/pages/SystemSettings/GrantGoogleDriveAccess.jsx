@@ -12,43 +12,28 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 
-const CreateNewGoogleUser = (params) => {
-  renderLog('CreateNewGoogleUser');
+const GrantGoogleDriveAccess = (params) => {
+  renderLog('GrantGoogleDriveAccess');
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
   const [resultsText, setResultsText] = useState('');
-  const firstNameInputRef = useRef(null);
-  const lastNameInputRef = useRef(null);
   const emailInputRef = useRef(null);
-  const passwordInputRef = useRef(null);
-  const phoneNumberInputRef = useRef(null);
+  const driveFolderInputRef = useRef(null);
+  const writeAccessInputRef = useRef(null);
 
   const [isAdmin] = useState(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
-  const { isCreate } = params;
+  const { isGrant } = params;
 
-  const reformatPhoneNumberToGooglePattern = () => {
-    const phoneNumber = phoneNumberInputRef.current.value;
-    const digitsLocal = phoneNumber.match(/\d/g);
-    if (digitsLocal[0] === '1') {
-      digitsLocal.shift();
-    }
-    const str = `+1 ${digitsLocal[0]}${digitsLocal[1]}${digitsLocal[2]} ${digitsLocal[3]}${digitsLocal[4]}${digitsLocal[5]} ${digitsLocal[6]}${digitsLocal[7]}${digitsLocal[8]}${digitsLocal[9]}`;
-    console.log(str);
-    return str;
-  };
-
-  const createGoogleUser = async () => {
-    const firstName = firstNameInputRef.current.value;
-    const lastName = lastNameInputRef.current.value;
+  const grantAccess = async () => {
     const primaryEmail = emailInputRef.current.value;
-    const password = passwordInputRef.current.value;
-    const phoneNumber = reformatPhoneNumberToGooglePattern();
+    const driveFolder = driveFolderInputRef.current.value;
+    const writeAccess = writeAccessInputRef.current.value;
 
-    console.log(`createGoogleUser ${primaryEmail}`);
-    const data = await weConnectQueryFn('google-create-user', { firstName, lastName, primaryEmail, password, phoneNumber }, METHOD.POST);
+    console.log(`grantAccess ${primaryEmail}`);
+    const data = await weConnectQueryFn('google-grant-drive-access', { primaryEmail, driveFolder, writeAccess }, METHOD.POST);
     console.log('createGoogleUser', data);
-    if (data.success) {
+    if (data?.success) {
       setResultsText(`Staff member '${data.primaryEmail}' has been created`);
     } else {
       setResultsText(`ERROR: '${data.error}' A staff member was not created`);
@@ -57,17 +42,17 @@ const CreateNewGoogleUser = (params) => {
     setOpen(true);
   };
 
-  const deleteGoogleUser = async () => {
-    const firstName = firstNameInputRef.current.value;
-    const lastName = lastNameInputRef.current.value;
+  const revokeAccess = async () => {
     const primaryEmail = emailInputRef.current.value;
+    const driveFolder = driveFolderInputRef.current.value;
+    const writeAccess = writeAccessInputRef.current.value;
 
     // Since this works on live primary data, for safety, this test code can only delete emails that end with '.test@wevoteeducation.org'
     if (!primaryEmail.endsWith('.test@wevoteeducation.org') || primaryEmail === '.test@wevoteeducation.org') {
       setResultsText('ERROR: The email address must end with .test@wevoteeducation.org');
     } else {
-      console.log(`deleteGoogleUser ${firstName} ${lastName}`);
-      const data = await weConnectQueryFn('google-delete-user', { firstName, lastName, primaryEmail }, METHOD.POST);
+      console.log(`deleteGoogleUser ${primaryEmail} ${driveFolder} ${driveFolder}`);
+      const data = await weConnectQueryFn('delete-google-user', { primaryEmail, driveFolder, writeAccess }, METHOD.POST);
       console.log('deleteGoogleUser', data);
       if (data.success) {
         setResultsText(`Staff member '${data.primaryEmail}' has been deleted`);
@@ -79,10 +64,10 @@ const CreateNewGoogleUser = (params) => {
   };
 
   const googleUserClick = async () => {
-    if (isCreate) {
-      await createGoogleUser();
+    if (isGrant) {
+      await grantAccess();
     } else {
-      await deleteGoogleUser();
+      await revokeAccess();
     }
   };
 
@@ -106,7 +91,7 @@ const CreateNewGoogleUser = (params) => {
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
             startIcon={<LockOutlineIcon />}
           >
-            Admins Only:  {isCreate ? 'Create New Google User' : 'Delete Google User'}
+            Admins Only:  {isGrant ? 'Grant Google Drive Access' : 'Revoke Google Drive Access'}
           </Button>
           <br />
           <Dialog
@@ -116,11 +101,7 @@ const CreateNewGoogleUser = (params) => {
             PaperProps={{ sx: { width: '95%', maxWidth: '95%' } }}
           >
             <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-              Enter Google user info
-              <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>
-                This can take a full minute to complete
-              </div>
-
+              Enter Google user info <br />
             </DialogTitle>
             <IconButton
               aria-label="close"
@@ -137,66 +118,45 @@ const CreateNewGoogleUser = (params) => {
             <DialogContent dividers>
               <TextField
                 id="search_input"
-                label="First Name"
-                inputRef={firstNameInputRef}
-                name="firstName"
-                defaultValue=""
-                sx={{ minWidth: '250px', marginRight: '10px' }}
-              />
-              <TextField
-                id="search_input"
-                label="Last Name"
-                inputRef={lastNameInputRef}
-                name="lastName"
-                placeholder="Last name"
-                defaultValue="test"
-                sx={{ minWidth: '250px', marginRight: '10px' }}
-              />
-              <TextField
-                id="search_input"
                 label="Email"
                 inputRef={emailInputRef}
                 name="email"
                 placeholder=""
-                defaultValue=".test@wevoteeducation.org"
+                defaultValue="@wevoteeducation.org"
                 sx={{ minWidth: '400px', marginRight: '10px' }}
               />
-              {isCreate && (
-                <>
-                  <TextField
-                    id="search_input"
-                    label="Password"
-                    inputRef={passwordInputRef}
-                    name="password"
-                    placeholder="Initial password"
-                    defaultValue="12345678"
-                    sx={{ minWidth: '250px', marginRight: '10px' }}
-                  />
-                  <TextField
-                    id="search_input"
-                    label="Phone Number"
-                    inputRef={phoneNumberInputRef}
-                    name="phoneNumber"
-                    placeholder=""
-                    defaultValue=""
-                    sx={{ minWidth: '250px', marginRight: '10px' }}
-                  />
-                </>
-              )}
+              <TextField
+                id="sdrive_input"
+                label="Drive Folder"
+                inputRef={driveFolderInputRef}
+                name="driveFolder"
+                defaultValue="/"
+                sx={{ minWidth: '250px', marginRight: '10px' }}
+              />
+              <TextField
+                id="access_input"
+                label="Write Access"
+                inputRef={writeAccessInputRef}
+                name="writeAccess"
+                // placeholder="Last name"
+                defaultValue="true"
+                sx={{ minWidth: '250px', marginRight: '10px' }}
+              />
               <div style={{ marginTop: '11px', fontWeight: '700' }}>{resultsText}</div>
             </DialogContent>
             <DialogActions>
               <Button autoFocus variant="outlined" onClick={googleUserClick}>
-                {isCreate ? 'Create the member\'s .test@wevoteeducation.org account' : 'Delete a member\'s .test@wevoteeducation.org account'}
+                {isGrant ? 'Grant Access' : 'Revoke Access'}
               </Button>
             </DialogActions>
           </Dialog>
+
         </ButtonPanel>
       )}
     </>
   );
 };
-CreateNewGoogleUser.propTypes = {
+GrantGoogleDriveAccess.propTypes = {
 };
 
 const styles = () => ({
@@ -207,4 +167,4 @@ const ButtonPanel = styled('div')`
   width: fit-content;
 `;
 
-export default withStyles(styles)(CreateNewGoogleUser);
+export default withStyles(styles)(GrantGoogleDriveAccess);

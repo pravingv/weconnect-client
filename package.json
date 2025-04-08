@@ -90,7 +90,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@mui/icons-material": "^5.16.0",
+    "@mui/icons-material": "^5.17.1",
     "@mui/lab": "^5.0.0-alpha.96",
     "@mui/material": "^5.16.0",
     "@mui/styled-engine-sc": "^6.3.0",
