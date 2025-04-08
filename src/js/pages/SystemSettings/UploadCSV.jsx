@@ -1,4 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
+import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button, DialogActions, IconButton, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -85,8 +86,10 @@ const UploadCSV = (classes) => {
             classes={{ root: classes.addQuestionnaireButtonRoot }}
             color="primary"
             variant="outlined"
+            size="small"
             onClick={() => openFilePicker()}
-            sx={{ backgroundColor: 'white'}}
+            sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
+            startIcon={<LockOutlineIcon />}
           >
             Admins Only:  Select csv file to upload
           </Button>
@@ -140,9 +143,7 @@ const styles = () => ({
 });
 
 const ButtonPanel = styled('div')`
-  padding: 10px;
-  margin-top: 30px;
-  background-color: rgb(255, 255, 102, 50%);
+  padding: 18px 5px 5px 5px;
   width: fit-content;
 `;
 
