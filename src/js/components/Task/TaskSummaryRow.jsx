@@ -2,29 +2,44 @@ import { CheckCircleOutline, ExpandLess, ExpandMore, InfoOutlined } from '@mui/i
 import Tooltip from '@mui/material/Tooltip';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
+import { formatDateToMonthDayYear } from '../../common/utils/dateFormat';
 import { renderLog } from '../../common/utils/logging';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useSaveTaskMutation } from '../../react-query/mutations';
 import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsActiveJSX';
+import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { useGetFullNamePreferred } from '../../models/PersonModel';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
 
 
 const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => {
   renderLog('TaskSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
+  const { apiDataCache, getAppContextValue } = useConnectAppContext();
+  const { viewerAccessRights } = apiDataCache;
   const { mutate: saveTask } = useSaveTaskMutation();
 
+  const [authenticatedPersonId, setAuthenticatedPersonId] = useState(-1);
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
 
-  const updateTaskFieldInstant = (isDone) => {
-    // console.log('updateTaskFieldInstant isDone:', isDone);
+  const authenticatedPerson = getAppContextValue('authenticatedPerson');
+  const doneByPersonPreferredName = useGetFullNamePreferred(task.doneByPersonId);
 
+  useEffect(() => {
+    if (authenticatedPerson) {
+      setAuthenticatedPersonId(authenticatedPerson.id);
+    }
+  }, [authenticatedPerson, getAppContextValue]);
+
+  const updateTaskFieldInstant = (isDone) => {
     const requestParams = makeRequestParams({
       personId,
       taskDefinitionId: task.taskDefinitionId,
     }, {
+      doneByPersonId: authenticatedPersonId,
       statusDone: isDone,
     });
     saveTask(requestParams);
@@ -82,12 +97,32 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
             <div>
               {task.statusDone ? (
                 <CheckboxDone>
-                  Completed by Jane Dough (Apr 17, 2025)
+                  Completed
+                  {doneByPersonPreferredName && (
+                    <>
+                      {' '}
+                      by
+                      {' '}
+                      {doneByPersonPreferredName}
+                    </>
+                  )}
+                  {task.dateLastUpdated && (
+                    <>
+                      {' '}
+                      (
+                      {formatDateToMonthDayYear(task.dateLastUpdated)}
+                      )
+                    </>
+                  )}
                 </CheckboxDone>
               ) : (
-                <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
-                  Mark completed
-                </SpanWithLinkStyle>
+                <>
+                  {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
+                    <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
+                      Mark completed
+                    </SpanWithLinkStyle>
+                  )}
+                </>
               )}
             </div>
           </TaskCellOpen>
