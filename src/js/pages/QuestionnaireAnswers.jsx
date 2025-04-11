@@ -116,13 +116,16 @@ const QuestionnaireAnswers = ({ classes }) => {
                   classes={(question.answerType === 'INTEGER') ? {} : {
                     root: classes.inputFullWidth,
                   }}
-                  disabled
+                  disabled={false}
                   id={`questionAnswerToBeSaved-${question.id}`}
                   name={`questionAnswer-${question.id}`}
                   margin="dense"
                   variant="outlined"
                   placeholder={question.questionPlaceholder || ''}
                   value={getAnswerValueToQuestion(question.id, personId, allAnswersCache)}
+                  InputProps={{
+                    readOnly: true,
+                  }}
                 />
               </QuestionFormWrapper>
             </OneQuestionWrapper>
