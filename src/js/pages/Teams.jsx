@@ -128,7 +128,6 @@ const Teams = () => {
                 <TeamHeader
                   searchText={searchText}
                   showAllTeamMembersFromParent={showAllTeamMembers}
-                  showIcons
                   team={team}
                 />
               </OneTeamWrapper>

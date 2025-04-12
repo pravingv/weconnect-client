@@ -47,6 +47,8 @@ export const getPersonAwayLabel = (personAwayReason) => {
   }
 };
 
+export const isInOfferProcess = (person) => ((person.statusOfferDecisionNeeded === true) || (person.statusOfferApproved === true)) && person.statusOfferLetterSigned !== true;
+
 export const searchWordFoundInOnePerson = (searchWord, person) => {
   const fieldsToSearch = [
     'birthdayMonthAndDay', 'bluesky', 'facebookUrl', 'githubUrl',
@@ -73,7 +75,7 @@ export const searchWordFoundInOnePerson = (searchWord, person) => {
 
 export const onlyShowPersonWithPeopleFiltersExactMatch = (person, getAppContextValue) => {
   // "Only" option, where we only show people who match the exact filters
-  const inOfferProcess = person.statusOfferApproved === true && person.statusOfferLetterSigned !== true;
+  const inOfferProcess = isInOfferProcess(person);
   let personIsVisible = false;
   if (getAppContextValue('isInternPeopleFilter') === true) {
     if (person.isIntern === true) {
@@ -110,7 +112,7 @@ export const onlyShowPersonWithPeopleFiltersExactMatch = (person, getAppContextV
 export const onlyShowPersonWithPeopleFiltersLogicalOrMatch = (person, getAppContextValue) => {
   // "Include" option, where we show people who match any of the filters
   // Default is 'Active people' but we make people visible if the chosen filters below also match the person
-  const inOfferProcess = person.statusOfferApproved === true && person.statusOfferLetterSigned !== true;
+  const inOfferProcess = isInOfferProcess(person);
   const statusActive = person.statusActive === true; // person.statusOfferLetterSigned === true ||
   let personIsVisible = statusActive;
   if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {

@@ -1,4 +1,4 @@
-import { MoreHoriz } from '@mui/icons-material';
+import { VisibilityOutlined } from '@mui/icons-material';
 import { Checkbox, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@mui/material';
 import Popover from '@mui/material/Popover';
 import { withStyles } from '@mui/styles';
@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 
@@ -56,7 +57,14 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
   return (
     <FilterPeopleTripleDotWrapper>
       <TripleDotButton type="button" aria-label="source" onClick={onDotButtonClick}>
-        <MoreHoriz />
+        <TripleDotButtonContents>
+          <VisibilityOutlinedStyled />
+          <div>
+            <SpanWithLinkStyle>
+              Show
+            </SpanWithLinkStyle>
+          </div>
+        </TripleDotButtonContents>
       </TripleDotButton>
       <Popover
         id={id}
@@ -277,11 +285,6 @@ const CheckboxLabel = styled(FormControlLabel)`
 `;
 
 const FilterPeopleTripleDotWrapper = styled('div')`
-  color: ${DesignTokenColors.neutral900};
-  :hover {
-    color: ${DesignTokenColors.neutral400};
-    cursor: pointer;
-  }
 `;
 
 const PopoverWrapper = styled('div')`
@@ -292,7 +295,22 @@ const TripleDotButton = styled('button')`
   background: transparent;
   border: 0;
   margin-right: -3px;
+  margin-top: 4px;
   padding-right: 0;
+`;
+
+const TripleDotButtonContents = styled('div')`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const VisibilityOutlinedStyled = styled(VisibilityOutlined)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  margin-right: 2px;
+  width: 16px;
+  height: 16px;
 `;
 
 export default withStyles(styles)(FilterPeopleTripleDot);
