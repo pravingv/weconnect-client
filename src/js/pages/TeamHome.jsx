@@ -130,7 +130,7 @@ const TeamHome = ({ classes }) => {
               team={team}
               showAllTeamMembersFromParent
               // showAllTeamMembers={(teamMemberList && teamMemberList.length > 0)}
-              showIcons={false}
+              showIcons
             />
           </>
         )}

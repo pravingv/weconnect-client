@@ -1,6 +1,8 @@
+import { PersonAddAltOutlined } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SearchBar2024 from '../../common/components/Search/SearchBar2024';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
 import FilterPeopleTripleDot from '../Person/FilterPeopleTripleDot';
 import { ActionBarItem, ActionBarSection, SearchBarWrapper } from '../Style/actionBarStyles';
@@ -127,6 +129,11 @@ const TeamsActionBar = () => {
       </SearchBarWrapper>
       <ActionBarSection>
         <ActionBarItem>
+          <FilterPeopleTripleDot />
+        </ActionBarItem>
+      </ActionBarSection>
+      <ActionBarSection>
+        <ActionBarItem>
           <SpanWithLinkStyle
             onClick={() => {
               // Force the expansion of all
@@ -158,6 +165,13 @@ const TeamsActionBar = () => {
         </ActionBarItem>
       </ActionBarSection>
       <ActionBarSection>
+        {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
+          <ActionBarItem>
+            <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
+              <PersonAddAltOutlinedStyled />
+            </SpanWithLinkStyle>
+          </ActionBarItem>
+        )}
         {viewerCanSeeOrDo(['canAddTeam'], viewerAccessRights) && (
           <ActionBarItem>
             <SpanWithLinkStyle onClick={() => addTeamClick()}>
@@ -165,30 +179,34 @@ const TeamsActionBar = () => {
             </SpanWithLinkStyle>
           </ActionBarItem>
         )}
-        {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
-          <ActionBarItem>
-            <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
-              Add team member
-            </SpanWithLinkStyle>
-          </ActionBarItem>
-        )}
-        {/* <ActionBarItem> */}
-        {/*  <SpanWithLinkStyle onClick={() => hideInactiveClick()}> */}
-        {/*    {hideInactive ? 'Show inactive team members' : 'Hide inactive team members'} */}
-        {/*  </SpanWithLinkStyle> */}
-        {/* </ActionBarItem> */}
       </ActionBarSection>
-      <FilterPeopleTripleDot />
+      <ViewingCount>
+        Viewing 82 active team members
+      </ViewingCount>
     </TeamsActionBarWrapper>
   );
 };
 TeamsActionBar.propTypes = {
 };
 
+const PersonAddAltOutlinedStyled = styled(PersonAddAltOutlined)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  margin-right: 2px;
+  width: 18px;
+  height: 18px;
+`;
+
 const TeamsActionBarWrapper = styled('div')`
   align-items: center;
   display: flex;
   justify-content: flex-start;
+`;
+
+const ViewingCount = styled('div')`
+  color: ${DesignTokenColors.neutralUI200};
+  font-size: .8em;
+  padding-left: 15px;
 `;
 
 export default TeamsActionBar;

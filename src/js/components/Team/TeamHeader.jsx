@@ -1,17 +1,17 @@
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { KeyboardArrowDown, KeyboardArrowUp, PersonAddAltOutlined } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { EditStyled } from '../Style/iconStyles';
 import TeamMemberList from './TeamMemberList';
 import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
-import DesignTokenColors from "../../common/components/Style/DesignTokenColors";
 
 
 const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, searchText, showAllTeamMembersFromParent, showIcons, team, classes }) => {
@@ -20,7 +20,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
   const { viewerAccessRights } = apiDataCache;
 
   const [expandAllTeamMembers, setExpandAllTeamMembers] = useState(expandAllTeamMembersFromParent);
-  const [hideInactive, setHideInactive] = useState(hideInactiveFromParent);
+  const [hideInactive] = useState(hideInactiveFromParent);
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(showAllTeamMembersFromParent);
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
   let teamLocal = team;
@@ -40,11 +40,6 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
     setAppContextValue('addTeamDrawerOpen', true);
     setAppContextValue('AddTeamDrawerLabel', 'Edit Team Name');
     setAppContextValue('teamForAddTeamDrawer', teamLocal);
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const hideInactiveClick = () => {
-    setHideInactive(!hideInactive);
   };
 
   useEffect(() => {
@@ -77,32 +72,46 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               </Link>
             )}
           </TeamHeaderCell>
-          <ActionBarSection>
-            {showAllTeamMembers && (
+          <ShowOnHover>
+            <ActionBarSection>
               <ActionBarItem>
-                <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(!expandAllTeamMembers)}>
-                  {expandAllTeamMembers ? 'Collapse all' : 'Expand all'}
+                <SpanWithLinkStyle onClick={editTeamClick}>
+                  Next meeting info
                 </SpanWithLinkStyle>
               </ActionBarItem>
-            )}
-            {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
-              <ActionBarItem>
-                <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
-                  Add team member
-                </SpanWithLinkStyle>
-              </ActionBarItem>
-            )}
-          </ActionBarSection>
-          {/* Edit icon */}
-          {showIcons && (
-            <>
-              {viewerCanSeeOrDo(['canEditTeamAnyTeam'], viewerAccessRights) && (
-                <TeamHeaderCell $cellwidth={20} onClick={editTeamClick} $titleCell>
-                  <EditStyled />
-                </TeamHeaderCell>
+              {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
+                <ActionBarItem>
+                  <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
+                    <PersonAddAltOutlinedStyled />
+                  </SpanWithLinkStyle>
+                </ActionBarItem>
               )}
-            </>
-          )}
+            </ActionBarSection>
+            {showAllTeamMembers && (
+              <ActionBarSection>
+                <ActionBarItem>
+                  <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(true)}>
+                    Expand all
+                  </SpanWithLinkStyle>
+                </ActionBarItem>
+                <ActionBarItem>
+                  <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(false)}>
+                    Collapse all
+                  </SpanWithLinkStyle>
+                </ActionBarItem>
+              </ActionBarSection>
+            )}
+            {/* Edit icon */}
+            {showIcons && (
+              <>
+                {viewerCanSeeOrDo(['canEditTeamAnyTeam'], viewerAccessRights) && (
+                  <TeamHeaderCell $cellwidth={20} onClick={editTeamClick} $titleCell>
+                    <EditStyled />
+                  </TeamHeaderCell>
+                )}
+              </>
+            )}
+          </ShowOnHover>
         </TeamHeaderMainRow>
         {showAllTeamMembers && (
           <TeamHeaderPersonColumnTitles>
@@ -141,12 +150,13 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
   );
 };
 TeamHeader.propTypes = {
+  classes: PropTypes.object,
+  expandAllTeamMembersFromParent: PropTypes.bool,
   hideInactiveFromParent: PropTypes.bool,
   searchText: PropTypes.string,
   showIcons: PropTypes.bool,
   showAllTeamMembersFromParent: PropTypes.bool,
   team: PropTypes.object,
-  styles: PropTypes.object,
 };
 
 const styles = (theme) => ({
@@ -182,6 +192,21 @@ const OneTeamOuterWrapper = styled('div')`
   margin-bottom: 15px;
 `;
 
+const PersonAddAltOutlinedStyled = styled(PersonAddAltOutlined)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  margin-right: 2px;
+  width: 18px;
+  height: 18px;
+`;
+
+const ShowOnHover = styled('div')`
+  // display: flex; // Temp while I'm working on it
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
 const TeamHeaderMainRow = styled('div')`
   align-items: center;
   display: flex;
@@ -189,6 +214,12 @@ const TeamHeaderMainRow = styled('div')`
   height: 40px;
   border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
   //margin-top: 10px;
+
+  &:hover {
+    ${ShowOnHover} {
+      display: flex;
+    }
+  }
 `;
 
 const TeamHeaderPersonColumnTitles = styled('div')`

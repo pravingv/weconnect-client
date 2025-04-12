@@ -23,6 +23,10 @@ const EditPersonForm = ({ classes }) => {
   const { mutate: personSave } = usePersonSaveMutation();
   // const { mutate: personSave } = usePersonSave();
 
+  const [emailOfficialEdited, setEmailOfficialEdited] = useState(false);
+  const [emailOfficialEditModeOn, setEmailOfficialEditModeOn] = useState(false);
+  const [emailOfficialVerifiedLocally, setEmailOfficialVerifiedLocally] = useState(false);
+  const [emailOfficialVerifiedToNotExist, setEmailOfficialVerifiedToNotExist] = useState(false);
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
@@ -110,6 +114,9 @@ const EditPersonForm = ({ classes }) => {
     personSave(makeRequestParams(plainParams, data));
     setSaveButtonActive(false);
   };
+  const emailOfficialExistsInDbAndUnchanged = (activePerson.emailOfficial && !emailOfficialEdited);
+  const emailOfficialNotVerifiedInDbOrLocally = !(activePerson.emailOfficialVerified || emailOfficialVerifiedLocally);
+  const showVerifyEmailLink = emailOfficialExistsInDbAndUnchanged && ((emailOfficialEditModeOn && !emailOfficialVerifiedToNotExist) || emailOfficialNotVerifiedInDbOrLocally);
 
   return (
     <EditPersonFormWrapper>
@@ -293,15 +300,75 @@ const EditPersonForm = ({ classes }) => {
         <TextField
           classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.emailOfficial || ''}
+          disabled={activePerson.emailOfficial && !emailOfficialEditModeOn}
           id="emailOfficialToBeSaved"
           inputRef={emailOfficialInputRef}
           label={`Email Address, ${webAppConfig.ORGANIZATION_NAME} Official`}
           margin="dense"
           name="emailOfficial"
-          onChange={() => setSaveButtonActive(true)}
+          onChange={() => {
+            setEmailOfficialEdited(true);
+            setSaveButtonActive(true);
+          }}
           placeholder={`${webAppConfig.ORGANIZATION_NAME} email address`}
           variant="outlined"
         />
+        {viewerIsOnHrTeam && (
+          <div>
+            {emailOfficialExistsInDbAndUnchanged && (
+              <div>
+                {(!activePerson.emailOfficialVerified && emailOfficialVerifiedLocally) && (
+                  <div>
+                    EMAIL VERIFIED
+                  </div>
+                )}
+                {(!activePerson.emailOfficialVerified && emailOfficialVerifiedToNotExist) && (
+                  <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
+                    Create email account
+                  </SpanWithLinkStyle>
+                )}
+              </div>
+            )}
+            {emailOfficialEdited && (
+              <div>Save, so you can verify/create email</div>
+            )}
+            {emailOfficialExistsInDbAndUnchanged && (
+              <div>
+                {emailOfficialEditModeOn ? (
+                  <div>
+                    {emailOfficialVerifiedToNotExist && (
+                      <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
+                        Create email account
+                      </SpanWithLinkStyle>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <SpanWithLinkStyle onClick={() => setEmailOfficialEditModeOn(true)}>
+                      Edit email address
+                    </SpanWithLinkStyle>
+                  </div>
+                )}
+                {(emailOfficialEditModeOn && (activePerson.emailOfficialVerified || emailOfficialVerifiedLocally)) && (
+                  <div>
+                    <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
+                      Reset password
+                    </SpanWithLinkStyle>
+                  </div>
+                )}
+              </div>
+            )}
+            {showVerifyEmailLink && (
+              <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
+                Verify email address
+              </SpanWithLinkStyle>
+            )}
+            {/* emailOfficialEditModeOn */}
+            {/* emailOfficialVerified */}
+            {/* emailOfficialVerifiedLocally */}
+            {/* emailOfficialVerifiedToNotExist */}
+          </div>
+        )}
         <TextField
           classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.jazzHrUrl || ''}
@@ -518,15 +585,17 @@ const EditPersonForm = ({ classes }) => {
           )}
           label={`${activePerson.firstNamePreferred || activePerson.firstName} is available for special projects`}
         />
-        <Button
-          classes={{ root: classes.savePersonButton }}
-          color="primary"
-          disabled={!saveButtonActive}
-          onClick={savePerson}
-          variant="contained"
-        >
-          Save Person
-        </Button>
+        <ButtonWrapper>
+          <Button
+            classes={{ root: classes.savePersonButton }}
+            color="primary"
+            disabled={!saveButtonActive}
+            onClick={savePerson}
+            variant="contained"
+          >
+            Save Person
+          </Button>
+        </ButtonWrapper>
       </FormControl>
     </EditPersonFormWrapper>
   );
@@ -551,10 +620,7 @@ const styles = (theme) => ({
   },
   showThisField: {},
   savePersonButton: {
-    bottom: 0,
-    position: 'sticky',
     width: '330px',
-    zIndex: 20,
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
@@ -564,6 +630,16 @@ const styles = (theme) => ({
     },
   },
 });
+
+const ButtonWrapper = styled('div')`
+  background-color: #fff;
+  bottom: 0;
+  padding: 8px 0;
+  position: sticky;
+  width: 100%;
+  margin-bottom: 24px;
+  z-index: 1;
+`;
 
 const CheckboxLabel = styled(FormControlLabel)`
   margin-bottom: 0 !important;

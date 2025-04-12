@@ -200,6 +200,7 @@ const styles = () => ({
     minHeight: 'auto',
     position: 'fixed',
     width: '-webkit-fill-available',
+    zIndex: 1000,
   },
   profileTitle: {
     alignItems: 'center',

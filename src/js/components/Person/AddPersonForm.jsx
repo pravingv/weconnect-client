@@ -1,4 +1,4 @@
-import { Button, FormControl, TextField } from '@mui/material';
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
@@ -7,20 +7,25 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
 
 const AddPersonForm = ({ classes }) => {  //  classes, teamId
   renderLog('AddPersonForm');
-  const { getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { viewerAccessRights } = apiDataCache;
   const { mutate: personSave } = usePersonSaveMutation();
 
   const [teamId, setTeamId] = useState(-1);
   const [teamName, setTeamName] = useState('');
   const [saveButtonActive, setSaveButtonActive] = React.useState(false);
+  const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
 
   const emailInputRef = useRef('');
   const firstNameInputRef = useRef('');
   const jazzHrUrlInputRef = useRef('');
   const lastNameInputRef = useRef('');
+  const statusOfferApprovedInputRef = useRef(false);
+  const statusOfferLetterSignedInputRef = useRef(false);
 
   useEffect(() => {  // Replaces onAppObservableStoreChange and will be called whenever the context value changes
     // console.log('AddPersonForm: Context value changed:', true);
@@ -30,6 +35,9 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
     }
   }, [getAppContextValue]);
 
+  useEffect(() => {
+    setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
+  }, [viewerAccessRights]);
 
   const saveNewPerson = () => {
     const data = {
@@ -37,6 +45,9 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
       jazzHrUrl: jazzHrUrlInputRef.current.value,
       lastName: lastNameInputRef.current.value,
       emailPersonal: emailInputRef.current.value,
+      statusOfferApproved: statusOfferApprovedInputRef.current.checked,
+      statusOfferDecisionNeeded: !(statusOfferLetterSignedInputRef.current.checked || statusOfferApprovedInputRef.current.checked),
+      statusOfferLetterSigned: statusOfferLetterSignedInputRef.current.checked,
     };
     const plainParams = {
       personId: -1,
@@ -106,6 +117,34 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
           placeholder="Profile URL on JazzHR"
           variant="outlined"
         />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferApprovedToBeSaved"
+              inputRef={statusOfferApprovedInputRef}
+              name="statusOfferApproved"
+              onChange={() => updateSaveButton()}
+            />
+          )}
+          label="Hiring manager wants to make offer"
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferLetterSignedToBeSaved"
+              inputRef={statusOfferLetterSignedInputRef}
+              name="statusOfferLetterSigned"
+              onChange={() => updateSaveButton()}
+            />
+          )}
+          label="Has signed offer letter"
+        />
         <Button
           classes={{ root: classes.saveNewPersonButton }}
           color="primary"
@@ -136,6 +175,10 @@ const styles = (theme) => ({
 });
 
 const AddPersonFormWrapper = styled('div')`
+`;
+
+const CheckboxLabel = styled(FormControlLabel)`
+  margin-bottom: 0 !important;
 `;
 
 export default withStyles(styles)(AddPersonForm);
