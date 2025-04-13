@@ -129,10 +129,6 @@ module.exports = (env, argv) => ({
           to: 'img/',
           globOptions: { ignore: ['**/DO-NOT-BUNDLE/**']},
         },
-        ...(isProduction ? [
-          { from: 'node/STORYBOOK-README.TXT', to: './storybook-static/STORYBOOK-README.TXT' },
-          { from: 'storybook-static', to: './storybook-static' },
-        ] : []),
       ],
     }),
     new MomentLocalesPlugin(),
