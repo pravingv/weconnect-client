@@ -22,6 +22,7 @@ import GetOneGoogleUser from './GetOneGoogleUser';
 // import GrantGoogleDriveAccess from './GrantGoogleDriveAccess';
 import PermissionsAdministration from './PermissionsAdministration';
 import ResetGoogleUserPassword from './ResetGoogleUserPassword';
+import GrantGoogleDriveAccess from './ShareGoogleDriveAccess';
 import UploadCSV from './UploadCSV';
 
 
@@ -217,10 +218,10 @@ const SystemSettings = ({ classes }) => {
               <GetOneGoogleUser getAll />
               <ResetGoogleUserPassword />
             </div>
-            {/* <div style={{ display: 'flex', paddingTop: '.5rem'  }}> */}
-            {/*  <GrantGoogleDriveAccess isGrant  /> */}
-            {/*  <GrantGoogleDriveAccess isGrant={false} /> */}
-            {/* </div> */}
+            <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
+              <GrantGoogleDriveAccess isShare />
+              {/* <GrantGoogleDriveAccess isShare={false} /> */}
+            </div>
           </div>
         )}
       </PageContentContainer>

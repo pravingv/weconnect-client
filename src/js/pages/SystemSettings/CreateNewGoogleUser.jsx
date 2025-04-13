@@ -28,14 +28,17 @@ const CreateNewGoogleUser = (params) => {
   const { isCreate } = params;
 
   const reformatPhoneNumberToGooglePattern = () => {
+    let returnedStr = '';
     const phoneNumber = phoneNumberInputRef.current.value;
     const digitsLocal = phoneNumber.match(/\d/g);
-    if (digitsLocal[0] === '1') {
-      digitsLocal.shift();
+    if (digitsLocal) {
+      if (digitsLocal[0] === '1') {
+        digitsLocal.shift();
+      }
+      returnedStr = `+1 ${digitsLocal[0]}${digitsLocal[1]}${digitsLocal[2]} ${digitsLocal[3]}${digitsLocal[4]}${digitsLocal[5]} ${digitsLocal[6]}${digitsLocal[7]}${digitsLocal[8]}${digitsLocal[9]}`;
+      console.log(returnedStr);
     }
-    const str = `+1 ${digitsLocal[0]}${digitsLocal[1]}${digitsLocal[2]} ${digitsLocal[3]}${digitsLocal[4]}${digitsLocal[5]} ${digitsLocal[6]}${digitsLocal[7]}${digitsLocal[8]}${digitsLocal[9]}`;
-    console.log(str);
-    return str;
+    return returnedStr;
   };
 
   const createGoogleUser = async () => {
