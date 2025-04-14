@@ -59,16 +59,22 @@ const Teams = () => {
     const onlyFiltersSelected = getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH';
     // console.log('onlyFiltersSelected: ', onlyFiltersSelected);
     const numberOfTeamMembersFoundDict = getAppContextValue('numberOfTeamMembersFoundDict');
-    const teamMembersFound = numberOfTeamMembersFoundDict[team.teamId] && numberOfTeamMembersFoundDict[team.teamId] > 0;
-    // console.log('showTeam, team.teamId: ', team.teamId, ', team.teamName: ', team.teamName, ', teamMembersFound: ', teamMembersFound);
-    if (searchText) {
-      // If the team has any members matching searchText, or team itself matches searchText, show it
-      // console.log('searchText: ', searchText, ', team.teamName: ', team.teamName);
-      return !!(teamMembersFound) || isSearchTextFoundInTeam(searchText, team);
-    } else if (onlyFiltersSelected) {
-      return !!(teamMembersFound);
-    } else {
-      return true; // Show the team if no searchText is provided
+    if (!numberOfTeamMembersFoundDict) return false; // No data yet
+    try {
+      const teamMembersFound = numberOfTeamMembersFoundDict[team.teamId] && numberOfTeamMembersFoundDict[team.teamId] > 0;
+      // console.log('showTeam, team.teamId: ', team.teamId, ', team.teamName: ', team.teamName, ', teamMembersFound: ', teamMembersFound);
+      if (searchText) {
+        // If the team has any members matching searchText, or team itself matches searchText, show it
+        // console.log('searchText: ', searchText, ', team.teamName: ', team.teamName);
+        return !!(teamMembersFound) || isSearchTextFoundInTeam(searchText, team);
+      } else if (onlyFiltersSelected) {
+        return !!(teamMembersFound);
+      } else {
+        return true; // Show the team if no searchText is provided
+      }
+    } catch (error) {
+      console.error('Error in showTeam:', error);
+      return false;
     }
   };
 
