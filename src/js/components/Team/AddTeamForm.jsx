@@ -26,7 +26,7 @@ const AddTeamForm = ({ classes }) => {
       teamId: team ? team.id : '-1',
     }, METHOD.GET),
     onSuccess: () => {
-      console.log('--------- saveTeamMutation addTeamForm mutated ---------');
+      // console.log('--------- saveTeamMutation addTeamForm mutated ---------');
       queryClient.invalidateQueries(['team-list-retrieve']).then(() => {});
     },
   });
@@ -39,7 +39,7 @@ const AddTeamForm = ({ classes }) => {
     }
     setErrorText('');
     setTeamNameCached(teamName);
-    console.log('saveNewTeam data:', teamName);
+    // console.log('saveNewTeam data:', teamName);
     saveTeamMutation.mutate();
     setAppContextValue('addTeamDrawerOpen', false);
     setAppContextValue('addTeamDrawerLabel', '');

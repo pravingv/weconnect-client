@@ -14,31 +14,33 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
+import EmailOfficialManager from './EmailOfficialManager';
 // import { useGetPersonById, usePersonSave } from '../../models/PersonModel';
 
 const EditPersonForm = ({ classes }) => {
   renderLog('EditPersonForm');
-  const { apiDataCache, getAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
-  const { mutate: personSave } = usePersonSaveMutation();
-  // const { mutate: personSave } = usePersonSave();
+  const { mutate: personSave } = usePersonSaveMutation(); // Alternate: usePersonSave();
 
   const [emailOfficialEdited, setEmailOfficialEdited] = useState(false);
-  const [emailOfficialEditModeOn, setEmailOfficialEditModeOn] = useState(false);
-  const [emailOfficialVerifiedLocally, setEmailOfficialVerifiedLocally] = useState(false);
-  const [emailOfficialVerifiedToNotExist, setEmailOfficialVerifiedToNotExist] = useState(false);
+  const [isEmailOfficialEditModeOn, setIsEmailOfficialEditModeOn] = useState(false);
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
   const [initialPerson] = useState(getAppContextValue('profileDrawerPerson'));
   // const [initialPerson] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
   const [activePerson, setActivePerson] = useState({ ...initialPerson });
+  const initialPersonTemp = getAppContextValue('profileDrawerPerson');
+  const emailOfficialInitial = (initialPersonTemp) ? initialPersonTemp.emailOfficial || '' : '';
+  const emailOfficialVerifiedInitial = (initialPersonTemp) ? initialPersonTemp.emailOfficialVerified || false : false;
+  const [emailOfficialLocal, setEmailOfficialLocal] = useState(emailOfficialInitial);
+  const [emailOfficialVerified, setEmailOfficialVerified] = useState(emailOfficialVerifiedInitial);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
 
   const birthdayMonthAndDayInputRef = useRef('');
   const dateEndDateInputRef = useRef('');
   const dateStartDateInputRef = useRef('');
-  const emailOfficialInputRef = useRef('');
   const emailPersonalInputRef = useRef('');
   const emailPreferredInputRef = useRef('');
   const firstNameInputRef = useRef('');
@@ -47,6 +49,7 @@ const EditPersonForm = ({ classes }) => {
   const isHiringManagerInputRef = useRef(false);
   const isInternInputRef = useRef(false);
   const isTeamLeadInputRef = useRef(false);
+  const phoneNumberInputRef = useRef('');
   const jazzHrUrlInputRef = useRef('');
   const jobTitleInputRef = useRef('');
   const lastNameInputRef = useRef('');
@@ -84,11 +87,13 @@ const EditPersonForm = ({ classes }) => {
       activePerson.birthdayMonthAndDay = birthdayMonthAndDayInputRef.current.value;
       activePerson.dateEndDate = dateEndDateInputRef.current.value;
       activePerson.dateStartDate = dateStartDateInputRef.current.value;
-      activePerson.emailOfficial = emailOfficialInputRef.current.value;
+      activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
+      activePerson.emailOfficialVerified = emailOfficialVerified;
       activePerson.isHiringManager = isHiringManagerInputRef.current.checked;
       activePerson.isIntern = isInternInputRef.current.checked;
       activePerson.isTeamLead = isTeamLeadInputRef.current.checked;
+      activePerson.phoneNumber = phoneNumberInputRef.current.value;
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
       activePerson.jobTitle = jobTitleInputRef.current.value;
       activePerson.statusOfferApproved = statusOfferApprovedInputRef.current.checked;
@@ -101,8 +106,8 @@ const EditPersonForm = ({ classes }) => {
     // console.log('savePerson data:', JSON.stringify(activePerson));
     const data = {};
     Object.keys(activePerson).forEach((key) => {
-      const initialValue = initialPerson[key] || '';
-      const activeValue = activePerson[key] || '';
+      const initialValue = (initialPerson[key] === false) ? false : initialPerson[key] || '';
+      const activeValue = (activePerson[key] === false) ? false : activePerson[key] || '';
       if (initialValue !== activeValue) {
         data[key] = activeValue;
       }
@@ -113,10 +118,30 @@ const EditPersonForm = ({ classes }) => {
 
     personSave(makeRequestParams(plainParams, data));
     setSaveButtonActive(false);
+    // setTimeout(() => {
+    setAppContextValue('headerProfileDrawerOpen', false);
+    setAppContextValue('profileDrawerPerson', undefined);
+    setAppContextValue('profileDrawerPersonId', -1);
+    // }, 500);
   };
-  const emailOfficialExistsInDbAndUnchanged = (activePerson.emailOfficial && !emailOfficialEdited);
-  const emailOfficialNotVerifiedInDbOrLocally = !(activePerson.emailOfficialVerified || emailOfficialVerifiedLocally);
-  const showVerifyEmailLink = emailOfficialExistsInDbAndUnchanged && ((emailOfficialEditModeOn && !emailOfficialVerifiedToNotExist) || emailOfficialNotVerifiedInDbOrLocally);
+
+  const setEmailOfficialFromChild = (emailOfficial) => {
+    setEmailOfficialLocal(emailOfficial);
+    setIsEmailOfficialEditModeOn(false);
+  };
+
+  const setEmailOfficialVerifiedFromChild = (emailOfficialVerifiedIncoming) => {
+    // console.log('setEmailOfficialVerifiedFromChild emailOfficialVerifiedIncoming:', emailOfficialVerifiedIncoming);
+    setEmailOfficialVerified(emailOfficialVerifiedIncoming);
+    setSaveButtonActive(true);
+  };
+
+  const setEmailOfficialEditedFromChild = (isEmailOfficialEdited) => {
+    setIsEmailOfficialEditModeOn(isEmailOfficialEdited);
+    setEmailOfficialEdited(isEmailOfficialEdited);
+  };
+
+  const emailOfficialCanBeEdited = !(emailOfficialInitial) || isEmailOfficialEditModeOn;
 
   return (
     <EditPersonFormWrapper>
@@ -183,7 +208,7 @@ const EditPersonForm = ({ classes }) => {
         <div>
           {!(showEmailPreferred) && (
             <SpanWithLinkStyle onClick={() => setShowEmailPreferred(true)}>
-              Edit preferred email ({activePerson.emailPreferred || activePerson.emailOfficial || 'none'})
+              Edit preferred email ({activePerson.emailPreferred || emailOfficialLocal || 'none'})
             </SpanWithLinkStyle>
           )}
         </div>
@@ -299,76 +324,40 @@ const EditPersonForm = ({ classes }) => {
         />
         <TextField
           classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
-          defaultValue={activePerson.emailOfficial || ''}
-          disabled={activePerson.emailOfficial && !emailOfficialEditModeOn}
+          disabled={!emailOfficialCanBeEdited}
           id="emailOfficialToBeSaved"
-          inputRef={emailOfficialInputRef}
           label={`Email Address, ${webAppConfig.ORGANIZATION_NAME} Official`}
           margin="dense"
           name="emailOfficial"
-          onChange={() => {
+          onChange={(event) => {
             setEmailOfficialEdited(true);
+            setEmailOfficialLocal(event.target.value);
+            setEmailOfficialVerified(false);
             setSaveButtonActive(true);
           }}
           placeholder={`${webAppConfig.ORGANIZATION_NAME} email address`}
+          value={emailOfficialLocal}
           variant="outlined"
         />
-        {viewerIsOnHrTeam && (
-          <div>
-            {emailOfficialExistsInDbAndUnchanged && (
-              <div>
-                {(!activePerson.emailOfficialVerified && emailOfficialVerifiedLocally) && (
-                  <div>
-                    EMAIL VERIFIED
-                  </div>
-                )}
-                {(!activePerson.emailOfficialVerified && emailOfficialVerifiedToNotExist) && (
-                  <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
-                    Create email account
-                  </SpanWithLinkStyle>
-                )}
-              </div>
-            )}
-            {emailOfficialEdited && (
-              <div>Save, so you can verify/create email</div>
-            )}
-            {emailOfficialExistsInDbAndUnchanged && (
-              <div>
-                {emailOfficialEditModeOn ? (
-                  <div>
-                    {emailOfficialVerifiedToNotExist && (
-                      <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
-                        Create email account
-                      </SpanWithLinkStyle>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    <SpanWithLinkStyle onClick={() => setEmailOfficialEditModeOn(true)}>
-                      Edit email address
-                    </SpanWithLinkStyle>
-                  </div>
-                )}
-                {(emailOfficialEditModeOn && (activePerson.emailOfficialVerified || emailOfficialVerifiedLocally)) && (
-                  <div>
-                    <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
-                      Reset password
-                    </SpanWithLinkStyle>
-                  </div>
-                )}
-              </div>
-            )}
-            {showVerifyEmailLink && (
-              <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
-                Verify email address
-              </SpanWithLinkStyle>
-            )}
-            {/* emailOfficialEditModeOn */}
-            {/* emailOfficialVerified */}
-            {/* emailOfficialVerifiedLocally */}
-            {/* emailOfficialVerifiedToNotExist */}
-          </div>
-        )}
+        <EmailOfficialManager
+          emailOfficialEdited={emailOfficialEdited}
+          savedEmailOfficial={emailOfficialInitial || ''}
+          setIsEmailOfficialEditModeInParent={setEmailOfficialEditedFromChild}
+          setEmailOfficialInParent={setEmailOfficialFromChild}
+          setEmailOfficialVerifiedInParent={setEmailOfficialVerifiedFromChild}
+        />
+        <TextField
+          classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
+          defaultValue={activePerson.phoneNumber || ''}
+          id="phoneNumberToBeSaved"
+          inputRef={phoneNumberInputRef}
+          label="Phone number"
+          margin="dense"
+          name="phoneNumberToBeSaved"
+          onChange={() => setSaveButtonActive(true)}
+          placeholder="Phone number"
+          variant="outlined"
+        />
         <TextField
           classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.jazzHrUrl || ''}
@@ -511,7 +500,7 @@ const EditPersonForm = ({ classes }) => {
               inputRef={isInternInputRef}
               name="isIntern"
               onChange={(event) => {
-                console.log('isIntern event.target.checked', event.target.checked, ', event.target.value:', event.target.value);
+                // console.log('isIntern event.target.checked', event.target.checked, ', event.target.value:', event.target.value);
                 setActivePerson((prev) => ({
                   ...prev,
                   isIntern: event.target.checked,
