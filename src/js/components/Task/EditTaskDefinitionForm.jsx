@@ -1,4 +1,9 @@
-import { Button, FormControl, TextField } from '@mui/material';
+import {
+  Button, Checkbox,
+  FormControl,
+  FormControlLabel,
+  TextField,
+} from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
@@ -8,54 +13,51 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useTaskDefinitionSaveMutation } from '../../react-query/mutations';
 
-// const TASK_DEFINITION_FIELDS_IN_FORM = [
-//   'googleDriveFolderId',
-//   'isGoogleDrivePermissionStep',
-//   'order',
-//   'taskGroupId',
-//   'taskActionUrl',
-//   'taskName',
-//   'taskWhyWeDoIt',
-//   'taskWhatToDo',
-// ];
-
 const EditTaskDefinitionForm = ({ classes }) => {
   renderLog('EditTaskDefinitionForm');  // Set LOG_RENDER_EVENTS to log all renders
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { mutate: taskDefinitionSave } = useTaskDefinitionSaveMutation();
 
-  const [questionnaireIdValue, setQuestionnaireIdValue] = useState('');
+  const [googleDriveAssetId, setGoogleDriveAssetId] = useState('');
+  const [isGoogleDrivePermissionTask, setIsGoogleDrivePermissionTask] = useState(false);
+  const [isQuestionnaireTask, setIsQuestionnaireTask] = useState(false);
+  const [questionnaireId, setQuestionnaireId] = useState('');
+  const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
   const [taskDefinition] = useState(getAppContextValue('editTaskDefinitionDrawerTaskDefinition'));
-  const [taskNameCompletedValue, setTaskNameCompletedValue] = useState('');
-  const [taskNameValue, setTaskNameValue] = useState('');
-  const [taskWhyWeDoItValue, setTaskWhyWeDoItValue] = useState('');
-  const [taskWhatToDoValue, setTaskWhatToDoValue] = useState('');
-  const [taskUrlValue, setTaskUrlValue] = useState('');
-  const [saveButtonActive, setSaveButtonActive] = useState(false);
+  const [taskNameCompleted, setTaskNameCompleted] = useState('');
+  const [taskName, setTaskName] = useState('');
+  const [taskWhyWeDoIt, setTaskWhyWeDoIt] = useState('');
+  const [taskWhatToDo, setTaskWhatToDo] = useState('');
+  const [taskActionUrl, setTaskActionUrl] = useState('');
 
-  const questionnaireIdInputRef = useRef('');
   const taskNameCompletedInputRef = useRef('');
   const taskNameInputRef = useRef('');
   const taskWhyWeDoItInputRef = useRef('');
   const taskWhatToDoInputRef = useRef('');
-  const taskUrlInputRef = useRef('');
+  const taskActionUrlInputRef = useRef('');
 
   useEffect(() => {
     if (taskDefinition) {
-      setQuestionnaireIdValue(taskDefinition.questionnaireId);
-      setTaskNameCompletedValue(taskDefinition.taskNameCompleted);
-      setTaskNameValue(taskDefinition.taskName);
-      setTaskWhyWeDoItValue(taskDefinition.taskWhyWeDoIt);
-      setTaskWhatToDoValue(taskDefinition.taskWhatToDo);
-      setTaskUrlValue(taskDefinition.taskActionUrl);
+      setGoogleDriveAssetId(taskDefinition.googleDriveAssetId);
+      setIsGoogleDrivePermissionTask(taskDefinition.isGoogleDrivePermissionTask);
+      setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
+      setQuestionnaireId(taskDefinition.questionnaireId);
+      setTaskActionUrl(taskDefinition.taskActionUrl);
+      setTaskName(taskDefinition.taskName);
+      setTaskNameCompleted(taskDefinition.taskNameCompleted);
+      setTaskWhatToDo(taskDefinition.taskWhatToDo);
+      setTaskWhyWeDoIt(taskDefinition.taskWhyWeDoIt);
     } else {
-      setQuestionnaireIdValue('');
-      setTaskNameCompletedValue('');
-      setTaskNameValue('');
-      setTaskWhyWeDoItValue('');
-      setTaskWhatToDoValue('');
-      setTaskUrlValue('');
+      setGoogleDriveAssetId('');
+      setIsGoogleDrivePermissionTask(false);
+      setIsQuestionnaireTask(false);
+      setQuestionnaireId('');
+      setTaskActionUrl('');
+      setTaskName('');
+      setTaskNameCompleted('');
+      setTaskWhatToDo('');
+      setTaskWhyWeDoIt('');
     }
   }, [taskDefinition]);
 
@@ -64,12 +66,15 @@ const EditTaskDefinitionForm = ({ classes }) => {
       taskDefinitionId: taskDefinition ? taskDefinition.id : '-1',
       taskGroupId: taskGroup.taskGroupId,
     }, {
-      questionnaireId: questionnaireIdInputRef.current.value,
+      googleDriveAssetId,
+      isGoogleDrivePermissionTask,
+      isQuestionnaireTask,
+      questionnaireId,
+      taskActionUrl: taskActionUrlInputRef.current.value,
       taskName: taskNameInputRef.current.value,
       taskNameCompleted: taskNameCompletedInputRef.current.value,
       taskWhatToDo: taskWhatToDoInputRef.current.value,
       taskWhyWeDoIt: taskWhyWeDoItInputRef.current.value,
-      taskActionUrl: taskUrlInputRef.current.value,
     });
     taskDefinitionSave(requestParams);
     setSaveButtonActive(false);
@@ -92,7 +97,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       <FormControl classes={{ root: classes.formControl }}>
         <TextField
           autoFocus
-          defaultValue={taskNameValue}
+          defaultValue={taskName}
           id="taskNameToBeSaved"
           inputRef={taskNameInputRef}
           label="Task Name (Prior to Completion)"
@@ -105,7 +110,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
           variant="outlined"
         />
         <TextField
-          defaultValue={taskNameCompletedValue}
+          defaultValue={taskNameCompleted}
           id="taskNameCompletedToBeSaved"
           inputRef={taskNameCompletedInputRef}
           label="Task Name (Once Completed)"
@@ -118,7 +123,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
           variant="outlined"
         />
         <TextField
-          defaultValue={taskWhyWeDoItValue}
+          defaultValue={taskWhyWeDoIt}
           id="taskWhyWeDoItToBeSaved"
           inputRef={taskWhyWeDoItInputRef}
           label="Why we do this task"
@@ -127,11 +132,11 @@ const EditTaskDefinitionForm = ({ classes }) => {
           name="taskWhyWeDoIt"
           onChange={updateSaveButton}
           placeholder="Why we do this task"
-          rows={6}
+          rows={4}
           variant="outlined"
         />
         <TextField
-          defaultValue={taskWhatToDoValue}
+          defaultValue={taskWhatToDo}
           id="taskWhatToDoToBeSaved"
           inputRef={taskWhatToDoInputRef}
           label="What to do to complete this task"
@@ -140,13 +145,13 @@ const EditTaskDefinitionForm = ({ classes }) => {
           name="taskWhatToDo"
           onChange={updateSaveButton}
           placeholder="Instructions for how to complete this task"
-          rows={6}
+          rows={4}
           variant="outlined"
         />
         <TextField
-          defaultValue={taskUrlValue}
+          defaultValue={taskActionUrl}
           id="taskActionUrlToBeSaved"
-          inputRef={taskUrlInputRef}
+          inputRef={taskActionUrlInputRef}
           label="Task Action URL"
           margin="dense"
           name="taskActionUrl"
@@ -154,15 +159,66 @@ const EditTaskDefinitionForm = ({ classes }) => {
           placeholder="Web address of the task"
           variant="outlined"
         />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={isQuestionnaireTask || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isQuestionnaireTaskToBeSaved"
+              name="isQuestionnaireTask"
+              onChange={(event) => {
+                setIsQuestionnaireTask(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Include a questionnaire"
+        />
         <TextField
-          defaultValue={questionnaireIdValue}
+          classes={isQuestionnaireTask ? {} : { root: classes.hideThisField }}
+          value={questionnaireId}
           id="questionnaireIdToBeSaved"
-          inputRef={questionnaireIdInputRef}
           label="Questionnaire ID (If needed for this task)"
           margin="dense"
           name="questionnaireId"
-          onChange={updateSaveButton}
+          onChange={(event) => {
+            setQuestionnaireId(event.target.value);
+            updateSaveButton(true);
+          }}
           placeholder="Id of the questionnaire to be completed for this task"
+          variant="outlined"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={isGoogleDrivePermissionTask || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isGoogleDrivePermissionTaskToBeSaved"
+              name="isGoogleDrivePermissionTask"
+              onChange={(event) => {
+                setIsGoogleDrivePermissionTask(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Include Google Drive file id"
+        />
+        <TextField
+          classes={isGoogleDrivePermissionTask ? {} : { root: classes.hideThisField }}
+          id="googleDriveAssetIdToBeSaved"
+          label="Google Drive ID"
+          margin="dense"
+          name="googleDriveAssetId"
+          onChange={(event) => {
+            setGoogleDriveAssetId(event.target.value);
+            updateSaveButton(true);
+          }}
+          placeholder="Id of the Google Drive folder or file"
+          value={googleDriveAssetId}
           variant="outlined"
         />
         <Button
@@ -183,8 +239,18 @@ EditTaskDefinitionForm.propTypes = {
 };
 
 const styles = (theme) => ({
+  checkboxLabel: {
+    marginTop: 2,
+  },
   formControl: {
     width: '100%',
+  },
+  hideThisField: {
+    position: 'absolute',
+    left: '-9999px',
+    width: '1px',
+    height: '1px',
+    overflow: 'hidden',
   },
   saveTaskDefinitionButton: {
     width: 300,
@@ -193,6 +259,10 @@ const styles = (theme) => ({
     },
   },
 });
+
+const CheckboxLabel = styled(FormControlLabel)`
+  margin-bottom: 0 !important;
+`;
 
 const EditTaskDefinitionFormWrapper = styled('div')`
 `;
