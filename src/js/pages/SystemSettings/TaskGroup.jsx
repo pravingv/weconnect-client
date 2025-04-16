@@ -28,9 +28,13 @@ const TaskGroup = ({ classes }) => {
   const { setAppContextValue } = useConnectAppContext();
 
   const location = useLocation();
+  let taskGroupNameIncoming = '';
+  if (location && location.state && location.state.taskGroupName) {
+    taskGroupNameIncoming = parseInt(location.state.taskGroupName);
+  }
   const [personIdsList, setPersonIdsList] = useState([]);
   const [taskGroupId] = useState(parseInt(useParams().taskGroupId));
-  const [taskGroupName] = useState(location.state.taskGroupName);
+  const [taskGroupName, setTaskGroupName] = useState(taskGroupNameIncoming);
   const [taskGroup, setTaskGroup] = useState(undefined);
   const [taskDefinitionList, setTaskDefinitionList] = useState(undefined);
 
@@ -70,6 +74,12 @@ const TaskGroup = ({ classes }) => {
   }, [allPeopleCache]);
 
   useEffect(() => {
+    if (allTaskGroupsCache && allTaskGroupsCache[taskGroupId]) {
+      setTaskGroupName(allTaskGroupsCache[taskGroupId].taskGroupName);
+    }
+  }, [allTaskGroupsCache, taskGroupId]);
+
+  useEffect(() => {
     if (allTaskDefinitionsCache) {
       setTaskDefinitionList(Object.values(allTaskDefinitionsCache));
     }
@@ -101,6 +111,7 @@ const TaskGroup = ({ classes }) => {
     setAppContextValue('editTaskGroupDrawerLabel', 'Edit Task Group');
   };
 
+  const taskDefinitionListForThisTaskGroup = taskDefinitionList ? taskDefinitionList.filter((taskDefinition) => taskDefinition.taskGroupId === taskGroupId) : [];
   return (
     <>
       <Helmet>
@@ -128,7 +139,7 @@ const TaskGroup = ({ classes }) => {
           </InstructionsWrapper>
         )}
         <TaskDefinitionListWrapper>
-          {taskDefinitionList && taskDefinitionList.map((taskDefinition) => (
+          {taskDefinitionListForThisTaskGroup.map((taskDefinition) => (
             <OneTaskGroupWrapper key={`taskDefinition-${taskDefinition.id}`}>
               {taskDefinition.taskName}
               {' '}

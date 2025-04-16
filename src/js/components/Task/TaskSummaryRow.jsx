@@ -14,6 +14,7 @@ import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsAct
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { useGetFullNamePreferred } from '../../models/PersonModel';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import GoogleDriveShareManager from '../Person/GoogleDriveShareManager';
 
 
 const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => {
@@ -94,6 +95,9 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
                 personId={personId}
               />
             </div>
+            {(taskDefinition.isGoogleDrivePermissionTask && viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights)) && (
+              <GoogleDriveShareManager task={task} taskDefinition={taskDefinition} />
+            )}
             <div>
               {task.statusDone ? (
                 <CheckboxDone>

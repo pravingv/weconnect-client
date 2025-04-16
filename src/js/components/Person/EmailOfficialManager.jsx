@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import { ActionOption, ActionOptionList, ActionOptionContainerLeft8, ActionOptionContainerOverflow } from '../Style/actionOptionStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
-import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import generateRandomString from '../../common/utils/generateRandomString';
 import webAppConfig from '../../config';
 
@@ -351,27 +351,6 @@ const styles = () => ({
     width: '100%',
   },
 });
-
-const ActionOption = styled('div')`
-  border-left: 1px solid ${DesignTokenColors.neutralUI100};
-  padding: 0 8px;
-`;
-
-const ActionOptionList = styled('div')`
-  align-items: center;
-  display: flex;
-  justify-content: flex-start;
-`;
-
-const ActionOptionContainerOverflow = styled('div')`
-  overflow: hidden;
-`;
-
-const ActionOptionContainerLeft8 = styled('div')`
-  display: block;
-  position: relative;
-  left: -8px;
-`;
 
 const EmailOfficialManagerWrapper = styled('div')`
   margin: 0 auto;

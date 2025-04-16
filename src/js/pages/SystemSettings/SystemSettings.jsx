@@ -139,6 +139,9 @@ const SystemSettings = ({ classes }) => {
     );
   }
 
+  // Alphabetically sort questionnaires and task groups
+  questionnaireList.sort((a, b) => a.questionnaireName.localeCompare(b.questionnaireName));
+  taskGroupList.sort((a, b) => a.taskGroupName.localeCompare(b.taskGroupName));
   return (
     <div>
       <Helmet>
@@ -181,7 +184,7 @@ const SystemSettings = ({ classes }) => {
           </Button>
         </AddButtonWrapper>
         {/* ****  **** */}
-        <SettingsSubtitle>Onboarding Task Groupings</SettingsSubtitle>
+        <SettingsSubtitle>Groups of Tasks</SettingsSubtitle>
         {taskGroupList.map((taskGroup) => (
           <OneQuestionnaireWrapper key={`taskGroup-${taskGroup.id}`}>
             <QuestionnaireInnerWrapper>
