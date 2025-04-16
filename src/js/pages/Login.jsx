@@ -67,7 +67,7 @@ const Login = ({ classes }) => {
         setSuccessLine(`Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}`);
         if (loginAttempted) {  // if we navigate to here directly, not as a result of a loginAPI
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/tasks');
             setAppContextValue('navigatedFromLogin', true);
           }, 2000);
         }
@@ -216,7 +216,22 @@ const Login = ({ classes }) => {
     }
   };
 
-  const loginPressed = () => {
+  const removeSessionCookie = ()  => {
+    const urlObject = new URL(webAppConfig.STAFF_API_SERVER_ROOT_URL);
+    const updatedCookie = `WeConnectSession=; Max-Age=0; path=/; domain=${urlObject.hostname}`;
+    document.cookie = updatedCookie;
+    console.log('Login removeSessionCookie, cookie that was removed: ', updatedCookie);
+  };
+
+  const signOutButtonPressed = async () => {
+    passwordFldRef.current.value = '';   // Blank the email field after signing out
+    clearSignedInGlobals(setAppContextValue, getAppContextData);
+    setOpenResetPasswordDialog(false);
+    // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
+    await logoutApiInLogin().then(() => removeSessionCookie());
+  };
+
+  const loginPressed = async () => {
     const email =  (emailPersonalFldRef.current.value)?.trim();
     const password = (passwordFldRef.current.value)?.trim();
 
@@ -225,28 +240,14 @@ const Login = ({ classes }) => {
       setWarningLine('Enter a valid username and password');
     } else {
       setWarningLine('');
+      await signOutButtonPressed();
       loginApi(email, password).then();
     }
-  };
-
-  const removeSessionCookie = ()  => {
-    const urlObject = new URL(webAppConfig.STAFF_API_SERVER_ROOT_URL);
-    const updatedCookie = `WeConnectSession=; Max-Age=0; path=/; domain=${urlObject.hostname}`;
-    document.cookie = updatedCookie;
-    console.log('Login removeSessionCookie, cookie that was removed: ', updatedCookie);
   };
 
   const closeResetYourPassword = () => {
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     // console.log('closeResetYourPassword in Login before logoutApiInLogin()');
-    logoutApiInLogin().then(() => removeSessionCookie());
-  };
-
-  const signOutButtonPressed = () => {
-    passwordFldRef.current.value = '';   // Blank the email field after signing out
-    clearSignedInGlobals(setAppContextValue, getAppContextData);
-    setOpenResetPasswordDialog(false);
-    // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
     logoutApiInLogin().then(() => removeSessionCookie());
   };
 
@@ -267,7 +268,7 @@ const Login = ({ classes }) => {
       // const stateCode =  stateFldRef.current.value;
       const password = passwordFldRef.current.value;
       const confirmPassword = confirmPasswordFldRef.current.value;
-      if (!validator.isEmail(emailPersonal)) errStr += 'Please enter a valid personal email address. ';
+      if (!validator.isEmail(emailPersonal) && !validator.isEmail(emailOfficial)) errStr += 'Please enter a valid personal email address. ';
       if (emailOfficial.length > 0 && !validator.isEmail(emailOfficial)) errStr += 'Please enter a valid secondary email address. ';
       if (!validator.isLength(password, { min: 8 })) errStr += 'Password must be at least 8 characters long. ';
       if (validator.escape(password) !== validator.escape(confirmPassword)) errStr += 'Passwords do not match. ';
