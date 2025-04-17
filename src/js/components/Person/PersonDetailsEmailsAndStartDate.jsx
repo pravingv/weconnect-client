@@ -35,10 +35,10 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
           </div>
           <div>
             <CopyToClipboard text={preferredEmail} onCopy={() => copyQuickLink()}>
-              <span>
+              <EmailAddressToBeCopied>
                 {preferredEmail}
                 <ContentCopyStyled />
-              </span>
+              </EmailAddressToBeCopied>
             </CopyToClipboard>
           </div>
         </QuickLinksRow>
@@ -52,10 +52,10 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
           <div>
             {person.emailOfficial && (
               <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
-                <span>
+                <EmailAddressToBeCopied>
                   {person.emailOfficial || '(email needed)'}
                   <ContentCopyStyled />
-                </span>
+                </EmailAddressToBeCopied>
               </CopyToClipboard>
             )}
           </div>
@@ -69,10 +69,10 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
           </div>
           <div>
             <CopyToClipboard text={person.emailPersonal} onCopy={() => copyQuickLink()}>
-              <span>
+              <EmailAddressToBeCopied>
                 {person.emailPersonal}
                 <ContentCopyStyled />
-              </span>
+              </EmailAddressToBeCopied>
             </CopyToClipboard>
           </div>
         </QuickLinksRow>
@@ -89,32 +89,37 @@ PersonDetailsEmailsAndStartDate.propTypes = {
 };
 
 const ContentCopyStyled = styled(ContentCopy)`
-  color: ${DesignTokenColors.neutral300};
+  color: ${DesignTokenColors.primary500};
   height: 16px;
+  margin-bottom: -3px;
   margin-left: 4px;
-  width: 16px;
 `;
 
 const LaunchStyled = styled(Launch)`
   color: ${DesignTokenColors.primary500};
   cursor: pointer;
   margin-left: 2px;
-  margin-top: -3px;
   width: 14px;
   height: 14px;
 `;
 
 const PersonDetailsEmailsAndStartDateWrapper = styled('div')`
-  align-items: flex-start;
+  //align-items: flex-start;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
 `;
 
 const QuickLinksRow = styled('div')`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 15px;
+`;
+
+const EmailAddressToBeCopied = styled('p')`
+  margin: 0;
+  font-weight: bold;
 `;
 
 export default PersonDetailsEmailsAndStartDate;

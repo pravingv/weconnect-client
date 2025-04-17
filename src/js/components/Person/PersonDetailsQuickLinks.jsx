@@ -31,7 +31,7 @@ const PersonDetailsQuickLinks = ({ person, teamId }) => {
       {person.linkedInUrl && (
         <QuickLinksRow>
           <Suspense fallback={<></>}>
-            <OpenExternalWebSite
+            <StyledOpenExternalWebsite
               linkIdAttribute="linkedInUrl"
               url={person.linkedInUrl}
               target="_blank"
@@ -51,7 +51,7 @@ const PersonDetailsQuickLinks = ({ person, teamId }) => {
       {(canEditPerson && person.jazzHrUrl) && (
         <QuickLinksRow>
           <Suspense fallback={<></>}>
-            <OpenExternalWebSite
+            <StyledOpenExternalWebsite
               linkIdAttribute="jazzHrLink"
               url={person.jazzHrUrl}
               target="_blank"
@@ -80,23 +80,23 @@ PersonDetailsQuickLinks.propTypes = {
 };
 
 const ContentCopyStyled = styled(ContentCopy)`
-  color: ${DesignTokenColors.neutral300};
+  color: ${DesignTokenColors.primary500};
   height: 16px;
-  margin-left: 4px;
-  width: 16px;
+  //margin-left: 4px;
+  //width: 16px;
 `;
 
 const LaunchStyled = styled(Launch)`
   color: ${DesignTokenColors.primary500};
   cursor: pointer;
   margin-left: 2px;
-  margin-top: -3px;
-  width: 14px;
-  height: 14px;
+  margin-bottom: -2px;
+  width: 15px;
+  height: 15px;
 `;
 
 const PersonDetailsQuickLinksWrapper = styled('div')`
-  align-items: flex-start;
+  //align-items: flex-start;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -107,5 +107,13 @@ const QuickLinksRow = styled('div')`
   align-items: center;
   justify-content: space-between;
 `;
+
+const StyledOpenExternalWebsite = styled(OpenExternalWebSite)`
+  color: ${DesignTokenColors.primary500};
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+`;
+
 
 export default PersonDetailsQuickLinks;
