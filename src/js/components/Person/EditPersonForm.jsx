@@ -272,6 +272,27 @@ const EditPersonForm = ({ classes }) => {
           classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
           control={(
             <Checkbox
+              checked={activePerson.statusActive || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusActiveToBeSaved"
+              inputRef={statusActiveInputRef}
+              name="statusActive"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusActive: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is active`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
               checked={activePerson.statusOfferApproved || false}
               className={classes.checkboxRoot}
               color="primary"
@@ -425,27 +446,6 @@ const EditPersonForm = ({ classes }) => {
           onChange={() => setSaveButtonActive(true)}
           placeholder="Month and Day of Birth (Do not include year)"
           variant="outlined"
-        />
-        <CheckboxLabel
-          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
-          control={(
-            <Checkbox
-              checked={activePerson.statusActive || false}
-              className={classes.checkboxRoot}
-              color="primary"
-              id="statusActiveToBeSaved"
-              inputRef={statusActiveInputRef}
-              name="statusActive"
-              onChange={(event) => {
-                setActivePerson((prev) => ({
-                  ...prev,
-                  statusActive: event.target.checked,
-                }));
-                setSaveButtonActive(true);
-              }}
-            />
-          )}
-          label={`${activePerson.firstNamePreferred || activePerson.firstName} is active`}
         />
         <CheckboxLabel
           classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}

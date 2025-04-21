@@ -17,6 +17,7 @@ import capturePersonListRetrieveData from '../../models/capturePersonListRetriev
 import {
   captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData,
 } from '../../models/TaskModel';
+import { generateActivatedByDescription } from '../../utils/taskDescriptions';
 
 
 const TaskGroup = ({ classes }) => {
@@ -111,6 +112,7 @@ const TaskGroup = ({ classes }) => {
     setAppContextValue('editTaskGroupDrawerLabel', 'Edit Task Group');
   };
 
+  const activatedByDescription = generateActivatedByDescription(taskGroup);
   const taskDefinitionListForThisTaskGroup = taskDefinitionList ? taskDefinitionList.filter((taskDefinition) => taskDefinition.taskGroupId === taskGroupId) : [];
   return (
     <>
@@ -128,11 +130,17 @@ const TaskGroup = ({ classes }) => {
           {' '}
           &gt;
           {' '}
-          {taskGroupName}
+          {taskGroupName} ({taskGroupId})
           <SpanWithLinkStyle onClick={editTaskGroupClick}>
             <EditStyled />
           </SpanWithLinkStyle>
         </TaskGroupBreadcrumbWrapper>
+        {(activatedByDescription) && (
+          <ListItemFlexInnerWrapper>
+            <TriggeredBy>Activated by:&nbsp;</TriggeredBy>
+            <TriggeredByDescription>{activatedByDescription}</TriggeredByDescription>
+          </ListItemFlexInnerWrapper>
+        )}
         {taskGroup && taskGroup.taskGroupDescription && (
           <InstructionsWrapper>
             {taskGroup.taskGroupDescription}
@@ -141,7 +149,11 @@ const TaskGroup = ({ classes }) => {
         <TaskDefinitionListWrapper>
           {taskDefinitionListForThisTaskGroup.map((taskDefinition) => (
             <OneTaskGroupWrapper key={`taskDefinition-${taskDefinition.id}`}>
-              {taskDefinition.taskName}
+              <ActiveOrNotSpan $turnedOff={!taskDefinition.statusActive}>
+                {taskDefinition.taskName}
+                {' '}
+                ({taskDefinition.id})
+              </ActiveOrNotSpan>
               {' '}
               <SpanWithLinkStyle onClick={() => editTaskDefinitionClick(taskDefinition)}>
                 <EditStyled />
@@ -179,18 +191,29 @@ const styles = (theme) => ({
   },
 });
 
-const TaskGroupBreadcrumbWrapper = styled('div')`
-  height: 100px;
-  align-content: center;
+const ActiveOrNotSpan = styled('span')`
+  ${(props) => (props.$turnedOff ? 'text-decoration: line-through;' : '')}
 `;
 
 const AddButtonWrapper = styled('div')`
   margin-top: 24px;
 `;
 
+const TaskGroupBreadcrumbWrapper = styled('div')`
+  height: 100px;
+  align-content: center;
+`;
+
 const InstructionsWrapper = styled('div')`
   color: ${DesignTokenColors.neutralUI300};
   font-size: 1.2em;
+`;
+
+const ListItemFlexInnerWrapper = styled('div')`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 6px;
 `;
 
 const OneTaskGroupWrapper = styled('div')`
@@ -200,6 +223,17 @@ const OneTaskGroupWrapper = styled('div')`
 const TaskDefinitionListWrapper = styled('div')`
   margin-top: 24px;
   padding-bottom: 24px;
+`;
+
+const TriggeredBy = styled('div')`
+  color: ${DesignTokenColors.neutralUI600};
+  font-size: .9em;
+  font-weight: 500;
+`;
+
+const TriggeredByDescription = styled('div')`
+  color: ${DesignTokenColors.neutralUI600};
+  font-size: .9em;
 `;
 
 export default withStyles(styles)(TaskGroup);

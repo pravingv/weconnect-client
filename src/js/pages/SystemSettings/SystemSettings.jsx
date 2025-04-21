@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { EditStyled } from '../../components/Style/iconStyles';
@@ -19,10 +19,10 @@ import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import CreateNewGoogleUser from './CreateNewGoogleUser';
 import GetOneGoogleUser from './GetOneGoogleUser';
-// import GrantGoogleDriveAccess from './GrantGoogleDriveAccess';
 import PermissionsAdministration from './PermissionsAdministration';
 import ResetGoogleUserPassword from './ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from './ShareGoogleDriveAccess';
+import TaskGroupListIndex from './TaskGroupListIndex';
 import UploadCSV from './UploadCSV';
 
 
@@ -110,18 +110,6 @@ const SystemSettings = ({ classes }) => {
     setAppContextValue('editQuestionnaireDrawerLabel', 'Edit Questionnaire');
   };
 
-  const addTaskGroupClick = () => {
-    setAppContextValue('editTaskGroupDrawerOpen', true);
-    setAppContextValue('editTaskGroupDrawerTaskGroup', undefined);
-    setAppContextValue('editTaskGroupDrawerLabel', 'Add Task Grouping');
-  };
-
-  const editTaskGroupClick = (taskGroup) => {
-    setAppContextValue('editTaskGroupDrawerOpen', true);
-    setAppContextValue('editTaskGroupDrawerTaskGroup', taskGroup);
-    setAppContextValue('editTaskGroupDrawerLabel', 'Edit Task Grouping');
-  };
-
   const goToQuestionnairePageClick = (questionnaire) => {
     setAppContextValue('selectedQuestionnaire', questionnaire);
 
@@ -157,20 +145,22 @@ const SystemSettings = ({ classes }) => {
           System Settings
         </h1>
         {/* ****  **** */}
+        <TaskGroupListIndex />
+        {/* ****  **** */}
         <SettingsSubtitle>Questionnaires</SettingsSubtitle>
         {questionnaireList.map((questionnaire) => (
           <OneQuestionnaireWrapper key={`questionnaire-${questionnaire.questionnaireId}`}>
-            <QuestionnaireInnerWrapper>
+            <ListItemFlexInnerWrapper>
               {/* {console.log('questionnaireList.map((questionnaire)', questionnaire.questionnaireId)} */}
               <GoToQuestionnairePage onClick={() => goToQuestionnairePageClick(questionnaire)}>
                 <SpanWithLinkStyle>
-                  {questionnaire.questionnaireName}
+                  {questionnaire.questionnaireName} ({questionnaire.questionnaireId})
                 </SpanWithLinkStyle>
               </GoToQuestionnairePage>
               <EditQuestionnaire onClick={() => editQuestionnaireClick(questionnaire)}>
                 <EditStyled />
               </EditQuestionnaire>
-            </QuestionnaireInnerWrapper>
+            </ListItemFlexInnerWrapper>
           </OneQuestionnaireWrapper>
         ))}
         <AddButtonWrapper>
@@ -181,30 +171,6 @@ const SystemSettings = ({ classes }) => {
             onClick={addQuestionnaireClick}
           >
             Add Questionnaire
-          </Button>
-        </AddButtonWrapper>
-        {/* ****  **** */}
-        <SettingsSubtitle>Groups of Tasks</SettingsSubtitle>
-        {taskGroupList.map((taskGroup) => (
-          <OneQuestionnaireWrapper key={`taskGroup-${taskGroup.id}`}>
-            <QuestionnaireInnerWrapper>
-              <Link to={`/task-group/${taskGroup.id}`} state={taskGroup}>
-                {taskGroup.taskGroupName}
-              </Link>
-              <EditTaskGroup onClick={() => editTaskGroupClick(taskGroup)}>
-                <EditStyled />
-              </EditTaskGroup>
-            </QuestionnaireInnerWrapper>
-          </OneQuestionnaireWrapper>
-        ))}
-        <AddButtonWrapper>
-          <Button
-            classes={{ root: classes.addQuestionnaireButtonRoot }}
-            color="primary"
-            variant="outlined"
-            onClick={addTaskGroupClick}
-          >
-            Add Task Grouping
           </Button>
         </AddButtonWrapper>
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
@@ -256,18 +222,13 @@ const EditQuestionnaire = styled('div')`
   margin-left: 25px;
 `;
 
-const EditTaskGroup = styled('div')`
-  cursor: pointer;
-  margin-left: 25px;
-`;
-
 const GoToQuestionnairePage = styled('div')`
 `;
 
 const OneQuestionnaireWrapper = styled('div')`
 `;
 
-const QuestionnaireInnerWrapper = styled('div')`
+const ListItemFlexInnerWrapper = styled('div')`
   display: flex;
   align-items: center;
   justify-content: flex-start;

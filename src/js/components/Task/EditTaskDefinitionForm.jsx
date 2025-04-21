@@ -21,9 +21,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [googleDriveAssetId, setGoogleDriveAssetId] = useState('');
   const [isGoogleDrivePermissionTask, setIsGoogleDrivePermissionTask] = useState(false);
   const [isQuestionnaireTask, setIsQuestionnaireTask] = useState(false);
+  const [moveToAnotherTaskGroup, setMoveToAnotherTaskGroup] = useState(false);
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
+  const [statusActive, setStatusActive] = useState(false);
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
+  const [taskGroupId, setTaskGroupId] = useState(-1);
   const [taskDefinition] = useState(getAppContextValue('editTaskDefinitionDrawerTaskDefinition'));
   const [taskNameCompleted, setTaskNameCompleted] = useState('');
   const [taskName, setTaskName] = useState('');
@@ -43,7 +46,9 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsGoogleDrivePermissionTask(taskDefinition.isGoogleDrivePermissionTask);
       setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
       setQuestionnaireId(taskDefinition.questionnaireId);
+      setStatusActive(taskDefinition.statusActive);
       setTaskActionUrl(taskDefinition.taskActionUrl);
+      setTaskGroupId(taskDefinition.taskGroupId);
       setTaskName(taskDefinition.taskName);
       setTaskNameCompleted(taskDefinition.taskNameCompleted);
       setTaskWhatToDo(taskDefinition.taskWhatToDo);
@@ -53,7 +58,9 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsGoogleDrivePermissionTask(false);
       setIsQuestionnaireTask(false);
       setQuestionnaireId('');
+      setStatusActive(false);
       setTaskActionUrl('');
+      setTaskGroupId(-1);
       setTaskName('');
       setTaskNameCompleted('');
       setTaskWhatToDo('');
@@ -70,6 +77,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
       isGoogleDrivePermissionTask,
       isQuestionnaireTask,
       questionnaireId,
+      statusActive,
+      taskGroupId,
       taskActionUrl: taskActionUrlInputRef.current.value,
       taskName: taskNameInputRef.current.value,
       taskNameCompleted: taskNameCompletedInputRef.current.value,
@@ -95,6 +104,23 @@ const EditTaskDefinitionForm = ({ classes }) => {
   return (
     <EditTaskDefinitionFormWrapper>
       <FormControl classes={{ root: classes.formControl }}>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusActive}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusActiveToBeSaved"
+              name="statusActive"
+              onChange={(event) => {
+                setStatusActive(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="This task is ON"
+        />
         <TextField
           autoFocus
           defaultValue={taskName}
@@ -219,6 +245,37 @@ const EditTaskDefinitionForm = ({ classes }) => {
           }}
           placeholder="Id of the Google Drive folder or file"
           value={googleDriveAssetId}
+          variant="outlined"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={moveToAnotherTaskGroup}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="moveToAnotherTaskGroup-DoNotSave"
+              name="moveToAnotherTaskGroup"
+              onChange={(event) => {
+                setMoveToAnotherTaskGroup(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Move to another task group"
+        />
+        <TextField
+          classes={moveToAnotherTaskGroup ? {} : { root: classes.hideThisField }}
+          value={taskGroupId}
+          id="taskGroupIdToBeSaved"
+          label="Id of TaskGroup parent"
+          margin="dense"
+          name="taskGroupId"
+          onChange={(event) => {
+            setTaskGroupId(event.target.value);
+            updateSaveButton(true);
+          }}
+          placeholder="Id of the taskGroup this task is part of"
           variant="outlined"
         />
         <Button

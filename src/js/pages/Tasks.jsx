@@ -98,9 +98,9 @@ const Tasks = () => {
 
   const showPerson = (person) => {
     if (!person || !person.personId < 0) return false; // Invalid person or personId
+    const taskList = taskListByPersonId[person.personId] || [];
+    let modifiedTaskList = [];
     if (searchText) {
-      const taskList = taskListByPersonId[person.personId] || [];
-      const modifiedTaskList = [];
       const personResults = isSearchTextFoundInPerson(searchText, person);
       const allSearchWordsWereFoundInPerson = personResults.allSearchWordsWereFound;
       const searchWordsFoundInPersonList = personResults.searchWordsFoundList;
@@ -127,12 +127,15 @@ const Tasks = () => {
       return {
         allSearchWordsWereFound: allSearchWordsWereFoundInPerson || modifiedTaskList.length > 0,
         searchTextMinusWordsFoundInPersonList,
+        tasksExistToShow: modifiedTaskList && modifiedTaskList.length > 0,
       };
     } else {
       // Show all people since no search text provided
+      modifiedTaskList = (showCompletedTasks) ? taskList : taskList.filter((task) => !task.statusDone);
       return {
-        allSearchWordsWereFound: true,
+        allSearchWordsWereFound: false,
         searchTextMinusWordsFoundInPersonList: searchText,
+        tasksExistToShow: modifiedTaskList && modifiedTaskList.length > 0,
       };
     }
   };
@@ -164,7 +167,8 @@ const Tasks = () => {
         <PersonSummaryHeader />
         {taskListByPersonId && selectedPersonList.map((person) => {
           const showPersonResults = showPerson(person);
-          if (showPersonResults.allSearchWordsWereFound) {
+          // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
+          if (showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) {
             return (
               <OnePersonWrapper key={`team-${person.personId}`}>
                 <PersonSummaryRow person={person} teamId={teamId} />

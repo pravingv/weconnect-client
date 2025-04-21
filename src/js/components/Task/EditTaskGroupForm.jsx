@@ -1,45 +1,114 @@
-import { Button, FormControl, TextField } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel, InputLabel, Select,
+  TextField,
+} from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import convertToInteger from '../../common/utils/convertToInteger';
 import { renderLog } from '../../common/utils/logging';
-import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useTaskGroupSaveMutation } from '../../react-query/mutations';
-
-// const TASK_GROUP_FIELDS_IN_FORM = [
-//   'taskGroupName', 'taskGroupDescription', 'taskGroupIsForTeam'];
+import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
+import { captureTeamListRetrieveData } from '../../models/TeamModel';
 
 const EditTaskGroupForm = ({ classes }) => {
   renderLog('EditTaskGroupForm');
-  const { getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { allTeamsCache } = apiDataCache;
+  const dispatch = useConnectDispatch();
   const { mutate: taskGroupSave } = useTaskGroupSaveMutation();
 
-  const [taskGroup] = useState(getAppContextValue('editTaskGroupDrawerTaskGroup'));
-  const [groupNameValue, setGroupNameValue] = useState('');
-  const [groupDescValue, setGroupDescValue] = useState('');
+  const [assignIfEmailCreated, setAssignIfEmailCreated] = useState(false);
+  const [assignIfOfferDecisionNeeded, setAssignIfOfferDecisionNeeded] = useState(false);
+  const [assignIfOfferLetterCreated, setAssignIfOfferLetterCreated] = useState(false);
+  const [assignIfOfferLetterSigned, setAssignIfOfferLetterSigned] = useState(false);
+  const [assignIfQuestionnaireAnswered, setAssignIfQuestionnaireAnswered] = useState(false);
+  const [assignIfStatusOfferApproved, setAssignIfStatusOfferApproved] = useState(false);
+  const [questionnaireId, setQuestionnaireId] = useState('');
+  const [statusActive, setStatusActive] = useState(false);
   const [saveButtonActive, setSaveButtonActive] = useState(false);
+  const [taskGroup] = useState(getAppContextValue('editTaskGroupDrawerTaskGroup'));
+  const [taskGroupDescription, setTaskGroupDescription] = useState('');
+  const [taskGroupIsForTeam, setTaskGroupIsForTeam] = useState(false);
+  const [taskGroupName, setTaskGroupName] = useState('');
+  const [taskGroupTeamId, setTaskGroupTeamId] = useState(-1);
+  const [teamList, setTeamList] = useState([]);
 
-  const groupNameInputRef = useRef('');
-  const groupDescInputRef = useRef('');
+  const taskGroupNameInputRef = useRef('');
+  const taskGroupDescriptionInputRef = useRef('');
+
+  const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
+  // ////////////////////////////////////////////
+  // Dale's approach to use organize incoming data and then use that data from apiDataCache
+  // Allows us to organize incoming data independent of the specific API, potentially from multiple API or sources
+  useEffect(() => {
+    if (teamListRetrieveResults) {
+      captureTeamListRetrieveData(teamListRetrieveResults, apiDataCache, dispatch);
+    }
+  }, [teamListRetrieveResults, apiDataCache, dispatch]);
 
   useEffect(() => {
     if (taskGroup) {
-      setGroupNameValue(taskGroup.taskGroupName);
-      setGroupDescValue(taskGroup.taskGroupDescription);
+      setAssignIfEmailCreated(taskGroup.assignIfEmailCreated);
+      setAssignIfOfferDecisionNeeded(taskGroup.assignIfOfferDecisionNeeded);
+      setAssignIfOfferLetterCreated(taskGroup.assignIfOfferLetterCreated);
+      setAssignIfOfferLetterSigned(taskGroup.assignIfOfferLetterSigned);
+      setAssignIfQuestionnaireAnswered(taskGroup.assignIfQuestionnaireAnswered);
+      setAssignIfStatusOfferApproved(taskGroup.assignIfStatusOfferApproved);
+      setQuestionnaireId(taskGroup.questionnaireId);
+      setStatusActive(taskGroup.statusActive);
+      setTaskGroupDescription(taskGroup.taskGroupDescription);
+      setTaskGroupIsForTeam(taskGroup.taskGroupIsForTeam);
+      setTaskGroupName(taskGroup.taskGroupName);
+      setTaskGroupTeamId(taskGroup.taskGroupTeamId);
     } else {
-      setGroupNameValue('');
-      setGroupDescValue('');
+      setAssignIfEmailCreated(false);
+      setAssignIfOfferDecisionNeeded(false);
+      setAssignIfOfferLetterCreated(false);
+      setAssignIfOfferLetterSigned(false);
+      setAssignIfQuestionnaireAnswered(false);
+      setAssignIfStatusOfferApproved(false);
+      setQuestionnaireId('');
+      setStatusActive(false);
+      setTaskGroupDescription('');
+      setTaskGroupIsForTeam(false);
+      setTaskGroupName('');
+      setTaskGroupTeamId(-1);
     }
   }, [taskGroup]);
+
+  useEffect(() => {
+    if (allTeamsCache) {
+      const teamListSimple = Object.values(allTeamsCache);
+      const activeTeams = teamListSimple
+        .filter((team) => team.statusActive === true)
+        .sort((a, b) => a.teamName.localeCompare(b.teamName));
+      setTeamList(activeTeams);
+    }
+  }, [allTeamsCache]);
 
   const saveTaskGroup = () => {
     const requestParams = makeRequestParams({
       taskGroupId: taskGroup ? taskGroup.id : '-1',
     }, {
-      taskGroupName: groupNameInputRef.current.value,
-      taskGroupDescription: groupDescInputRef.current.value,
+      assignIfEmailCreated,
+      assignIfOfferDecisionNeeded,
+      assignIfOfferLetterCreated,
+      assignIfOfferLetterSigned,
+      assignIfQuestionnaireAnswered,
+      assignIfStatusOfferApproved,
+      questionnaireId,
+      statusActive,
+      taskGroupDescription: taskGroupDescriptionInputRef.current.value,
+      taskGroupIsForTeam,
+      taskGroupName: taskGroupNameInputRef.current.value,
+      taskGroupTeamId,
     });
     taskGroupSave(requestParams);
     setSaveButtonActive(false);
@@ -49,8 +118,7 @@ const EditTaskGroupForm = ({ classes }) => {
   };
 
   const updateSaveButton = () => {
-    if (groupNameInputRef.current.value && groupNameInputRef.current.value.length &&
-      groupDescInputRef.current.value && groupDescInputRef.current.value.length) {
+    if (taskGroupNameInputRef.current.value && taskGroupNameInputRef.current.value.length) {
       if (!saveButtonActive) {
         setSaveButtonActive(true);
       }
@@ -60,11 +128,28 @@ const EditTaskGroupForm = ({ classes }) => {
   return (
     <EditTaskGroupFormWrapper>
       <FormControl classes={{ root: classes.formControl }}>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusActive}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusActiveToBeSaved"
+              name="statusActive"
+              onChange={(event) => {
+                setStatusActive(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="This group of tasks is ON"
+        />
         <TextField
           autoFocus
-          defaultValue={groupNameValue}
+          defaultValue={taskGroupName}
           id="taskGroupNameToBeSaved"
-          inputRef={groupNameInputRef}
+          inputRef={taskGroupNameInputRef}
           label="Task Grouping Name"
           margin="dense"
           name="taskGroupName"
@@ -73,9 +158,9 @@ const EditTaskGroupForm = ({ classes }) => {
           variant="outlined"
         />
         <TextField
-          defaultValue={groupDescValue}
+          defaultValue={taskGroupDescription}
           id="taskGroupDescriptionToBeSaved"
-          inputRef={groupDescInputRef}
+          inputRef={taskGroupDescriptionInputRef}
           label="Description of this task grouping"
           margin="dense"
           multiline
@@ -85,6 +170,173 @@ const EditTaskGroupForm = ({ classes }) => {
           rows={6}
           variant="outlined"
         />
+        <AssignTasksToPersonHeader>
+          Assign tasks in this grouping to person if:
+        </AssignTasksToPersonHeader>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfOfferDecisionNeeded}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfOfferDecisionNeededToBeSaved"
+              name="assignIfOfferDecisionNeeded"
+              onChange={(event) => {
+                setAssignIfOfferDecisionNeeded(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Hiring decision needed"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfStatusOfferApproved}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfStatusOfferApprovedToBeSaved"
+              name="assignIfStatusOfferApproved"
+              onChange={(event) => {
+                setAssignIfStatusOfferApproved(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Hiring manager wants to hire"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfQuestionnaireAnswered}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfQuestionnaireAnsweredToBeSaved"
+              name="assignIfQuestionnaireAnswered"
+              onChange={(event) => {
+                setAssignIfQuestionnaireAnswered(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Questionnaire has been answered"
+        />
+        <TextField
+          classes={assignIfQuestionnaireAnswered ? {} : { root: classes.hideThisField }}
+          value={questionnaireId}
+          id="questionnaireIdToBeSaved"
+          label="Questionnaire ID (If needed)"
+          margin="dense"
+          name="questionnaireId"
+          onChange={(event) => {
+            setQuestionnaireId(event.target.value);
+            updateSaveButton();
+          }}
+          placeholder="Id of the questionnaire to be completed"
+          variant="outlined"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfEmailCreated}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfEmailCreatedToBeSaved"
+              name="assignIfEmailCreated"
+              onChange={(event) => {
+                setAssignIfEmailCreated(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Email has been created"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfOfferLetterCreated}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfOfferLetterCreatedToBeSaved"
+              name="assignIfOfferLetterCreated"
+              onChange={(event) => {
+                setAssignIfOfferLetterCreated(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Offer letter has been created"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfOfferLetterSigned}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfOfferLetterSignedToBeSaved"
+              name="assignIfOfferLetterSigned"
+              onChange={(event) => {
+                setAssignIfOfferLetterSigned(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Offer letter has been signed"
+        />
+        <AssignTasksToPersonHeader>
+          In addition, only assign tasks to members of these teams:
+        </AssignTasksToPersonHeader>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={taskGroupIsForTeam}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="taskGroupIsForTeamToBeSaved"
+              name="taskGroupIsForTeam"
+              onChange={(event) => {
+                setTaskGroupIsForTeam(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Person is added to specific team"
+        />
+        <FormControl
+          variant="outlined"
+          classes={taskGroupIsForTeam ? {} : { root: classes.hideThisField }}
+          className={`${classes.formControl} ${classes.answerDropdown}`}
+        >
+          <InputLabel htmlFor="answer-type-dropdown">Team</InputLabel>
+          <Select
+            native
+            variant="outlined"
+            value={taskGroupTeamId}
+            onChange={(event) => {
+              setTaskGroupTeamId(event.target.value ? parseInt(event.target.value, 10) : -1);
+              updateSaveButton();
+            }}
+            label="Team"
+            inputProps={{
+              name: 'taskGroupTeamId',
+              id: 'taskGroupTeamIdToBeSaved',
+            }}
+          >
+            <option value="">-- Choose team --</option>
+            {teamList.map((team) => (
+              <option key={team.id} value={convertToInteger(team.id)}>
+                {team.teamName}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
         <Button
           classes={{ root: classes.saveTaskGroupButton }}
           color="primary"
@@ -103,8 +355,22 @@ EditTaskGroupForm.propTypes = {
 };
 
 const styles = (theme) => ({
+  answerDropdown: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  checkboxLabel: {
+    marginTop: 2,
+  },
   formControl: {
     width: '100%',
+  },
+  hideThisField: {
+    position: 'absolute',
+    left: '-9999px',
+    width: '1px',
+    height: '1px',
+    overflow: 'hidden',
   },
   saveTaskGroupButton: {
     width: 300,
@@ -114,7 +380,16 @@ const styles = (theme) => ({
   },
 });
 
+const CheckboxLabel = styled(FormControlLabel)`
+  margin-bottom: 0 !important;
+`;
+
 const EditTaskGroupFormWrapper = styled('div')`
+`;
+
+const AssignTasksToPersonHeader = styled('div')`
+  margin-top: 24px;
+  font-weight: bold;
 `;
 
 export default withStyles(styles)(EditTaskGroupForm);
