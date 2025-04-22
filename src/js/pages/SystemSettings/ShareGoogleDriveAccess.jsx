@@ -34,7 +34,7 @@ const ShareGoogleDriveAccess = (params) => {
     console.log(`shareAccess ${primaryEmail}`);
 
     const data = await weConnectQueryFn('google-share-drive-access', { primaryEmail, driveFolder, role }, METHOD.POST);
-    console.log('createGoogleUser', data);
+    console.log('shareGoogleDriveAccess', data);
     if (data?.success) {
       setResultsText(`The drive folder '${driveFolder}' was shared with '${primaryEmail}'`);
     } else {
@@ -49,7 +49,7 @@ const ShareGoogleDriveAccess = (params) => {
 
     console.log(`revokeAccess ${oldOwnersEmail} => ${newOwnersEmail}`);
     const data = await weConnectQueryFn('google-revoke-drive-access', { oldOwnersEmail, newOwnersEmail }, METHOD.POST);
-    console.log('createGoogleUser', data);
+    console.log('revokeAccess', data);
     if (data?.success) {
       setResultsText(`User '${oldOwnersEmail}'/'s drive access was revoked, and file ownership was transferred to '${newOwnersEmail}'`);
     } else {

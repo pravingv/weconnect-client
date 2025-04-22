@@ -49,7 +49,9 @@ const CreateNewGoogleUser = (params) => {
     const phoneNumber = reformatPhoneNumberToGooglePattern();
 
     console.log(`createGoogleUser ${primaryEmail}`);
-    const data = await weConnectQueryFn('google-create-user', { firstName, lastName, primaryEmail, password, phoneNumber }, METHOD.POST);
+
+    const personalEmail = '';   // personal email now required server side
+    const data = await weConnectQueryFn('google-create-user', { firstName, lastName, primaryEmail, personalEmail, password, phoneNumber }, METHOD.POST);
     console.log('createGoogleUser', data);
     if (data.success) {
       setResultsText(`Staff member '${data.primaryEmail}' has been created`);

@@ -12,44 +12,25 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 
-const GetOneGoogleUser = (params) => {
-  renderLog('GetOneGoogleUser');
+const SlackChannelMembers = () => {
+  renderLog('SlackChannelMembers');
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
-  const emailInputRef = useRef(null);
+  const channelInputRef = useRef('');
 
   const [isAdmin] = useState(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
-  const { getAll } = params;
 
-  const getOneGoogleUser = async () => {
-    const primaryEmail = emailInputRef.current.value;
+  const listMembers = async () => {
+    const channel = channelInputRef.current.value;
 
-    console.log(`getOneGoogleUser ${primaryEmail}`);
-    const data = await weConnectQueryFn('google-get-user-info', { primaryEmail }, METHOD.POST);
-    console.log('getOneGoogleUser', data);
-    console.log('getOneGoogleUser', JSON.stringify(data));
+
+    console.log(`listMembers ${channel}`);
+
+    const data = await weConnectQueryFn('slack-channel-members', { channel }, METHOD.POST);
+    console.log('SlackChannelMembers', data);
     document.getElementById('jsonResults').textContent = JSON.stringify(data, undefined, 2);
-
     setOpen(true);
-  };
-
-  const getAllGoogleUsers = async () => {
-    console.log(`getAllGoogleUsers`);
-    const data = await weConnectQueryFn('google-get-user-list', {}, METHOD.POST);
-    console.log('getAllGoogleUsers', data);
-    console.log('getAllGoogleUsers', JSON.stringify(data));
-    document.getElementById('jsonResults').textContent = JSON.stringify(data, undefined, 2);
-
-    setOpen(true);
-  };
-
-  const googleUserClick = async () => {
-    if (getAll) {
-      await getAllGoogleUsers();
-    } else {
-      await getOneGoogleUser();
-    }
   };
 
   const handleClose = () => {
@@ -72,7 +53,7 @@ const GetOneGoogleUser = (params) => {
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
             startIcon={<LockOutlineIcon />}
           >
-            {getAll ? 'Admins Only:  Get List of Google Users' : 'Admins Only:  Get Google User Info'}
+            Admins Only:  Slack List Channel Members
           </Button>
           <br />
           <Dialog
@@ -82,10 +63,11 @@ const GetOneGoogleUser = (params) => {
             PaperProps={{ sx: { width: '95%', maxWidth: '95%' } }}
           >
             <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-              {getAll ? 'Get a list of all users' : 'Lookup user\'s info by their wevoteeducation.org email address'}
-              <br />
+              Invite Members to a Channel
               <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>
-                Note from Google: Most user data updates within 1 hour, however, it may take up to 36 hours for new data to be reflected in all search results.
+                Can only use a Channel ID (e.g &apos;C097Q5U1L&apos;) -- Not a channel name.
+                <br />
+                You can lookup Member IDs with the &apos;Slack List Members&apos;, the member id is listed simply as &apos;id&apos;
               </div>
             </DialogTitle>
             <IconButton
@@ -101,32 +83,29 @@ const GetOneGoogleUser = (params) => {
               <CloseIcon />
             </IconButton>
             <DialogContent dividers>
-              {!getAll && (
-                <TextField
-                  id="search_input"
-                  label="Email"
-                  inputRef={emailInputRef}
-                  name="email"
-                  placeholder=""
-                  defaultValue=".test@wevoteeducation.org"
-                  sx={{ minWidth: '400px', marginRight: '10px' }}
-                />
-              )}
-              <pre id="jsonResults" style={{ marginTop: '11px', fontWeight: '700' }} />
+            <TextField
+              id="channel_input"
+              label="Channel ID"
+              inputRef={channelInputRef}
+              name="Channel"
+              defaultValue="C08NMFNEUNB"
+              sx={{ minWidth: '400px', marginRight: '10px' }}
+            />
+            {/* <div style={{ marginTop: '11px', fontWeight: '700' }}>{resultsText}</div> */}
+            <pre id="jsonResults" style={{ marginTop: '11px', fontWeight: '700' }} />
             </DialogContent>
             <DialogActions>
-              <Button autoFocus variant="outlined" onClick={googleUserClick}>
-                {getAll ? 'Get the user list' : 'Get the User\'s Info'}
+              <Button autoFocus variant="outlined" onClick={listMembers}>
+                List Members in Slack Channel
               </Button>
             </DialogActions>
           </Dialog>
-
         </ButtonPanel>
       )}
     </>
   );
 };
-GetOneGoogleUser.propTypes = {
+SlackChannelMembers.propTypes = {
 };
 
 const styles = () => ({
@@ -137,4 +116,4 @@ const ButtonPanel = styled('div')`
   width: fit-content;
 `;
 
-export default withStyles(styles)(GetOneGoogleUser);
+export default withStyles(styles)(SlackChannelMembers);
