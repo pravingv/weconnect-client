@@ -1,11 +1,10 @@
 import CloseIcon from '@mui/icons-material/Close';
 import LockOutlineIcon from '@mui/icons-material/LockOutlined';
-import { Button, DialogActions, FormControlLabel, IconButton, Radio, RadioGroup, TextField } from '@mui/material';
+import { Button, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
-import * as PropTypes from 'prop-types';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
@@ -13,20 +12,13 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 
-function RadioGroupDividers (props) {
-  return null;
-}
-
-RadioGroupDividers.propTypes = {
-  dividers: PropTypes.bool,
-  children: PropTypes.node,
-};
 const SlackSendMessage = () => {
   renderLog('SlackSendMessage');
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
   const [resultsText, setResultsText] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [sendAsBot, setSendAsBot] = useState(true);
   const messageInputRef = useRef(null);
   const channelInputRef = useRef(null);
