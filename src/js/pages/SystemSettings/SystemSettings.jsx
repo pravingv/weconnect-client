@@ -23,6 +23,11 @@ import PermissionsAdministration from './PermissionsAdministration';
 import ResetGoogleUserPassword from './ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from './ShareGoogleDriveAccess';
 import TaskGroupListIndex from './TaskGroupListIndex';
+import SlackChannelInvite from './SlackChannelInvite';
+import SlackChannelMembers from './SlackChannelMembers';
+import SlackGetPresence from './SlackGetPresence';
+import SlackListUsers from './SlackListMembers';
+import SlackSendMessage from './SlackSendMessage';
 import UploadCSV from './UploadCSV';
 
 
@@ -190,6 +195,15 @@ const SystemSettings = ({ classes }) => {
             <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
               <GrantGoogleDriveAccess isShare />
               {/* <GrantGoogleDriveAccess isShare={false} /> */}
+            </div>
+            <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
+              <SlackSendMessage />
+              <SlackListUsers />
+              <SlackGetPresence />
+              <SlackChannelInvite />
+            </div>
+            <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
+              <SlackChannelMembers />
             </div>
           </div>
         )}
