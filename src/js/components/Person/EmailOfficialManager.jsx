@@ -13,7 +13,8 @@ import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import generateRandomString from '../../common/utils/generateRandomString';
 import webAppConfig from '../../config';
 
-const ACCEPTED_EMAIL_DOMAINS = ['@wevoteeducation.org'];
+const EMAIL_DOMAINS_FOR_VERIFICATION = ['@wevoteeducation.org', '@wevote.org', '@wevote.us'];
+// const EMAIL_DOMAINS_FOR_CREATION = ['@wevoteeducation.org'];
 
 const EmailOfficialManager = (
   {
@@ -121,7 +122,7 @@ Password (expires in 48 hours): ${password}`,
     let verifiedToNotExistJustNow = false;
     // console.log('verifyEmail savedEmailOfficial:', savedEmailOfficial);
     // Check to see if savedEmailOfficial is in approved email domain
-    const isAcceptedDomain = ACCEPTED_EMAIL_DOMAINS.some((domain) => savedEmailOfficial.toLowerCase().endsWith(domain.toLowerCase()));
+    const isAcceptedDomain = EMAIL_DOMAINS_FOR_VERIFICATION.some((domain) => savedEmailOfficial.toLowerCase().endsWith(domain.toLowerCase()));
     if (!isAcceptedDomain) {
       setEmailOfficialNotValidDomain(true);
     } else {

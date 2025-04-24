@@ -90,6 +90,9 @@ const EditPersonForm = ({ classes }) => {
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
       activePerson.emailOfficialVerified = emailOfficialVerified;
+      if (emailOfficialVerified === true) {
+        activePerson.statusEmailCreated = true;
+      }
       activePerson.isHiringManager = isHiringManagerInputRef.current.checked;
       activePerson.isIntern = isInternInputRef.current.checked;
       activePerson.isTeamLead = isTeamLeadInputRef.current.checked;

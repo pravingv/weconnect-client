@@ -87,6 +87,22 @@ const useTaskDefinitionSaveMutation = () => {
   });
 };
 
+const useTaskGroupTeamLinkDeleteMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: (params) => weConnectQueryFn('task-group-team-link-delete', params, METHOD.GET),
+    onError: (error) => console.log('error in useTaskGroupTeamLinkDeleteMutation: ', error),
+    onSuccess: () => queryClient.invalidateQueries('task-group-team-link-list-retrieve'),
+  });
+};
+
+const useTaskGroupTeamLinkSaveMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: (params) => weConnectQueryFn('task-group-team-link-save', params, METHOD.GET),
+    onError: (error) => console.log('error in useTaskGroupTeamLinkSaveMutation: ', error),
+    onSuccess: () => queryClient.invalidateQueries('task-group-team-link-list-retrieve'),
+  });
+};
+
 const useTaskGroupSaveMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: (params) => weConnectQueryFn('task-group-save', params, METHOD.GET),
@@ -197,6 +213,8 @@ export {
   useQuestionSaveMutation,
   useRemoveTeamMutation, useRemoveTeamMemberMutation,
   useSaveTaskMutation,
-  useTaskDefinitionSaveMutation, useTaskGroupSaveMutation,
+  useTaskDefinitionSaveMutation,
+  useTaskGroupSaveMutation,
+  useTaskGroupTeamLinkDeleteMutation, useTaskGroupTeamLinkSaveMutation,
 };
 

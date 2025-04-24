@@ -3,7 +3,8 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import {
-  captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData,
+  captureTaskDefinitionListRetrieveData, captureTaskGroupTeamLinkListRetrieveData,
+  captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData,
 } from '../../models/TaskModel';
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
@@ -33,6 +34,13 @@ const TasksDataRetrieve = () => {
       captureTaskDefinitionListRetrieveData(taskDefinitionListRetrieveResults, apiDataCache, dispatch);
     }
   }, [apiDataCache, dispatch, taskDefinitionListRetrieveResults]);
+
+  const taskGroupTeamLinkListRetrieveResults = useFetchData(['task-group-team-link-list-retrieve'], {}, METHOD.GET);
+  useEffect(() => {
+    if (taskGroupTeamLinkListRetrieveResults) {
+      captureTaskGroupTeamLinkListRetrieveData(taskGroupTeamLinkListRetrieveResults, apiDataCache, dispatch);
+    }
+  }, [apiDataCache, dispatch, taskGroupTeamLinkListRetrieveResults]);
 
   const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
