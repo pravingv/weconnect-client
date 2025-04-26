@@ -25,6 +25,7 @@ const PermissionsAdministration = ({ classes }) => {
   const [peopleWorkingArrayFiltered, setPeopleWorkingArrayFiltered] = useState(); // Object.values(allPeopleCacheCopy1));
   const [updateCount, setUpdateCount] = useState(0);
   const [canEditPermissionsAnyone, setCanEditPermissionsAnyone] = useState(false);
+  const [dummyCounter, setDummyCounter] = useState(0);
 
   const searchByNameRef = useRef('');
   const filterState = useRef({});
@@ -226,6 +227,19 @@ const PermissionsAdministration = ({ classes }) => {
     }
   };
 
+  const showAll  = () => {
+    resetFilterButtons();
+    resetOnlyButtons();
+    filterState.current.leave = true;
+    filterState.current.resigned = true;
+    filterState.current.special = true;
+    const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
+    const sorted = alphabetizePeoplesObject(allPeopleCacheCopy2);
+    sorted.forEach((person) => setStatusFieldsIfNotInitialized(person));
+    setPeopleWorkingArray(sorted);
+    setPeopleWorkingArrayFiltered(sorted.filter((person) => includePersonInFilteredArray(person)));
+  };
+
   const searchAndFilterFunction = (event) => {
     let { id } = event.currentTarget;
     if (id.includes('Filter')) {
@@ -334,8 +348,22 @@ const PermissionsAdministration = ({ classes }) => {
             <TableHeaderButton id="leaveFilter" text="Leave" />
             <TableHeaderButton id="resignedFilter" text="Resigned" />
             <TableHeaderButton id="specialFilter" text="Special Projects" />
-            <Th $cellwidth={25}>{peopleWorkingArrayFiltered?.length} Staff</Th>
-            <Th $cellwidth={25}>&nbsp;</Th>
+            <Th $cellwidth={25}>
+              <div style={{ width: '100px' }}>
+                {peopleWorkingArrayFiltered?.length} Staff
+              </div>
+              <Button
+                variant="outlined"
+                id="AllButton"
+                size="small"
+                onClick={showAll}
+                state
+                sx={{ transform: 'translate(-4%,114%)' }}
+              >
+                All
+              </Button>
+            </Th>
+            <Th $cellwidth={25}></Th>
           </tr>
         </thead>
         <tbody>
