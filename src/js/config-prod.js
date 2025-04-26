@@ -5,7 +5,7 @@ module.exports = {
   HOSTNAME: 'team.wevote.org',
   PORT: '',
   SECURE_CERTIFICATE_INSTALLED: false,
-  WECONNECT_URL_FOR_SEO: 'https://teamapi.wevote.org',
+  WECONNECT_URL_FOR_SEO: 'https://team.wevote.org',
   STAFF_API_SERVER_ROOT_URL: 'https://teamapi.wevote.org/',
   STAFF_API_SERVER_API_ROOT_URL: 'https://teamapi.wevote.org/apis/v1/',
   STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://teamapi.wevote.org/apis/v1/',

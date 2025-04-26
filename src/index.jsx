@@ -20,10 +20,6 @@ function redirectToStandardizedWeVoteUrl () {
       newHostname = newHostname.replace('//www.', '//');
       changeFound = true;
     }
-    if (window.location.hostname.toLowerCase().includes('wevote.org')) {
-      newHostname = newHostname.replace('wevote.org', 'wevote.us');
-      changeFound = true;
-    }
     if (changeFound) {
       // Take hostname to all lower case, but leave the rest of the URL with original case
       const newURL = oldURL.replace(window.location.hostname, newHostname);
