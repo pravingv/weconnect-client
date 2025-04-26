@@ -363,7 +363,7 @@ const PermissionsAdministration = ({ classes }) => {
                 Show All
               </Button>
             </Th>
-            <Th $cellwidth={25}></Th>
+            <Th $cellwidth={25} />
           </tr>
         </thead>
         <tbody>
