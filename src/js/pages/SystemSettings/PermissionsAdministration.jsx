@@ -335,7 +335,7 @@ const PermissionsAdministration = ({ classes }) => {
         <thead>
           <tr>
             <Th $cellwidth={250} style={{ textAlign: 'left' }}>Name</Th>
-            <Th $cellwidth={300} style={{ textAlign: 'left' }}>Email</Th>
+            <Th $cellwidth={320} style={{ textAlign: 'left' }}>Email</Th>
             <TableHeaderButton id="adminFilter" text="Admin" />
             <TableHeaderButton id="hrAdminFilter" text="HR Admin" />
             <TableHeaderButton id="hrOfferAdminFilter" text="HR Offer Admin" />
@@ -358,9 +358,9 @@ const PermissionsAdministration = ({ classes }) => {
                 size="small"
                 onClick={showAll}
                 state
-                sx={{ transform: 'translate(-4%,114%)' }}
+                sx={{ transform: 'translate(0,114%)' }}
               >
-                All
+                Show All
               </Button>
             </Th>
             <Th $cellwidth={25}></Th>
