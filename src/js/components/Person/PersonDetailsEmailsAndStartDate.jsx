@@ -31,7 +31,7 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
         <QuickLinksRow>
           <div>
             Preferred:
-            {' '}
+            {'\u00A0'}
           </div>
           <div>
             <CopyToClipboard text={preferredEmail} onCopy={() => copyQuickLink()}>
@@ -47,7 +47,7 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
         <QuickLinksRow>
           <div>
             Official:
-            {' '}
+            {'\u00A0'}
           </div>
           <div>
             {person.emailOfficial && (
@@ -65,7 +65,7 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
         <QuickLinksRow>
           <div>
             Personal:
-            {' '}
+            {'\u00A0'}
           </div>
           <div>
             <CopyToClipboard text={person.emailPersonal} onCopy={() => copyQuickLink()}>

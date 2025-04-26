@@ -130,6 +130,7 @@ const styles = (theme) => ({
 });
 
 const PersonSummaryRowTripleDotWrapper = styled('div')`
+  padding: 0 8px;
   color: ${DesignTokenColors.neutral900};
   :hover {
     color: ${DesignTokenColors.neutral400};
@@ -163,7 +164,8 @@ const TripleDotButton = styled('button')`
   background: transparent;
   border: 0;
   margin-right: -3px;
-  padding-right: 0;
+  margin-top: 6px;
+  padding: 0;
 `;
 
 export default withStyles(styles)(PersonSummaryRowTripleDot);
