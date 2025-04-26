@@ -13,15 +13,18 @@ import convertToInteger from '../../common/utils/convertToInteger';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
-import { useTaskGroupSaveMutation } from '../../react-query/mutations';
+import { useTaskGroupTeamLinkDeleteMutation, useTaskGroupTeamLinkSaveMutation, useTaskGroupSaveMutation } from '../../react-query/mutations';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
 
 const EditTaskGroupForm = ({ classes }) => {
   renderLog('EditTaskGroupForm');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { allTeamsCache } = apiDataCache;
+  const { allTeamsCache, allTaskGroupTeamLinksCache } = apiDataCache;
   const dispatch = useConnectDispatch();
+  const { mutate: taskGroupTeamLinkDelete } = useTaskGroupTeamLinkDeleteMutation();
+  const { mutate: taskGroupTeamLinkSave } = useTaskGroupTeamLinkSaveMutation();
   const { mutate: taskGroupSave } = useTaskGroupSaveMutation();
 
   const [assignIfEmailCreated, setAssignIfEmailCreated] = useState(false);
@@ -30,6 +33,7 @@ const EditTaskGroupForm = ({ classes }) => {
   const [assignIfOfferLetterSigned, setAssignIfOfferLetterSigned] = useState(false);
   const [assignIfQuestionnaireAnswered, setAssignIfQuestionnaireAnswered] = useState(false);
   const [assignIfStatusOfferApproved, setAssignIfStatusOfferApproved] = useState(false);
+  const [linkedTeamIdList, setLinkedTeamIdList] = useState([]);
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [statusActive, setStatusActive] = useState(false);
   const [saveButtonActive, setSaveButtonActive] = useState(false);
@@ -38,6 +42,7 @@ const EditTaskGroupForm = ({ classes }) => {
   const [taskGroupIsForTeam, setTaskGroupIsForTeam] = useState(false);
   const [taskGroupName, setTaskGroupName] = useState('');
   const [taskGroupTeamId, setTaskGroupTeamId] = useState(-1);
+  const [teamDictByTeamId, setTeamDictByTeamId] = useState({});
   const [teamList, setTeamList] = useState([]);
 
   const taskGroupNameInputRef = useRef('');
@@ -66,7 +71,6 @@ const EditTaskGroupForm = ({ classes }) => {
       setTaskGroupDescription(taskGroup.taskGroupDescription);
       setTaskGroupIsForTeam(taskGroup.taskGroupIsForTeam);
       setTaskGroupName(taskGroup.taskGroupName);
-      setTaskGroupTeamId(taskGroup.taskGroupTeamId);
     } else {
       setAssignIfEmailCreated(false);
       setAssignIfOfferDecisionNeeded(false);
@@ -90,8 +94,30 @@ const EditTaskGroupForm = ({ classes }) => {
         .filter((team) => team.statusActive === true)
         .sort((a, b) => a.teamName.localeCompare(b.teamName));
       setTeamList(activeTeams);
+      // Create a dictionary with team.id as key and team object as value
+      const teamDict = activeTeams.reduce((acc, team) => {
+        acc[team.id] = team;
+        return acc;
+      }, {});
+      setTeamDictByTeamId(teamDict);
     }
   }, [allTeamsCache]);
+
+  useEffect(() => {
+    if (allTaskGroupTeamLinksCache) {
+      const taskGroupTeamLinksForThisTaskGroup = allTaskGroupTeamLinksCache[taskGroup ? taskGroup.id : '-1'] || [];
+      const linkedTeamIds = taskGroupTeamLinksForThisTaskGroup.map((TaskGroupTeamLinkTemp) => TaskGroupTeamLinkTemp.teamId);
+      setLinkedTeamIdList(linkedTeamIds);
+    }
+  }, [allTaskGroupTeamLinksCache, taskGroup]);
+
+  const deleteTaskGroupTeamLink = (teamIdTemp) => {
+    const requestParams = makeRequestParams({
+      taskGroupId: taskGroup ? taskGroup.id : '-1',
+      teamId: teamIdTemp,
+    }, {});
+    taskGroupTeamLinkDelete(requestParams);
+  };
 
   const saveTaskGroup = () => {
     const requestParams = makeRequestParams({
@@ -108,9 +134,21 @@ const EditTaskGroupForm = ({ classes }) => {
       taskGroupDescription: taskGroupDescriptionInputRef.current.value,
       taskGroupIsForTeam,
       taskGroupName: taskGroupNameInputRef.current.value,
-      taskGroupTeamId,
     });
     taskGroupSave(requestParams);
+  };
+
+  const saveTaskGroupTeamLink = () => {
+    const requestParams = makeRequestParams({
+      taskGroupId: taskGroup ? taskGroup.id : '-1',
+      teamId: taskGroupTeamId,
+    }, {});
+    taskGroupTeamLinkSave(requestParams);
+  };
+
+  const saveTaskGroupForm = () => {
+    saveTaskGroup();
+    saveTaskGroupTeamLink();
     setSaveButtonActive(false);
     setAppContextValue('editTaskGroupDrawerOpen', false);
     setAppContextValue('editTaskGroupDrawerTaskGroup', undefined);
@@ -171,7 +209,7 @@ const EditTaskGroupForm = ({ classes }) => {
           variant="outlined"
         />
         <AssignTasksToPersonHeader>
-          Assign tasks in this grouping to person if:
+          Assign tasks in this grouping when:
         </AssignTasksToPersonHeader>
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
@@ -290,7 +328,7 @@ const EditTaskGroupForm = ({ classes }) => {
           label="Offer letter has been signed"
         />
         <AssignTasksToPersonHeader>
-          In addition, only assign tasks to members of these teams:
+          Further restrict to team members:
         </AssignTasksToPersonHeader>
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
@@ -307,14 +345,36 @@ const EditTaskGroupForm = ({ classes }) => {
               }}
             />
           )}
-          label="Person is added to specific team"
+          label="Only assign to members of these teams:"
         />
+        {linkedTeamIdList && linkedTeamIdList.length > 0 && (
+          <div>
+            {linkedTeamIdList.map((teamId) => {
+              const team = teamDictByTeamId[teamId];
+              return team ? (
+                <TeamLinkRow>
+                  <div key={teamId}>
+                    {team.teamName}
+                  </div>
+                  <div>
+                    &nbsp;
+                    (
+                    <SpanWithLinkStyle onClick={() => deleteTaskGroupTeamLink(teamId)}>
+                      delete
+                    </SpanWithLinkStyle>
+                    )
+                  </div>
+                </TeamLinkRow>
+              ) : null;
+            })}
+          </div>
+        )}
         <FormControl
           variant="outlined"
           classes={taskGroupIsForTeam ? {} : { root: classes.hideThisField }}
           className={`${classes.formControl} ${classes.answerDropdown}`}
         >
-          <InputLabel htmlFor="answer-type-dropdown">Team</InputLabel>
+          <InputLabel htmlFor="answer-type-dropdown">Team to add</InputLabel>
           <Select
             native
             variant="outlined"
@@ -323,13 +383,13 @@ const EditTaskGroupForm = ({ classes }) => {
               setTaskGroupTeamId(event.target.value ? parseInt(event.target.value, 10) : -1);
               updateSaveButton();
             }}
-            label="Team"
+            label="Team to add"
             inputProps={{
               name: 'taskGroupTeamId',
               id: 'taskGroupTeamIdToBeSaved',
             }}
           >
-            <option value="">-- Choose team --</option>
+            <option value={-1}>-- Choose team --</option>
             {teamList.map((team) => (
               <option key={team.id} value={convertToInteger(team.id)}>
                 {team.teamName}
@@ -342,7 +402,7 @@ const EditTaskGroupForm = ({ classes }) => {
           color="primary"
           disabled={!saveButtonActive}
           variant="contained"
-          onClick={saveTaskGroup}
+          onClick={saveTaskGroupForm}
         >
           Save Task Grouping
         </Button>
@@ -380,6 +440,11 @@ const styles = (theme) => ({
   },
 });
 
+const AssignTasksToPersonHeader = styled('div')`
+  margin-top: 24px;
+  font-weight: bold;
+`;
+
 const CheckboxLabel = styled(FormControlLabel)`
   margin-bottom: 0 !important;
 `;
@@ -387,9 +452,11 @@ const CheckboxLabel = styled(FormControlLabel)`
 const EditTaskGroupFormWrapper = styled('div')`
 `;
 
-const AssignTasksToPersonHeader = styled('div')`
-  margin-top: 24px;
-  font-weight: bold;
+const TeamLinkRow = styled('div')`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 12px;
 `;
 
 export default withStyles(styles)(EditTaskGroupForm);

@@ -6,6 +6,7 @@ import isEqual from 'lodash-es/isEqual';
 export function getInitialGlobalTaskVariables () {
   return {
     allTaskGroupsCache: {}, // This is a dictionary key: taskGroupId, value: TaskGroup dict
+    allTaskGroupTeamLinksCache: {}, // This is a dictionary key: taskGroupId, value: list of TaskGroupTeamLink entries
     allTaskDefinitionsCache: {}, // This is a dictionary key: taskDefinitionId, value: TaskDefinition dict
     allTaskDependenciesCache: {}, // This is a dictionary key: taskDependencyId, value: TaskDependency dict
     allTasksCache: {}, // This is a dictionary key: personId, value: another dictionary key: taskDefinitionId, value: Task dict
@@ -58,6 +59,43 @@ export function captureTaskDefinitionListRetrieveData (
     dispatch({ type: 'updateByKeyValue', key: 'allTaskDefinitionsCache', value: allTaskDefinitionsCacheNew });
     changeResults.allTaskDefinitionsCache = allTaskDefinitionsCacheNew;
     changeResults.allTaskDefinitionsCacheChanged = true;
+  }
+  return changeResults;
+}
+
+// This is called after making this fetchData request:
+// const taskGroupTeamLinkListRetrieveResults = useFetchData(['task-group-team-link-list-retrieve'], {});
+export function captureTaskGroupTeamLinkListRetrieveData (
+  incomingRetrieveResults = {},
+  apiDataCache = {},
+  dispatch,
+) {
+  const { data, isSuccess } = incomingRetrieveResults;
+  const allTaskGroupTeamLinksCache = apiDataCache.allTaskGroupTeamLinksCache || {};
+  const changeResults = {
+    allTaskGroupTeamLinksCache,
+    allTaskGroupTeamLinksCacheChanged: false,
+  };
+  // Start with empty dict. Otherwise we will keep deleted links in place.
+  const allTaskGroupTeamLinksCacheNew = {};
+  let newTaskGroupTeamLinkListDataReceived = false;
+  if (data && data.taskGroupTeamLinkList && isSuccess === true) {
+    newTaskGroupTeamLinkListDataReceived = true;
+    data.taskGroupTeamLinkList.forEach((taskGroupTeamLink) => {
+      if (taskGroupTeamLink && taskGroupTeamLink.taskGroupId && taskGroupTeamLink.taskGroupId >= 0) {
+        if (!allTaskGroupTeamLinksCacheNew[taskGroupTeamLink.taskGroupId]) {
+          allTaskGroupTeamLinksCacheNew[taskGroupTeamLink.taskGroupId] = [];
+        }
+        allTaskGroupTeamLinksCacheNew[taskGroupTeamLink.taskGroupId].push(taskGroupTeamLink);
+      }
+    });
+  }
+  const twoDictionariesAreIdentical = isEqual(allTaskGroupTeamLinksCache, allTaskGroupTeamLinksCacheNew);
+  if (newTaskGroupTeamLinkListDataReceived && !twoDictionariesAreIdentical) {
+    // console.log('taskGroupTeamLinkListRetrieve setting allTaskGroupTeamLinksCache:', allTaskGroupTeamLinksCacheNew);
+    dispatch({ type: 'updateByKeyValue', key: 'allTaskGroupTeamLinksCache', value: allTaskGroupTeamLinksCacheNew });
+    changeResults.allTaskGroupTeamLinksCache = allTaskGroupTeamLinksCacheNew;
+    changeResults.allTaskGroupTeamLinksCacheChanged = true;
   }
   return changeResults;
 }
