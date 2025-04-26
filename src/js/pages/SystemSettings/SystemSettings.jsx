@@ -132,7 +132,7 @@ const SystemSettings = ({ classes }) => {
     );
   }
 
-  // Alphabetically sort questionnaires and task groups
+  // Alphabetically sort questionnaires and task  groups
   questionnaireList.sort((a, b) => a.questionnaireName.localeCompare(b.questionnaireName));
   taskGroupList.sort((a, b) => a.taskGroupName.localeCompare(b.taskGroupName));
   return (
@@ -145,7 +145,7 @@ const SystemSettings = ({ classes }) => {
         </title>
         <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/system-settings`} />
       </Helmet>
-      <PageContentContainer style={{ maxWidth: '1200px' }}>
+      <PageContentContainer style={{ maxWidth: '150px' }}>
         <h1>
           System Settings
         </h1>

@@ -9,7 +9,7 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 
 
 const TasksActionBar = () => {
-  renderLog('TasksActionBar');  // Set LOG_RENDER_EVENTS to log all renders
+  renderLog('TasksActionBar');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
 

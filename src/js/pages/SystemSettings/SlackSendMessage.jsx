@@ -163,6 +163,7 @@ SlackSendMessage.propTypes = {
 const styles = () => ({
 });
 
+
 const ButtonPanel = styled('div')`
   padding: 5px;
   width: fit-content;
