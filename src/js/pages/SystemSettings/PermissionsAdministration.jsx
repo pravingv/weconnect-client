@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { SearchBarWrapper } from '../../components/Style/sharedStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
@@ -26,21 +25,11 @@ const PermissionsAdministration = ({ classes }) => {
   const [peopleWorkingArrayFiltered, setPeopleWorkingArrayFiltered] = useState(); // Object.values(allPeopleCacheCopy1));
   const [updateCount, setUpdateCount] = useState(0);
   const [canEditPermissionsAnyone, setCanEditPermissionsAnyone] = useState(false);
+  const [dummyCounter, setDummyCounter] = useState(0);
 
   const searchByNameRef = useRef('');
-  const filterState = useRef({
-    admin: true,
-    hrOfferAdmin: true,
-    hrAdmin: true,
-    hrGen1: true,
-    hrGen2: true,
-    hiring: true,
-    lead: true,
-    intern: true,
-    active: true,
-    leave: false,
-    resigned: false,
-  });
+  const filterState = useRef({});
+  const onlyState = useRef({});
   const adminInputRef = useRef();
   const hrOfferAdminInputRef = useRef();
   const hrAdminInputRef = useRef();
@@ -52,6 +41,7 @@ const PermissionsAdministration = ({ classes }) => {
   const activeInputRef = useRef();
   const leaveInputRef = useRef();
   const resignedInputRef = useRef();
+  const specialInputRef = useRef();
 
   useEffect(() => {
     setCanEditPermissionsAnyone(viewerCanSeeOrDo(['canEditPermissionsAnyone'], viewerAccessRights));
@@ -62,23 +52,100 @@ const PermissionsAdministration = ({ classes }) => {
     DISABLE: false,
   };
 
+  const resetFilterButtons = () => {
+    filterState.current.admin = true;
+    filterState.current.hrOfferAdmin = true;
+    filterState.current.hrAdmin = true;
+    filterState.current.hrGen1 = true;
+    filterState.current.hrGen2 = true;
+    filterState.current.hiring = true;
+    filterState.current.lead = true;
+    filterState.current.intern = true;
+    filterState.current.active = true;
+    filterState.current.leave = false;       // Defaults to false, since it is rarely used
+    filterState.current.resigned = false;    // Defaults to false, since it is rarely used
+    filterState.current.special = false;     // Defaults to false, since it is rarely used
+  };
+
+  const resetOnlyButtons = () => {
+    onlyState.current.admin = false;
+    onlyState.current.hrOfferAdmin = false;
+    onlyState.current.hrAdmin = false;
+    onlyState.current.hrGen1 = false;
+    onlyState.current.hrGen2 = false;
+    onlyState.current.hiring = false;
+    onlyState.current.lead = false;
+    onlyState.current.intern = false;
+    onlyState.current.active = false;
+    onlyState.current.leave = false;
+    onlyState.current.resigned = false;
+    onlyState.current.special = false;
+  };
+
+  useEffect(() => {
+    resetFilterButtons();
+    resetOnlyButtons();
+  }, []);
+
+
+  const setStatusFieldsIfNotInitialized = (person) => {
+    /* eslint-disable no-param-reassign */
+    if (person.isAdmin === null) person.isAdmin = false;
+    if (person.isHiringManager === null) person.isHiringManager = false;
+    if (person.isIntern === null) person.isIntern = false;
+    if (person.isTeamLead === null) person.isTeamLead = false;
+    if (person.statusEmailCreated === null) person.statusEmailCreated = false;
+    if (person.statusActive === null) person.statusActive = true;
+    if (person.statusOfferLetterCreated === null) person.statusOfferLetterCreated = false;
+    if (person.statusOfferLetterSigned === null) person.statusOfferLetterSigned = false;
+    if (person.statusOnLeave === null) person.statusOnLeave = false;
+    if (person.statusResigned === null) person.statusResigned = false;
+    if (person.statusNonresponsive === null) person.statusNonresponsive = false;
+    if (person.statusOfferApproved === null) person.statusOfferApproved = false;
+    if (person.statusOfferWillNotBeMade === null) person.statusOfferWillNotBeMade = false;
+    if (person.isHRAdmin === null) person.isHRAdmin = false;
+    if (person.isHRGeneralist1 === null) person.isHRGeneralist1 = false;
+    if (person.isHRGeneralist2 === null) person.isHRGeneralist2 = false;
+    if (person.isHROfferAdmin === null) person.isHROfferAdmin = false;
+    if (person.statusAvailableForSpecialProjects === null) person.statusAvailableForSpecialProjects = false;
+    /* eslint-enable no-param-reassign */
+  };
+
+
   const includePersonInFilteredArray = (person) => {
-    if (person.isAdmin === true && filterState.current.admin === false) return false;
-    if (person.isHROfferAdmin === true && filterState.current.hrOfferAdmin === false) return false;
-    if (person.isHRAdmin === true && filterState.current.hrAdmin === false) return false;
-    if (person.isHRGeneralist1 === true && filterState.current.hrGen1 === false) return false;
-    if (person.isHRGeneralist2 === true && filterState.current.hrGen2 === false) return false;
-    if (person.isHiringManager === true && filterState.current.hiring === false) return false;
-    if (person.isTeamLead === true && filterState.current.lead === false) return false;
-    if (person.isIntern === true && filterState.current.intern === false) return false;
-    if (person.statusActive === true && filterState.current.active === false) return false;
-    if (person.statusOnLeave === true && filterState.current.leave === false) return false;
-    return !(person.statusResigned === true && filterState.current.resigned === false);
+    const include = (person.isAdmin === true && filterState.current.admin === true) ||
+      (person.isHROfferAdmin === true && filterState.current.hrOfferAdmin === true) ||
+      (person.isHRAdmin === true && filterState.current.hrAdmin === true) ||
+      (person.isHRGeneralist1 === true && filterState.current.hrGen1 === true) ||
+      (person.isHRGeneralist2 === true && filterState.current.hrGen2 === true) ||
+      (person.isHiringManager === true && filterState.current.hiring === true) ||
+      (person.isTeamLead === true && filterState.current.lead === true) ||
+      (person.isIntern === true && filterState.current.intern === true) ||
+      (person.statusActive === true && filterState.current.active === true) ||
+      (person.statusOnLeave === true && filterState.current.leave === true) ||
+      (person.statusResigned === true && filterState.current.resigned === true) ||
+      (person.statusAvailableForSpecialProjects === true && filterState.current.special === true);
+    // Show them if none of the is/status are true, and all of the filterStates are true
+    const zero = person.isAdmin === false && filterState.current.admin === true &&
+      person.isHROfferAdmin === false && filterState.current.hrOfferAdmin === true &&
+      person.isHRAdmin === false && filterState.current.hrAdmin === true &&
+      person.isHRGeneralist1 === false && filterState.current.hrGen1 === true &&
+      person.isHRGeneralist2 === false && filterState.current.hrGen2 === true &&
+      person.isHiringManager === false && filterState.current.hiring === true &&
+      person.isTeamLead === false && filterState.current.lead === true &&
+      person.isIntern === false && filterState.current.intern === true &&
+      person.statusActive === false && filterState.current.active === true &&
+      person.statusOnLeave === false && filterState.current.leave === true &&
+      person.statusResigned === false && filterState.current.resigned === true &&
+      person.statusAvailableForSpecialProjects === false && filterState.current.special === true;
+
+    return include || zero;
   };
 
   useEffect(() => {
     const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
     const sorted = alphabetizePeoplesObject(allPeopleCacheCopy2);
+    sorted.forEach((person) => setStatusFieldsIfNotInitialized(person));
     setPeopleWorkingArray(sorted);
     setPeopleWorkingArrayFiltered(sorted.filter((person) => includePersonInFilteredArray(person)));
   }, [allPeopleCache]);
@@ -149,6 +216,7 @@ const PermissionsAdministration = ({ classes }) => {
         case 'active':       person.statusActive = event.target.checked; break;
         case 'leave':        person.statusOnLeave = event.target.checked; break;
         case 'resigned':     person.statusResigned = event.target.checked; break;
+        case 'special':      person.statusAvailableForSpecialProjects = event.target.checked; break;
         default:
           console.log('ERROR onClickCheckbox received invalid target id: ', event.target.id);
           return;
@@ -159,15 +227,48 @@ const PermissionsAdministration = ({ classes }) => {
     }
   };
 
+  const showAll  = () => {
+    resetFilterButtons();
+    resetOnlyButtons();
+    filterState.current.leave = true;
+    filterState.current.resigned = true;
+    filterState.current.special = true;
+    const allPeopleCacheCopy2 = JSON.parse(JSON.stringify(allPeopleCache));
+    const sorted = alphabetizePeoplesObject(allPeopleCacheCopy2);
+    sorted.forEach((person) => setStatusFieldsIfNotInitialized(person));
+    setPeopleWorkingArray(sorted);
+    setPeopleWorkingArrayFiltered(sorted.filter((person) => includePersonInFilteredArray(person)));
+  };
+
   const searchAndFilterFunction = (event) => {
     let { id } = event.currentTarget;
     if (id.includes('Filter')) {
       // Update filterState array
       id = id.replace('Filter', '');
       const element = Object.entries(filterState.current).find((key) => key[0] === id);
-      console.log('filter clicked: ', id);
       filterState.current[element[0]] = !element[1];
-      console.log('filter clicked: ', element);
+      resetOnlyButtons();
+    } else if (id.includes('Only')) {
+      id = id.replace('Only', '');
+      Object.keys(onlyState.current).forEach((key) => {
+        if (key === id) {
+          // key for the 'only' button that was clicked
+          if (onlyState.current[key]) {
+            // If the button is already selected, then we are deselecting
+            onlyState.current[key] = false;
+            resetFilterButtons();
+            resetOnlyButtons();
+          } else {
+            // The clicked button is not already selected
+            Object.keys(filterState.current).forEach((keySelect) => {
+              // Iterate through all the filter state buttons, and make them match the
+              filterState.current[keySelect] = keySelect === id;
+              onlyState.current[keySelect] = keySelect === id;
+            });
+          }
+        }
+      });
+      console.log('only filter clicked: ', id);
     }
     // Remove any search limiting from the dataset, but re-add the column filtering
     const filteredPeople = peopleWorkingArray.filter((person) => includePersonInFilteredArray(person));
@@ -186,16 +287,33 @@ const PermissionsAdministration = ({ classes }) => {
     const filterStateKey = id.replace('Filter', '');
     return (
       <Th $cellwidth={25} $padding={false}>
-        <Button id={id} size="small" onClick={searchAndFilterFunction} sx={{ color: filterState.current[filterStateKey] ? '#206DB3;' : 'grey' }}>
-          {text}
-        </Button>
+        <div style={{ marginBottom: '4px' }}>
+          <FilterButton
+            variant="outlined"
+            id={id}
+            size="small"
+            onClick={searchAndFilterFunction}
+            state={filterState.current[filterStateKey]}
+          >
+            {text}
+          </FilterButton>
+        </div>
+        <OnlyButton
+          variant="outlined"
+          id={`${filterStateKey}Only`}
+          size="small"
+          onClick={searchAndFilterFunction}
+          state={onlyState.current[filterStateKey]}
+        >
+          Only
+        </OnlyButton>
       </Th>
     );
   };
 
   return (
     <PermissionsWrapper>
-      <SearchBarWrapper>
+      <PermissionsSearchBarWrapper>
         <TextField
           id="search_input"
           label="Search by name"
@@ -206,7 +324,8 @@ const PermissionsAdministration = ({ classes }) => {
           defaultValue=""
           sx={{ minWidth: '200px', marginRight: '15px' }}
         />
-      </SearchBarWrapper>
+        <span style={{ paddingTop: '33px', color: 'gray' }}>Note: &apos;Leave&apos;, &apos;Resigned&apos;, and &apos;Special Projects&apos; default to off</span>
+      </PermissionsSearchBarWrapper>
       {!canEditPermissionsAnyone && (
         <ErrorText>
           These checkmarks are read-only since you do not have Admin privileges.
@@ -216,7 +335,7 @@ const PermissionsAdministration = ({ classes }) => {
         <thead>
           <tr>
             <Th $cellwidth={250} style={{ textAlign: 'left' }}>Name</Th>
-            <Th $cellwidth={125} style={{ textAlign: 'left' }}>Email</Th>
+            <Th $cellwidth={320} style={{ textAlign: 'left' }}>Email</Th>
             <TableHeaderButton id="adminFilter" text="Admin" />
             <TableHeaderButton id="hrAdminFilter" text="HR Admin" />
             <TableHeaderButton id="hrOfferAdminFilter" text="HR Offer Admin" />
@@ -228,8 +347,23 @@ const PermissionsAdministration = ({ classes }) => {
             <TableHeaderButton id="activeFilter" text="Active" />
             <TableHeaderButton id="leaveFilter" text="Leave" />
             <TableHeaderButton id="resignedFilter" text="Resigned" />
-            <Th $cellwidth={25}>{peopleWorkingArrayFiltered?.length} Staff</Th>
-            <Th $cellwidth={25}>&nbsp;</Th>
+            <TableHeaderButton id="specialFilter" text="Special Projects" />
+            <Th $cellwidth={25}>
+              <div style={{ width: '100px' }}>
+                {peopleWorkingArrayFiltered?.length} Staff
+              </div>
+              <Button
+                variant="outlined"
+                id="AllButton"
+                size="small"
+                onClick={showAll}
+                state
+                sx={{ transform: 'translate(0,114%)' }}
+              >
+                Show All
+              </Button>
+            </Th>
+            <Th $cellwidth={25} />
           </tr>
         </thead>
         <tbody>
@@ -351,6 +485,16 @@ const PermissionsAdministration = ({ classes }) => {
                 />
               </Td>
               <Td>
+                <Checkbox
+                  checked={person.statusAvailableForSpecialProjects}
+                  className={classes.checkboxDoneRoot}
+                  color="primary"
+                  id={`checkbox-special-${person.id}`}
+                  inputRef={specialInputRef}
+                  onChange={onClickCheckbox}
+                />
+              </Td>
+              <Td>
                 {canEditPermissionsAnyone && (
                   <Button id={`person-save-${person.id}`} size="small" onClick={saveClicked}>Save</Button>
                 )}
@@ -414,6 +558,25 @@ const Th = styled.th`
 
 const Td = styled.td`
   text-align: center
+`;
+
+const FilterButton = styled(Button)`
+  height: 100px;
+  display: flex;
+  align-items: center;
+  margin-right: 2px;
+  color: ${(props) => (props.state ? '#206DB3;' : 'grey' )};
+`;
+
+const OnlyButton = styled(Button)`
+  color: ${(props) => (props.state ? '#206DB3;' : 'grey' )};
+`;
+
+const PermissionsSearchBarWrapper = styled('div')`
+  vertical-align:top;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
 `;
 
 export default withStyles(styles)(PermissionsAdministration);

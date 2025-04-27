@@ -49,7 +49,7 @@ const TeamsActionBar = () => {
     setAppContextValue('AddPersonDrawerLabel', 'Add Person');
   };
 
-  // const hideInactiveClick = () => {
+  //  const hideInactiveClick = () => {
   //   setHideInactive(!hideInactive);
   // };
 

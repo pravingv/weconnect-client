@@ -29,6 +29,7 @@ import SlackGetPresence from './SlackGetPresence';
 import SlackListUsers from './SlackListMembers';
 import SlackSendMessage from './SlackSendMessage';
 import UploadCSV from './UploadCSV';
+import SouthIcon from '@mui/icons-material/South';
 
 
 const SystemSettings = ({ classes }) => {
@@ -132,7 +133,7 @@ const SystemSettings = ({ classes }) => {
     );
   }
 
-  // Alphabetically sort questionnaires and task groups
+  // Alphabetically sort questionnaires and task  groups
   questionnaireList.sort((a, b) => a.questionnaireName.localeCompare(b.questionnaireName));
   taskGroupList.sort((a, b) => a.taskGroupName.localeCompare(b.taskGroupName));
   return (
@@ -145,9 +146,10 @@ const SystemSettings = ({ classes }) => {
         </title>
         <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/system-settings`} />
       </Helmet>
-      <PageContentContainer style={{ maxWidth: '1200px' }}>
+      <PageContentContainer style={{ maxWidth: '1500px' }}>
         <h1>
           System Settings
+          <Button sx={{ marginLeft: '100%' }} onClick={() => window.scrollTo(0, document.body.scrollHeight)}><SouthIcon /></Button>
         </h1>
         {/* ****  **** */}
         <TaskGroupListIndex />

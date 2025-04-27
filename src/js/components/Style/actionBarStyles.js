@@ -30,3 +30,4 @@ export const DetailsRowSection = styled('div')`
 export const SearchBarWrapper = styled('div')`
   margin-right: 10px;
 `;
+
