@@ -11,7 +11,7 @@ import PersonDetailsEmailsAndStartDate from './PersonDetailsEmailsAndStartDate';
 import PersonSummaryRowTripleDot from './PersonSummaryRowTripleDot';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
-import { SpanWithLinkStyle } from '../Style/linkStyles';
+import { SpanWithLinkStyle, ButtonWithLinkStyle } from '../Style/linkStyles';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
 import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
 import { formatDateMMMDoYYYY, timeFromDate } from '../../common/utils/dateFormat';
@@ -126,14 +126,12 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
               $smallestfont
             >
               {quickLinkCopied || (
-                <div>
-                  <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
-                    <span>
-                      <ContentCopyStyled />
-                      Copy {webAppConfig.ORGANIZATION_NAME || 'Official'} email
-                    </span>
-                  </CopyToClipboard>
-                </div>
+                <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
+                  <CopyToClipboardContainer>
+                    <ContentCopyStyled />
+                    <ContentCopyText>Copy {webAppConfig.ORGANIZATION_NAME || 'Official'} email</ContentCopyText>
+                  </CopyToClipboardContainer>
+                </CopyToClipboard>
               )}
             </PersonCell>
           ) : (
@@ -151,9 +149,9 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
               $cellwidth={30}
               $smallestfont
             >
-              <SpanWithLinkStyle>
+              <ButtonWithLinkStyle>
                 Edit
-              </SpanWithLinkStyle>
+              </ButtonWithLinkStyle>
             </PersonCell>
           )}
           <PersonSummaryRowTripleDot person={person} teamId={teamId} />
@@ -200,10 +198,25 @@ const styles = (theme) => ({
 });
 
 const ContentCopyStyled = styled(ContentCopy)`
-  color: ${DesignTokenColors.neutral300};
+  color: ${DesignTokenColors.primary500};
   height: 16px;
-  margin-left: 4px;
+  margin: 0 4px;
   width: 16px;
+`;
+
+const ContentCopyText = styled('p')`
+  color: ${DesignTokenColors.primary500};
+  font-weight: bold;
+  padding-right: 8px;
+`;
+
+const CopyToClipboardContainer = styled('div')`
+  align-items: center;
+  border-right: 1px solid ${DesignTokenColors.neutralUI300};
+  display: flex;
+  height: 18px;
+  justify-content: flex-start;
+  padding-right: 8px;
 `;
 
 const KeyboardArrowDownStyled = styled(KeyboardArrowDown)`
@@ -233,11 +246,11 @@ const ShowOnHover = styled('div')`
   justify-content: flex-end;
   min-width: 250px;
   max-width: 250px;
-  width: 250px;
+  width: 220px;
 `;
 
 const PersonDetailsRow = styled('div')`
-  align-items: flex-start;
+  align-items: center;
   display: flex;
   justify-content: flex-start;
   padding-bottom: 20px;
@@ -250,6 +263,7 @@ const PersonMainRow = styled('div')`
   display: flex;
   height: 22px;
   justify-content: flex-start;
+  border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
 
   &:hover {
     ${HideOnHover} {
@@ -272,7 +286,6 @@ const fontSz = (smallfont, smallestfont) => {
 
 const PersonCell = styled.div`
   align-content: center;
-  border-bottom: 1px solid #ccc;
   ${(props) => (props.$rightAlign ? 'display: flex;' : '')};
   ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (fontSz(props?.$smallfont, props?.$smallestfont))}
