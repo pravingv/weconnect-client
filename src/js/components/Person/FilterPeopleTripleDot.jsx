@@ -268,6 +268,11 @@ const styles = () => ({
   checkboxLabel: {
     marginTop: 2,
   },
+  checkboxRoot: {
+    paddingTop: 0,
+    paddingLeft: '9px',
+    paddingBottom: 0,
+  },
   formControl: {
     width: '100%',
   },

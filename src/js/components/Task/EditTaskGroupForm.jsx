@@ -31,6 +31,8 @@ const EditTaskGroupForm = ({ classes }) => {
   const [assignIfOfferDecisionNeeded, setAssignIfOfferDecisionNeeded] = useState(false);
   const [assignIfOfferLetterCreated, setAssignIfOfferLetterCreated] = useState(false);
   const [assignIfOfferLetterSigned, setAssignIfOfferLetterSigned] = useState(false);
+  const [assignIfOfferQuestionnaireAnswered, setAssignIfOfferQuestionnaireAnswered] = useState(false);
+  const [assignIfOfferQuestionnaireSent, setAssignIfOfferQuestionnaireSent] = useState(false);
   const [assignIfQuestionnaireAnswered, setAssignIfQuestionnaireAnswered] = useState(false);
   const [assignIfStatusOfferApproved, setAssignIfStatusOfferApproved] = useState(false);
   const [linkedTeamIdList, setLinkedTeamIdList] = useState([]);
@@ -64,6 +66,8 @@ const EditTaskGroupForm = ({ classes }) => {
       setAssignIfOfferDecisionNeeded(taskGroup.assignIfOfferDecisionNeeded);
       setAssignIfOfferLetterCreated(taskGroup.assignIfOfferLetterCreated);
       setAssignIfOfferLetterSigned(taskGroup.assignIfOfferLetterSigned);
+      setAssignIfOfferQuestionnaireAnswered(taskGroup.assignIfOfferQuestionnaireAnswered);
+      setAssignIfOfferQuestionnaireSent(taskGroup.assignIfOfferQuestionnaireSent);
       setAssignIfQuestionnaireAnswered(taskGroup.assignIfQuestionnaireAnswered);
       setAssignIfStatusOfferApproved(taskGroup.assignIfStatusOfferApproved);
       setQuestionnaireId(taskGroup.questionnaireId);
@@ -76,6 +80,8 @@ const EditTaskGroupForm = ({ classes }) => {
       setAssignIfOfferDecisionNeeded(false);
       setAssignIfOfferLetterCreated(false);
       setAssignIfOfferLetterSigned(false);
+      setAssignIfOfferQuestionnaireAnswered(false);
+      setAssignIfOfferQuestionnaireSent(false);
       setAssignIfQuestionnaireAnswered(false);
       setAssignIfStatusOfferApproved(false);
       setQuestionnaireId('');
@@ -127,6 +133,8 @@ const EditTaskGroupForm = ({ classes }) => {
       assignIfOfferDecisionNeeded,
       assignIfOfferLetterCreated,
       assignIfOfferLetterSigned,
+      assignIfOfferQuestionnaireAnswered,
+      assignIfOfferQuestionnaireSent,
       assignIfQuestionnaireAnswered,
       assignIfStatusOfferApproved,
       questionnaireId,
@@ -249,6 +257,40 @@ const EditTaskGroupForm = ({ classes }) => {
           classes={{ label: classes.checkboxLabel }}
           control={(
             <Checkbox
+              checked={assignIfOfferQuestionnaireSent}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfOfferQuestionnaireSentToBeSaved"
+              name="assignIfOfferQuestionnaireSent"
+              onChange={(event) => {
+                setAssignIfOfferQuestionnaireSent(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Questionnaire has been sent"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfOfferQuestionnaireAnswered}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfOfferQuestionnaireAnsweredToBeSaved"
+              name="assignIfOfferQuestionnaireAnswered"
+              onChange={(event) => {
+                setAssignIfOfferQuestionnaireAnswered(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Offer questionnaire has been answered"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
               checked={assignIfQuestionnaireAnswered}
               className={classes.checkboxRoot}
               color="primary"
@@ -345,7 +387,7 @@ const EditTaskGroupForm = ({ classes }) => {
               }}
             />
           )}
-          label="Only assign to members of these teams:"
+          label="Only assign to members of these teams"
         />
         {linkedTeamIdList && linkedTeamIdList.length > 0 && (
           <div>
@@ -421,6 +463,11 @@ const styles = (theme) => ({
   },
   checkboxLabel: {
     marginTop: 2,
+  },
+  checkboxRoot: {
+    paddingTop: 0,
+    paddingLeft: '9px',
+    paddingBottom: 0,
   },
   formControl: {
     width: '100%',

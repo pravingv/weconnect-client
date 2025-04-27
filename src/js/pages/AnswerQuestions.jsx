@@ -73,9 +73,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     }
   }, [answerListRetrieveResults, apiDataCache, dispatch]);
 
-  const sortQuestionsByOrder = (questions) => {
-    return [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
-  };
+  const sortQuestionsByOrder = (questions) => [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
 
   useEffect(() => {
     if (allQuestionnairesCache) {
@@ -83,7 +81,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
         setQuestionnaire(allQuestionnairesCache[questionnaireId]);
       }
     }
-  }, [allQuestionnairesCache]);
+  }, [allQuestionnairesCache, questionnaireId]);
 
   useEffect(() => {
     // console.log('Questionnaire useEffect getQuestionsForQuestionnaire(questionnaireId):', questionnaireId);
@@ -184,6 +182,9 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
 
     try {
       await answerListSave(saveParams);
+      // Assuming answers have been saved successfully (TODO: get confirmation from the server)
+      // If Questionnaire being answered isOfferQuestionnaire, then update the
+      //  person answering these questions with statusOfferQuestionnaireAnswered == true
       setSaveButtonActive(false);
       setAnswersSubmitted(true);
     } catch (error) {
