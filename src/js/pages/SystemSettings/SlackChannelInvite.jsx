@@ -33,7 +33,8 @@ const SlackChannelInvite = () => {
     console.log('SlackChannelInvite', data);
     if (data?.success) {
       if (data.warning) {
-        setResultsText(`WARNING Invite responded with '${data.warning}' when users '${user_ids}' were sent to channel '${channel}'`);
+        setResultsText(`Already in channel:  User '${user_ids}' was already in channel '${channel}'. API responded with ('${data.warning}').`);
+
       } else {
         setResultsText(`Success: '${user_ids}' were invited to join channel '${channel}'`);
       }
@@ -76,7 +77,7 @@ const SlackChannelInvite = () => {
               Invite Members to a Channel
               <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>
                 Can only use a Channel ID (e.g &apos;C097Q5U1L&apos;) -- Not a channel name.
-                Must supply a comma separated list of Member IDs
+                Must supply a comma separated list of Member IDs (These are &aposU&apos member ids, not &aposD&apos (direct message) user ids)
                 <br />
                 You can lookup Member IDs with the &apos;Slack List Members&apos;, the member id is listed simply as &apos;id&apos;
               </div>
@@ -100,7 +101,7 @@ const SlackChannelInvite = () => {
                 label="Channel ID"
                 inputRef={channelInputRef}
                 name="Channel"
-                defaultValue="C08NMFNEUNB"
+                defaultValue="C08PFCHHWS3"  // test-channel-3
                 sx={{ minWidth: '400px', marginRight: '10px' }}
               />
               <TextField
@@ -108,7 +109,7 @@ const SlackChannelInvite = () => {
                 label="Member IDs (comma separated)"
                 inputRef={messageInputRef}
                 name="ShareToEmail"
-                defaultValue="U02GWLNJK,U02GWLNJK"
+                defaultValue="U08PKV14T4H"
                 sx={{ minWidth: '400px', marginRight: '10px' }}
               />            <div style={{ marginTop: '11px', fontWeight: '700' }}>{resultsText}</div>
             </DialogContent>

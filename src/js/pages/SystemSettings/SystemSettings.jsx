@@ -1,3 +1,4 @@
+import SouthIcon from '@mui/icons-material/South';
 import { Button } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
@@ -22,14 +23,13 @@ import GetOneGoogleUser from './GetOneGoogleUser';
 import PermissionsAdministration from './PermissionsAdministration';
 import ResetGoogleUserPassword from './ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from './ShareGoogleDriveAccess';
-import TaskGroupListIndex from './TaskGroupListIndex';
 import SlackChannelInvite from './SlackChannelInvite';
 import SlackChannelMembers from './SlackChannelMembers';
 import SlackGetPresence from './SlackGetPresence';
 import SlackListUsers from './SlackListMembers';
 import SlackSendMessage from './SlackSendMessage';
+import TaskGroupListIndex from './TaskGroupListIndex';
 import UploadCSV from './UploadCSV';
-import SouthIcon from '@mui/icons-material/South';
 
 
 const SystemSettings = ({ classes }) => {
@@ -133,7 +133,7 @@ const SystemSettings = ({ classes }) => {
     );
   }
 
-  // Alphabetically sort questionnaires and task  groups
+  // Alphabetically sort questionnaires and task groups
   questionnaireList.sort((a, b) => a.questionnaireName.localeCompare(b.questionnaireName));
   taskGroupList.sort((a, b) => a.taskGroupName.localeCompare(b.taskGroupName));
   return (
@@ -149,8 +149,8 @@ const SystemSettings = ({ classes }) => {
       <PageContentContainer style={{ maxWidth: '1500px' }}>
         <h1>
           System Settings
-          <Button sx={{ marginLeft: '100%' }} onClick={() => window.scrollTo(0, document.body.scrollHeight)}><SouthIcon /></Button>
         </h1>
+        <Button sx={{ marginLeft: '100%' }} onClick={() => window.scrollTo(0, document.body.scrollHeight)}><SouthIcon /></Button>
         {/* ****  **** */}
         <TaskGroupListIndex />
         {/* ****  **** */}

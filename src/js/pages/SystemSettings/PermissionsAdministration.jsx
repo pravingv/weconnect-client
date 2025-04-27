@@ -21,27 +21,26 @@ const PermissionsAdministration = ({ classes }) => {
   const { apiDataCache } = useConnectAppContext();
   const { allPeopleCache, viewerAccessRights } = apiDataCache;
 
-  const [peopleWorkingArray, setPeopleWorkingArray] = useState(); // Object.values(allPeopleCacheCopy1));
-  const [peopleWorkingArrayFiltered, setPeopleWorkingArrayFiltered] = useState(); // Object.values(allPeopleCacheCopy1));
+  const [peopleWorkingArray, setPeopleWorkingArray] = useState([]); // Object.values(allPeopleCacheCopy1));
+  const [peopleWorkingArrayFiltered, setPeopleWorkingArrayFiltered] = useState([]); // Object.values(allPeopleCacheCopy1));
   const [updateCount, setUpdateCount] = useState(0);
   const [canEditPermissionsAnyone, setCanEditPermissionsAnyone] = useState(false);
-  const [dummyCounter, setDummyCounter] = useState(0);
 
   const searchByNameRef = useRef('');
   const filterState = useRef({});
   const onlyState = useRef({});
-  const adminInputRef = useRef();
-  const hrOfferAdminInputRef = useRef();
-  const hrAdminInputRef = useRef();
-  const hrGen1InputRef = useRef();
-  const hrGen2InputRef = useRef();
-  const hiringInputRef = useRef();
-  const leadInputRef = useRef();
-  const internInputRef = useRef();
-  const activeInputRef = useRef();
-  const leaveInputRef = useRef();
-  const resignedInputRef = useRef();
-  const specialInputRef = useRef();
+  const adminInputRef = useRef(undefined);
+  const hrOfferAdminInputRef = useRef(undefined);
+  const hrAdminInputRef = useRef(undefined);
+  const hrGen1InputRef = useRef(undefined);
+  const hrGen2InputRef = useRef(undefined);
+  const hiringInputRef = useRef(undefined);
+  const leadInputRef = useRef(undefined);
+  const internInputRef = useRef(undefined);
+  const activeInputRef = useRef(undefined);
+  const leaveInputRef = useRef(undefined);
+  const resignedInputRef = useRef(undefined);
+  const specialInputRef = useRef(undefined);
 
   useEffect(() => {
     setCanEditPermissionsAnyone(viewerCanSeeOrDo(['canEditPermissionsAnyone'], viewerAccessRights));
@@ -293,7 +292,7 @@ const PermissionsAdministration = ({ classes }) => {
             id={id}
             size="small"
             onClick={searchAndFilterFunction}
-            state={filterState.current[filterStateKey]}
+            $colorChoice={filterState.current[filterStateKey]}
           >
             {text}
           </FilterButton>
@@ -303,7 +302,7 @@ const PermissionsAdministration = ({ classes }) => {
           id={`${filterStateKey}Only`}
           size="small"
           onClick={searchAndFilterFunction}
-          state={onlyState.current[filterStateKey]}
+          $colorChoice={onlyState.current[filterStateKey]}
         >
           Only
         </OnlyButton>
@@ -357,7 +356,7 @@ const PermissionsAdministration = ({ classes }) => {
                 id="AllButton"
                 size="small"
                 onClick={showAll}
-                state
+                $colorChoice
                 sx={{ transform: 'translate(0,114%)' }}
               >
                 Show All
@@ -565,11 +564,11 @@ const FilterButton = styled(Button)`
   display: flex;
   align-items: center;
   margin-right: 2px;
-  color: ${(props) => (props.state ? '#206DB3;' : 'grey' )};
+  color: ${(props) => (props.$colorChoice ? '#206DB3;' : 'grey')};
 `;
 
 const OnlyButton = styled(Button)`
-  color: ${(props) => (props.state ? '#206DB3;' : 'grey' )};
+  color: ${(props) => (props.$colorChoice ? '#206DB3;' : 'grey')};
 `;
 
 const PermissionsSearchBarWrapper = styled('div')`
