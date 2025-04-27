@@ -1,4 +1,10 @@
-import { Button, FormControl, TextField } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  TextField,
+} from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
@@ -14,11 +20,12 @@ const EditQuestionnaireForm = ({ classes }) => {
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { mutate: mutateQuestionnaireSave } = useQuestionnaireSaveMutation();
 
+  const [instructionsFldValue, setInstructionsFldValue] = useState('');
+  const [isOfferQuestionnaire, setIsOfferQuestionnaire] = useState(false);
+  const [nameFldValue, setNameFldValue] = useState('');
   const [questionnaire]  = useState(getAppContextValue('selectedQuestionnaire'));
   const [saveButtonActive, setSaveButtonActive] = useState(false);
-  const [nameFldValue, setNameFldValue] = useState('');
   const [titleFldValue, setTitleFldValue] = useState('');
-  const [instructionsFldValue, setInstructionsFldValue] = useState('');
 
   const nameInputRef = useRef('');
   const titleInputRef = useRef('');
@@ -29,15 +36,18 @@ const EditQuestionnaireForm = ({ classes }) => {
       setNameFldValue(questionnaire.questionnaireName);
       setTitleFldValue(questionnaire.questionnaireTitle);
       setInstructionsFldValue(questionnaire.questionnaireInstructions);
+      setIsOfferQuestionnaire(questionnaire.isOfferQuestionnaire);
     } else {
       setNameFldValue('');
       setTitleFldValue('');
       setInstructionsFldValue('');
+      setIsOfferQuestionnaire(false);
     }
   }, [questionnaire]);
 
   const saveQuestionnaire = () => {
     const params = {
+      isOfferQuestionnaire,
       questionnaireName: nameInputRef.current.value,
       questionnaireTitle: titleInputRef.current.value,
       questionnaireInstructions: instructionsInputRef.current.value,
@@ -102,6 +112,23 @@ const EditQuestionnaireForm = ({ classes }) => {
           rows={6}
           variant="outlined"
         />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={isOfferQuestionnaire}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isOfferQuestionnaireToBeSaved"
+              name="isOfferQuestionnaire"
+              onChange={(event) => {
+                setIsOfferQuestionnaire(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Is offer letter questionnaire"
+        />
         <Button
           classes={{ root: classes.saveQuestionnaireButton }}
           color="primary"
@@ -123,13 +150,26 @@ const styles = (theme) => ({
   formControl: {
     width: '100%',
   },
+  checkboxLabel: {
+    marginTop: 2,
+  },
+  checkboxRoot: {
+    paddingTop: 0,
+    paddingLeft: '9px',
+    paddingBottom: 0,
+  },
   saveQuestionnaireButton: {
+    marginTop: 24,
     width: 300,
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
   },
 });
+
+const CheckboxLabel = styled(FormControlLabel)`
+  margin-bottom: 0 !important;
+`;
 
 const EditQuestionnaireFormWrapper = styled('div')`
 `;

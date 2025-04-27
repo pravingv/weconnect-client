@@ -23,11 +23,13 @@ const EditPersonForm = ({ classes }) => {
   const { viewerAccessRights } = apiDataCache;
   const { mutate: personSave } = usePersonSaveMutation(); // Alternate: usePersonSave();
 
+  const [allOnboardingCheckboxesChecked, setAllOnboardingCheckboxesChecked] = useState(false);
   const [emailOfficialEdited, setEmailOfficialEdited] = useState(false);
   const [isEmailOfficialEditModeOn, setIsEmailOfficialEditModeOn] = useState(false);
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
+  const [showCompletedOnboardingCheckboxes, setShowCompletedOnboardingCheckboxes] = useState(false);
   const [initialPerson] = useState(getAppContextValue('profileDrawerPerson'));
   // const [initialPerson] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
   const [activePerson, setActivePerson] = useState({ ...initialPerson });
@@ -60,8 +62,14 @@ const EditPersonForm = ({ classes }) => {
   const statusAvailableForSpecialProjectsInputRef = useRef(false);
   const statusOfferApprovedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
+  const statusOfferQuestionnaireAnsweredInputRef = useRef(false);
+  const statusOfferQuestionnaireSentInputRef = useRef(false);
   const statusOnLeaveInputRef = useRef(false);
   const statusResignedInputRef = useRef(false);
+
+  useEffect(() => {
+    setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned));
+  }, [activePerson]);
 
   useEffect(() => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
@@ -101,6 +109,8 @@ const EditPersonForm = ({ classes }) => {
       activePerson.jobTitle = jobTitleInputRef.current.value;
       activePerson.statusOfferApproved = statusOfferApprovedInputRef.current.checked;
       activePerson.statusOfferLetterSigned = statusOfferLetterSignedInputRef.current.checked;
+      activePerson.statusOfferQuestionnaireAnswered = statusOfferQuestionnaireAnsweredInputRef.current.checked;
+      activePerson.statusOfferQuestionnaireSent = statusOfferQuestionnaireSentInputRef.current.checked;
     }
     // console.log('savePerson data:', JSON.stringify(activePerson));
     // console.log('dateStartDate:', dateStartDate);
@@ -271,8 +281,21 @@ const EditPersonForm = ({ classes }) => {
             Profile Fields Only HR Team Can Edit
           </HRTeamFieldsTitle>
         )}
+        {!allOnboardingCheckboxesChecked && (
+          <div>
+            {(showCompletedOnboardingCheckboxes) ? (
+              <SpanWithLinkStyle onClick={() => setShowCompletedOnboardingCheckboxes(false)}>
+                Hide completed onboarding checkboxes
+              </SpanWithLinkStyle>
+            ) : (
+              <SpanWithLinkStyle onClick={() => setShowCompletedOnboardingCheckboxes(true)}>
+                Show completed onboarding checkboxes
+              </SpanWithLinkStyle>
+            )}
+          </div>
+        )}
         <CheckboxLabel
-          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          classes={viewerIsOnHrTeam && (!activePerson.statusActive || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
           control={(
             <Checkbox
               checked={activePerson.statusActive || false}
@@ -293,7 +316,7 @@ const EditPersonForm = ({ classes }) => {
           label={`${activePerson.firstNamePreferred || activePerson.firstName} is active`}
         />
         <CheckboxLabel
-          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          classes={viewerIsOnHrTeam && (!activePerson.statusOfferApproved || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
           control={(
             <Checkbox
               checked={activePerson.statusOfferApproved || false}
@@ -314,7 +337,49 @@ const EditPersonForm = ({ classes }) => {
           label={`Hiring manager wants to make offer to ${activePerson.firstNamePreferred || activePerson.firstName}`}
         />
         <CheckboxLabel
-          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          classes={viewerIsOnHrTeam && (!activePerson.statusOfferQuestionnaireSent || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusOfferQuestionnaireSent || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferQuestionnaireSentToBeSaved"
+              inputRef={statusOfferQuestionnaireSentInputRef}
+              name="statusOfferQuestionnaireSent"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOfferQuestionnaireSent: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`Offer questionnaire sent to ${activePerson.firstNamePreferred || activePerson.firstName}`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam && (!activePerson.statusOfferQuestionnaireAnswered || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusOfferQuestionnaireAnswered || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferQuestionnaireAnsweredToBeSaved"
+              inputRef={statusOfferQuestionnaireAnsweredInputRef}
+              name="statusOfferQuestionnaireAnswered"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOfferQuestionnaireAnswered: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label="Offer questionnaire answered"
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam && (!activePerson.statusOfferLetterSigned || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
           control={(
             <Checkbox
               checked={activePerson.statusOfferLetterSigned || false}
@@ -599,6 +664,11 @@ EditPersonForm.propTypes = {
 const styles = (theme) => ({
   checkboxLabel: {
     marginTop: 2,
+  },
+  checkboxRoot: {
+    paddingTop: 0,
+    paddingLeft: '9px',
+    paddingBottom: 0,
   },
   formControl: {
     width: '100%',

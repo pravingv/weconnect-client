@@ -45,6 +45,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
       jazzHrUrl: jazzHrUrlInputRef.current.value,
       lastName: lastNameInputRef.current.value,
       emailPersonal: emailInputRef.current.value,
+      statusActive: true,
       statusOfferApproved: statusOfferApprovedInputRef.current.checked,
       statusOfferDecisionNeeded: !(statusOfferLetterSignedInputRef.current.checked || statusOfferApprovedInputRef.current.checked),
       statusOfferLetterSigned: statusOfferLetterSignedInputRef.current.checked,
@@ -163,6 +164,11 @@ AddPersonForm.propTypes = {
 };
 
 const styles = (theme) => ({
+  checkboxRoot: {
+    paddingTop: 0,
+    paddingLeft: '9px',
+    paddingBottom: 0,
+  },
   formControl: {
     width: '100%',
   },

@@ -107,7 +107,17 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     // Logout so that the current sessionID will not be reused when resetting password for a potentially differnt staff member
     await mutateLogout();
     // This retrieve will set the 'authenticatedPerson' app context value, and bring back a new sessionID (without touching the cookie)
+    // console.log('mutateRetrievePersonByEmail: retrieving person by email:', email);
+    // Note: ResetYourPassword can only be used with emailPersonal so far.
+    //  Needs to be extended to include emailOfficial.
     await mutateRetrievePersonByEmail({ emailPersonal: email });
+    // await mutateRetrievePersonByEmail({
+    //   OR: [
+    //     { emailPersonal: email },
+    //     { emailOfficial: email },
+    //   ]});
+    // TODO: If person is not found by this email, show a warning message asking the user to enter a different email
+    // setWarningLine('Email not found. Please enter different email address.');
   };
 
   return (

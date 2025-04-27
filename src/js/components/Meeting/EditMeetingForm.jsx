@@ -240,6 +240,11 @@ const styles = (theme) => ({
   checkboxLabel: {
     marginTop: 2,
   },
+  checkboxRoot: {
+    paddingTop: 0,
+    paddingLeft: '9px',
+    paddingBottom: 0,
+  },
   dateFormControl: {
     marginTop: 20,
   },
