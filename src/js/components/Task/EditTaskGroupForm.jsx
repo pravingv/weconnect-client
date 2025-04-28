@@ -268,7 +268,7 @@ const EditTaskGroupForm = ({ classes }) => {
               }}
             />
           )}
-          label="Questionnaire has been sent"
+          label="Offer questionnaire has been sent"
         />
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
