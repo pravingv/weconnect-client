@@ -30,7 +30,7 @@ const SlackListUsers = () => {
     console.log('SlackListUsers', data);
     document.getElementById('jsonResults').textContent = JSON.stringify(data, undefined, 2);
 
-    setResultsText((!data || data.length === 0) ? 'API failed' : `Received members: ${data.length} `);
+    setResultsText((!data || data.length === 0) ? 'API failed' : `Received members: ${data.members.length} `);
 
     setOpen(true);
   };

@@ -63,7 +63,7 @@ const SlackChannelMembers = () => {
             PaperProps={{ sx: { width: '95%', maxWidth: '95%' } }}
           >
             <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-              Invite Members to a Channel
+              List Members in a Channel
               <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>
                 Can only use a Channel ID (e.g &apos;C097Q5U1L&apos;) -- Not a channel name.
                 <br />
