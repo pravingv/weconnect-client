@@ -103,8 +103,8 @@ const EditQuestionForm = ({ classes }) => {
       questionPlaceholder: placeholderInputRef.current.value,
       questionInstructions: questionInstructionsInputRef.current.value,
       questionText: questionTextInputRef.current.value,
-      requireAnswer: (requireAnswerInputRef.current.value === 'on'),
-      statusActive: (statusActiveInputRef.current.value === 'on'),
+      requireAnswer: (requireAnswerInputRef.current.checked),
+      statusActive: (statusActiveInputRef.current.checked),
     };
     const requestParams = makeRequestParams(plainParams, params);
     mutateQuestionSave(requestParams);

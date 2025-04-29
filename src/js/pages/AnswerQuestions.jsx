@@ -23,6 +23,7 @@ import {
   getQuestionsForQuestionnaire,
 } from '../models/QuestionnaireModel';
 import convertToInteger from '../common/utils/convertToInteger';
+import { useGetFullNamePreferred } from '../models/PersonModel';
 
 
 const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
@@ -219,6 +220,28 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     return helperText;
   };
 
+  if (!personId) {
+    return (
+      <div>
+        <Helmet>
+          <title>
+            Questionnaire For You -
+            {' '}
+            {webAppConfig.NAME_FOR_BROWSER_TAB_TITLE}
+          </title>
+          <meta name="robots" content="noindex" data-react-helmet="true" />
+        </Helmet>
+        <PageContentContainer>
+          <TitleWrapper>
+            Missing person ID. Please notify the person who sent you this questionnaire.
+          </TitleWrapper>
+          <BottomMargin />
+        </PageContentContainer>
+      </div>
+    );
+  }
+
+  const personAnsweringName = useGetFullNamePreferred(personId);
   return (
     <div>
       <Helmet>
@@ -238,6 +261,14 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
         <QuestionsHeaderWrapper>
           {(questionnaire && questionnaire.questionnaireTitle) && (
             <TitleWrapper>
+              {personAnsweringName && (
+                <span>
+                  Welcome
+                  {' '}
+                  {personAnsweringName}!
+                  {' '}
+                </span>
+              )}
               {questionnaire.questionnaireTitle}
             </TitleWrapper>
           )}
