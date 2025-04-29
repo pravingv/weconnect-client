@@ -52,8 +52,11 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
   // console.log('useGetPersonById personId:', personId, ', allPeopleCache:', allPeopleCache);
   // console.log('task:', task, ', taskDefinition:', taskDefinition, ', person:', person);
   let taskWhatToDoModified = taskDefinition.taskWhatToDo || '';
+  // NOTE: Any customization tokens added here should also be added to customizationTokensList
+  //  in EditTaskDefinitionForm
   taskWhatToDoModified = taskWhatToDoModified.replace(/\n/g, '<br />');
   taskWhatToDoModified = taskWhatToDoModified.replace('[official email]', person.emailOfficial || '(official email missing');
+  taskWhatToDoModified = taskWhatToDoModified.replace('[person first name]', person.firstName || '(first name missing');
   taskWhatToDoModified = taskWhatToDoModified.replace('[person full name]', getFullNamePreferredPerson(person) || '');
   taskWhatToDoModified = taskWhatToDoModified.replace('[personal email]', person.emailPersonal || '(personal email missing');
   taskWhatToDoModified = taskWhatToDoModified.replace('[preferred email]', getPreferredEmail(person) || '(preferred email missing');

@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
@@ -17,10 +17,17 @@ const EditTaskDefinitionForm = ({ classes }) => {
   renderLog('EditTaskDefinitionForm');  // Set LOG_RENDER_EVENTS to log all renders
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { mutate: taskDefinitionSave } = useTaskDefinitionSaveMutation();
+  const customizationTokensList = [
+    '[copy official email]', '[copy personal email]', '[copy questionnaire link]',
+    '[official email]', '[person first name]',
+    '[person full name]', '[personal email]', '[preferred email]',
+    '[jazzhr link]', '[task link]',
+  ];
 
   const [googleDriveAssetId, setGoogleDriveAssetId] = useState('');
   const [isGoogleDrivePermissionTask, setIsGoogleDrivePermissionTask] = useState(false);
   const [isQuestionnaireTask, setIsQuestionnaireTask] = useState(false);
+  const [lastCopiedToken, setLastCopiedToken] = useState(null);
   const [moveToAnotherTaskGroup, setMoveToAnotherTaskGroup] = useState(false);
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
@@ -67,6 +74,15 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setTaskWhyWeDoIt('');
     }
   }, [taskDefinition]);
+
+  const copyToClipboard = useCallback((text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setLastCopiedToken(text);
+      setTimeout(() => setLastCopiedToken(null), 2000); // Reset after 2 seconds
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  }, []);
 
   const saveTaskDefinition = () => {
     const requestParams = makeRequestParams({
@@ -165,7 +181,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
           defaultValue={taskWhatToDo}
           id="taskWhatToDoToBeSaved"
           inputRef={taskWhatToDoInputRef}
-          label="What to do to complete this task"
+          label="Instructions to complete task"
           margin="dense"
           multiline
           name="taskWhatToDo"
@@ -278,6 +294,31 @@ const EditTaskDefinitionForm = ({ classes }) => {
           placeholder="Id of the taskGroup this task is part of"
           variant="outlined"
         />
+        <CustomizationTokensHeader>
+          Customization Tokens
+        </CustomizationTokensHeader>
+        <CustomizationTokensDescription>
+          Click on token to copy so you can paste into the instructions above.
+        </CustomizationTokensDescription>
+        {[...Array(Math.ceil(customizationTokensList.length / 2))].map((_, rowIndex) => (
+          <TokenRow key={rowIndex}>
+            {customizationTokensList.slice(rowIndex * 2, rowIndex * 2 + 2).map((token, index) => (
+              <NarrowTextField
+                InputProps={{
+                  readOnly: true,
+                  style: {
+                    backgroundColor: lastCopiedToken === token ? '#e8f0fe' : 'transparent',
+                    transition: 'background-color 0.3s',
+                  },
+                }}
+                key={index}
+                onClick={() => copyToClipboard(token)}
+                value={token}
+                variant="outlined"
+              />
+            ))}
+          </TokenRow>
+        ))}
         <Button
           classes={{ root: classes.saveTaskDefinitionButton }}
           color="primary"
@@ -326,7 +367,30 @@ const CheckboxLabel = styled(FormControlLabel)`
   margin-bottom: 0 !important;
 `;
 
+const CustomizationTokensDescription = styled('div')`
+  margin-bottom: 8px;
+`;
+
+const CustomizationTokensHeader = styled('div')`
+  margin-top: 24px;
+  font-weight: bold;
+`;
+
 const EditTaskDefinitionFormWrapper = styled('div')`
+`;
+
+const NarrowTextField = styled(TextField)`
+  width: 48%;
+  & .MuiInputBase-root {
+    & input {
+      padding: 5px;
+    }
+  }`;
+
+const TokenRow = styled('div')`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
 `;
 
 export default withStyles(styles)(EditTaskDefinitionForm);
