@@ -209,6 +209,9 @@ export const getAnswerValueToQuestion = (questionId, personId, allAnswersCache) 
     case 'BOOLEAN':
       answerValue = answer.answerBoolean || '';
       break;
+    case 'DATE':
+      answerValue = answer.answerDateTime || '';
+      break;
     case 'INTEGER':
       answerValue = answer.answerInteger || '';
       break;
