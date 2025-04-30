@@ -175,17 +175,33 @@ const Questionnaire = ({ classes }) => {
         id={question.id}
         activeId={activeId}
       >
-        {question.questionOrder + 1}
-        .
-        {' '}
-        {question.questionText}
-        {' '}
-        {question.requireAnswer && (
-          <RequiredStar> *</RequiredStar>
-        )}
-        <ButtonWithLinkStyle onClick={() => editQuestionClick(question)}>
-          <EditStyled />
-        </ButtonWithLinkStyle>
+        <OneQuestionnaireRow1>
+          {question.questionOrder + 1}
+          .
+          {' '}
+          {question.questionText}
+          {' '}
+          {question.requireAnswer && (
+            <RequiredStar> *</RequiredStar>
+          )}
+          <ButtonWithLinkStyle onClick={() => editQuestionClick(question)}>
+            <EditStyled />
+          </ButtonWithLinkStyle>
+        </OneQuestionnaireRow1>
+        <OneQuestionnaireRow2>
+          {question.questionInstructions && (
+            <InstructionsWrapper>
+              {question.questionInstructions}
+            </InstructionsWrapper>
+          )}
+          {question.fieldMappingRule && (
+            <InstructionsWrapper>
+              Save to database field:
+              {' '}
+              {question.fieldMappingRule}
+            </InstructionsWrapper>
+          )}
+        </OneQuestionnaireRow2>
       </OneQuestionnaireWrapper>
     );
   };
@@ -223,9 +239,9 @@ const Questionnaire = ({ classes }) => {
           </TitleWrapper>
         )}
         {questionnaire && questionnaire.questionnaireInstructions && (
-          <InstructionsWrapper>
+          <InstructionsWrapperLarge>
             {questionnaire.questionnaireInstructions}
-          </InstructionsWrapper>
+          </InstructionsWrapperLarge>
         )}
         {(questionList && questionList.length > 0) ? (
           <DndContext
@@ -288,14 +304,25 @@ const AddButtonWrapper = styled('div')`
   margin-top: 24px;
 `;
 
-const InstructionsWrapper = styled('div')`
+const InstructionsWrapperLarge = styled('div')`
   color: ${DesignTokenColors.neutralUI300};
   font-size: 1.2em;
+`;
+
+const InstructionsWrapper = styled('div')`
+  color: ${DesignTokenColors.neutralUI300};
 `;
 
 const QuestionnaireBreadcrumbWrapper = styled('div')`
   height: 100px;
   align-content: center;
+`;
+
+const OneQuestionnaireRow1 = styled('div')`
+`;
+
+const OneQuestionnaireRow2 = styled('div')`
+  margin-left: 19px;
 `;
 
 const OneQuestionnaireWrapper = styled('div')`
