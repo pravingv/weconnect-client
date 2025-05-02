@@ -55,7 +55,7 @@ const useAnswerListSaveMutation = () => {
     mutationFn: (params) => weConnectQueryFn('answer-list-save', params, METHOD.GET),
     onError: (error) => console.log('error in useAnswerListSaveMutation: ', error),
     onSuccess: () => {
-      // console.log('useAnswerListSaveMutation onSuccess true');
+      console.log('useAnswerListSaveMutation onSuccess true');
       // We request a fresh person-list-retrieve because some questionnaire responses get saved to the person table.
       // This can be optimized to be conditional and only request person-list-retrieve for questionnaires that update the person table.
       queryClient.invalidateQueries('person-list-retrieve');
@@ -63,6 +63,7 @@ const useAnswerListSaveMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ['questionnaire-responses-list-retrieve'],
       });
+      queryClient.invalidateQueries('task-status-list-retrieve');
       // TODO BUG: For some reason, neither of these invalidateQueries are causing an immediate re-fetch of the data.
     },
   });
