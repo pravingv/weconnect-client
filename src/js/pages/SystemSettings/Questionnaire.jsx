@@ -329,8 +329,8 @@ const OneQuestionnaireWrapper = styled('div')`
   margin-bottom: 20px;
   cursor: move;
   touch-action: none; //needed for draggability in mobile
-  border: ${(props) => (props.id === props.activeId ? `1px solid ${DesignTokenColors.neutral500}` : 'none')};
-  // background-color: ${(props) => (props.id === props.activeId ? `${DesignTokenColors.neutral50}` : 'none')};
+  border: ${(props) => (props.id === props.$activeId ? `1px solid ${DesignTokenColors.neutral500}` : 'none')};
+  // background-color: ${(props) => (props.id === props.$activeId ? `${DesignTokenColors.neutral50}` : 'none')};
   border-radius: 4px;
 `;
 

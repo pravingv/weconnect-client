@@ -32,6 +32,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [statusActive, setStatusActive] = useState(false);
+  const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
+  const [statusOfferQuestionnaireSent, setStatusOfferQuestionnaireSent] = useState(false);
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
   const [taskGroupId, setTaskGroupId] = useState(-1);
   const [taskDefinition] = useState(getAppContextValue('editTaskDefinitionDrawerTaskDefinition'));
@@ -54,6 +56,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
       setQuestionnaireId(taskDefinition.questionnaireId);
       setStatusActive(taskDefinition.statusActive);
+      setStatusOfferQuestionnaireAnswered(taskDefinition.statusOfferQuestionnaireAnswered);
+      setStatusOfferQuestionnaireSent(taskDefinition.statusOfferQuestionnaireSent);
       setTaskActionUrl(taskDefinition.taskActionUrl);
       setTaskGroupId(taskDefinition.taskGroupId);
       setTaskName(taskDefinition.taskName);
@@ -66,6 +70,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(false);
       setQuestionnaireId('');
       setStatusActive(false);
+      setStatusOfferQuestionnaireAnswered(false);
+      setStatusOfferQuestionnaireSent(false);
       setTaskActionUrl('');
       setTaskGroupId(-1);
       setTaskName('');
@@ -94,6 +100,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
       isQuestionnaireTask,
       questionnaireId,
       statusActive,
+      statusOfferQuestionnaireAnswered,
+      statusOfferQuestionnaireSent,
       taskGroupId,
       taskActionUrl: taskActionUrlInputRef.current.value,
       taskName: taskNameInputRef.current.value,
@@ -293,6 +301,43 @@ const EditTaskDefinitionForm = ({ classes }) => {
           }}
           placeholder="Id of the taskGroup this task is part of"
           variant="outlined"
+        />
+        <CustomizationTokensHeader>
+          When this task marked completed, also update:
+        </CustomizationTokensHeader>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferQuestionnaireSent || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferQuestionnaireSentToBeSaved"
+              name="statusOfferQuestionnaireSent"
+              onChange={(event) => {
+                setStatusOfferQuestionnaireSent(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferQuestionnaireSent TRUE"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferQuestionnaireAnswered || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferQuestionnaireAnsweredToBeSaved"
+              name="statusOfferQuestionnaireAnswered"
+              onChange={(event) => {
+                setStatusOfferQuestionnaireAnswered(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferQuestionnaireAnswered TRUE"
         />
         <CustomizationTokensHeader>
           Customization Tokens
