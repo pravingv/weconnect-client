@@ -1,4 +1,5 @@
 import { PersonAddAltOutlined } from '@mui/icons-material';
+import isEqual from 'lodash-es/isEqual';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SearchBar2024 from '../../common/components/Search/SearchBar2024';
@@ -21,6 +22,7 @@ const TeamsActionBar = () => {
   const [mostRecentOnlyPeopleFilterChosen, setMostRecentOnlyPeopleFilterChosen] = useState('');
   const [searchText, setSearchText] = useState('');
   const [teamList, setTeamList] = useState([]);
+  const [visiblePeopleCount, setVisiblePeopleCount] = useState(0);
 
   const clearFunction = () => {
     setSearchText(''); // For local use only
@@ -89,8 +91,10 @@ const TeamsActionBar = () => {
       numberOfTeamMembersFoundDictRevised = updateTeamMembersFoundDictWithOneTeam(teamId, numberOfTeamMembersFound, numberOfTeamMembersFoundDictRevised);
     });
     // console.log('teams useEffect, numberOfTeamMembersFoundDictRevised: ', numberOfTeamMembersFoundDictRevised);
-    setAppContextValue('numberOfTeamMembersFoundDict', numberOfTeamMembersFoundDictRevised);
-  }, [apiDataCache, mostRecentOnlyPeopleFilterChosen, searchText, teamList]);
+    if (!isEqual(numberOfTeamMembersFoundDictRevised, numberOfTeamMembersFoundDict)) {
+      setAppContextValue('numberOfTeamMembersFoundDict', numberOfTeamMembersFoundDictRevised);
+    }
+  }, [apiDataCache, getAppContextValue, mostRecentOnlyPeopleFilterChosen, searchText, teamList]);
 
   useEffect(() => {
     let mostRecentOnlyPeopleFilterChosenUpdated = '';
@@ -112,6 +116,7 @@ const TeamsActionBar = () => {
     if (mostRecentOnlyPeopleFilterChosenUpdated && mostRecentOnlyPeopleFilterChosenUpdated !== mostRecentOnlyPeopleFilterChosen) {
       setMostRecentOnlyPeopleFilterChosen(mostRecentOnlyPeopleFilterChosenUpdated);
     }
+    setVisiblePeopleCount(getAppContextValue('teamsPageVisiblePeopleCount'));
   }, [getAppContextValue]);
 
   // const oneTeam = teamList.find((tm) => tm.teamId === 10);
@@ -181,7 +186,11 @@ const TeamsActionBar = () => {
         )}
       </ActionBarSection>
       <ViewingCount>
-        Viewing 82 active team members
+        Viewing
+        {' '}
+        {visiblePeopleCount}
+        {' '}
+        people
       </ViewingCount>
     </TeamsActionBarWrapper>
   );

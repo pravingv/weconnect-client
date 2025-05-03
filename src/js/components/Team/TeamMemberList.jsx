@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { isSearchTextFoundInPerson, onlyShowPersonWithPeopleFiltersExactMatch, onlyShowPersonWithPeopleFiltersLogicalOrMatch } from '../../controllers/PersonController';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import { getTeamMembersListByTeamId } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
+import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
 import PersonSummaryRow from '../Person/PersonSummaryRow';
-import DesignTokenColors from "../../common/components/Style/DesignTokenColors";
 
 // DO NOT REMOVE PASSED in TEAM
 const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId, team }) => { // teamMemberList
@@ -75,41 +74,11 @@ const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId
   // console.log('====== Cached by ReactQuery teamMemberList: ', teamMemberListReactQuery);
   // console.log('====== Cached by apiDataCache teamMemberList: ', teamMemberListApiDataCache);
 
-  const showPerson = (person, searchTextLocal) => {
-    if (!person || person.id < 0) return false; // Invalid person or personId
-    const pigsCanFly = false;
-    if (searchTextLocal) {
-      const results = isSearchTextFoundInPerson(searchTextLocal, person);
-      return results.allSearchWordsWereFound;
-    } else if (pigsCanFly) {
-      // Used for testing while developing
-      return true;
-    } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR') {
-      // "Include" option, where we show people who match any of the filters
-      return onlyShowPersonWithPeopleFiltersLogicalOrMatch(person, getAppContextValue);
-    } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH') {
-      // "Only" option, where we only show people who match the exact filters
-      return onlyShowPersonWithPeopleFiltersExactMatch(person, getAppContextValue);
-    } else {
-      return true; // Show the person if no searchText is provided, or there are any other filters
-    }
-  };
-
-  const isPersonActive = (person) => {
-    if (person.dateEndDate === null || !hideInactive) {
-      return true;
-    }
-    const endDate = new Date(person.dateEndDate);
-    const nowDate = new Date();
-    // console.log(`${person.firstName} ---  ${endDate < nowDate}  ${endDate} ${nowDate}`);
-    return endDate > nowDate;
-  };
-
   return (
     <TeamMembersWrapper>
       {teamMemberListApiDataCache.map((person) => {
         // if (teamId === 10) console.log(`TeamMemberList teamId: ${teamId}, person: ${person} location ${person.location}`);
-        if (showPerson(person, searchText) && isPersonActive(person)) {
+        if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
           return (
             <PersonSummaryRow
               personRowUnfurledFromParent={expandAllTeamMembers}

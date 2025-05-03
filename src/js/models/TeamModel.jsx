@@ -26,7 +26,19 @@ export const getTeamMembersListByTeamId = (teamId, apiDataCache) => {
     return [];
   }
   const personIds = allTeamMembersCache[teamId];
-  return personIds.map((personId) => allPeopleCache[personId] || null);
+  const teamMembers = personIds.map((personId) => allPeopleCache[personId] || null).filter(Boolean);
+  const teamMembersSorted = teamMembers.sort((a, b) => {
+    // Check if dateStartDate is empty or null
+    if (!a.dateStartDate && !b.dateStartDate) return 0; // Both empty, maintain original order
+    if (!a.dateStartDate) return 1; // a should come after b
+    if (!b.dateStartDate) return -1; // b should come after a
+
+    const dateA = new Date(a.dateStartDate);
+    const dateB = new Date(b.dateStartDate);
+    return dateA - dateB; // ascending order (oldest first)
+  });
+  // Add sort to put team leads at top of list
+  return teamMembersSorted;
 };
 
 export const useGetTeamMembersListByTeamId = (teamId) => {
