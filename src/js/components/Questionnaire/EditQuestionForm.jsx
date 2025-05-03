@@ -252,19 +252,18 @@ const EditQuestionForm = ({ classes }) => {
             )}
           </div>
         </ShowMappingOptions>
-        {showFieldMappingOptions && (
-          <TextField
-            defaultValue={fieldMappingRule}
-            id="fieldMappingRuleToBeSaved"
-            inputRef={fieldMappingRuleInputRef}
-            label="Save answer to this database field"
-            name="fieldMappingRule"
-            margin="dense"
-            onChange={() => updateSaveButton()}
-            placeholder="ex/ Person.firstName"
-            variant="outlined"
-          />
-        )}
+        <TextField
+          classes={showFieldMappingOptions ? {} : { root: classes.hideThisField }}
+          defaultValue={fieldMappingRule}
+          id="fieldMappingRuleToBeSaved"
+          inputRef={fieldMappingRuleInputRef}
+          label="Save answer to this database field"
+          name="fieldMappingRule"
+          margin="dense"
+          onChange={() => updateSaveButton()}
+          placeholder="ex/ Person.firstName"
+          variant="outlined"
+        />
         {showFieldMappingOptions && (
           <FieldMappingOptions>
             {PERSON_FIELDS_ACCEPTED_FROM_QUESTIONNAIRE.map((fieldName) => (
@@ -299,6 +298,10 @@ EditQuestionForm.propTypes = {
 };
 
 const styles = (theme) => ({
+  answerTypeDropdown: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
   checkboxRoot: {
     paddingTop: 0,
     paddingLeft: '9px',
@@ -310,16 +313,19 @@ const styles = (theme) => ({
   formControl: {
     width: '100%',
   },
+  hideThisField: {
+    position: 'absolute',
+    left: '-9999px',
+    width: '1px',
+    height: '1px',
+    overflow: 'hidden',
+  },
   saveQuestionButton: {
     marginTop: 12,
     width: 300,
     [theme.breakpoints.down('md')]: {
       width: '100%',
     },
-  },
-  answerTypeDropdown: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
   },
 });
 
