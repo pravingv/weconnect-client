@@ -14,7 +14,7 @@ import { getFullNamePreferredPerson } from '../../models/PersonModel';
 import { SpanWithLinkStyle, ButtonWithLinkStyle } from '../Style/linkStyles';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
 import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
-import { formatDateMMMDoYYYY, timeFromDate } from '../../common/utils/dateFormat';
+import { formatDateMMMDo, timeFromDate } from '../../common/utils/dateFormat';
 import webAppConfig from '../../config';
 
 
@@ -53,6 +53,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
   }, [personRowUnfurled, personRowUnfurledFromParent, personRowUnfurledFromParentAlreadySet]);
 
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
+  const startDateIsInFuture = person.dateStartDate && new Date(person.dateStartDate) > new Date();
   return (
     <OnePersonOuterWrapper>
       <PersonMainRow key={`teamMember-${person.personId}`}>
@@ -102,19 +103,24 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
             $smallestfont
           >
             <div>
-              {!person.statusOfferLetterSigned && (
+              {person.dateStartDate ? (
                 <span>
-                  {/* Not signed */}
-                </span>
-              )}
-              {person.dateStartDate && (
-                <span>
-                  {person.statusOfferLetterSigned ? (
-                    <span>{timeFromDate(person.dateStartDate, true)}</span>
+                  {startDateIsInFuture ? (
+                    <span>{formatDateMMMDo(person.dateStartDate)} start</span>
                   ) : (
-                    <span>{formatDateMMMDoYYYY(person.dateStartDate)} start</span>
+                    <span>
+                      {person.statusOfferLetterSigned ? (
+                        <span>
+                          {timeFromDate(person.dateStartDate, true)}
+                        </span>
+                      ) : (
+                        <span>To sign: {formatDateMMMDo(person.dateStartDate)} start</span>
+                      )}
+                    </span>
                   )}
                 </span>
+              ) : (
+                <span>no start date</span>
               )}
             </div>
           </PersonCell>

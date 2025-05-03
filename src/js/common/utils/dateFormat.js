@@ -103,6 +103,14 @@ export function electionDateTomorrowFormatted (dayText) {
   }
 }
 
+export function formatDateMMMDo (date) {
+  if (typeof window.moment === 'undefined') {
+    return initializeMoment(() => window.moment(date).format('MMM Do'));
+  } else {
+    return window.moment(date).format('MMM Do');
+  }
+}
+
 export function formatDateMMMDoYYYY (date) {
   if (typeof window.moment === 'undefined') {
     return initializeMoment(() => window.moment(date).format('MMM Do, YYYY'));

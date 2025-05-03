@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router';
 import styled from 'styled-components';
+import arrayContains from '../common/utils/arrayContains';
 import { renderLog } from '../common/utils/logging';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TeamHeader from '../components/Team/TeamHeader';
@@ -10,8 +11,9 @@ import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
 import { isSearchTextFoundInTeam } from '../controllers/TeamController';
 import capturePersonListRetrieveData from '../models/capturePersonListRetrieveData';
-import { captureTeamListRetrieveData } from '../models/TeamModel';
+import { captureTeamListRetrieveData, getTeamMembersListByTeamId } from '../models/TeamModel';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
+import { showPersonInMemberList } from '../utils/showPerson';
 
 
 const Teams = () => {
@@ -50,7 +52,13 @@ const Teams = () => {
   useEffect(() => {
     if (allTeamsCache) {
       const teamListSimple = Object.values(allTeamsCache);
-      setTeamList(teamListSimple);
+      // Sort teamListSimple alphabetically
+      const teamListSimpleSorted = teamListSimple.sort((a, b) => {
+        if (a.teamName < b.teamName) return -1;
+        if (a.teamName > b.teamName) return 1;
+        return 0;
+      });
+      setTeamList(teamListSimpleSorted);
     }
   }, [allPeopleCache, allTeamsCache]);
 
@@ -108,6 +116,28 @@ const Teams = () => {
       setShowAllTeamMembers(getAppContextValue('teamsActionBarShowAllTeamMembers'));
     }
   }, [getAppContextValue]);
+
+  useEffect(() => {
+    let visiblePeopleCount = 0;
+    const alreadyCountedList = [];
+    teamList.forEach((team) => {
+      if (showTeam(team)) {
+        const updatedTeamMemberList = getTeamMembersListByTeamId(team.id, apiDataCache);
+        updatedTeamMemberList.forEach((person) => {
+          if (showPersonInMemberList(person, searchText, getAppContextValue)) {
+            if (!arrayContains(person.id, alreadyCountedList)) {
+              alreadyCountedList.push(person.id);
+              visiblePeopleCount++;
+            }
+          }
+        });
+      }
+    });
+    // console.log('teams useEffect, visiblePeopleCount: ', visiblePeopleCount);
+    if (visiblePeopleCount !== getAppContextValue('teamsPageVisiblePeopleCount')) {
+      setAppContextValue('teamsPageVisiblePeopleCount', visiblePeopleCount);
+    }
+  }, [getAppContextValue, searchText, teamList]);
 
   useEffect(() => {
     setAppContextValue('teamsActionBarShowAllTeamMembers', true);
