@@ -8,6 +8,8 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import webAppConfig from '../../config';
+import { isValidUSStateCode } from '../../utils/stateUtils';
 
 const AddPersonForm = ({ classes }) => {  //  classes, teamId
   renderLog('AddPersonForm');
@@ -23,7 +25,10 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
   const emailInputRef = useRef('');
   const firstNameInputRef = useRef('');
   const jazzHrUrlInputRef = useRef('');
+  const jobTitleInputRef = useRef('');
   const lastNameInputRef = useRef('');
+  const locationInputRef = useRef('');
+  const phoneNumberInputRef = useRef('');
   const statusOfferApprovedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
 
@@ -41,15 +46,24 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
 
   const saveNewPerson = () => {
     const data = {
+      emailPersonal: emailInputRef.current.value,
       firstName: firstNameInputRef.current.value,
       jazzHrUrl: jazzHrUrlInputRef.current.value,
+      jobTitle: jobTitleInputRef.current.value,
       lastName: lastNameInputRef.current.value,
-      emailPersonal: emailInputRef.current.value,
+      location: locationInputRef.current.value,
+      phoneNumber: phoneNumberInputRef.current.value,
       statusActive: true,
       statusOfferApproved: statusOfferApprovedInputRef.current.checked,
       statusOfferDecisionNeeded: !(statusOfferLetterSignedInputRef.current.checked || statusOfferApprovedInputRef.current.checked),
       statusOfferLetterSigned: statusOfferLetterSignedInputRef.current.checked,
     };
+    if (locationInputRef.current.value && locationInputRef.current.value.length) {
+      const stateCode = locationInputRef.current.value.split(', ')[1];
+      if (stateCode && stateCode.length === 2 && isValidUSStateCode(stateCode)) {
+        data.stateCode = stateCode.toUpperCase();
+      }
+    }
     const plainParams = {
       personId: -1,
       teamId,
@@ -116,6 +130,36 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
           name="jazzHrUrlToBeSaved"
           onChange={() => updateSaveButton()}
           placeholder="Profile URL on JazzHR"
+          variant="outlined"
+        />
+        <TextField
+          id="phoneNumberToBeSaved"
+          inputRef={phoneNumberInputRef}
+          label="Phone number"
+          margin="dense"
+          name="phoneNumberToBeSaved"
+          onChange={() => updateSaveButton()}
+          placeholder="Phone number"
+          variant="outlined"
+        />
+        <TextField
+          id="jobTitleToBeSaved"
+          inputRef={jobTitleInputRef}
+          label={`Job Title (at ${webAppConfig.ORGANIZATION_NAME})`}
+          margin="dense"
+          name="jobTitle"
+          onChange={() => updateSaveButton()}
+          placeholder={`Job Title here at ${webAppConfig.ORGANIZATION_NAME}`}
+          variant="outlined"
+        />
+        <TextField
+          id="locationToBeSaved"
+          inputRef={locationInputRef}
+          label="Location"
+          margin="dense"
+          name="location"
+          onChange={() => updateSaveButton()}
+          placeholder="City, State"
           variant="outlined"
         />
         <CheckboxLabel
