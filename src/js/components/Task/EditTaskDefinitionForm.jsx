@@ -33,6 +33,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [statusActive, setStatusActive] = useState(false);
+  const [statusOfferLetterSigned, setStatusOfferLetterSigned] = useState(false);
   const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
   const [statusOfferQuestionnaireSent, setStatusOfferQuestionnaireSent] = useState(false);
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
@@ -57,6 +58,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
       setQuestionnaireId(taskDefinition.questionnaireId);
       setStatusActive(taskDefinition.statusActive);
+      setStatusOfferLetterSigned(taskDefinition.statusOfferLetterSigned);
       setStatusOfferQuestionnaireAnswered(taskDefinition.statusOfferQuestionnaireAnswered);
       setStatusOfferQuestionnaireSent(taskDefinition.statusOfferQuestionnaireSent);
       setTaskActionUrl(taskDefinition.taskActionUrl);
@@ -71,6 +73,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(false);
       setQuestionnaireId('');
       setStatusActive(false);
+      setStatusOfferLetterSigned(false);
       setStatusOfferQuestionnaireAnswered(false);
       setStatusOfferQuestionnaireSent(false);
       setTaskActionUrl('');
@@ -101,6 +104,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       isQuestionnaireTask,
       questionnaireId,
       statusActive,
+      statusOfferLetterSigned,
       statusOfferQuestionnaireAnswered,
       statusOfferQuestionnaireSent,
       taskGroupId,
@@ -339,6 +343,23 @@ const EditTaskDefinitionForm = ({ classes }) => {
             />
           )}
           label="Set Person.statusOfferQuestionnaireAnswered TRUE"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferLetterSigned || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferLetterSignedToBeSaved"
+              name="statusOfferLetterSigned"
+              onChange={(event) => {
+                setStatusOfferLetterSigned(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferLetterSigned TRUE"
         />
         <CustomizationTokensHeader>
           Customization Tokens
