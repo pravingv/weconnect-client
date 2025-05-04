@@ -22,7 +22,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
     '[official email]', '[person first name]',
     '[person full name]', '[personal email]', '[preferred email]',
     '[profile edit]', '[profile questionnaires]',
-    '[jazzhr profile]', '[jazzhr emails]', '[task link]',
+    '[jazzhr discussion]', '[jazzhr documents]', '[jazzhr emails]', '[jazzhr profile]',
+    '[job descriptions]', '[task link]',
   ];
 
   const [googleDriveAssetId, setGoogleDriveAssetId] = useState('');
@@ -33,6 +34,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [statusActive, setStatusActive] = useState(false);
+  const [statusOfferLetterCreated, setStatusOfferLetterCreated] = useState(false);
   const [statusOfferLetterSigned, setStatusOfferLetterSigned] = useState(false);
   const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
   const [statusOfferQuestionnaireSent, setStatusOfferQuestionnaireSent] = useState(false);
@@ -58,6 +60,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
       setQuestionnaireId(taskDefinition.questionnaireId);
       setStatusActive(taskDefinition.statusActive);
+      setStatusOfferLetterCreated(taskDefinition.statusOfferLetterCreated);
       setStatusOfferLetterSigned(taskDefinition.statusOfferLetterSigned);
       setStatusOfferQuestionnaireAnswered(taskDefinition.statusOfferQuestionnaireAnswered);
       setStatusOfferQuestionnaireSent(taskDefinition.statusOfferQuestionnaireSent);
@@ -73,6 +76,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(false);
       setQuestionnaireId('');
       setStatusActive(false);
+      setStatusOfferLetterCreated(false);
       setStatusOfferLetterSigned(false);
       setStatusOfferQuestionnaireAnswered(false);
       setStatusOfferQuestionnaireSent(false);
@@ -89,7 +93,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
     navigator.clipboard.writeText(text).then(() => {
       setLastCopiedToken(text);
       setTimeout(() => setLastCopiedToken(null), 2000); // Reset after 2 seconds
-    }).catch(err => {
+    }).catch((err) => {
       console.error('Failed to copy text: ', err);
     });
   }, []);
@@ -104,6 +108,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       isQuestionnaireTask,
       questionnaireId,
       statusActive,
+      statusOfferLetterCreated,
       statusOfferLetterSigned,
       statusOfferQuestionnaireAnswered,
       statusOfferQuestionnaireSent,
@@ -343,6 +348,23 @@ const EditTaskDefinitionForm = ({ classes }) => {
             />
           )}
           label="Set Person.statusOfferQuestionnaireAnswered TRUE"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferLetterCreated || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferLetterCreatedToBeSaved"
+              name="statusOfferLetterCreated"
+              onChange={(event) => {
+                setStatusOfferLetterCreated(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferLetterCreated TRUE"
         />
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}

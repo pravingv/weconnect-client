@@ -6,13 +6,13 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
-import { formatDateToMonthDayYear } from '../../common/utils/dateFormat';
+import { formatDateToMonthDay, formatDateToMonthDayYear } from '../../common/utils/dateFormat';
 import { renderLog } from '../../common/utils/logging';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useSaveTaskMutation } from '../../react-query/mutations';
 import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsActiveJSX';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { useGetFullNamePreferred } from '../../models/PersonModel';
+import { useGetFirstNamePreferred, useGetFullNamePreferred } from '../../models/PersonModel';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import GoogleDriveShareManager from '../Person/GoogleDriveShareManager';
 
@@ -27,7 +27,8 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
   const [taskDetailsOpen, setTaskDetailsOpen] = useState(false);
 
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
-  const doneByPersonPreferredName = useGetFullNamePreferred(task.doneByPersonId);
+  const doneByPersonFirstName = useGetFirstNamePreferred(task.doneByPersonId);
+  const doneByPersonFullName = useGetFullNamePreferred(task.doneByPersonId);
 
   useEffect(() => {
     if (authenticatedPerson) {
@@ -67,7 +68,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
             <ExpandMore onClick={() => setTaskDetailsOpen(true)} />
           )}
         </TaskCell>
-        <TaskCell id={`taskName-${personId}-${task.taskDefinitionId}`} width={400}>
+        <TaskCell id={`taskName-${personId}-${task.taskDefinitionId}`} width={800}>
           <span onClick={() => setTaskDetailsOpen(!taskDetailsOpen)}>{taskNameToDisplay}</span>
           {(taskDefinition.taskWhyWeDoIt) && (
             <Tooltip
@@ -80,12 +81,20 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
               <InfoOutlinedStyled />
             </Tooltip>
           )}
-          {task.statusDone && doneByPersonPreferredName && (
+          {task.statusDone && doneByPersonFirstName && (
             <CompletedBy>
               {' '}
               by
               {' '}
-              {doneByPersonPreferredName}
+              {doneByPersonFirstName}
+              {task.dateLastUpdated && (
+                <>
+                  {' '}
+                  (
+                  {formatDateToMonthDay(task.dateLastUpdated)}
+                  )
+                </>
+              )}
             </CompletedBy>
           )}
         </TaskCell>
@@ -110,12 +119,12 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
               {task.statusDone ? (
                 <CheckboxDone>
                   Completed
-                  {doneByPersonPreferredName && (
+                  {doneByPersonFullName && (
                     <>
                       {' '}
                       by
                       {' '}
-                      {doneByPersonPreferredName}
+                      {doneByPersonFullName}
                     </>
                   )}
                   {task.dateLastUpdated && (
@@ -203,7 +212,6 @@ const TaskCell = styled('div', {
   shouldForwardProp: (prop) => !['smallFont', 'smallestFont', 'width'].includes(prop),
 })(({ smallFont, smallestFont, width }) => (`
   align-content: center;
-  // border-bottom: 1px solid #ccc;
   ${(smallFont && !smallestFont) ? 'font-size: .9em;' : ''};
   ${(smallestFont && !smallFont) ? 'font-size: .8em;' : ''};
   ${width ? `max-width: ${width}px;` : ''};

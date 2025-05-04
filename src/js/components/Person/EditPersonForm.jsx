@@ -64,6 +64,7 @@ const EditPersonForm = ({ classes }) => {
   const statusActiveInputRef = useRef(false);
   const statusAvailableForSpecialProjectsInputRef = useRef(false);
   const statusOfferApprovedInputRef = useRef(false);
+  const statusOfferLetterCreatedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
   const statusOfferQuestionnaireAnsweredInputRef = useRef(false);
   const statusOfferQuestionnaireSentInputRef = useRef(false);
@@ -111,6 +112,7 @@ const EditPersonForm = ({ classes }) => {
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
       activePerson.jobTitle = jobTitleInputRef.current.value;
       activePerson.statusOfferApproved = statusOfferApprovedInputRef.current.checked;
+      activePerson.statusOfferLetterCreated = statusOfferLetterCreatedInputRef.current.checked;
       activePerson.statusOfferLetterSigned = statusOfferLetterSignedInputRef.current.checked;
       activePerson.statusOfferQuestionnaireAnswered = statusOfferQuestionnaireAnsweredInputRef.current.checked;
       activePerson.statusOfferQuestionnaireSent = statusOfferQuestionnaireSentInputRef.current.checked;
@@ -399,6 +401,27 @@ const EditPersonForm = ({ classes }) => {
             />
           )}
           label="Offer questionnaire answered"
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam && (!activePerson.statusOfferLetterCreated || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusOfferLetterCreated || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferLetterCreatedToBeSaved"
+              inputRef={statusOfferLetterCreatedInputRef}
+              name="statusOfferLetterCreated"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOfferLetterCreated: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label="Offer letter created"
         />
         <CheckboxLabel
           classes={viewerIsOnHrTeam && (!activePerson.statusOfferLetterSigned || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}

@@ -130,7 +130,41 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
     </Suspense>
   ) : <>JazzHR profile</>;
 
-  // Open JazzHR profile link
+  // Open JazzHR discussion section
+  const jazzHrDiscussionUrlJsx = (person.jazzHrUrl && person.jazzHrUrl.endsWith('/profile')) ? (
+    <Suspense fallback={<></>}>
+      <OpenExternalWebSite
+        linkIdAttribute="jazzHrDiscussionUrlId"
+        url={person.jazzHrUrl.replace(/\/profile$/, '/discussion')}
+        target="_blank"
+        body={(
+          <span>
+            JazzHR discussion
+            <LaunchStyled />
+          </span>
+        )}
+      />
+    </Suspense>
+  ) : <>JazzHR discussion</>;
+
+  // Open JazzHR documents section
+  const jazzHrDocumentsUrlJsx = (person.jazzHrUrl && person.jazzHrUrl.endsWith('/profile')) ? (
+    <Suspense fallback={<></>}>
+      <OpenExternalWebSite
+        linkIdAttribute="jazzHrDocumentsUrlId"
+        url={person.jazzHrUrl.replace(/\/profile$/, '/document')}
+        target="_blank"
+        body={(
+          <span>
+            JazzHR documents
+            <LaunchStyled />
+          </span>
+        )}
+      />
+    </Suspense>
+  ) : <>JazzHR documents</>;
+
+  // Open JazzHR emails section
   const jazzHrEmailsUrlJsx = (person.jazzHrUrl && person.jazzHrUrl.endsWith('/profile')) ? (
     <Suspense fallback={<></>}>
       <OpenExternalWebSite
@@ -146,6 +180,23 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
       />
     </Suspense>
   ) : <>JazzHR emails</>;
+
+  // Open Job Description Google Doc
+  const jobDescriptionsUrlJsx = (
+    <Suspense fallback={<></>}>
+      <OpenExternalWebSite
+        linkIdAttribute="jobDescriptionsUrlId"
+        url="https://docs.google.com/document/d/1RMQc6yl3p6cM-CGo5sVlQ7zUqGfvQPVrlzsv5NxWmg8/edit"
+        target="_blank"
+        body={(
+          <span>
+            Job descriptions
+            <LaunchStyled />
+          </span>
+        )}
+      />
+    </Suspense>
+  );
 
   // Open the edit profile drawer
   const openProfileEditDrawerJsx = person ? (
@@ -204,14 +255,17 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
     '[copy personal email]': copyPersonalEmailJsx,
     '[profile edit]': openProfileEditDrawerJsx,
     '[profile questionnaires]': openProfileQuestionnairesDrawerJsx,
+    '[jazzhr discussion]': jazzHrDiscussionUrlJsx,
+    '[jazzhr documents]': jazzHrDocumentsUrlJsx,
+    '[jazzhr emails]': jazzHrEmailsUrlJsx,
     '[jazzhr link]': jazzHrUrlJsx,
     '[jazzhr profile]': jazzHrUrlJsx,
-    '[jazzhr emails]': jazzHrEmailsUrlJsx,
+    '[job descriptions]': jobDescriptionsUrlJsx,
     '[copy questionnaire link]': questionnaireUrlJSX,
     '[task link]': taskActionUrlJsx,
   };
 
-  const parts = taskWhatToDoModified.split(/(\[copy official email]|\[copy personal email]|\[copy questionnaire link]|\[profile edit]|\[profile questionnaires]|\[jazzhr emails]|\[jazzhr link]|\[jazzhr profile]|\[task link])/);
+  const parts = taskWhatToDoModified.split(/(\[copy official email]|\[copy personal email]|\[copy questionnaire link]|\[profile edit]|\[profile questionnaires]|\[jazzhr discussion]|\[jazzhr documents]|\[jazzhr emails]|\[jazzhr link]|\[jazzhr profile]|\[job descriptions]|\[task link])/);
 
   return (
     <span>
