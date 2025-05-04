@@ -3,6 +3,20 @@ import initializeMoment from './initializeMoment';
 import convertToInteger from './convertToInteger';
 
 // eslint-disable-next-line consistent-return
+export function formatDateToMonthDay (dateString) {
+  // console.log(`typeof window.moment is ${typeof window.moment}`);
+  if (typeof window.moment === 'undefined') {
+    initializeMoment(() => {
+      const momentDate = window.moment(dateString, 'YYYY-MM-DD');
+      return momentDate.format('MMM Do');
+    });
+  } else {
+    const momentDate = window.moment(dateString, 'YYYY-MM-DD');
+    return momentDate.format('MMM Do');
+  }
+}
+
+// eslint-disable-next-line consistent-return
 export function formatDateToMonthDayYear (dateString) {
   // console.log(`typeof window.moment is ${typeof window.moment}`);
   if (typeof window.moment === 'undefined') {

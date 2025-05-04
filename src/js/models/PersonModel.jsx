@@ -56,7 +56,7 @@ export const useGetPersonById = (personId) => {
 };
 
 // Needed to avoid Dependency cycle problem, and to get this string from within maps
-export const getFullNamePreferredPerson = (person) => {
+export const getFullNamePreferredPerson = (person, firstNameOnly = false) => {
   let fullName = '';
   if (person.id >= 0) {
     if (person.firstNamePreferred) {
@@ -64,14 +64,21 @@ export const getFullNamePreferredPerson = (person) => {
     } else if (person.firstName) {
       fullName += person.firstName;
     }
-    if (fullName.length > 0 && person.lastName) {
-      fullName += ' ';
-    }
-    if (person.lastName) {
-      fullName += person.lastName;
+    if (!firstNameOnly) {
+      if (fullName.length > 0 && person.lastName) {
+        fullName += ' ';
+      }
+      if (person.lastName) {
+        fullName += person.lastName;
+      }
     }
   }
   return fullName;
+};
+
+export const useGetFirstNamePreferred = (personId) => {
+  const person = useGetPersonById(personId);
+  return getFullNamePreferredPerson(person, true);
 };
 
 export const useGetFullNamePreferred = (personId) => {
