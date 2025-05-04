@@ -7,10 +7,12 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getTeamMembersListByTeamId } from '../../models/TeamModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useAddPersonToTeamMutation } from '../../react-query/mutations';
-import { alphabetizePeoplesObject } from '../../utils/utilities';
+import { alphabetizePeoplesObject, orderListByFurthestFutureStartDate } from '../../utils/utilities';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { MatchingPerson, SearchBarWrapper } from '../Style/sharedStyles';
 import AddPersonForm from './AddPersonForm';
+
+const LIMIT_NUMBER_SHOWN = 20;
 
 
 const AddPersonDrawerMainContent = () => {
@@ -61,18 +63,17 @@ const AddPersonDrawerMainContent = () => {
     } else {
       console.log('useEffect in AddPersonDrawerMainContent teamId is -1, so no teamId');
     }
-  }, [allPeopleCache, allPeopleList, allTeamsCache, team]);
+  }, [allPeopleCache, allPeopleList, allTeamsCache, apiDataCache, team]);
 
   useEffect(() => {
     updateRemainingPeopleToAdd();
   }, [thisTeamsCurrentMembersList]);
 
   useEffect(() => {
-    // TODO: Need to deal with preferred name searching and display, very possible but it will get more complicated
     let addToTeamListTemp = searchResultsList || remainingPeopleToAdd || [];
-    addToTeamListTemp = addToTeamListTemp.filter((person) => person.firstName.length || person.lastName.length);
-    const sorted = alphabetizePeoplesObject(addToTeamListTemp);
-    setAddToTeamList(sorted);
+    addToTeamListTemp = orderListByFurthestFutureStartDate(addToTeamListTemp).slice(0, LIMIT_NUMBER_SHOWN);
+    addToTeamListTemp = alphabetizePeoplesObject(addToTeamListTemp, true);
+    setAddToTeamList(addToTeamListTemp);
   }, [searchResultsList, remainingPeopleToAdd]);
 
   useEffect(() => {
@@ -149,7 +150,7 @@ const AddPersonDrawerMainContent = () => {
       )}
       {(addToTeamList && addToTeamList.length > 0) && (
         <PersonSearchResultsWrapper>
-          <PersonListTitle>{ searchResultsList ? 'Filtered list of people to add to team: ' : 'Can be added to team: '}</PersonListTitle>
+          <PersonListTitle>{ searchResultsList ? 'Filtered list of people to add to team: ' : `Can be added to team (top ${LIMIT_NUMBER_SHOWN}): `}</PersonListTitle>
           <PersonList>
             {addToTeamList.map((person) => (
               <PersonItem key={`personResult-${person.id}`}>

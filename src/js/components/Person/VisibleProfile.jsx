@@ -1,4 +1,4 @@
-import { ContentCopy } from '@mui/icons-material';
+import { ContentCopy, Launch } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import React, { Suspense, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -70,21 +70,59 @@ const VisibleProfile = ({ personId }) => {
           </FieldValue>
         </OneRow>
       )}
+      {person.jazzHrUrl && (
+        <OneRow>
+          <FieldValueLight>
+            <Suspense fallback={<></>}>
+              <OpenExternalWebSite
+                linkIdAttribute="jazzHrUrlId"
+                url={person.jazzHrUrl}
+                target="_blank"
+                body={(
+                  <span>
+                    JazzHR profile
+                    <LaunchStyled />
+                  </span>
+                )}
+              />
+            </Suspense>
+          </FieldValueLight>
+          {person.jazzHrUrl.endsWith('/profile') && (
+            <FieldValueLight>
+              <Suspense fallback={<></>}>
+                <OpenExternalWebSite
+                  linkIdAttribute="jazzHrEmailsUrlId"
+                  url={person.jazzHrUrl.replace(/\/profile$/, '/message')}
+                  target="_blank"
+                  body={(
+                    <span>
+                      JazzHR emails
+                      <LaunchStyled />
+                    </span>
+                  )}
+                />
+              </Suspense>
+            </FieldValueLight>
+          )}
+        </OneRow>
+      )}
       {person.linkedInUrl && (
         <OneRow>
-          <FieldName>
-            LinkedIn:
-          </FieldName>
-          <FieldValue>
+          <FieldValueLight>
             <Suspense fallback={<></>}>
               <OpenExternalWebSite
                 linkIdAttribute="linkedInUrlId"
                 url={person.linkedInUrl}
                 target="_blank"
-                body={person.linkedInUrl}
+                body={(
+                  <span>
+                    LinkedIn profile
+                    <LaunchStyled />
+                  </span>
+                )}
               />
             </Suspense>
-          </FieldValue>
+          </FieldValueLight>
         </OneRow>
       )}
     </VisibleProfileWrapper>
@@ -107,6 +145,20 @@ const FieldName = styled('div')`
 
 const FieldValue = styled('div')`
   font-weight: bold;
+  margin-right: 12px;
+`;
+
+const FieldValueLight = styled('div')`
+  margin-right: 12px;
+`;
+
+const LaunchStyled = styled(Launch)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  margin-left: 2px;
+  margin-top: -3px;
+  width: 14px;
+  height: 14px;
 `;
 
 const OneRow = styled('div')`
