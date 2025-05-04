@@ -80,6 +80,14 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
               <InfoOutlinedStyled />
             </Tooltip>
           )}
+          {task.statusDone && doneByPersonPreferredName && (
+            <CompletedBy>
+              {' '}
+              by
+              {' '}
+              {doneByPersonPreferredName}
+            </CompletedBy>
+          )}
         </TaskCell>
       </OneTaskTitle>
       {taskDetailsOpen && (
@@ -160,6 +168,10 @@ const styles = () => ({
 });
 
 const CheckboxDone = styled('div')`
+  color: ${DesignTokenColors.neutral300};
+`;
+
+const CompletedBy = styled('span')`
   color: ${DesignTokenColors.neutral300};
 `;
 

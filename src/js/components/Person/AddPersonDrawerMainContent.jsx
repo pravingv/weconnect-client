@@ -181,13 +181,8 @@ const AddPersonDrawerMainContentWrapper = styled('div')`
 `;
 
 const AddPersonWrapper = styled('div')`
-  margin-top: 32px;
+  margin-top: 16px;
 `;
-
-
-// const PersonDirectoryWrapper = styled('div')`
-//   margin-top: 16px;
-// `;
 
 const PersonItem = styled('div')`
 `;
@@ -200,7 +195,6 @@ const PersonListTitle = styled('div')`
 `;
 
 const PersonSearchResultsWrapper = styled('div')`
-  margin-top: 16px;
 `;
 
 export default AddPersonDrawerMainContent;
