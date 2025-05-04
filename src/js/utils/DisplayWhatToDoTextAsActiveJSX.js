@@ -6,13 +6,14 @@ import styled from 'styled-components';
 import React, { Suspense, useEffect, useState } from 'react';
 import { getFullNamePreferredPerson, getPreferredEmail } from '../models/PersonModel';
 import { useConnectAppContext } from '../contexts/ConnectAppContext';
+import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 import DesignTokenColors from '../common/components/Style/DesignTokenColors';
 import webAppConfig from '../config';
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../common/components/Widgets/OpenExternalWebSite'));
 
 const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
-  const { apiDataCache } = useConnectAppContext();
+  const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache } = apiDataCache;
 
   const [person, setPerson] = useState({});
@@ -41,6 +42,20 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
     }, 1500);
   };
 
+  const editPersonClick = () => {
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('profileDrawerPerson', person);
+    setAppContextValue('profileDrawerPersonId', person.personId);
+    setAppContextValue('headerProfileSection', 'nameAndPhoto');
+  };
+
+  const profileQuestionnairesClick = () => {
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('profileDrawerPerson', person);
+    setAppContextValue('profileDrawerPersonId', person.personId);
+    setAppContextValue('headerProfileSection', 'personQuestionnaires');
+  };
+
   useEffect(() => {
     let personTemp = {};
     if (allPeopleCache) {
@@ -63,13 +78,15 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
   // Copy official email address
   const copyOfficialEmailJsx = person.emailOfficial ? (
     <span>
-      Copy
-      {' '}
-      {webAppConfig.ORGANIZATION_NAME || 'Official'}
-      {' '}
-      email
       <CopyToClipboard text={person.emailOfficial} onCopy={() => copyEmailOfficial()}>
-        <ContentCopyStyled />
+        <SpanWithLinkStyle>
+          Copy
+          {' '}
+          {webAppConfig.ORGANIZATION_NAME || 'Official'}
+          {' '}
+          email
+          <ContentCopyStyled />
+        </SpanWithLinkStyle>
       </CopyToClipboard>
       {' '}
       {emailOfficialCopied}
@@ -85,9 +102,11 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
   // Copy personal email address
   const copyPersonalEmailJsx = person.emailPersonal ? (
     <span>
-      Copy personal email
       <CopyToClipboard text={person.emailPersonal} onCopy={() => copyEmailPersonal()}>
-        <ContentCopyStyled />
+        <SpanWithLinkStyle>
+          Copy personal email
+          <ContentCopyStyled />
+        </SpanWithLinkStyle>
       </CopyToClipboard>
       {' '}
       {emailPersonalCopied}
@@ -103,25 +122,61 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
         target="_blank"
         body={(
           <span>
-            JazzHR profile Link
+            JazzHR profile
             <LaunchStyled />
           </span>
         )}
       />
     </Suspense>
-  ) : <>JazzHR profile Link</>;
+  ) : <>JazzHR profile</>;
+
+  // Open JazzHR profile link
+  const jazzHrEmailsUrlJsx = (person.jazzHrUrl && person.jazzHrUrl.endsWith('/profile')) ? (
+    <Suspense fallback={<></>}>
+      <OpenExternalWebSite
+        linkIdAttribute="jazzHrEmailsUrlId"
+        url={person.jazzHrUrl.replace(/\/profile$/, '/message')}
+        target="_blank"
+        body={(
+          <span>
+            JazzHR emails
+            <LaunchStyled />
+          </span>
+        )}
+      />
+    </Suspense>
+  ) : <>JazzHR emails</>;
+
+  // Open the edit profile drawer
+  const openProfileEditDrawerJsx = person ? (
+    <SpanWithLinkStyle onClick={() => editPersonClick()}>
+      Edit profile
+    </SpanWithLinkStyle>
+  ) : <>Edit profile</>;
+
+  // Open the view profile questionnaires drawer
+  const openProfileQuestionnairesDrawerJsx = person ? (
+    <SpanWithLinkStyle onClick={() => profileQuestionnairesClick()}>
+      Profile questionnaires
+    </SpanWithLinkStyle>
+  ) : <>Profile questionnaires</>;
+
   // Questionnaire needed for Onboarding team to create offer letter
   const questionnaireId = taskDefinition.questionnaireId || -1;
   const questionnaireUrl = `${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}/q/${questionnaireId}/${personId}`;
   const questionnaireUrlJSX = (questionnaireId > 0) ? (
     <span>
       <CopyToClipboard text={questionnaireUrl} onCopy={() => copyQuestionnaire()}>
-        <ContentCopyStyled />
+        <SpanWithLinkStyle>
+          Copy questionnaire link
+          <ContentCopyStyled />
+        </SpanWithLinkStyle>
       </CopyToClipboard>
       {' '}
       {questionnaireCopied}
     </span>
   ) : <>(Questionnaire Id Missing)</>;
+
   // Link to where the person needs to go to complete this task
   const taskActionUrlJsx = (taskDefinition.taskActionUrl) ? (
     <div>
@@ -147,12 +202,16 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
   const replacements = {
     '[copy official email]': copyOfficialEmailJsx,
     '[copy personal email]': copyPersonalEmailJsx,
+    '[profile edit]': openProfileEditDrawerJsx,
+    '[profile questionnaires]': openProfileQuestionnairesDrawerJsx,
     '[jazzhr link]': jazzHrUrlJsx,
+    '[jazzhr profile]': jazzHrUrlJsx,
+    '[jazzhr emails]': jazzHrEmailsUrlJsx,
     '[copy questionnaire link]': questionnaireUrlJSX,
     '[task link]': taskActionUrlJsx,
   };
 
-  const parts = taskWhatToDoModified.split(/(\[copy official email]|\[copy personal email]|\[copy questionnaire link]|\[jazzhr link]|\[task link])/);
+  const parts = taskWhatToDoModified.split(/(\[copy official email]|\[copy personal email]|\[copy questionnaire link]|\[profile edit]|\[profile questionnaires]|\[jazzhr emails]|\[jazzhr link]|\[jazzhr profile]|\[task link])/);
 
   return (
     <span>

@@ -1,7 +1,25 @@
-// eslint-disable-next-line import/prefer-default-export
-export const alphabetizePeoplesObject = (obj) => {
-  const arrayOfObjects = Object.keys(obj).map((key) => ({ ...obj[key] })); // Dale removed replacement of id with the key because the key is not the personId
-  arrayOfObjects.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName));
+export const alphabetizePeoplesObject = (incomingObjectList, sortByFirstName = false) => {
+  const arrayOfObjects = Object.keys(incomingObjectList).map((key) => ({ ...incomingObjectList[key] })); // Dale removed replacement of id with the key because the key is not the personId
+  if (sortByFirstName) {
+    arrayOfObjects.sort((a, b) => (a.firstName + a.lastName).localeCompare(b.firstName + b.lastName));
+  } else {
+    arrayOfObjects.sort((a, b) => (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName));
+  }
   return arrayOfObjects;
 };
 
+export const orderListByFurthestFutureStartDate = (incomingObjectList) => {
+  const arrayOfObjects = Object.keys(incomingObjectList).map((key) => ({ ...incomingObjectList[key] })); // Dale removed replacement of id with the key because the key is not the personId
+  arrayOfObjects.sort((a, b) => {
+    // If either entry doesn't have a dateStartDate, it should be placed at the top
+    if (!a.dateStartDate && !b.dateStartDate) return 0; // Both don't have dates, keep original order
+    if (!a.dateStartDate) return -1; // a doesn't have a date, it goes first
+    if (!b.dateStartDate) return 1; // b doesn't have a date, it goes first
+
+    // If both have dates, compare them
+    const dateA = new Date(a.dateStartDate);
+    const dateB = new Date(b.dateStartDate);
+    return dateB - dateA; // Sort in descending order (most future date first)
+  });
+  return arrayOfObjects;
+};

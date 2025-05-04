@@ -21,7 +21,8 @@ const EditTaskDefinitionForm = ({ classes }) => {
     '[copy official email]', '[copy personal email]', '[copy questionnaire link]',
     '[official email]', '[person first name]',
     '[person full name]', '[personal email]', '[preferred email]',
-    '[jazzhr link]', '[task link]',
+    '[profile edit]', '[profile questionnaires]',
+    '[jazzhr profile]', '[jazzhr emails]', '[task link]',
   ];
 
   const [googleDriveAssetId, setGoogleDriveAssetId] = useState('');

@@ -1,11 +1,12 @@
 import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
+import { Launch } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
@@ -15,7 +16,9 @@ import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
-// import { useGetPersonById, usePersonSave } from '../../models/PersonModel';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+
+const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
 const EditPersonForm = ({ classes }) => {
   renderLog('EditPersonForm');
@@ -171,13 +174,13 @@ const EditPersonForm = ({ classes }) => {
           placeholder="First Name (legal name)"
           variant="outlined"
         />
-        <div>
+        <TextUnderInputField>
           {!(showFirstNamePreferred) && (
             <SpanWithLinkStyle onClick={() => setShowFirstNamePreferred(true)}>
               Edit preferred name ({activePerson.firstNamePreferred || activePerson.firstName || 'none'})
             </SpanWithLinkStyle>
           )}
-        </div>
+        </TextUnderInputField>
         <TextField
           defaultValue={activePerson.firstNamePreferred || ''}
           id="firstNamePreferredToBeSaved"
@@ -218,13 +221,13 @@ const EditPersonForm = ({ classes }) => {
           placeholder="Email Address, Personal"
           variant="outlined"
         />
-        <div>
+        <TextUnderInputField>
           {!(showEmailPreferred) && (
             <SpanWithLinkStyle onClick={() => setShowEmailPreferred(true)}>
               Edit preferred email ({activePerson.emailPreferred || emailOfficialLocal || 'none'})
             </SpanWithLinkStyle>
           )}
-        </div>
+        </TextUnderInputField>
         <TextField
           defaultValue={activePerson.emailPreferred || ''}
           id="emailPreferredToBeSaved"
@@ -276,6 +279,25 @@ const EditPersonForm = ({ classes }) => {
           placeholder="LinkedIn URL"
           variant="outlined"
         />
+        {activePerson.linkedInUrl && (
+          <QuickLinkList>
+            <QuickLink>
+              <Suspense fallback={<></>}>
+                <OpenExternalWebSite
+                  linkIdAttribute="linkedInUrlId"
+                  url={activePerson.linkedInUrl}
+                  target="_blank"
+                  body={(
+                    <span>
+                      LinkedIn profile
+                      <LaunchStyled />
+                    </span>
+                  )}
+                />
+              </Suspense>
+            </QuickLink>
+          </QuickLinkList>
+        )}
         {viewerIsOnHrTeam && (
           <HRTeamFieldsTitle>
             Profile Fields Only HR Team Can Edit
@@ -428,13 +450,15 @@ const EditPersonForm = ({ classes }) => {
           value={emailOfficialLocal}
           variant="outlined"
         />
-        <EmailOfficialManager
-          emailOfficialEdited={emailOfficialEdited}
-          savedEmailOfficial={emailOfficialInitial || ''}
-          setIsEmailOfficialEditModeInParent={setEmailOfficialEditedFromChild}
-          setEmailOfficialInParent={setEmailOfficialFromChild}
-          setEmailOfficialVerifiedInParent={setEmailOfficialVerifiedFromChild}
-        />
+        <TextUnderInputField>
+          <EmailOfficialManager
+            emailOfficialEdited={emailOfficialEdited}
+            savedEmailOfficial={emailOfficialInitial || ''}
+            setIsEmailOfficialEditModeInParent={setEmailOfficialEditedFromChild}
+            setEmailOfficialInParent={setEmailOfficialFromChild}
+            setEmailOfficialVerifiedInParent={setEmailOfficialVerifiedFromChild}
+          />
+        </TextUnderInputField>
         <TextField
           classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.phoneNumber || ''}
@@ -459,6 +483,42 @@ const EditPersonForm = ({ classes }) => {
           placeholder="Profile URL on JazzHR"
           variant="outlined"
         />
+        {activePerson.jazzHrUrl && (
+          <QuickLinkList>
+            <QuickLink>
+              <Suspense fallback={<></>}>
+                <OpenExternalWebSite
+                  linkIdAttribute="jazzHrUrlId"
+                  url={activePerson.jazzHrUrl}
+                  target="_blank"
+                  body={(
+                    <span>
+                      JazzHR profile
+                      <LaunchStyled />
+                    </span>
+                  )}
+                />
+              </Suspense>
+            </QuickLink>
+            {activePerson.jazzHrUrl.endsWith('/profile') && (
+              <QuickLink>
+                <Suspense fallback={<></>}>
+                  <OpenExternalWebSite
+                    linkIdAttribute="jazzHrEmailsUrlId"
+                    url={activePerson.jazzHrUrl.replace(/\/profile$/, '/message')}
+                    target="_blank"
+                    body={(
+                      <span>
+                        JazzHR emails
+                        <LaunchStyled />
+                      </span>
+                    )}
+                  />
+                </Suspense>
+              </QuickLink>
+            )}
+          </QuickLinkList>
+        )}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateOptionsWrapper
             style={viewerIsOnHrTeam ? {} : { display: 'none' }}
@@ -727,6 +787,30 @@ const EditPersonFormWrapper = styled('div')`
 const HRTeamFieldsTitle = styled('div')`
   margin-top: 24px;
   font-weight: bold;
+`;
+
+const LaunchStyled = styled(Launch)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  margin-left: 2px;
+  margin-top: -3px;
+  width: 14px;
+  height: 14px;
+`;
+
+const QuickLink = styled('div')`
+  margin-right: 12px;
+`;
+
+const QuickLinkList = styled('div')`
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+  margin-left: 15px;
+`;
+
+const TextUnderInputField = styled('div')`
+  margin-left: 15px;
 `;
 
 export default withStyles(styles)(EditPersonForm);
