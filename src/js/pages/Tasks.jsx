@@ -171,7 +171,7 @@ const Tasks = () => {
           if (showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) {
             return (
               <OnePersonWrapper key={`team-${person.personId}`}>
-                <PersonSummaryRow person={person} teamId={teamId} />
+                <PersonSummaryRow hideTasks person={person} teamId={teamId} />
                 <TaskListForPerson
                   personId={person.personId}
                   searchText={showPersonResults.searchTextMinusWordsFoundInPersonList}
