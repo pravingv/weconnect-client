@@ -7,7 +7,6 @@ import { renderLog } from '../../common/utils/logging';
 import { useGetPersonById } from '../../models/PersonModel';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 
-
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
 const VisibleProfile = ({ personId }) => {
