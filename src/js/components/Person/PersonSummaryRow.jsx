@@ -16,9 +16,10 @@ import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/Auth
 import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
 import { formatDateMMMDo, timeFromDate } from '../../common/utils/dateFormat';
 import webAppConfig from '../../config';
+import TaskListForPersonManager from '../Task/TaskListForPersonManager';
 
 
-const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes }) => {
+const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, teamId, classes }) => {
   renderLog('PersonSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
@@ -55,7 +56,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
 
   useEffect(() => {
     let personStatusTemp = '';
-    if (person.statusOfferDecisionNeeded && !person.statusOfferApproved) {
+    if (!person.statusOfferApproved) {
       personStatusTemp = 'hiring manager deciding';
     } else if (!person.statusOfferQuestionnaireSent) {
       personStatusTemp = 'needs questionnaire';
@@ -197,17 +198,23 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
               <PersonDetailsQuickLinks person={person} teamId={teamId} />
             </DetailsRowItem>
           </DetailsRowSection>
-          <DetailsRowSection>
+          <DetailsRowSection borderRightOff>
             <DetailsRowItem>
               <PersonDetailsEmailsAndStartDate person={person} teamId={teamId} />
             </DetailsRowItem>
           </DetailsRowSection>
         </PersonDetailsRow>
       )}
+      {personRowUnfurled && !hideTasks && (
+        <PersonTasksRow>
+          <TaskListForPersonManager personId={person.id} />
+        </PersonTasksRow>
+      )}
     </OnePersonOuterWrapper>
   );
 };
 PersonSummaryRow.propTypes = {
+  hideTasks: PropTypes.bool,
   personRowUnfurledFromParent: PropTypes.bool,
   person: PropTypes.object.isRequired,
   teamId: PropTypes.number,
@@ -287,7 +294,18 @@ const PersonDetailsRow = styled('div')`
   display: flex;
   justify-content: flex-start;
   padding-bottom: 20px;
+  padding-left: 27px;
   padding-top: 15px;
+  border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
+`;
+
+const PersonTasksRow = styled('div')`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  padding-bottom: 12px;
+  padding-left: 14px;
+  padding-top: 6px;
   border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
 `;
 
