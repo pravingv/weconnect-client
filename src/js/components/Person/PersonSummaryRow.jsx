@@ -25,6 +25,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
 
   const [personRowUnfurled, setPersonRowUnfurled] = useState(personRowUnfurledFromParent);
   const [personRowUnfurledFromParentAlreadySet, setPersonRowUnfurledFromParentAlreadySet] = useState(personRowUnfurledFromParent);
+  const [personStatus, setPersonStatus] = useState('');
   const [quickLinkCopied, setQuickLinkCopied] = useState('');
 
   const copyQuickLink = () => {
@@ -51,6 +52,22 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
       setPersonRowUnfurledFromParentAlreadySet(personRowUnfurledFromParent);
     }
   }, [personRowUnfurled, personRowUnfurledFromParent, personRowUnfurledFromParentAlreadySet]);
+
+  useEffect(() => {
+    let personStatusTemp = '';
+    if (person.statusOfferDecisionNeeded && !person.statusOfferApproved) {
+      personStatusTemp = 'hiring manager deciding';
+    } else if (!person.statusOfferQuestionnaireSent) {
+      personStatusTemp = 'needs questionnaire';
+    } else if (!person.statusOfferQuestionnaireAnswered) {
+      personStatusTemp = 'questionnaire sent';
+    } else if (!person.statusOfferLetterCreated) {
+      personStatusTemp = 'needs offer';
+    } else if (!person.statusOfferLetterSigned) {
+      personStatusTemp = 'waiting for signature';
+    }
+    setPersonStatus(personStatusTemp);
+  }, [person]);
 
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
   const startDateIsInFuture = person.dateStartDate && new Date(person.dateStartDate) > new Date();
@@ -106,7 +123,7 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
               {person.dateStartDate ? (
                 <span>
                   {startDateIsInFuture ? (
-                    <span>{formatDateMMMDo(person.dateStartDate)} start</span>
+                    <span>{personStatus && `${personStatus}: `}{formatDateMMMDo(person.dateStartDate)} start</span>
                   ) : (
                     <span>
                       {person.statusOfferLetterSigned ? (
@@ -114,13 +131,23 @@ const PersonSummaryRow = ({ personRowUnfurledFromParent, person, teamId, classes
                           {timeFromDate(person.dateStartDate, true)}
                         </span>
                       ) : (
-                        <span>To sign: {formatDateMMMDo(person.dateStartDate)} start</span>
+                        <span>{personStatus}: {formatDateMMMDo(person.dateStartDate)} start</span>
                       )}
                     </span>
                   )}
                 </span>
               ) : (
-                <span>no start date</span>
+                <span>
+                  {personStatus ? (
+                    <span>
+                      {personStatus}
+                    </span>
+                  ) : (
+                    <span>
+                      no start date
+                    </span>
+                  )}
+                </span>
               )}
             </div>
           </PersonCell>
