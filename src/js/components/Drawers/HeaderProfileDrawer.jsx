@@ -1,6 +1,15 @@
 import { Button } from '@mui/material';
-import { AccountCircle, CalendarMonth, ManageAccounts, Menu, Quiz, TaskAlt } from '@mui/icons-material';
-import React, { useEffect, useState } from 'react';
+import {
+  AccountCircle,
+  CalendarMonth,
+  ContentCopy, Launch,
+  ManageAccounts,
+  Menu,
+  Quiz,
+  TaskAlt,
+} from '@mui/icons-material';
+import React, { Suspense, useEffect, useState } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
@@ -16,6 +25,9 @@ import EditPersonTasksDrawerMainContent from '../Person/EditPersonTasksDrawerMai
 import ViewQuestionnairesForPerson from '../Questionnaire/ViewQuestionnairesForPerson';
 import VisibleProfile from '../Person/VisibleProfile';
 import EditPersonAwayForm from '../Person/EditPersonAwayForm';
+import webAppConfig from '../../config';
+
+const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
 const HeaderProfileDrawer = () => {
   const { apiDataCache, getAppContextData, getAppContextValue, setAppContextValue } = useConnectAppContext();
@@ -25,6 +37,7 @@ const HeaderProfileDrawer = () => {
   const [displayProfileOption, setDisplayProfileOption] = useState('nameAndPhoto');
   const [displayProfileComponent, setDisplayProfileComponent] = useState();
   const [headerProfileSectionSetFromAppContext, setHeaderProfileSectionSetFromAppContext] = useState(false);
+  const [quickLinkCopied, setQuickLinkCopied] = useState('');
   const [showLinksToProfilePages, setShowLinksToProfilePages] = useState(true);
   const [viewerIsThisAuthenticatedPerson, setViewerIsThisAuthenticatedPerson] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -34,6 +47,13 @@ const HeaderProfileDrawer = () => {
   const personViewedInDrawer = useGetPersonById(getAppContextValue('profileDrawerPersonId'));
   const personViewedInDrawerFullName = getFullNamePreferredPerson(personViewedInDrawer);
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
+
+  const copyQuickLink = () => {
+    setQuickLinkCopied('Copied!');
+    setTimeout(() => {
+      setQuickLinkCopied('');
+    }, 1500);
+  };
 
   // checks window width for responsiveness
   useEffect(() => {
@@ -202,6 +222,35 @@ const HeaderProfileDrawer = () => {
           <p>{personViewedInDrawerFullName}</p>
         </YourAccountWrapper>
       )}
+      {personViewedInDrawer.jazzHrUrl && (
+        <HeaderProfileLink>
+          <Suspense fallback={<></>}>
+            <OpenExternalWebSite
+              linkIdAttribute="jazzHrUrlId"
+              url={personViewedInDrawer.jazzHrUrl}
+              target="_blank"
+              body={(
+                <HeaderProfileLinkSpan>
+                  JazzHR
+                  <LaunchStyled />
+                </HeaderProfileLinkSpan>
+              )}
+            />
+          </Suspense>
+        </HeaderProfileLink>
+      )}
+      {personViewedInDrawer.emailOfficial && (
+        <HeaderProfileLink>
+          {quickLinkCopied || (
+            <CopyToClipboard text={personViewedInDrawer.emailOfficial} onCopy={() => copyQuickLink()}>
+              <CopyToClipboardContainer>
+                <ContentCopyStyled />
+                <ContentCopyText>{webAppConfig.ORGANIZATION_NAME || 'Official'} email</ContentCopyText>
+              </CopyToClipboardContainer>
+            </CopyToClipboard>
+          )}
+        </HeaderProfileLink>
+      )}
     </>
   );
 
@@ -251,6 +300,40 @@ const AccountCircleStyled = styled(AccountCircle)`
   margin-right: 8px;
 `;
 
+const ContentCopyStyled = styled(ContentCopy)`
+  height: 16px;
+  margin: 0 4px;
+  width: 16px;
+`;
+
+const ContentCopyText = styled('p')`
+  padding-right: 8px;
+`;
+
+const CopyToClipboardContainer = styled('div')`
+  align-items: center;
+  display: flex;
+  height: 18px;
+  justify-content: flex-start;
+  padding-right: 8px;
+`;
+
+const HeaderProfileLink = styled('div')`
+  color: ${DesignTokenColors.whiteUI};
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 300;
+  margin-left: 24px;
+  white-space: nowrap;
+`;
+
+const HeaderProfileLinkSpan = styled('span')`
+  color: ${DesignTokenColors.whiteUI};
+  font-size: 14px;
+  font-weight: 300;
+  white-space: nowrap;
+`;
+
 const MenuIconWrapper = styled.button`
   display: none;
 
@@ -267,13 +350,6 @@ const MenuIconWrapper = styled.button`
   }
 `;
 
-const YourAccountWrapper = styled.div`
-  align-items: center;
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-`;
-
 const EditProfileDrawerWrapper = styled.div`
   display: flex;
   gap: 32px;
@@ -281,11 +357,13 @@ const EditProfileDrawerWrapper = styled.div`
   position: relative;
 `;
 
-const NavLinksContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: -16px;
-  position: fixed;
+const LaunchStyled = styled(Launch)`
+  color: ${DesignTokenColors.whiteUI};
+  cursor: pointer;
+  margin-left: 2px;
+  margin-top: -3px;
+  width: 14px;
+  height: 14px;
 `;
 
 const LinkComponentContainer = styled.div`
@@ -300,6 +378,10 @@ const LinkComponentContainer = styled.div`
   @media (min-width: 1024px) {
     width: calc(100% - 220px);
   }
+`;
+
+const NavLink = styled.p`
+  margin-left: 16px;
 `;
 
 const NavLinkContainer = styled.div`
@@ -321,14 +403,25 @@ const NavLinkContainer = styled.div`
   }
 `;
 
-const NavLink = styled.p`
-  margin-left: 16px;
+const NavLinksContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: -16px;
+  position: fixed;
 `;
 
 const ProfileComponentTitle = styled('div')`
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
+`;
+
+const YourAccountWrapper = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: space-around;
+  margin-right: 16px;
+  width: 100%;
 `;
 
 export default HeaderProfileDrawer;
