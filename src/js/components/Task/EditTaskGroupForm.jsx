@@ -28,13 +28,14 @@ const EditTaskGroupForm = ({ classes }) => {
   const { mutate: taskGroupSave } = useTaskGroupSaveMutation();
 
   const [assignIfEmailCreated, setAssignIfEmailCreated] = useState(false);
+  const [assignIfOfferApproved, setAssignIfOfferApproved] = useState(false);
   const [assignIfOfferDecisionNeeded, setAssignIfOfferDecisionNeeded] = useState(false);
   const [assignIfOfferLetterCreated, setAssignIfOfferLetterCreated] = useState(false);
   const [assignIfOfferLetterSigned, setAssignIfOfferLetterSigned] = useState(false);
   const [assignIfOfferQuestionnaireAnswered, setAssignIfOfferQuestionnaireAnswered] = useState(false);
   const [assignIfOfferQuestionnaireSent, setAssignIfOfferQuestionnaireSent] = useState(false);
+  const [assignIfOfferWillNotBeMade, setAssignIfOfferWillNotBeMade] = useState(false);
   const [assignIfQuestionnaireAnswered, setAssignIfQuestionnaireAnswered] = useState(false);
-  const [assignIfStatusOfferApproved, setAssignIfStatusOfferApproved] = useState(false);
   const [linkedTeamIdList, setLinkedTeamIdList] = useState([]);
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [statusActive, setStatusActive] = useState(false);
@@ -63,13 +64,14 @@ const EditTaskGroupForm = ({ classes }) => {
   useEffect(() => {
     if (taskGroup) {
       setAssignIfEmailCreated(taskGroup.assignIfEmailCreated);
+      setAssignIfOfferApproved(taskGroup.assignIfOfferApproved);
       setAssignIfOfferDecisionNeeded(taskGroup.assignIfOfferDecisionNeeded);
       setAssignIfOfferLetterCreated(taskGroup.assignIfOfferLetterCreated);
       setAssignIfOfferLetterSigned(taskGroup.assignIfOfferLetterSigned);
       setAssignIfOfferQuestionnaireAnswered(taskGroup.assignIfOfferQuestionnaireAnswered);
       setAssignIfOfferQuestionnaireSent(taskGroup.assignIfOfferQuestionnaireSent);
+      setAssignIfOfferWillNotBeMade(taskGroup.assignIfOfferWillNotBeMade);
       setAssignIfQuestionnaireAnswered(taskGroup.assignIfQuestionnaireAnswered);
-      setAssignIfStatusOfferApproved(taskGroup.assignIfStatusOfferApproved);
       setQuestionnaireId(taskGroup.questionnaireId);
       setStatusActive(taskGroup.statusActive);
       setTaskGroupDescription(taskGroup.taskGroupDescription);
@@ -77,13 +79,14 @@ const EditTaskGroupForm = ({ classes }) => {
       setTaskGroupName(taskGroup.taskGroupName);
     } else {
       setAssignIfEmailCreated(false);
+      setAssignIfOfferApproved(false);
       setAssignIfOfferDecisionNeeded(false);
       setAssignIfOfferLetterCreated(false);
       setAssignIfOfferLetterSigned(false);
       setAssignIfOfferQuestionnaireAnswered(false);
       setAssignIfOfferQuestionnaireSent(false);
+      setAssignIfOfferWillNotBeMade(false);
       setAssignIfQuestionnaireAnswered(false);
-      setAssignIfStatusOfferApproved(false);
       setQuestionnaireId('');
       setStatusActive(false);
       setTaskGroupDescription('');
@@ -130,13 +133,14 @@ const EditTaskGroupForm = ({ classes }) => {
       taskGroupId: taskGroup ? taskGroup.id : '-1',
     }, {
       assignIfEmailCreated,
+      assignIfOfferApproved,
       assignIfOfferDecisionNeeded,
       assignIfOfferLetterCreated,
       assignIfOfferLetterSigned,
       assignIfOfferQuestionnaireAnswered,
       assignIfOfferQuestionnaireSent,
+      assignIfOfferWillNotBeMade,
       assignIfQuestionnaireAnswered,
-      assignIfStatusOfferApproved,
       questionnaireId,
       statusActive,
       taskGroupDescription: taskGroupDescriptionInputRef.current.value,
@@ -240,18 +244,35 @@ const EditTaskGroupForm = ({ classes }) => {
           classes={{ label: classes.checkboxLabel }}
           control={(
             <Checkbox
-              checked={assignIfStatusOfferApproved}
+              checked={assignIfOfferApproved}
               className={classes.checkboxRoot}
               color="primary"
-              id="assignIfStatusOfferApprovedToBeSaved"
-              name="assignIfStatusOfferApproved"
+              id="assignIfOfferApprovedToBeSaved"
+              name="assignIfOfferApproved"
               onChange={(event) => {
-                setAssignIfStatusOfferApproved(event.target.checked);
+                setAssignIfOfferApproved(event.target.checked);
                 updateSaveButton();
               }}
             />
           )}
           label="Hiring manager wants to hire"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={assignIfOfferWillNotBeMade}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="assignIfOfferWillNotBeMadeToBeSaved"
+              name="assignIfOfferWillNotBeMade"
+              onChange={(event) => {
+                setAssignIfOfferWillNotBeMade(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Offer will not be made"
         />
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}

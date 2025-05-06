@@ -34,10 +34,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [statusActive, setStatusActive] = useState(false);
+  const [statusOfferApproved, setStatusOfferApproved] = useState(false);
   const [statusOfferLetterCreated, setStatusOfferLetterCreated] = useState(false);
   const [statusOfferLetterSigned, setStatusOfferLetterSigned] = useState(false);
   const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
   const [statusOfferQuestionnaireSent, setStatusOfferQuestionnaireSent] = useState(false);
+  const [statusOfferWillNotBeMade, setStatusOfferWillNotBeMade] = useState(false);
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
   const [taskGroupId, setTaskGroupId] = useState(-1);
   const [taskDefinition] = useState(getAppContextValue('editTaskDefinitionDrawerTaskDefinition'));
@@ -60,10 +62,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
       setQuestionnaireId(taskDefinition.questionnaireId);
       setStatusActive(taskDefinition.statusActive);
+      setStatusOfferApproved(taskDefinition.statusOfferApproved);
       setStatusOfferLetterCreated(taskDefinition.statusOfferLetterCreated);
       setStatusOfferLetterSigned(taskDefinition.statusOfferLetterSigned);
       setStatusOfferQuestionnaireAnswered(taskDefinition.statusOfferQuestionnaireAnswered);
       setStatusOfferQuestionnaireSent(taskDefinition.statusOfferQuestionnaireSent);
+      setStatusOfferWillNotBeMade(taskDefinition.statusOfferWillNotBeMade);
       setTaskActionUrl(taskDefinition.taskActionUrl);
       setTaskGroupId(taskDefinition.taskGroupId);
       setTaskName(taskDefinition.taskName);
@@ -76,10 +80,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setIsQuestionnaireTask(false);
       setQuestionnaireId('');
       setStatusActive(false);
+      setStatusOfferApproved(false);
       setStatusOfferLetterCreated(false);
       setStatusOfferLetterSigned(false);
       setStatusOfferQuestionnaireAnswered(false);
       setStatusOfferQuestionnaireSent(false);
+      setStatusOfferWillNotBeMade(false);
       setTaskActionUrl('');
       setTaskGroupId(-1);
       setTaskName('');
@@ -108,10 +114,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
       isQuestionnaireTask,
       questionnaireId,
       statusActive,
+      statusOfferApproved,
       statusOfferLetterCreated,
       statusOfferLetterSigned,
       statusOfferQuestionnaireAnswered,
       statusOfferQuestionnaireSent,
+      statusOfferWillNotBeMade,
       taskGroupId,
       taskActionUrl: taskActionUrlInputRef.current.value,
       taskName: taskNameInputRef.current.value,
@@ -315,6 +323,40 @@ const EditTaskDefinitionForm = ({ classes }) => {
         <CustomizationTokensHeader>
           When this task marked completed, also update:
         </CustomizationTokensHeader>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferApproved || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferApprovedToBeSaved"
+              name="statusOfferApproved"
+              onChange={(event) => {
+                setStatusOfferApproved(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferApproved TRUE"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferWillNotBeMade || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferWillNotBeMadeToBeSaved"
+              name="statusOfferWillNotBeMade"
+              onChange={(event) => {
+                setStatusOfferWillNotBeMade(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferWillNotBeMade TRUE"
+        />
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
           control={(

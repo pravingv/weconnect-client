@@ -6,8 +6,11 @@ export function generateActivatedByDescription (taskGroup) {
   if (taskGroup.assignIfOfferDecisionNeeded) {
     activatedByParts.push('Hiring decision needed');
   }
-  if (taskGroup.assignIfStatusOfferApproved) {
+  if (taskGroup.assignIfOfferApproved) {
     activatedByParts.push('Hiring manager wants to hire');
+  }
+  if (taskGroup.assignIfOfferWillNotBeMade) {
+    activatedByParts.push('Offer will not be made');
   }
   if (taskGroup.assignIfOfferQuestionnaireAnswered) {
     activatedByParts.push('Offer questionnaire has been answered');

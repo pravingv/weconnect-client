@@ -68,11 +68,12 @@ const EditPersonForm = ({ classes }) => {
   const statusOfferLetterSignedInputRef = useRef(false);
   const statusOfferQuestionnaireAnsweredInputRef = useRef(false);
   const statusOfferQuestionnaireSentInputRef = useRef(false);
+  const statusOfferWillNotBeMadeInputRef = useRef(false);
   const statusOnLeaveInputRef = useRef(false);
   const statusResignedInputRef = useRef(false);
 
   useEffect(() => {
-    setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned));
+    setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned || activePerson.statusOfferWillNotBeMade));
   }, [activePerson]);
 
   useEffect(() => {
@@ -116,6 +117,7 @@ const EditPersonForm = ({ classes }) => {
       activePerson.statusOfferLetterSigned = statusOfferLetterSignedInputRef.current.checked;
       activePerson.statusOfferQuestionnaireAnswered = statusOfferQuestionnaireAnsweredInputRef.current.checked;
       activePerson.statusOfferQuestionnaireSent = statusOfferQuestionnaireSentInputRef.current.checked;
+      activePerson.statusOfferWillNotBeMade = statusOfferWillNotBeMadeInputRef.current.checked;
     }
     // console.log('savePerson data:', JSON.stringify(activePerson));
     // console.log('dateStartDate:', dateStartDate);
@@ -359,6 +361,27 @@ const EditPersonForm = ({ classes }) => {
             />
           )}
           label={`Hiring manager wants to make offer to ${activePerson.firstNamePreferred || activePerson.firstName}`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam && (!activePerson.statusOfferWillNotBeMade || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.statusOfferWillNotBeMade || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferWillNotBeMadeToBeSaved"
+              inputRef={statusOfferWillNotBeMadeInputRef}
+              name="statusOfferWillNotBeMade"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOfferWillNotBeMade: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`Offer will not be made to ${activePerson.firstNamePreferred || activePerson.firstName}`}
         />
         <CheckboxLabel
           classes={viewerIsOnHrTeam && (!activePerson.statusOfferQuestionnaireSent || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
