@@ -363,7 +363,7 @@ const EditPersonForm = ({ classes }) => {
           label={`Hiring manager wants to make offer to ${activePerson.firstNamePreferred || activePerson.firstName}`}
         />
         <CheckboxLabel
-          classes={viewerIsOnHrTeam && (!activePerson.statusOfferWillNotBeMade || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          classes={viewerIsOnHrTeam && ((!activePerson.statusOfferWillNotBeMade && !activePerson.statusOfferApproved) || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
           control={(
             <Checkbox
               checked={activePerson.statusOfferWillNotBeMade || false}
