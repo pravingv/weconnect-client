@@ -58,7 +58,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
     let personStatusTemp = '';
     if (!person.statusOfferApproved) {
       personStatusTemp = 'hiring manager deciding';
-    } else if (!person.statusOfferWillNotBeMade) {
+    } else if (person.statusOfferWillNotBeMade) {
       personStatusTemp = 'offer won\'t be made';
     } else if (!person.statusOfferQuestionnaireSent) {
       personStatusTemp = 'needs questionnaire';
