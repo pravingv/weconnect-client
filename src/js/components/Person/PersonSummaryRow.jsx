@@ -58,6 +58,8 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
     let personStatusTemp = '';
     if (!person.statusOfferApproved) {
       personStatusTemp = 'hiring manager deciding';
+    } else if (!person.statusOfferWillNotBeMade) {
+      personStatusTemp = 'offer won\'t be made';
     } else if (!person.statusOfferQuestionnaireSent) {
       personStatusTemp = 'needs questionnaire';
     } else if (!person.statusOfferQuestionnaireAnswered) {
@@ -93,7 +95,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         </PersonCell>
         <PersonCell
           id={`fullNamePreferred-personId-${person.personId}`}
-          onClick={() => viewPersonClick()}
+          onClick={() => viewPersonClick(canEditPerson)}
           $cellwidth={180}
         >
           <SpanWithLinkStyle className={classes.teamMemberName}>

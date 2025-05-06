@@ -47,7 +47,7 @@ export const getPersonAwayLabel = (personAwayReason) => {
   }
 };
 
-export const isInOfferProcess = (person) => ((person.statusOfferDecisionNeeded === true) || (person.statusOfferApproved === true)) && person.statusOfferLetterSigned !== true;
+export const isInOfferProcess = (person) => ((person.statusOfferDecisionNeeded === true) || (person.statusOfferApproved === true)) && person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true;
 
 export const searchWordFoundInOnePerson = (searchWord, person) => {
   const fieldsToSearch = [
