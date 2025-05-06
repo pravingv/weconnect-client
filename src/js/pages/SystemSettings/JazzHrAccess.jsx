@@ -63,12 +63,8 @@ const JazzHrAccess = (params) => {
     console.log('JazzHrAccess jazz-get-applicants: ', data);
     if (data?.success) {
       let count = data.data.length;
-      if (!count && 'id' in data.data) {
-        count = 1;
-      }
-      if (!count) {
-        count = 0;
-      }
+      if (!count && 'id' in data.data) count = 1;
+      if (!count) count = 0;
       document.getElementById('jsonResults').textContent = '';
 
       setResultsText(`Applicants found: ${count}`);
