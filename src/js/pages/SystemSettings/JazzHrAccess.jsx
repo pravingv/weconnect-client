@@ -62,8 +62,17 @@ const JazzHrAccess = (params) => {
     const data = await weConnectQueryFn('jazz-get-applicants', { name, city, job_id, job_title, apply_date, from_apply_date, to_apply_date }, METHOD.POST);
     console.log('JazzHrAccess jazz-get-applicants: ', data);
     if (data?.success) {
-      setResultsText(`Applicants found: ${data.data.length}`);
-      if (data.data.length > 0) {
+      let count = data.data.length;
+      if (!count && 'id' in data.data) {
+        count = 1;
+      }
+      if (!count) {
+        count = 0;
+      }
+      document.getElementById('jsonResults').textContent = '';
+
+      setResultsText(`Applicants found: ${count}`);
+      if (count) {
         document.getElementById('jsonResults').textContent = JSON.stringify(data.data, undefined, 2);
       }
     } else {
