@@ -22,10 +22,9 @@ const ShareGoogleDriveAccess = (params) => {
   const driveFolderInputRef = useRef(null);
   const roleInputRef = useRef('writer');
   const newOwnersEmailInputRef = useRef('');
-  // const changeOwnerGloballyInputRef = useRef(false);
 
   const [isAdmin] = useState(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
-  const { isShare } = params;
+  const { isShare, isRevoke, isTransfer } = params;
 
   const shareAccess = async () => {
     const primaryEmail = emailInputRef.current.value;
@@ -43,17 +42,32 @@ const ShareGoogleDriveAccess = (params) => {
     setOpen(true);
   };
 
-  const revokeAccess = async () => {
+  const transferAccess = async () => {
     const oldOwnersEmail = emailInputRef.current.value;
     const newOwnersEmail = newOwnersEmailInputRef.current.value;
 
-    console.log(`revokeAccess ${oldOwnersEmail} => ${newOwnersEmail}`);
-    const data = await weConnectQueryFn('google-revoke-drive-access', { oldOwnersEmail, newOwnersEmail }, METHOD.POST);
+    console.log(`transferAccess ${oldOwnersEmail} => ${newOwnersEmail}`);
+    const data = await weConnectQueryFn('google-transfer-drive-access', { oldOwnersEmail, newOwnersEmail }, METHOD.POST);
     console.log('revokeAccess', data);
     if (data?.success) {
-      setResultsText(`User '${oldOwnersEmail}'/'s drive access was revoked, and file ownership was transferred to '${newOwnersEmail}'`);
+      setResultsText(`User '${oldOwnersEmail}'/'s drive file and directory ownership was transferred to '${newOwnersEmail}'`);
     } else {
-      setResultsText(`ERROR: User '${oldOwnersEmail}''s drive access was WAS NOT revoked`);
+      setResultsText(`ERROR: User '${oldOwnersEmail}''s drive access was WAS NOT transferred`);
+    }
+    setOpen(true);
+  };
+
+  const revokeSharing = async () => {
+    const ownersEmail = emailInputRef.current.value;
+
+    console.log(`revokeSharing ${ownersEmail}`);
+    const data = await weConnectQueryFn('google-revoke-sharing', {ownersEmail }, METHOD.POST);
+    console.log('revokeSharing', data);
+    if (data?.success) {
+      setResultsText(`User "${ownersEmail}"s' drive sharing was revoked`);
+      console.log('revokeSharing, files revoked: ', data?.filesRevoked);
+    } else {
+      setResultsText(`ERROR: User '${ownersEmail}''s drive access was WAS NOT revoked`);
     }
     setOpen(true);
   };
@@ -61,8 +75,10 @@ const ShareGoogleDriveAccess = (params) => {
   const googleShareClick = async () => {
     if (isShare) {
       await shareAccess();
-    } else {
-      await revokeAccess();
+    } else if (isRevoke) {
+      await revokeSharing();
+    } else if (isTransfer) {
+      await transferAccess();
     }
   };
 
@@ -74,14 +90,27 @@ const ShareGoogleDriveAccess = (params) => {
     setOpen(true);
   };
 
+  let buttonLabel;
+  let dialogTitleText;
   let shareMessage;
+  let actionButtonText;
   if (isShare) {
+    buttonLabel = 'Admins Only: Share Google Drive Access';
+    dialogTitleText = 'Enter staff members wevoteeducation.org info';
     shareMessage = 'This shares all files on a directory basis, and any subdirectories of the directory are included. To share the entire drive, ' +
-    'enter "We Vote Education" (exact spelling and spacing is required).';
-  } else {
-    shareMessage = 'This revokes file and directory shares recursively on a directory basis, and any subdirectories of the directory are ' +
-    'included. Any files owned by the user will be changed to the newOwner\'s email address.  To change ownership of ' +
-    'any file owned by the primaryEmail address user, enter the root folder\'s name, "We Vote Education" (exact spelling and spacing is required).';
+      'enter "We Vote Education" (exact spelling and spacing is required).';
+    actionButtonText = 'Share Drive Folder';
+  } else if (isTransfer) {
+    buttonLabel = 'Admins Only: Transfer Ownership of Google Drive Files';
+    dialogTitleText = 'Enter staff member\'s wevoteeducation.org info and the email of the staff inheriting ownership';
+    shareMessage = 'This transfers the ownership of all files and directories in the \'We Vote Education\' drive, from a Member/User/Staff/Person to the \'New Owner\'.  The \'Member\' is demoted from \'owner\' to \'editor\' for those files. \n' +
+      'To stop the Member from accessing the files, make their deactivate their wevoteeductation.org Google account.';
+    actionButtonText = 'Transfer File and Folder Ownership';
+  } else if (isRevoke) {
+    buttonLabel = 'Admins Only: Revoke Sharing of Google Drive Access';
+    dialogTitleText = 'Enter staff member\'s wevoteeducation.org info';
+    shareMessage = 'This revokes sharing of all files and directories for the Member';
+    actionButtonText = 'Revoke Sharing';
   }
 
   return (
@@ -96,7 +125,7 @@ const ShareGoogleDriveAccess = (params) => {
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
             startIcon={<LockOutlineIcon />}
           >
-            Admins Only:  {isShare ? 'Share Google Drive Access' : 'Revoke Sharing of Google Drive Access'}
+            {buttonLabel}
           </Button>
           <br />
           <Dialog
@@ -106,7 +135,7 @@ const ShareGoogleDriveAccess = (params) => {
             PaperProps={{ sx: { width: '95%', maxWidth: '95%' } }}
           >
             <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-              {isShare ? "Enter staff member's wevoteeducation.org info" : "Enter staff member's wevoteeducation.org info and the email of the staff inheriting ownership" }
+              {dialogTitleText}
               <br />
               <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>{shareMessage}</div>
             </DialogTitle>
@@ -131,7 +160,7 @@ const ShareGoogleDriveAccess = (params) => {
                 defaultValue="@wevoteeducation.org"
                 sx={{ minWidth: '400px', marginRight: '10px' }}
               />
-              {isShare ? (
+              {isShare && (
                 <>
                   <TextField
                     id="drive_input"
@@ -150,7 +179,8 @@ const ShareGoogleDriveAccess = (params) => {
                     sx={{ minWidth: '300px', marginRight: '10px' }}
                   />
                 </>
-              ) : (
+              )}
+              {isTransfer && (
                 <TextField
                   id="search_input"
                   label="New Owner's Email"
@@ -164,7 +194,7 @@ const ShareGoogleDriveAccess = (params) => {
             </DialogContent>
             <DialogActions>
               <Button autoFocus variant="outlined" onClick={googleShareClick}>
-                {isShare ? 'Share Drive Folder' : 'Revoke Share'}
+                {actionButtonText}
               </Button>
             </DialogActions>
           </Dialog>
