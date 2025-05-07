@@ -37,7 +37,8 @@ const HeaderProfileDrawer = () => {
   const [displayProfileOption, setDisplayProfileOption] = useState('nameAndPhoto');
   const [displayProfileComponent, setDisplayProfileComponent] = useState();
   const [headerProfileSectionSetFromAppContext, setHeaderProfileSectionSetFromAppContext] = useState(false);
-  const [quickLinkCopied, setQuickLinkCopied] = useState('');
+  const [officialEmailCopied, setOfficialEmailCopied] = useState('');
+  const [personalEmailCopied, setPersonalEmailCopied] = useState('');
   const [showLinksToProfilePages, setShowLinksToProfilePages] = useState(true);
   const [viewerIsThisAuthenticatedPerson, setViewerIsThisAuthenticatedPerson] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -48,10 +49,17 @@ const HeaderProfileDrawer = () => {
   const personViewedInDrawerFullName = getFullNamePreferredPerson(personViewedInDrawer);
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
 
-  const copyQuickLink = () => {
-    setQuickLinkCopied('Copied!');
+  const copyOfficialEmail = () => {
+    setOfficialEmailCopied(true);
     setTimeout(() => {
-      setQuickLinkCopied('');
+      setOfficialEmailCopied(false);
+    }, 1500);
+  };
+
+  const copyPersonalEmail = () => {
+    setPersonalEmailCopied(true);
+    setTimeout(() => {
+      setPersonalEmailCopied(false);
     }, 1500);
   };
 
@@ -241,14 +249,22 @@ const HeaderProfileDrawer = () => {
       )}
       {personViewedInDrawer.emailOfficial && (
         <HeaderProfileLink>
-          {quickLinkCopied || (
-            <CopyToClipboard text={personViewedInDrawer.emailOfficial} onCopy={() => copyQuickLink()}>
-              <CopyToClipboardContainer>
-                <ContentCopyStyled />
-                <ContentCopyText>{webAppConfig.ORGANIZATION_NAME || 'Official'} email</ContentCopyText>
-              </CopyToClipboardContainer>
-            </CopyToClipboard>
-          )}
+          <CopyToClipboard text={personViewedInDrawer.emailOfficial} onCopy={() => copyOfficialEmail()}>
+            <CopyToClipboardContainer>
+              <ContentCopyStyled />
+              <ContentCopyText>{officialEmailCopied ? 'Copied!' : `${webAppConfig.ORGANIZATION_NAME || 'Official'} email`}</ContentCopyText>
+            </CopyToClipboardContainer>
+          </CopyToClipboard>
+        </HeaderProfileLink>
+      )}
+      {personViewedInDrawer.emailPersonal && (
+        <HeaderProfileLink>
+          <CopyToClipboard text={personViewedInDrawer.emailPersonal} onCopy={() => copyPersonalEmail()}>
+            <CopyToClipboardContainer>
+              <ContentCopyStyled />
+              <ContentCopyText>{personalEmailCopied ? 'Copied!' : 'Personal email'}</ContentCopyText>
+            </CopyToClipboardContainer>
+          </CopyToClipboard>
         </HeaderProfileLink>
       )}
     </>
@@ -307,7 +323,6 @@ const ContentCopyStyled = styled(ContentCopy)`
 `;
 
 const ContentCopyText = styled('p')`
-  padding-right: 8px;
 `;
 
 const CopyToClipboardContainer = styled('div')`
@@ -315,7 +330,6 @@ const CopyToClipboardContainer = styled('div')`
   display: flex;
   height: 18px;
   justify-content: flex-start;
-  padding-right: 8px;
 `;
 
 const HeaderProfileLink = styled('div')`

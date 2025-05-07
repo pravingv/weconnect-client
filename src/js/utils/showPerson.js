@@ -23,6 +23,10 @@ export const showPersonInMemberList = (person, searchTextLocal, getAppContextVal
   } else if (pigsCanFly) {
     // Used for testing while developing
     return true;
+  } else if (!person.statusActive) {
+    // Only show people marked with statusActive = false when searching
+    // Eventually weave in the ability to show as a "show" filter option
+    return false;
   } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR') {
     // "Include" option, where we show people who match any of the filters
     return onlyShowPersonWithPeopleFiltersLogicalOrMatch(person, getAppContextValue);

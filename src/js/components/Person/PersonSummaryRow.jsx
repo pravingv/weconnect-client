@@ -68,6 +68,10 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
       personStatusTemp = 'needs offer';
     } else if (!person.statusOfferLetterSigned) {
       personStatusTemp = 'waiting for signature';
+    } else if (person.statusResigned) {
+      personStatusTemp = 'resigned';
+    } else if (person.statusOnLeave) {
+      personStatusTemp = 'on leave';
     }
     setPersonStatus(personStatusTemp);
   }, [person]);
@@ -130,11 +134,9 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
                   ) : (
                     <span>
                       {person.statusOfferLetterSigned ? (
-                        <span>
-                          {timeFromDate(person.dateStartDate, true)}
-                        </span>
+                        <span>{timeFromDate(person.dateStartDate, true)}{personStatus && ` (${personStatus})`}</span>
                       ) : (
-                        <span>{personStatus}: {formatDateMMMDo(person.dateStartDate)} start</span>
+                        <span>{personStatus && `${personStatus}: `}{formatDateMMMDo(person.dateStartDate)} start</span>
                       )}
                     </span>
                   )}

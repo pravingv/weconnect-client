@@ -1,4 +1,4 @@
-import { ContentCopy, Launch } from '@mui/icons-material';
+import { ContentCopy } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -14,12 +14,28 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
 
-  const [quickLinkCopied, setQuickLinkCopied] = useState('');
+  const [emailOfficialCopied, setEmailOfficialCopied] = useState(false);
+  const [emailPersonalCopied, setEmailPersonalCopied] = useState(false);
+  const [emailPreferredCopied, setEmailPreferredCopied] = useState(false);
 
-  const copyQuickLink = () => {
-    setQuickLinkCopied('Copied!');
+  const copyEmailOfficial = () => {
+    setEmailOfficialCopied(true);
     setTimeout(() => {
-      setQuickLinkCopied('');
+      setEmailOfficialCopied(false);
+    }, 1500);
+  };
+
+  const copyEmailPersonal = () => {
+    setEmailPersonalCopied(true);
+    setTimeout(() => {
+      setEmailPersonalCopied(false);
+    }, 1500);
+  };
+
+  const copyEmailPreferred = () => {
+    setEmailPreferredCopied(true);
+    setTimeout(() => {
+      setEmailPreferredCopied(false);
     }, 1500);
   };
 
@@ -34,16 +50,16 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
             {'\u00A0'}
           </div>
           <div>
-            <CopyToClipboard text={preferredEmail} onCopy={() => copyQuickLink()}>
+            <CopyToClipboard text={preferredEmail} onCopy={() => copyEmailPreferred()}>
               <EmailAddressToBeCopied>
-                {preferredEmail}
+                {emailPreferredCopied ? 'Copied!' : preferredEmail}
                 <ContentCopyStyled />
               </EmailAddressToBeCopied>
             </CopyToClipboard>
           </div>
         </QuickLinksRow>
       )}
-      {(preferredEmail !== person.emailOfficial) && (
+      {(person.emailOfficial && (preferredEmail !== person.emailOfficial)) && (
         <QuickLinksRow>
           <div>
             Official:
@@ -51,9 +67,9 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
           </div>
           <div>
             {person.emailOfficial && (
-              <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
+              <CopyToClipboard text={person.emailOfficial} onCopy={() => copyEmailOfficial()}>
                 <EmailAddressToBeCopied>
-                  {person.emailOfficial || '(email needed)'}
+                  {emailOfficialCopied ? 'Copied!' : person.emailOfficial || '(email needed)'}
                   <ContentCopyStyled />
                 </EmailAddressToBeCopied>
               </CopyToClipboard>
@@ -68,18 +84,15 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
             {'\u00A0'}
           </div>
           <div>
-            <CopyToClipboard text={person.emailPersonal} onCopy={() => copyQuickLink()}>
+            <CopyToClipboard text={person.emailPersonal} onCopy={() => copyEmailPersonal()}>
               <EmailAddressToBeCopied>
-                {person.emailPersonal}
+                {emailPersonalCopied ? 'Copied!' : person.emailPersonal}
                 <ContentCopyStyled />
               </EmailAddressToBeCopied>
             </CopyToClipboard>
           </div>
         </QuickLinksRow>
       )}
-      <QuickLinksRow>
-        {quickLinkCopied}
-      </QuickLinksRow>
     </PersonDetailsEmailsAndStartDateWrapper>
   );
 };
@@ -93,14 +106,6 @@ const ContentCopyStyled = styled(ContentCopy)`
   height: 16px;
   margin-bottom: -3px;
   margin-left: 4px;
-`;
-
-const LaunchStyled = styled(Launch)`
-  color: ${DesignTokenColors.primary500};
-  cursor: pointer;
-  margin-left: 2px;
-  width: 14px;
-  height: 14px;
 `;
 
 const PersonDetailsEmailsAndStartDateWrapper = styled('div')`
