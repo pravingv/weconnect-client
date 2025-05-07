@@ -22,8 +22,9 @@ import TaskListForPersonManager from '../Task/TaskListForPersonManager';
 const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, teamId, classes }) => {
   renderLog('PersonSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
+  const { allPeopleTeamIdLists, viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
 
+  const [personNumberOfTeams, setPersonNumberOfTeams] = useState(0);
   const [personRowUnfurled, setPersonRowUnfurled] = useState(personRowUnfurledFromParent);
   const [personRowUnfurledFromParentAlreadySet, setPersonRowUnfurledFromParentAlreadySet] = useState(personRowUnfurledFromParent);
   const [personStatus, setPersonStatus] = useState('');
@@ -55,8 +56,20 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
   }, [personRowUnfurled, personRowUnfurledFromParent, personRowUnfurledFromParentAlreadySet]);
 
   useEffect(() => {
+    let personNumberOfTeamsTemp = 0;
+    if (allPeopleTeamIdLists && allPeopleTeamIdLists[person.personId]) {
+      personNumberOfTeamsTemp = allPeopleTeamIdLists[person.personId].length;
+    }
+    if (personNumberOfTeamsTemp !== personNumberOfTeams) {
+      setPersonNumberOfTeams(personNumberOfTeamsTemp);
+    }
+  }, [allPeopleTeamIdLists, person]);
+
+  useEffect(() => {
     let personStatusTemp = '';
-    if (!person.statusOfferApproved) {
+    if (!person.statusActive) {
+      personStatusTemp = 'account off';
+    } else if (!person.statusOfferApproved) {
       personStatusTemp = 'hiring manager deciding';
     } else if (person.statusOfferWillNotBeMade) {
       personStatusTemp = 'offer won\'t be made';
@@ -115,10 +128,16 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         </PersonCell>
         <PersonCell
           id={`jobTitle-personId-${person.personId}`}
-          $cellwidth={200}
+          $cellwidth={210}
           $smallestfont
         >
           {person.jobTitle}
+          {personNumberOfTeams > 1 && (
+            <NumberOfTeams>
+              {' '}
+              ({personNumberOfTeams})
+            </NumberOfTeams>
+          )}
         </PersonCell>
         <HideOnHover>
           <PersonCell
@@ -167,7 +186,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
                 <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
                   <CopyToClipboardContainer>
                     <ContentCopyStyled />
-                    <ContentCopyText>Copy {webAppConfig.ORGANIZATION_NAME || 'Official'} email</ContentCopyText>
+                    <ContentCopyText>{webAppConfig.ORGANIZATION_NAME || 'Official'} email</ContentCopyText>
                   </CopyToClipboardContainer>
                 </CopyToClipboard>
               )}
@@ -218,6 +237,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
   );
 };
 PersonSummaryRow.propTypes = {
+  classes: PropTypes.object,
   hideTasks: PropTypes.bool,
   personRowUnfurledFromParent: PropTypes.bool,
   person: PropTypes.object.isRequired,
@@ -291,6 +311,10 @@ const ShowOnHover = styled('div')`
   min-width: 250px;
   max-width: 250px;
   width: 220px;
+`;
+
+const NumberOfTeams = styled('span')`
+  color: ${DesignTokenColors.neutralUI300};
 `;
 
 const PersonDetailsRow = styled('div')`

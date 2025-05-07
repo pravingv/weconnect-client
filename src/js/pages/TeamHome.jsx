@@ -29,7 +29,7 @@ const TeamHome = ({ classes }) => {
   const params  = useParams();
   const [hideInactive, setHideInactive] = useState(true);
   const [team, setTeam] = useState(useGetTeamById(convertToInteger(params.teamId)));
-  const [teamId] = useState(convertToInteger(params.teamId));
+  const [teamId, setTeamId] = useState(convertToInteger(params.teamId));
 
   // const updateTeam = (tList) => {
   //   const oneTeam = tList.find((person) => person.teamId === parseInt(teamId));
@@ -61,6 +61,12 @@ const TeamHome = ({ classes }) => {
       setTeam(allTeamsCache[teamId]);
     }
   }, [allTeamsCache, teamId]);
+
+  useEffect(() => {
+    if (params.teamId && params.teamId !== teamId) {
+      setTeamId(convertToInteger(params.teamId));
+    }
+  }, [params, teamId]);
 
   const addMeetingClick = () => {
     console.log('TeamHome addMeetingClick, teamId:', teamId);
