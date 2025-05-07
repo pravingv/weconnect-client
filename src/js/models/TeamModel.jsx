@@ -62,18 +62,23 @@ export function captureTeamListRetrieveData (
 ) {
   // console.log('||||||| captureTeamListRetrieveData should be called after useFetchData([\'team-list-retrieve\'], {})')
   const { data, isSuccess } = incomingRetrieveResults;
+  const allPeopleTeamIdLists = apiDataCache.allPeopleTeamIdLists || {};
   const allTeamMembersCache = apiDataCache.allTeamMembersCache || {};
   const allTeamsCache = apiDataCache.allTeamsCache || {};
   // console.log('TeamListRetrieve data: ', data, ', isFetching:', isFetching, ', isSuccess:', isSuccess);
   const changeResults = {
+    allPeopleTeamIdLists,
+    allPeopleTeamIdListsChanged: false,
     allTeamMembersCache,
     allTeamMembersCacheChanged: false,
     allTeamsCache,
     allTeamsCacheChanged: false,
   };
+  const allPeopleTeamIdListsNew = { ...allPeopleTeamIdLists };
   const allTeamMembersCacheNew = { ...allTeamMembersCache };
   const allTeamsCacheNew = { ...allTeamsCache };
   if (data && data.teamList && isSuccess === true) {
+    let newPeopleTeamIdDataReceived = false;
     let newTeamDataReceived = false;
     let teamTrimmed;
     let newTeamMemberDataReceived = false;
@@ -99,6 +104,14 @@ export function captureTeamListRetrieveData (
         teamMemberListOfPersonIdsAtStart = [...allTeamMembersCacheNew[team.teamId]];
         team.teamMemberList.forEach((person) => {
           if (person && person.personId && person.personId >= 0) {
+            // Capture for each person, which teams they are in
+            if (!allPeopleTeamIdListsNew[person.personId]) {
+              allPeopleTeamIdListsNew[person.personId] = [];
+            }
+            if (!allPeopleTeamIdListsNew[person.personId].includes(team.teamId)) {
+              allPeopleTeamIdListsNew[person.personId].push(team.teamId);
+              newPeopleTeamIdDataReceived = true;
+            }
             // Capture which team this person is in
             if (!allTeamMembersCacheNew[team.teamId].includes(person.personId)) {
               allTeamMembersCacheNew[team.teamId].push(person.personId);
@@ -124,18 +137,24 @@ export function captureTeamListRetrieveData (
           newTeamMemberDataReceived = true;
         }
       }
-      if (newTeamMemberDataReceived) {
-        // console.log('newTeamMemberDataReceived, dispatching allTeamMembersCache');
-        dispatch({ type: 'updateByKeyValue', key: 'allTeamMembersCache', value: allTeamMembersCacheNew });
-        changeResults.allTeamMembersCache = allTeamMembersCacheNew;
-        changeResults.allTeamMembersCacheChanged = true;
-      }
-      if (newTeamDataReceived) {
-        dispatch({ type: 'updateByKeyValue', key: 'allTeamsCache', value: allTeamsCacheNew });
-        changeResults.allTeamsCache = allTeamsCacheNew;
-        changeResults.allTeamsCacheChanged = true;
-      }
     });
+    if (newPeopleTeamIdDataReceived) {
+      // console.log('newPeopleTeamIdDataReceived, dispatching allPeopleTeamIdLists');
+      dispatch({ type: 'updateByKeyValue', key: 'allPeopleTeamIdLists', value: allPeopleTeamIdListsNew });
+      changeResults.allPeopleTeamIdLists = allPeopleTeamIdListsNew;
+      changeResults.allPeopleTeamIdListsChanged = true;
+    }
+    if (newTeamMemberDataReceived) {
+      // console.log('newTeamMemberDataReceived, dispatching allTeamMembersCache');
+      dispatch({ type: 'updateByKeyValue', key: 'allTeamMembersCache', value: allTeamMembersCacheNew });
+      changeResults.allTeamMembersCache = allTeamMembersCacheNew;
+      changeResults.allTeamMembersCacheChanged = true;
+    }
+    if (newTeamDataReceived) {
+      dispatch({ type: 'updateByKeyValue', key: 'allTeamsCache', value: allTeamsCacheNew });
+      changeResults.allTeamsCache = allTeamsCacheNew;
+      changeResults.allTeamsCacheChanged = true;
+    }
   }
   return changeResults;
 }

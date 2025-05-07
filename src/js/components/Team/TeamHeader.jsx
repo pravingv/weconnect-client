@@ -65,7 +65,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               <KeyboardArrowDownStyled />
             )}
           </TeamHeaderCell>
-          <TeamHeaderCell $cellwidth={215} $largefont $titlecell>
+          <TeamHeaderCell $cellwidth={335} $largefont $titlecell>
             {teamLocal && (
               <Link className={classes.teamLocalNameLink} to={`/team-home/${teamLocal.id}`}>
                 {teamLocal.teamName}
@@ -124,7 +124,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
             <TeamHeaderCell $cellwidth={150}>
               Location
             </TeamHeaderCell>
-            <TeamHeaderCell $cellwidth={200}>
+            <TeamHeaderCell $cellwidth={210}>
               Title
             </TeamHeaderCell>
             <TeamHeaderCell $cellwidth={150} />

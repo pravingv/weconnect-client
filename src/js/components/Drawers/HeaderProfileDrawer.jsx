@@ -5,6 +5,7 @@ import {
   ContentCopy, Launch,
   ManageAccounts,
   Menu,
+  People,
   Quiz,
   TaskAlt,
 } from '@mui/icons-material';
@@ -23,6 +24,7 @@ import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { useLogoutMutation } from '../../react-query/mutations';
 import EditPersonTasksDrawerMainContent from '../Person/EditPersonTasksDrawerMainContent';
 import ViewQuestionnairesForPerson from '../Questionnaire/ViewQuestionnairesForPerson';
+import ViewTeamsForPerson from '../Team/ViewTeamsForPerson';
 import VisibleProfile from '../Person/VisibleProfile';
 import EditPersonAwayForm from '../Person/EditPersonAwayForm';
 import webAppConfig from '../../config';
@@ -85,6 +87,7 @@ const HeaderProfileDrawer = () => {
       { icon: <ManageAccounts />, linkName: 'nameAndPhoto', linkTextJsx: <>Edit Info</> },
       { icon: <CalendarMonth />, linkName: 'personAvailability', linkTextJsx: <>Availability</> },
       { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Onboarding Tasks</> },
+      { icon: <People />, linkName: 'personTeams', linkTextJsx: <>Teams</> },
       { icon: <Quiz />, linkName: 'personQuestionnaires', linkTextJsx: <>Questionnaires</> },
     );
   }
@@ -126,6 +129,16 @@ const HeaderProfileDrawer = () => {
           <>
             <ProfileComponentTitle>Onboarding Tasks</ProfileComponentTitle>
             <EditPersonTasksDrawerMainContent />
+          </>
+        );
+        break;
+      case 'personTeams':
+        component = (
+          <>
+            <ProfileComponentTitle>Teams</ProfileComponentTitle>
+            {personViewedInDrawer && (
+              <ViewTeamsForPerson personId={personViewedInDrawer.personId} />
+            )}
           </>
         );
         break;
@@ -230,42 +243,63 @@ const HeaderProfileDrawer = () => {
           <p>{personViewedInDrawerFullName}</p>
         </YourAccountWrapper>
       )}
-      {personViewedInDrawer.jazzHrUrl && (
-        <HeaderProfileLink>
-          <Suspense fallback={<></>}>
-            <OpenExternalWebSite
-              linkIdAttribute="jazzHrUrlId"
-              url={personViewedInDrawer.jazzHrUrl}
-              target="_blank"
-              body={(
-                <HeaderProfileLinkSpan>
-                  JazzHR
-                  <LaunchStyled />
-                </HeaderProfileLinkSpan>
-              )}
-            />
-          </Suspense>
-        </HeaderProfileLink>
-      )}
-      {personViewedInDrawer.emailOfficial && (
-        <HeaderProfileLink>
-          <CopyToClipboard text={personViewedInDrawer.emailOfficial} onCopy={() => copyOfficialEmail()}>
-            <CopyToClipboardContainer>
-              <ContentCopyStyled />
-              <ContentCopyText>{officialEmailCopied ? 'Copied!' : `${webAppConfig.ORGANIZATION_NAME || 'Official'} email`}</ContentCopyText>
-            </CopyToClipboardContainer>
-          </CopyToClipboard>
-        </HeaderProfileLink>
-      )}
-      {personViewedInDrawer.emailPersonal && (
-        <HeaderProfileLink>
-          <CopyToClipboard text={personViewedInDrawer.emailPersonal} onCopy={() => copyPersonalEmail()}>
-            <CopyToClipboardContainer>
-              <ContentCopyStyled />
-              <ContentCopyText>{personalEmailCopied ? 'Copied!' : 'Personal email'}</ContentCopyText>
-            </CopyToClipboardContainer>
-          </CopyToClipboard>
-        </HeaderProfileLink>
+      {windowWidth >= 768 && (
+        <>
+          {personViewedInDrawer.jazzHrUrl && (
+            <HeaderProfileLink>
+              <Suspense fallback={<></>}>
+                <OpenExternalWebSite
+                  linkIdAttribute="jazzHrUrlId"
+                  url={personViewedInDrawer.jazzHrUrl}
+                  target="_blank"
+                  body={(
+                    <HeaderProfileLinkSpan>
+                      JazzHR profile
+                      <LaunchStyled />
+                    </HeaderProfileLinkSpan>
+                  )}
+                />
+              </Suspense>
+            </HeaderProfileLink>
+          )}
+          {windowWidth >= 900 && personViewedInDrawer.jazzHrUrl && personViewedInDrawer.jazzHrUrl.endsWith('/profile') && (
+            <HeaderProfileLink>
+              <Suspense fallback={<></>}>
+                <OpenExternalWebSite
+                  linkIdAttribute="jazzHrEmailsUrlId"
+                  url={personViewedInDrawer.jazzHrUrl.replace(/\/profile$/, '/message')}
+                  target="_blank"
+                  body={(
+                    <HeaderProfileLinkSpan>
+                      JazzHR emails
+                      <LaunchStyled />
+                    </HeaderProfileLinkSpan>
+                  )}
+                />
+              </Suspense>
+            </HeaderProfileLink>
+          )}
+          {personViewedInDrawer.emailOfficial && (
+            <HeaderProfileLink>
+              <CopyToClipboard text={personViewedInDrawer.emailOfficial} onCopy={() => copyOfficialEmail()}>
+                <CopyToClipboardContainer>
+                  <ContentCopyStyled />
+                  <ContentCopyText>{officialEmailCopied ? 'Copied!' : `${webAppConfig.ORGANIZATION_NAME || 'Official'} email`}</ContentCopyText>
+                </CopyToClipboardContainer>
+              </CopyToClipboard>
+            </HeaderProfileLink>
+          )}
+          {windowWidth >= 900 && personViewedInDrawer.emailPersonal && (
+            <HeaderProfileLink>
+              <CopyToClipboard text={personViewedInDrawer.emailPersonal} onCopy={() => copyPersonalEmail()}>
+                <CopyToClipboardContainer>
+                  <ContentCopyStyled />
+                  <ContentCopyText>{personalEmailCopied ? 'Copied!' : 'Personal email'}</ContentCopyText>
+                </CopyToClipboardContainer>
+              </CopyToClipboard>
+            </HeaderProfileLink>
+          )}
+        </>
       )}
     </>
   );

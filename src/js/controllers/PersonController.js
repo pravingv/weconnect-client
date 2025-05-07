@@ -113,7 +113,8 @@ export const onlyShowPersonWithPeopleFiltersLogicalOrMatch = (person, getAppCont
   // "Include" option, where we show people who match any of the filters
   // Default is 'Active people' but we make people visible if the chosen filters below also match the person
   const inOfferProcess = isInOfferProcess(person);
-  let personIsVisible = person.statusActive === true && person.statusOnLeave !== true && person.statusResigned !== true;
+  // console.log('onlyShowPersonWithPeopleFiltersLogicalOrMatch, person.lastName:', person.lastName, ', inOfferProcess:', inOfferProcess);
+  let personIsVisible = person.statusActive === true && person.statusOfferLetterSigned === true && person.statusOnLeave !== true && person.statusResigned !== true && !inOfferProcess;
   if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
     if (inOfferProcess) {
       personIsVisible = true;
