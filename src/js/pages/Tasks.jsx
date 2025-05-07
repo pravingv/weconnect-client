@@ -126,6 +126,7 @@ const Tasks = () => {
       });
       return {
         allSearchWordsWereFound: allSearchWordsWereFoundInPerson || modifiedTaskList.length > 0,
+        hideBecauseInactive: false,
         searchTextMinusWordsFoundInPersonList,
         tasksExistToShow: modifiedTaskList && modifiedTaskList.length > 0,
       };
@@ -134,6 +135,7 @@ const Tasks = () => {
       modifiedTaskList = (showCompletedTasks) ? taskList : taskList.filter((task) => !task.statusDone);
       return {
         allSearchWordsWereFound: false,
+        hideBecauseInactive: !person.statusActive,
         searchTextMinusWordsFoundInPersonList: searchText,
         tasksExistToShow: modifiedTaskList && modifiedTaskList.length > 0,
       };
@@ -168,7 +170,7 @@ const Tasks = () => {
         {taskListByPersonId && selectedPersonList.map((person) => {
           const showPersonResults = showPerson(person);
           // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
-          if (showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) {
+          if ((showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive) {
             return (
               <OnePersonWrapper key={`team-${person.personId}`}>
                 <PersonSummaryRow hideTasks person={person} teamId={teamId} />
