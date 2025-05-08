@@ -113,7 +113,10 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
               />
             </div>
             {(taskDefinition.isGoogleDrivePermissionTask && viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights)) && (
-              <GoogleDriveShareManager task={task} taskDefinition={taskDefinition} />
+              <GoogleDriveShareManager
+                task={task}
+                taskDefinition={taskDefinition}
+              />
             )}
             <div>
               {task.statusDone ? (

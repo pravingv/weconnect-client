@@ -10,87 +10,54 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { ActionOption, ActionOptionList, ActionOptionContainerLeft8, ActionOptionContainerOverflow } from '../Style/actionOptionStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
-import generateRandomString from '../../common/utils/generateRandomString';
 import webAppConfig from '../../config';
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
-const ACCEPTED_EMAIL_DOMAINS = ['@wevoteeducation.org'];
+// const ACCEPTED_EMAIL_DOMAINS = ['@wevoteeducation.org'];
 
 const GoogleDriveShareManager = (
-  {
-    emailOfficialEdited, savedEmailOfficial, setEmailOfficialInParent,
-    setIsEmailOfficialEditModeInParent, setEmailOfficialVerifiedInParent,
-    task, taskDefinition,
-  },
+  { task, taskDefinition },
 ) => {
   renderLog('GoogleDriveShareManager');
-  const { apiDataCache, getAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights } = apiDataCache;
+  const { apiDataCache } = useConnectAppContext();
+  const { allPeopleCache, viewerAccessRights } = apiDataCache;
 
-  const [activePerson] = useState(getAppContextValue('profileDrawerPerson'));
-  const [emailOfficialNotValidDomain, setEmailOfficialNotValidDomain] = useState(false);
-  const [emailOfficialVerifiedLocally, setEmailOfficialVerifiedLocally] = useState(false);
-  const [emailOfficialVerifiedToNotExist, setEmailOfficialVerifiedToNotExist] = useState(false);
-  const [isEmailOfficialEditModeOn, setIsEmailOfficialEditModeOn] = useState(false);
+  const [activePerson, setActivePerson] = useState({});
   const [newAccountNotification, setNewAccountNotification] = useState('');
   const [newAccountNotificationCopied, setNewAccountNotificationCopied] = useState(false);
-  const [requiredVariablesMissingMessage, setRequiredVariablesMissingMessage] = useState('');
   const [resultsText, setResultsText] = useState('');
   const [showNewAccountNotification, setShowNewAccountNotification] = useState(false);
-  const [suggestedVariablesMissingMessage, setSuggestedVariablesMissingMessage] = useState('');
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
-
-  const setIsEmailOfficialEditModeOnLocal = (newMode) => {
-    if (setIsEmailOfficialEditModeInParent) {
-      setIsEmailOfficialEditModeInParent(newMode);
-    }
-    setIsEmailOfficialEditModeOn(newMode);
-    if (newMode) {
-      setEmailOfficialNotValidDomain(false);
-      setEmailOfficialVerifiedLocally(false);
-      setEmailOfficialVerifiedToNotExist(false);
-      document.getElementById('jsonResults').textContent = '';
-    }
-  };
-
-  const cancelEmailEdit = () => {
-    if (setEmailOfficialInParent) {
-      setEmailOfficialInParent(savedEmailOfficial);
-    }
-    setIsEmailOfficialEditModeOn(false);
-  };
 
   const givePersonAccessToFolder = async () => {
     // Turn off warnings & jsonResults
-    setRequiredVariablesMissingMessage('');
-    setSuggestedVariablesMissingMessage('');
     document.getElementById('jsonResults').textContent = '';
 
-    const { firstName, firstNamePreferred, lastName, emailOfficial: primaryEmail } = activePerson;
     const { googleDriveAssetId } = taskDefinition; // Was driveFolder
     const role = 'writer';  // no error checking for this demo code, must be one of 'reader', 'commenter', 'writer', or 'owner'
 
-    // console.log(`givePersonAccessToFolder: ${primaryEmail}`);
-    const giveDriveAccessResults = await weConnectQueryFn('google-share-drive-access', { primaryEmail, driveFolderId: googleDriveAssetId, role }, METHOD.POST);
-    console.log('givePersonAccessToFolder: ', giveDriveAccessResults);
-    if (giveDriveAccessResults.success) {
-      setEmailOfficialVerifiedLocally(true);
-      setEmailOfficialVerifiedToNotExist(false);
-      if (setEmailOfficialVerifiedInParent) {
-        setEmailOfficialVerifiedInParent(true);
+    if (activePerson && activePerson.emailOfficial) {
+      const { firstName, firstNamePreferred, emailOfficial } = activePerson;
+      // console.log(`givePersonAccessToFolder: ${emailOfficial}`);
+      const giveDriveAccessResults = await weConnectQueryFn('google-share-drive-access', {
+        primaryEmail: emailOfficial,
+        driveFolderId: googleDriveAssetId,
+        role,
+      }, METHOD.POST);
+      // console.log('givePersonAccessToFolder: ', giveDriveAccessResults);
+      if (giveDriveAccessResults.success) {
+        setResultsText(`Access to Google Drive folder granted for ${emailOfficial}`);
+        const firstNameToDisplay = firstNamePreferred || firstName;
+        setNewAccountNotification(
+          `Hi${(firstNameToDisplay) && ` ${firstNameToDisplay}`}, I have just given your ${webAppConfig.ORGANIZATION_NAME} email account access to the team's Google Drive folder.`,
+        );
+        setShowNewAccountNotification(true);
+      } else {
+        setResultsText(`ERROR: '${giveDriveAccessResults.error}' Access to the folder could not be granted.`);
       }
-      setResultsText(`Staff member '${giveDriveAccessResults.primaryEmail}' has been created`);
-      const firstNameToDisplay = firstNamePreferred || firstName;
-      setNewAccountNotification(
-        `Hi${(firstNameToDisplay) && ` ${firstNameToDisplay}`}, I have just created your new Gmail-powered ${webAppConfig.ORGANIZATION_NAME} email account. Can you please verify you can sign in?
-Username: ${primaryEmail}`,
-      );
-      setShowNewAccountNotification(true);
-    } else {
-      setResultsText(`ERROR: '${giveDriveAccessResults.error}' A staff member was not created`);
+      document.getElementById('jsonResults').textContent = JSON.stringify(giveDriveAccessResults, undefined, 2);
     }
-    document.getElementById('jsonResults').textContent = JSON.stringify(giveDriveAccessResults, undefined, 2);
   };
 
   const newAccountNotificationOnCopy = () => {
@@ -104,7 +71,15 @@ Username: ${primaryEmail}`,
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
-  const googleDriveFolderUrl = `https://drive.google.com/drive/u/0/folders/${taskDefinition.googleDriveAssetId}`;
+  useEffect(() => {
+    if (allPeopleCache && task && task.personId) {
+      if (allPeopleCache && allPeopleCache[task.personId]) {
+        setActivePerson(allPeopleCache[task.personId]);
+      }
+    }
+  }, [allPeopleCache, task]);
+
+  const googleDriveFolderUrl = `https://drive.google.com/drive/folders/${taskDefinition.googleDriveAssetId}`;
   return (
     <GoogleDriveShareManagerWrapper>
       {viewerIsOnHrTeam && (
@@ -138,6 +113,13 @@ Username: ${primaryEmail}`,
                 )}
               </ActionOption>
             </ActionOptionList>
+            {resultsText && (
+              <ActionOptionList>
+                <ActionOption>
+                  {resultsText}
+                </ActionOption>
+              </ActionOptionList>
+            )}
           </ActionOptionContainerLeft8>
         </ActionOptionContainerOverflow>
       )}
@@ -164,11 +146,6 @@ Username: ${primaryEmail}`,
   );
 };
 GoogleDriveShareManager.propTypes = {
-  emailOfficialEdited: PropTypes.bool,
-  savedEmailOfficial: PropTypes.string,
-  setEmailOfficialVerifiedInParent: PropTypes.func,
-  setIsEmailOfficialEditModeInParent: PropTypes.func,
-  setEmailOfficialInParent: PropTypes.func,
   task: PropTypes.object,
   taskDefinition: PropTypes.object,
 };
