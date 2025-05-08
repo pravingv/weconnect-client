@@ -146,11 +146,6 @@ const GoogleDriveShareManager = (
   );
 };
 GoogleDriveShareManager.propTypes = {
-  emailOfficialEdited: PropTypes.bool,
-  savedEmailOfficial: PropTypes.string,
-  setEmailOfficialVerifiedInParent: PropTypes.func,
-  setIsEmailOfficialEditModeInParent: PropTypes.func,
-  setEmailOfficialInParent: PropTypes.func,
   task: PropTypes.object,
   taskDefinition: PropTypes.object,
 };
