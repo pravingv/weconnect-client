@@ -1,7 +1,13 @@
-import { KeyboardArrowDown, KeyboardArrowUp, PersonAddAltOutlined } from '@mui/icons-material';
+import {
+  ContentCopy,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+  PersonAddAltOutlined,
+} from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { Link } from 'react-router';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
@@ -12,6 +18,8 @@ import { EditStyled } from '../Style/iconStyles';
 import TeamMemberList from './TeamMemberList';
 import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
+import { getTeamMembersListByTeamId } from '../../models/TeamModel';
+import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
 
 
 const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, searchText, showAllTeamMembersFromParent, showIcons, team, classes }) => {
@@ -21,6 +29,10 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
 
   const [expandAllTeamMembers, setExpandAllTeamMembers] = useState(expandAllTeamMembersFromParent);
   const [hideInactive] = useState(hideInactiveFromParent);
+  const [officialEmailsToCopy, setOfficialEmailsToCopy] = useState('');
+  const [officialEmailsCopied, setOfficialEmailsCopied] = useState(false);
+  const [personalEmailsToCopy, setPersonalEmailsToCopy] = useState('');
+  const [personalEmailsCopied, setPersonalEmailsCopied] = useState(false);
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(showAllTeamMembersFromParent);
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
   let teamLocal = team;
@@ -33,6 +45,20 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
     setAppContextValue('addPersonDrawerOpen', true);
     setAppContextValue('AddPersonDrawerLabel', 'Add Team Member');
     setAppContextValue('addPersonDrawerTeam', team);
+  };
+
+  const copyOfficialEmails = () => {
+    setOfficialEmailsCopied(true);
+    setTimeout(() => {
+      setOfficialEmailsCopied(false);
+    }, 1500);
+  };
+
+  const copyPersonalEmails = () => {
+    setPersonalEmailsCopied(true);
+    setTimeout(() => {
+      setPersonalEmailsCopied(false);
+    }, 1500);
   };
 
   const editTeamClick = () => {
@@ -48,6 +74,31 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
       setShowAllTeamMembersFromParentAlreadySet(showAllTeamMembersFromParent);
     }
   }, [showAllTeamMembers, showAllTeamMembersFromParent, showAllTeamMembersFromParentAlreadySet]);
+
+  useEffect(() => {
+    let officialEmails = '';
+    let personalEmails = '';
+    const updatedTeamMemberList = getTeamMembersListByTeamId(team.id, apiDataCache);
+
+    // console.log('TeamHeader useEffect, updatedTeamMemberList: ', updatedTeamMemberList);
+    updatedTeamMemberList.forEach((person) => {
+      if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
+        if (person.emailOfficial) {
+          officialEmails += `${person.emailOfficial}, `;
+        }
+        if (person.emailPersonal) {
+          personalEmails += `${person.emailPersonal}, `;
+        }
+      }
+    });
+
+    // Remove trailing comma and space
+    officialEmails = officialEmails.replace(/, $/, '');
+    personalEmails = personalEmails.replace(/, $/, '');
+
+    setOfficialEmailsToCopy(officialEmails);
+    setPersonalEmailsToCopy(personalEmails);
+  }, [apiDataCache, team, searchText, hideInactive, getAppContextValue]);
 
   // console.log('TeamHeader teamLocal.teamName ', teamLocal.teamName);
   return (
@@ -73,10 +124,10 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
             )}
           </TeamHeaderCell>
           <ShowOnHover>
-            <ActionBarSection>
+            <ActionBarSection borderRightOff={!showAllTeamMembers}>
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={editTeamClick}>
-                  Next meeting info
+                  Next meeting
                 </SpanWithLinkStyle>
               </ActionBarItem>
               {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
@@ -88,7 +139,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               )}
             </ActionBarSection>
             {showAllTeamMembers && (
-              <ActionBarSection>
+              <ActionBarSection borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(true)}>
                     Expand all
@@ -99,6 +150,30 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
                     Collapse all
                   </SpanWithLinkStyle>
                 </ActionBarItem>
+              </ActionBarSection>
+            )}
+            {showAllTeamMembers && (
+              <ActionBarSection borderRightOff>
+                {officialEmailsToCopy && (
+                  <ActionBarItem>
+                    <CopyToClipboard text={officialEmailsToCopy} onCopy={() => copyOfficialEmails()}>
+                      <CopyToClipboardContainer>
+                        <ContentCopyStyled />
+                        <ContentCopyText>{officialEmailsCopied ? 'Copied!' : 'Official emails'}</ContentCopyText>
+                      </CopyToClipboardContainer>
+                    </CopyToClipboard>
+                  </ActionBarItem>
+                )}
+                {personalEmailsToCopy && (
+                  <ActionBarItem>
+                    <CopyToClipboard text={personalEmailsToCopy} onCopy={() => copyPersonalEmails()}>
+                      <CopyToClipboardContainer>
+                        <ContentCopyStyled />
+                        <ContentCopyText>{personalEmailsCopied ? 'Copied!' : 'Personal emails'}</ContentCopyText>
+                      </CopyToClipboardContainer>
+                    </CopyToClipboard>
+                  </ActionBarItem>
+                )}
               </ActionBarSection>
             )}
             {/* Edit icon */}
@@ -175,6 +250,27 @@ const styles = (theme) => ({
     textDecoration: 'none',
   },
 });
+
+const ContentCopyStyled = styled(ContentCopy)`
+  height: 16px;
+  margin: 0 4px;
+  width: 16px;
+`;
+
+const ContentCopyText = styled('p')`
+`;
+
+const CopyToClipboardContainer = styled('div')`
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  height: 18px;
+  justify-content: flex-start;
+  color: ${DesignTokenColors.primary500};
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
 const KeyboardArrowDownStyled = styled(KeyboardArrowDown)`
 `;
