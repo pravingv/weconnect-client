@@ -20,6 +20,7 @@ import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import CreateNewGoogleUser from './CreateNewGoogleUser';
 import GetOneGoogleUser from './GetOneGoogleUser';
+import JazzHrAccess from './JazzHrAccess';
 import PermissionsAdministration from './PermissionsAdministration';
 import ResetGoogleUserPassword from './ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from './ShareGoogleDriveAccess';
@@ -185,20 +186,24 @@ const SystemSettings = ({ classes }) => {
         {canDoAnythingIsAdmin && (
           <div style={{ paddingTop: '.8rem' }}>
             <UploadCSV />
+            <ButtonDividerLine />
             <div style={{ display: 'flex', paddingTop: '.5rem' }}>
               <CreateNewGoogleUser isCreate />
               <CreateNewGoogleUser isCreate={false} />
             </div>
+            <ButtonDividerLine />
             <div style={{ display: 'flex', paddingTop: '.5rem' }}>
               <GetOneGoogleUser getAll={false} />
               <GetOneGoogleUser getAll />
               <ResetGoogleUserPassword />
             </div>
-            <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
+            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
               <GrantGoogleDriveAccess isShare />
-              {/* <GrantGoogleDriveAccess isShare={false} /> */}
+              {/* <GrantGoogleDriveAccess isRevoke /> Doesn't find all the files, and low priority */}
+              <GrantGoogleDriveAccess isTransfer />
             </div>
-            <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
+            <ButtonDividerLine />
+            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
               <SlackSendMessage />
               <SlackListUsers />
               <SlackGetPresence />
@@ -206,6 +211,11 @@ const SystemSettings = ({ classes }) => {
             </div>
             <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
               <SlackChannelMembers />
+            </div>
+            <ButtonDividerLine />
+            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
+              <JazzHrAccess isGetUsers />
+              <JazzHrAccess isGetApplicants />
             </div>
           </div>
         )}
@@ -253,6 +263,12 @@ const ListItemFlexInnerWrapper = styled('div')`
 
 const SettingsSubtitle = styled('h2')`
   margin-top: 30px;
+`;
+
+const ButtonDividerLine = styled('div')`
+  padding-top: 4px;
+  padding-bottom: -1px;
+  border-bottom: 1px solid #BCC6CC;
 `;
 
 export default withStyles(styles)(SystemSettings);
