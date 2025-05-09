@@ -184,7 +184,7 @@ const SystemSettings = ({ classes }) => {
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
         <PermissionsAdministration />
         {canDoAnythingIsAdmin && (
-          <div style={{ paddingTop: '.8rem' }}>
+          <div style={{ paddingTop: '2rem' }}>
             <UploadCSV />
             <ButtonDividerLine />
             <div style={{ display: 'flex', paddingTop: '.5rem' }}>
