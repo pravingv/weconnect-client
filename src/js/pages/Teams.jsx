@@ -1,7 +1,6 @@
 import { withStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router';
 import styled from 'styled-components';
 import arrayContains from '../common/utils/arrayContains';
 import { renderLog } from '../common/utils/logging';
@@ -172,11 +171,6 @@ const Teams = () => {
             return null;
           }
         })}
-        <div style={{ padding: '100px 0 50px 0', fontWeight: '700' }}>
-          <Link to="/login">
-            Temporary link to /login page
-          </Link>
-        </div>
       </PageContentContainer>
     </div>
   );
