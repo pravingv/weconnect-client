@@ -75,7 +75,7 @@ const HeaderProfileDrawer = () => {
   }, []);
 
   useEffect(() => {
-    setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('profileDrawerPersonId') === authenticatedPerson.personId);
+    setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('profileDrawerPersonId') === authenticatedPerson.id);
   }, [getAppContextValue, authenticatedPerson]);
 
   const profileNavOptions = [
