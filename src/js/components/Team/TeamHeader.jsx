@@ -203,7 +203,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               Title
             </TeamHeaderCell>
             <TeamHeaderCell $cellwidth={150} />
-            <TeamHeaderCell $cellwidth={100} $rightAlign>
+            <TeamHeaderCell $cellwidth={150} $rightAlign>
               Volunteer for
             </TeamHeaderCell>
           </TeamHeaderPersonColumnTitles>

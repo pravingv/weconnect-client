@@ -1,6 +1,7 @@
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import styled from 'styled-components';
@@ -9,12 +10,11 @@ import { normalizedHref } from './js/common/utils/hrefUtils';
 import initializejQuery from './js/common/utils/initializejQuery';
 import { renderLog } from './js/common/utils/logging';
 import Drawers from './js/components/Drawers/Drawers';
-import TasksDataRetrieve from './js/components/Task/TasksDataRetrieve';
 import PrivateRoute from './js/components/PrivateRoute';
+import TasksDataRetrieve from './js/components/Task/TasksDataRetrieve';
 import webAppConfig from './js/config';
 import ConnectAppContext from './js/contexts/ConnectAppContext';
 import Login from './js/pages/Login';
-import initializeMoment from './js/common/utils/initializeMoment';
 
 
 // Root URL pages
@@ -67,10 +67,7 @@ function App () {
     setHideHeader(!showHeaderFooter);
   };
 
-  if (typeof window.moment === 'undefined') {
-    // If we don't do this, the dates used for the "Volunteer for" don't render correctly on the first load.
-    initializeMoment(() => {});
-  }
+  DateTime.now().setZone('system');           // Initialize Luxon, to the local computer's time zone
 
   return (
     <>

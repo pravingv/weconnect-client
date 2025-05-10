@@ -70,15 +70,14 @@
     "html-webpack-plugin": "^5.6.0",
     "jsdom": "^23.0.1",
     "mocha": "^10.2.0",
-    "moment-locales-webpack-plugin": "^1.2.0",
     "pre-commit": "^1.0.10",
     "terser-webpack-plugin": "^5.1.2",
     "unused-webpack-plugin": "^2.4.0",
-    "webpack": "^5.90.3",
+    "webpack": "^5.99.8",
     "webpack-bundle-analyzer": "^4.8.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0",
-    "webpack-shell-plugin-next": "^2.3.1"
+    "webpack-shell-plugin-next": "^2.3.2"
   },
   "dependencies": {
     "@date-io/dayjs": "^3.2.0",
@@ -110,7 +109,7 @@
     "jquery": "^3.7.1",
     "keymirror": "~0.1.1",
     "lodash-es": "^4.17.21",
-    "moment": "^2.29.4",
+    "luxon": "^3.6.1",
     "mui-file-dropzone": "^4.0.1",
     "object-assign": "~4.1.1",
     "process": "^0.11.10",
@@ -138,11 +137,6 @@
   },
   "bugs": {
     "url": "https://github.com/wevote/weconnect/issues"
-  },
-  "overrides": {
-    "flux": {
-      "react": "^18.3.1"
-    }
   },
   "readme": "ERROR: No README data found!",
   "homepage": "https://github.com/wevote/weconnect#readme",

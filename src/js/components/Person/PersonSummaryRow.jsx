@@ -141,7 +141,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         </PersonCell>
         <HideOnHover>
           <PersonCell
-            $cellwidth={250}
+            $cellwidth={300}
             $rightAlign
             $smallestfont
           >
@@ -299,9 +299,9 @@ const HideOnHover = styled('div')`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  min-width: 250px;
-  max-width: 250px;
-  width: 250px;
+  min-width: 300px;
+  max-width: 300px;
+  width: 300px;
 `;
 
 const ShowOnHover = styled('div')`

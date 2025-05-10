@@ -3,7 +3,6 @@ const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 const SourceMapDevToolPlugin = require('webpack/lib/SourceMapDevToolPlugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const UnusedWebpackPlugin = require('unused-webpack-plugin');
@@ -131,7 +130,6 @@ module.exports = (env, argv) => ({
         },
       ],
     }),
-    new MomentLocalesPlugin(),
     new WebpackShellPluginNext({
       onBuildEnd: {
         scripts: ['node ./src/js/common/node/webPackPostBuild.js'],
