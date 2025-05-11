@@ -9,7 +9,7 @@ import convertToInteger from './convertToInteger';
  * @param dateString
  */
 export function formatDateToMonthDay (dateString) {
-  return DateTime.fromSQL(dateString).toLocaleString({ month: 'short', day: 'numeric' }); // => 'Apr 20'
+  return DateTime.fromISO(dateString).toLocaleString({ month: 'short', day: 'numeric' }); // => 'Apr 20'
 }
 
 /**
@@ -19,7 +19,7 @@ export function formatDateToMonthDay (dateString) {
  * @param dateString
  */
 export function formatDateToMonthDayYear (dateString) {
-  return  DateTime.fromSQL(dateString).toLocaleString(DateTime.DATE_MED);
+  return  DateTime.fromISO(dateString).toLocaleString(DateTime.DATE_MED);
 }
 
 /**
@@ -29,7 +29,7 @@ export function formatDateToMonthDayYear (dateString) {
  * @param dateString
  */
 export function formatDateToYearMonthDay (dateString) {
-  const dt = DateTime.fromSQL(dateString).toISODate();      // => '2017-04-20'
+  const dt = DateTime.fromISO(dateString).toISODate();      // => '2017-04-20'
   return dt.replace('-', '/');                              // => '2017/04/20'
 }
 
