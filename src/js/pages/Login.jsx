@@ -131,7 +131,7 @@ const Login = ({ classes }) => {
         setSuccessLine('A verification email has been sent to your address');
       }
     } else {
-      setWarningLine(data?.error?.msg || 'Unable to connect to the server.');
+      setWarningLine(data?.error?.msg || 'Unable to connect to the weconnect-server.');
       setSuccessLine('');
     }
   };
