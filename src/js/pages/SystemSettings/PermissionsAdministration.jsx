@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
+import { SpanWithLinkStyle } from '../../components/Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
@@ -18,7 +19,7 @@ const PermissionsAdministration = ({ classes }) => {
   renderLog('PermissionsAdministration');
 
   const { mutate } = usePersonSaveMutation();
-  const { apiDataCache } = useConnectAppContext();
+  const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache, viewerAccessRights } = apiDataCache;
 
   const [peopleWorkingArray, setPeopleWorkingArray] = useState([]); // Object.values(allPeopleCacheCopy1));
@@ -169,6 +170,13 @@ const PermissionsAdministration = ({ classes }) => {
     Object.assign(activePerson, personCached);
     setButtonState(SET.DISABLE, personId);
     setUpdateCount(updateCount + 1);  // setting array of arrays does not cause a re-render, due to nesting?
+  };
+
+  const viewPersonClick = (person) => {
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('profileDrawerPerson', person);
+    setAppContextValue('profileDrawerPersonId', person.personId);
+    setAppContextValue('headerProfileSection', 'visibleProfile');
   };
 
   const saveClicked = (event) => {
@@ -368,7 +376,15 @@ const PermissionsAdministration = ({ classes }) => {
         <tbody>
           {peopleWorkingArrayFiltered?.map((person) => (
             <Tr key={person.id}>
-              <td style={{ paddingRight: 20, fontWeight: 500 }}>{getFullNamePreferredPerson(person)}</td>
+              <td
+                id={`person-name-${person.id}`}
+                style={{ paddingRight: 20, fontWeight: 500 }}
+                onClick={() => viewPersonClick(person)}
+              >
+                <SpanWithLinkStyle>
+                  {getFullNamePreferredPerson(person)}
+                </SpanWithLinkStyle>
+              </td>
               <td style={{ paddingRight: 20 }}>{person.emailPersonal}</td>
               <Td>
                 <Checkbox
