@@ -117,6 +117,7 @@ const Login = ({ classes }) => {
         setAppContextValue('secretCodeVerified', false);
         setAppContextValue('secretCodeVerifiedForReset', false);
         setAppContextValue('resetPassword', '');
+        setAppContextValue('isAuthenticated', true);
         setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
         // setTimeout(() => {
         //   navigate('/tasks');
