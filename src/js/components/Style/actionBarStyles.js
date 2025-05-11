@@ -8,7 +8,7 @@ export const ActionBarItem = styled('div')`
 
 export const ActionBarSection = styled('div')`
   align-items: center;
-  ${(props) => (props.borderRightOff ? '' : `border-right: 1px solid ${DesignTokenColors.neutralUI200}`)};
+  ${(props) => (props.$borderRightOff ? '' : `border-right: 1px solid ${DesignTokenColors.neutralUI200}`)};
   display: flex;
   font-size: .8em;
   justify-content: flex-start;
@@ -21,7 +21,7 @@ export const DetailsRowItem = styled('div')`
 
 export const DetailsRowSection = styled('div')`
   align-items: flex-start;
-  ${(props) => (props.borderRightOff ? '' : `border-right: 1px solid ${DesignTokenColors.neutralUI200}`)};
+  ${(props) => (props.$borderRightOff ? '' : `border-right: 1px solid ${DesignTokenColors.neutralUI200}`)};
   display: flex;
   justify-content: flex-start;
   padding-left: 15px;
