@@ -46,7 +46,7 @@ export function timeFromDate (dateString, removeAgo = false) {
     const pastDT = DateTime.fromISO(dateString);
     const nowDt = DateTime.now();
     const diff = nowDt.diff(pastDT, ['years', 'months', 'days', 'hours', 'minutes']);
-    console.log(diff);
+    // console.log(diff);
     const { years, months, days } = diff.values;
     let fancy = '';
     if (years) fancy += `${years} year${years > 1 ? 's' : ''}, `;

@@ -186,7 +186,11 @@ const usePersonRetrieveMutation = () => {
     onError: (error) => console.log('error in usePersonRetrieveMutation: ', error),
     onSuccess: (data, variables, context) => {
       reactQueryLog('usePersonRetrieveMutation successful, returning', data, variables, context);
-      setAppContextValue('authenticatedPerson', data);
+      const person = { ...data };
+      if (person && person.personId) {
+        person.personId = person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
+      }
+      setAppContextValue('authenticatedPerson', person);
     },
   });
 };
@@ -199,7 +203,11 @@ const usePersonRetrieveByEmailMutation = () => {
     onError: (error) => console.log('error in usePersonRetrieveByEmailMutation: ', error),
     onSuccess: (data, variables, context) => {
       reactQueryLog('usePersonRetrieveByEmailMutation successful, returning', data, variables, context);
-      setAppContextValue('authenticatedPerson', data);
+      const person = { ...data };
+      if (person && person.id) {
+        person.personId = person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
+      }
+      setAppContextValue('authenticatedPerson', person);
     },
   });
 };
