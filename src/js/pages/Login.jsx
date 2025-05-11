@@ -131,7 +131,7 @@ const Login = ({ classes }) => {
         setSuccessLine('A verification email has been sent to your address');
       }
     } else {
-      setWarningLine(data?.error?.msg || 'error message with bad data');
+      setWarningLine(data?.error?.msg || 'Unable to connect to the server.');
       setSuccessLine('');
     }
   };
