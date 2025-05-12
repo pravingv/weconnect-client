@@ -95,6 +95,9 @@ export const ConnectAppContextProvider = ({ children }) => {
     if (isSuccessAuth) {
       authLog('useFetchData in ConnectAppContext useEffect dataAuth good:', dataAuth, isSuccessAuth, isFetchingAuth);
       const { isAuthenticated } = dataAuth;
+      if (dataAuth.person && dataAuth.person.id) {
+        dataAuth.person.personId = dataAuth.person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
+      }
       setAppContextValue('authenticatedPerson', dataAuth.person);
       if (dataAuth.person) {
         setAppContextValue('isAuthenticated', isAuthenticated);

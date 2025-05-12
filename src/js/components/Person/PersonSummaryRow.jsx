@@ -221,7 +221,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
               <PersonDetailsQuickLinks person={person} teamId={teamId} />
             </DetailsRowItem>
           </DetailsRowSection>
-          <DetailsRowSection borderRightOff>
+          <DetailsRowSection $borderRightOff>
             <DetailsRowItem>
               <PersonDetailsEmailsAndStartDate person={person} teamId={teamId} />
             </DetailsRowItem>

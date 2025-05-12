@@ -104,6 +104,9 @@ const Login = ({ classes }) => {
     // console.log('appContextData in Login after /login response: ', getAppContextData());
     if (data?.personId > 0) {
       setAppContextValue('isAuthenticated', data.emailVerified);
+      if (data.person && data.person.id) {
+        data.person.personId = data.person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
+      }
       setAppContextValue('authenticatedPerson', data.person);
       queryClient.invalidateQueries('get-auth');
       if (data.emailVerified) {
@@ -114,6 +117,7 @@ const Login = ({ classes }) => {
         setAppContextValue('secretCodeVerified', false);
         setAppContextValue('secretCodeVerifiedForReset', false);
         setAppContextValue('resetPassword', '');
+        setAppContextValue('isAuthenticated', true);
         setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
         // setTimeout(() => {
         //   navigate('/tasks');
@@ -127,7 +131,7 @@ const Login = ({ classes }) => {
         setSuccessLine('A verification email has been sent to your address');
       }
     } else {
-      setWarningLine(data?.error?.msg || 'error message with bad data');
+      setWarningLine(data?.error?.msg || 'Unable to connect to the weconnect-server.');
       setSuccessLine('');
     }
   };
@@ -167,7 +171,7 @@ const Login = ({ classes }) => {
   const logoutApiInLogin = async () => {
     const data = await weConnectQueryFn('logout', { credentials: 'same-origin' }, METHOD.POST);
     // console.log(`/logout response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
-    if (data.authenticated) {
+    if (data?.authenticated) {
       setWarningLine(data?.errors?.msg);
       setSuccessLine('');
     } else {

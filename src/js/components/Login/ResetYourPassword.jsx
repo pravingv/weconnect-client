@@ -89,6 +89,9 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
       setErrorMessage('');
       await mutatePasswordSave({ personId: id, password: pass1 });
       setAppContextValue('isAuthenticated', true);
+      if (person && person.id) {
+        person.personId = person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
+      }
       setAppContextValue('authenticatedPerson', person);
       setAppContextValue('resetPassword', pass1);
       handleClose();

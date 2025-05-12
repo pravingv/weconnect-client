@@ -124,7 +124,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
             )}
           </TeamHeaderCell>
           <ShowOnHover>
-            <ActionBarSection borderRightOff={!showAllTeamMembers}>
+            <ActionBarSection $borderRightOff={!showAllTeamMembers}>
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={editTeamClick}>
                   Next meeting
@@ -139,7 +139,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               )}
             </ActionBarSection>
             {showAllTeamMembers && (
-              <ActionBarSection borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
+              <ActionBarSection $borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(true)}>
                     Expand all
@@ -153,7 +153,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               </ActionBarSection>
             )}
             {showAllTeamMembers && (
-              <ActionBarSection borderRightOff>
+              <ActionBarSection $borderRightOff>
                 {officialEmailsToCopy && (
                   <ActionBarItem>
                     <CopyToClipboard text={officialEmailsToCopy} onCopy={() => copyOfficialEmails()}>
