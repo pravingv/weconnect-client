@@ -58,8 +58,8 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     const authP = getAppContextValue('authenticatedPerson');
     authPersonRef.current = authP;
     if (authP && open) {
-      setPersonId(authP.personId);
-      weConnectQueryFn('send-email-code', { personId: authP.personId }, METHOD.POST)
+      setPersonId(authP.id);
+      weConnectQueryFn('send-email-code', { personId: authP.id }, METHOD.POST)
         .then(setAppContextValue('openVerifySecretCodeModalDialog', true));
     }
     // eslint would have us add getAppContextValue and setAppContextValue, which causes and endless loop

@@ -156,7 +156,7 @@ const HeaderBar = ({ hideTabs }) => {
     setAppContextValue('headerProfileDrawerOpen', true);
     setAppContextValue('headerProfileSection', 'nameAndPhoto');
     setAppContextValue('profileDrawerPerson', authenticatedPerson);
-    setAppContextValue('profileDrawerPersonId', authenticatedPerson.personId);
+    setAppContextValue('profileDrawerPersonId', authenticatedPerson.id);
   };
   return (
     <HeaderBarWrapper
