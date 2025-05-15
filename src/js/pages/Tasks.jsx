@@ -140,13 +140,14 @@ const Tasks = () => {
                 // console.log('=== taskDefinitionId:', taskDefinitionId);
                 // const showTaskDefinition = tasks.length > 0; // Also set to false if all tasks are marked as completed
                 const taskDefinition = taskDefinitionList[taskDefinitionId];
+                const taskName = taskDefinition ? taskDefinition.taskName ||  'taskName Missing' : 'Task Name Missing';
                 const showTaskTemp =  showTaskDefinition(searchText, taskDefinition);
                 // console.log('*** showTaskTemp:', showTaskTemp);
                 if (showTaskTemp) {
                   return (
                     <OneTaskDefinitionWrapper key={`task-definition-${taskDefinitionId}`}>
                       <TaskDefinitionHeader>
-                        {taskDefinition.taskName} ({taskDefinitionId})
+                        {taskName} ({taskDefinitionId})
                       </TaskDefinitionHeader>
                       {tasks.map((task) => {
                         // console.log('===== taskDefinitionId: ', taskDefinitionId, ', task.taskDefinitionId:', task.taskDefinitionId);

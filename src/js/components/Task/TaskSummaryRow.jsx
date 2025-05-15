@@ -59,17 +59,24 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
     saveTask(requestParams);
   };
 
-  if (hideIfCompleted && task.statusDone) {
+  if (hideIfCompleted && task && task.statusDone) {
     return null;
   }
 
   // console.log('TaskSummaryRow taskDefinition:', taskDefinition);
-  const taskNameToDisplay = task.statusDone ? taskDefinition.taskNameCompleted || taskDefinition.taskName : taskDefinition.taskName;
+  let taskName = '';
+  let taskNameCompleted = '';
+  const taskStatusDone = task ? task.statusDone : false;
+  if (taskDefinition) {
+    taskName = taskDefinition.taskName || 'task name missing';
+    taskNameCompleted = taskDefinition.taskNameCompleted;
+  }
+  const taskNameToDisplay = taskStatusDone ? taskNameCompleted || taskName : taskName;
   return (
     <OneTaskWrapper key={`teamMemberRow-${personId}-${task.taskDefinitionId}`}>
       <OneTaskTitle key={`teamMemberTitle-${personId}-${task.taskDefinitionId}`}>
         <TaskCell id={`taskDone-${personId}-${task.taskDefinitionId}`} width={25}>
-          {task.statusDone && (
+          {taskStatusDone && (
             <CheckCircleOutline />
           )}
         </TaskCell>
@@ -102,7 +109,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
               <InfoOutlinedStyled />
             </Tooltip>
           )}
-          {task.statusDone && doneByPersonFirstName && (
+          {taskStatusDone && doneByPersonFirstName && (
             <CompletedBy>
               {' '}
               by
@@ -118,7 +125,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
               )}
             </CompletedBy>
           )}
-          {showMarkCompletedLinkOnTitleLine && !task.statusDone && (
+          {showMarkCompletedLinkOnTitleLine && !taskStatusDone && (
             <MarkCompletedOnTitleLine>
               {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
                 <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
@@ -149,7 +156,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
               />
             )}
             <div>
-              {task.statusDone ? (
+              {taskStatusDone ? (
                 <CheckboxDone>
                   Completed
                   {doneByPersonFullName && (

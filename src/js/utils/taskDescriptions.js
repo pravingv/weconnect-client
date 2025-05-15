@@ -44,7 +44,7 @@ export function generateTaskDefinitionListString (taskGroupId, taskDefinitionLis
   const taskDefinitionListParts = [];
   const taskDefinitionListForThisTaskGroup = taskDefinitionList ? taskDefinitionList.filter((taskDefinition) => taskDefinition.taskGroupId === taskGroupId) : [];
   taskDefinitionListForThisTaskGroup.forEach((taskDefinition) => {
-    if (taskDefinition.taskName) {
+    if (taskDefinition && taskDefinition.taskName) {
       taskDefinitionListParts.push(taskDefinition.taskName);
     }
   });
