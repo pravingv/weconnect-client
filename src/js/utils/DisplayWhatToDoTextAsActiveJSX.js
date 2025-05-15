@@ -66,7 +66,7 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
 
   // console.log('useGetPersonById personId:', personId, ', allPeopleCache:', allPeopleCache);
   // console.log('task:', task, ', taskDefinition:', taskDefinition, ', person:', person);
-  let taskWhatToDoModified = taskDefinition.taskWhatToDo || '';
+  let taskWhatToDoModified = taskDefinition ? taskDefinition.taskWhatToDo || '' : '';
   // NOTE: Any customization tokens added here should also be added to customizationTokensList
   //  in EditTaskDefinitionForm
   taskWhatToDoModified = taskWhatToDoModified.replace(/\n/g, '<br />');
@@ -213,8 +213,8 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
   ) : <>Profile questionnaires</>;
 
   // Questionnaire needed for Onboarding team to create offer letter
-  const questionnaireId = taskDefinition.questionnaireId || -1;
-  const questionnaireUrl = `${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}/q/${questionnaireId}/${personId}`;
+  const questionnaireId = taskDefinition ? taskDefinition.questionnaireId || -1 : -1;
+  const questionnaireUrl = `${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}/q/${questionnaireId}${personId && `/${personId}`}`;
   const questionnaireUrlJSX = (questionnaireId > 0) ? (
     <span>
       <CopyToClipboard text={questionnaireUrl} onCopy={() => copyQuestionnaire()}>
@@ -229,18 +229,20 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
   ) : <>(Questionnaire Id Missing)</>;
 
   // Link to where the person needs to go to complete this task
-  const taskActionUrlJsx = (taskDefinition.taskActionUrl) ? (
+  const taskActionUrl = taskDefinition ? taskDefinition.taskActionUrl : '';
+  const taskDefinitionId = taskDefinition ? taskDefinition.id : -1;
+  const taskActionUrlJsx = (taskActionUrl) ? (
     <div>
       <Suspense fallback={<></>}>
         <OpenExternalWebSite
-          linkIdAttribute={`taskActionUrl-${taskDefinition.id}`}
-          url={taskDefinition.taskActionUrl}
+          linkIdAttribute={`taskActionUrl-${taskDefinitionId}`}
+          url={taskActionUrl}
           target="_blank"
           body={(
             <Tooltip
               arrow
-              id={`taskActionUrlTooltip-${taskDefinition.id}`}
-              title={taskDefinition.taskActionUrl}
+              id={`taskActionUrlTooltip-${taskDefinitionId}`}
+              title={taskActionUrl}
             >
               <LaunchStyled />
             </Tooltip>
