@@ -190,7 +190,7 @@ const TeamsActionBar = () => {
         {' '}
         {visiblePeopleCount}
         {' '}
-        people
+        {visiblePeopleCount === 1 ? 'person' : 'people'}
       </ViewingCount>
     </TeamsActionBarWrapper>
   );

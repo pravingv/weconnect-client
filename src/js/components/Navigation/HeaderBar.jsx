@@ -176,8 +176,8 @@ const HeaderBar = ({ hideTabs }) => {
               aria-label="Tabs selector"
             >
               <Tab value={HEADER_TAB_DASHBOARD} label="Dashboard" onClick={() => handleTabChangeClick(HEADER_TAB_DASHBOARD)} />
-              <Tab value={HEADER_TAB_TASKS} label="Tasks" onClick={() => handleTabChangeClick(HEADER_TAB_TASKS)} />
               <Tab value={HEADER_TAB_TEAMS} label="Teams" onClick={() => handleTabChangeClick(HEADER_TAB_TEAMS)} />
+              <Tab value={HEADER_TAB_TASKS} label="Tasks" onClick={() => handleTabChangeClick(HEADER_TAB_TASKS)} />
               {viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights) && (
                 <Tab value={HEADER_TAB_SETTINGS} label="Settings" onClick={() => handleTabChangeClick(HEADER_TAB_SETTINGS)} />
               )}

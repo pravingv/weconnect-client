@@ -30,6 +30,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
   const locationInputRef = useRef('');
   const phoneNumberInputRef = useRef('');
   const statusOfferApprovedInputRef = useRef(false);
+  const statusOfferDecisionNeededInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
 
   useEffect(() => {  // Replaces onAppObservableStoreChange and will be called whenever the context value changes
@@ -55,7 +56,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
       phoneNumber: phoneNumberInputRef.current.value,
       statusActive: true,
       statusOfferApproved: statusOfferApprovedInputRef.current.checked,
-      statusOfferDecisionNeeded: !(statusOfferLetterSignedInputRef.current.checked || statusOfferApprovedInputRef.current.checked),
+      statusOfferDecisionNeeded: !statusOfferDecisionNeededInputRef.current.checked, // statusOfferDecisionNeeded reversed on purpose
       statusOfferLetterSigned: statusOfferLetterSignedInputRef.current.checked,
     };
     if (locationInputRef.current.value && locationInputRef.current.value.length) {
@@ -161,6 +162,20 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
           onChange={() => updateSaveButton()}
           placeholder="City, State"
           variant="outlined"
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferDecisionNeededToBeSaved"
+              inputRef={statusOfferDecisionNeededInputRef}
+              name="statusOfferDecisionNeeded"
+              onChange={() => updateSaveButton()}
+            />
+          )}
+          label="Invitation to speak with hiring manager sent"
         />
         <CheckboxLabel
           classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}

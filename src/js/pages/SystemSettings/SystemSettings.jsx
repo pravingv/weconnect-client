@@ -1,21 +1,16 @@
-import SouthIcon from '@mui/icons-material/South';
+import { KeyboardArrowDown, KeyboardArrowUp, South } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import { withStyles } from '@mui/styles';
-import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { EditStyled } from '../../components/Style/iconStyles';
-import { SpanWithLinkStyle } from '../../components/Style/linkStyles';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
 import webAppConfig from '../../config';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
-import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import CreateNewGoogleUser from './CreateNewGoogleUser';
@@ -29,23 +24,21 @@ import SlackChannelMembers from './SlackChannelMembers';
 import SlackGetPresence from './SlackGetPresence';
 import SlackListUsers from './SlackListMembers';
 import SlackSendMessage from './SlackSendMessage';
+import QuestionnaireListIndex from './QuestionnaireListIndex';
 import TaskGroupListIndex from './TaskGroupListIndex';
 import UploadCSV from './UploadCSV';
 
 
-const SystemSettings = ({ classes }) => {
+const SystemSettings = () => {
   renderLog('SystemSettings');
-  const { apiDataCache, setAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights, allPeopleCache, allTaskGroupsCache, allQuestionnairesCache } = apiDataCache;
+  const { apiDataCache } = useConnectAppContext();
+  const { viewerAccessRights, allPeopleCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
   const [personIdsList, setPersonIdsList] = useState([]);
-  const [questionnaireList, setQuestionnaireList] = useState([]);
-  const [taskGroupList, setTaskGroupList] = useState([]);
+  const [showQuestionnaireList, setShowQuestionnaireList] = useState(false);
+  const [showTaskGroupList, setShowTaskGroupList] = useState(false);
   const [canDoAnythingIsAdmin, setCanDoAnythingIsAdmin] = useState(false);
-
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -53,13 +46,6 @@ const SystemSettings = ({ classes }) => {
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
     }
   }, [personListRetrieveResults, allPeopleCache, apiDataCache, dispatch]);
-
-  const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET);
-  useEffect(() => {
-    if (questionnaireListRetrieveResults) {
-      captureQuestionnaireListRetrieveData(questionnaireListRetrieveResults, apiDataCache, dispatch);
-    }
-  }, [questionnaireListRetrieveResults, allQuestionnairesCache, apiDataCache, dispatch]);
 
   const taskDefinitionListRetrieveResults = useFetchData(['task-definition-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -90,41 +76,8 @@ const SystemSettings = ({ classes }) => {
   }, [allPeopleCache]);
 
   useEffect(() => {
-    if (allQuestionnairesCache) {
-      setQuestionnaireList(Object.values(allQuestionnairesCache));
-    }
-  }, [allQuestionnairesCache]);
-
-  useEffect(() => {
-    if (allTaskGroupsCache) {
-      setTaskGroupList(Object.values(allTaskGroupsCache));
-    }
-  }, [allTaskGroupsCache]);
-
-  useEffect(() => {
     setCanDoAnythingIsAdmin(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
   }, [viewerAccessRights]);
-
-  const addQuestionnaireClick = () => {
-    setAppContextValue('editQuestionnaireDrawerOpen', true);
-    setAppContextValue('selectedQuestionnaire', undefined);
-    setAppContextValue('editQuestionnaireDrawerLabel', 'Add Questionnaire');
-  };
-
-  const editQuestionnaireClick = (questionnaire) => {
-    setAppContextValue('editQuestionnaireDrawerOpen', true);
-    setAppContextValue('selectedQuestionnaire', questionnaire);
-    setAppContextValue('editQuestionnaireDrawerLabel', 'Edit Questionnaire');
-  };
-
-  const goToQuestionnairePageClick = (questionnaire) => {
-    setAppContextValue('selectedQuestionnaire', questionnaire);
-
-    queryClient.invalidateQueries(['question-list-retrieve']).then(() => {});
-    // console.log('goToQuestionnairePageClick = (questionnaire)', questionnaire.questionnaireId);
-
-    navigate(`/questionnaire/${questionnaire.questionnaireId}`);
-  };
 
   if (!viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
     return (
@@ -134,9 +87,6 @@ const SystemSettings = ({ classes }) => {
     );
   }
 
-  // Alphabetically sort questionnaires and task groups
-  questionnaireList.sort((a, b) => a.questionnaireName.localeCompare(b.questionnaireName));
-  taskGroupList.sort((a, b) => a.taskGroupName.localeCompare(b.taskGroupName));
   return (
     <div>
       <Helmet>
@@ -151,36 +101,32 @@ const SystemSettings = ({ classes }) => {
         <h1>
           System Settings
         </h1>
-        <Button sx={{ marginLeft: '100%' }} onClick={() => window.scrollTo(0, document.body.scrollHeight)}><SouthIcon /></Button>
+        <Button sx={{ marginLeft: '100%' }} onClick={() => window.scrollTo(0, document.body.scrollHeight)}><South /></Button>
         {/* ****  **** */}
-        <TaskGroupListIndex />
+        <SettingsSubtitle>
+          <span onClick={() => setShowTaskGroupList(!showTaskGroupList)}>
+            {showTaskGroupList ? (
+              <KeyboardArrowUpStyled />
+            ) : (
+              <KeyboardArrowDownStyled />
+            )}
+          </span>
+          Groups of Tasks
+        </SettingsSubtitle>
+        <TaskGroupListIndex showTaskGroupList={showTaskGroupList} />
         {/* ****  **** */}
-        <SettingsSubtitle>Questionnaires</SettingsSubtitle>
-        {questionnaireList.map((questionnaire) => (
-          <OneQuestionnaireWrapper key={`questionnaire-${questionnaire.questionnaireId}`}>
-            <ListItemFlexInnerWrapper>
-              {/* {console.log('questionnaireList.map((questionnaire)', questionnaire.questionnaireId)} */}
-              <GoToQuestionnairePage onClick={() => goToQuestionnairePageClick(questionnaire)}>
-                <SpanWithLinkStyle>
-                  {questionnaire.questionnaireName} ({questionnaire.questionnaireId})
-                </SpanWithLinkStyle>
-              </GoToQuestionnairePage>
-              <EditQuestionnaire onClick={() => editQuestionnaireClick(questionnaire)}>
-                <EditStyled />
-              </EditQuestionnaire>
-            </ListItemFlexInnerWrapper>
-          </OneQuestionnaireWrapper>
-        ))}
-        <AddButtonWrapper>
-          <Button
-            classes={{ root: classes.addQuestionnaireButtonRoot }}
-            color="primary"
-            variant="outlined"
-            onClick={addQuestionnaireClick}
-          >
-            Add Questionnaire
-          </Button>
-        </AddButtonWrapper>
+        <SettingsSubtitle>
+          <span onClick={() => setShowQuestionnaireList(!showQuestionnaireList)}>
+            {showQuestionnaireList ? (
+              <KeyboardArrowUpStyled />
+            ) : (
+              <KeyboardArrowDownStyled />
+            )}
+          </span>
+          Questionnaires
+        </SettingsSubtitle>
+        <QuestionnaireListIndex showQuestionnaireList={showQuestionnaireList} />
+        {/* ****  **** */}
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
         <PermissionsAdministration />
         {canDoAnythingIsAdmin && (
@@ -239,30 +185,14 @@ const styles = (theme) => ({
   },
 });
 
-const AddButtonWrapper = styled('div')`
-  margin-top: 24px;
+const KeyboardArrowDownStyled = styled(KeyboardArrowDown)`
 `;
 
-const EditQuestionnaire = styled('div')`
-  cursor: pointer;
-  margin-left: 25px;
-`;
-
-const GoToQuestionnairePage = styled('div')`
-`;
-
-const OneQuestionnaireWrapper = styled('div')`
-`;
-
-const ListItemFlexInnerWrapper = styled('div')`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 6px;
+const KeyboardArrowUpStyled = styled(KeyboardArrowUp)`
 `;
 
 const SettingsSubtitle = styled('h2')`
-  margin-top: 30px;
+  margin-bottom: 0;
 `;
 
 const ButtonDividerLine = styled('div')`

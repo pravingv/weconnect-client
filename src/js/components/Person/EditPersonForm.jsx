@@ -64,6 +64,7 @@ const EditPersonForm = ({ classes }) => {
   const statusActiveInputRef = useRef(false);
   const statusAvailableForSpecialProjectsInputRef = useRef(false);
   const statusOfferApprovedInputRef = useRef(false);
+  const statusOfferDecisionNeededInputRef = useRef(false);
   const statusOfferLetterCreatedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
   const statusOfferQuestionnaireAnsweredInputRef = useRef(false);
@@ -73,7 +74,8 @@ const EditPersonForm = ({ classes }) => {
   const statusResignedInputRef = useRef(false);
 
   useEffect(() => {
-    setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned || activePerson.statusOfferWillNotBeMade));
+    // statusOfferDecisionNeeded reversed on purpose
+    setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || !activePerson.statusOfferDecisionNeeded || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned || activePerson.statusOfferWillNotBeMade));
   }, [activePerson]);
 
   useEffect(() => {
@@ -100,6 +102,7 @@ const EditPersonForm = ({ classes }) => {
       activePerson.birthdayMonthAndDay = birthdayMonthAndDayInputRef.current.value;
       activePerson.dateEndDate = dateEndDateInputRef.current.value;
       activePerson.dateStartDate = dateStartDateInputRef.current.value;
+      // console.log('dateStartDate:', dateStartDateInputRef.current.value, ', dateEndDate:', dateEndDateInputRef.current.value);
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
       activePerson.emailOfficialVerified = emailOfficialVerified;
@@ -113,6 +116,7 @@ const EditPersonForm = ({ classes }) => {
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
       activePerson.jobTitle = jobTitleInputRef.current.value;
       activePerson.statusOfferApproved = statusOfferApprovedInputRef.current.checked;
+      activePerson.statusOfferDecisionNeeded = !statusOfferDecisionNeededInputRef.current.checked; // statusOfferDecisionNeeded reversed on purpose
       activePerson.statusOfferLetterCreated = statusOfferLetterCreatedInputRef.current.checked;
       activePerson.statusOfferLetterSigned = statusOfferLetterSignedInputRef.current.checked;
       activePerson.statusOfferQuestionnaireAnswered = statusOfferQuestionnaireAnsweredInputRef.current.checked;
@@ -162,6 +166,7 @@ const EditPersonForm = ({ classes }) => {
   };
 
   const emailOfficialCanBeEdited = !(emailOfficialInitial) || isEmailOfficialEditModeOn;
+  // console.log('activePerson:', activePerson);
 
   return (
     <EditPersonFormWrapper>
@@ -340,6 +345,28 @@ const EditPersonForm = ({ classes }) => {
             />
           )}
           label={`${activePerson.firstNamePreferred || activePerson.firstName} is active`}
+        />
+        <CheckboxLabel
+          // The way we treat statusOfferDecisionNeeded is reversed on purpose
+          classes={viewerIsOnHrTeam && (activePerson.statusOfferDecisionNeeded || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={!activePerson.statusOfferDecisionNeeded}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferDecisionNeededToBeSaved"
+              inputRef={statusOfferDecisionNeededInputRef}
+              name="statusOfferDecisionNeeded"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  statusOfferDecisionNeeded: !event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`Invitation to speak with hiring manager sent to ${activePerson.firstNamePreferred || activePerson.firstName}`}
         />
         <CheckboxLabel
           classes={viewerIsOnHrTeam && (!activePerson.statusOfferApproved || showCompletedOnboardingCheckboxes) ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}

@@ -43,6 +43,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
   const [questionnaire, setQuestionnaire] = useState(undefined);
   const [questionnaireId] = useState(parseInt(params.questionnaireId, 10));
   const [saveButtonActive, setSaveButtonActive] = useState(false);
+  const personAnsweringName = useGetFullNamePreferred(personId);
 
   // In time, convert to only retrieve one person
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
@@ -220,7 +221,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     return helperText;
   };
 
-  if (!personId) {
+  if (questionnaire && !questionnaire.isCreatePersonQuestionnaire && !personId) {
     return (
       <div>
         <Helmet>
@@ -241,7 +242,6 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     );
   }
 
-  const personAnsweringName = useGetFullNamePreferred(personId);
   return (
     <div>
       <Helmet>
@@ -259,7 +259,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
           </SuccessMessage>
         )}
         <QuestionsHeaderWrapper>
-          {(questionnaire && questionnaire.questionnaireTitle) && (
+          {((questionnaire && questionnaire.questionnaireTitle) || personAnsweringName) && (
             <TitleWrapper>
               {personAnsweringName && (
                 <span>
@@ -269,7 +269,11 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
                   {' '}
                 </span>
               )}
-              {questionnaire.questionnaireTitle}
+              {(questionnaire && questionnaire.questionnaireTitle) && (
+                <span>
+                  {questionnaire.questionnaireTitle}
+                </span>
+              )}
             </TitleWrapper>
           )}
           {(questionnaire && questionnaire.questionnaireInstructions) && (

@@ -51,7 +51,7 @@ const ViewTeamsForPerson = ({ personId }) => {
                 to={`/team-home/${team.teamId}`}
                 onClick={(event) => { event.stopPropagation(); goToTeamHome(team.teamId); }}
               >
-                Go to team home
+                Go to team
               </Link>
             </div>
           </OneTeam>

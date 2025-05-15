@@ -9,27 +9,31 @@ import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TaskListForPerson from '../components/Task/TaskListForPerson';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
-import { isSearchTextFoundInPerson } from '../controllers/PersonController';
-import { isSearchTextFoundInTask } from '../controllers/TaskController';
 import capturePersonListRetrieveData from '../models/capturePersonListRetrieveData';
 import {
   captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData,
 } from '../models/TaskModel';
 import { captureTeamListRetrieveData } from '../models/TeamModel';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
+import { showPersonInTaskList } from '../utils/showPerson';
 import { alphabetizePeoplesObject } from '../utils/utilities';
+import { showTaskDefinition } from '../utils/showTask';
+import TaskSummaryRow from '../components/Task/TaskSummaryRow';
+import convertToInteger from '../common/utils/convertToInteger';
 
 
 const Tasks = () => {
   renderLog('Tasks');  // Set LOG_RENDER_EVENTS to log all renders
-  const { apiDataCache, getAppContextValue } = useConnectAppContext();
-  const { allPeopleCache, allTaskDefinitionsCache, allTasksCache } = apiDataCache;
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { allPeopleCache, allTaskDefinitionsCache, allTasksByDefinitionIdCache, allTasksCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
   const [personIdsList, setPersonIdsList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPersonList, setSelectedPersonList] = useState([]);
+  const [hideAllTasks, setHideAllTasks] = useState(getAppContextValue('tasksActionBarHideAllTasks'));
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
+  const [showTasksByTask, setShowTasksByTask] = useState(false);
   const [taskListByPersonId, setTaskListByPersonId] = useState({});
   const [taskDefinitionList, setTaskDefinitionList] = useState([]);
 
@@ -87,6 +91,7 @@ const Tasks = () => {
 
   useEffect(() => {
     const taskListByPersonIdTemp = {};
+    // Convert to list
     if (allTasksCache) {
       Object.entries(allTasksCache).forEach(([personIdTemp, taskDictByDefinitionId]) => {
         taskListByPersonIdTemp[personIdTemp] = Object.values(taskDictByDefinitionId);
@@ -96,52 +101,6 @@ const Tasks = () => {
     // console.log('=== taskListByPersonIdTemp:', taskListByPersonIdTemp);
   }, [allPeopleCache, allTasksCache]);
 
-  const showPerson = (person) => {
-    if (!person || !person.personId < 0) return false; // Invalid person or personId
-    const taskList = taskListByPersonId[person.personId] || [];
-    let modifiedTaskList = [];
-    if (searchText) {
-      const personResults = isSearchTextFoundInPerson(searchText, person);
-      const allSearchWordsWereFoundInPerson = personResults.allSearchWordsWereFound;
-      const searchWordsFoundInPersonList = personResults.searchWordsFoundList;
-      // console.log('=== searchWordsFoundInPersonList:', searchWordsFoundInPersonList);
-
-      const allIncomingSearchWords = searchText.toLowerCase().split(/\s+/);
-      // Filter out words found in person
-      const searchWordsListMinusFoundInPersonList = allIncomingSearchWords.filter((word) => !searchWordsFoundInPersonList.includes(word.toLowerCase()));
-      // Join the remaining words back into a string
-      const searchTextMinusWordsFoundInPersonList = searchWordsListMinusFoundInPersonList.join(' ');
-      // console.log('=== searchText: ', searchText, ', allIncomingSearchWords:', allIncomingSearchWords, ', searchWordsFoundInPersonList:', searchWordsFoundInPersonList, ', searchWordsListMinusFoundInPersonList:', searchWordsListMinusFoundInPersonList, ', searchTextMinusWordsFoundInPersonList:', searchTextMinusWordsFoundInPersonList);
-      // console.log('=== searchTextMinusWordsFoundInPersonList:', searchTextMinusWordsFoundInPersonList);
-      let taskResults = {};
-      taskList.forEach((task) => {
-        if (searchWordsListMinusFoundInPersonList && searchWordsListMinusFoundInPersonList.length > 0) {
-          taskResults = isSearchTextFoundInTask(searchTextMinusWordsFoundInPersonList, task, taskDefinitionList);
-          if (taskResults.allSearchWordsWereFound) {
-            modifiedTaskList.push(task);
-          }
-        } else {
-          modifiedTaskList.push(task);
-        }
-      });
-      return {
-        allSearchWordsWereFound: allSearchWordsWereFoundInPerson || modifiedTaskList.length > 0,
-        hideBecauseInactive: false,
-        searchTextMinusWordsFoundInPersonList,
-        tasksExistToShow: modifiedTaskList && modifiedTaskList.length > 0,
-      };
-    } else {
-      // Show all people since no search text provided
-      modifiedTaskList = (showCompletedTasks) ? taskList : taskList.filter((task) => !task.statusDone);
-      return {
-        allSearchWordsWereFound: false,
-        hideBecauseInactive: !person.statusActive,
-        searchTextMinusWordsFoundInPersonList: searchText,
-        tasksExistToShow: modifiedTaskList && modifiedTaskList.length > 0,
-      };
-    }
-  };
-
   useEffect(() => {
     if (getAppContextValue('tasksActionBarSearchText') !== searchText) {
       setSearchText(getAppContextValue('tasksActionBarSearchText'));
@@ -149,9 +108,17 @@ const Tasks = () => {
     if (getAppContextValue('tasksActionBarShowCompletedTasks') !== showCompletedTasks) {
       setShowCompletedTasks(getAppContextValue('tasksActionBarShowCompletedTasks'));
     }
+    if (getAppContextValue('tasksActionBarShowTasksByTask') !== showTasksByTask) {
+      setShowTasksByTask(getAppContextValue('tasksActionBarShowTasksByTask'));
+    }
+    if (getAppContextValue('tasksActionBarHideAllTasks') !== hideAllTasks) {
+      setAppContextValue('tasksActionBarHideAllTasks', !hideAllTasks);
+      setHideAllTasks(!hideAllTasks);
+    }
   }, [getAppContextValue]);
 
   const teamId = 0;  // hack 1/15/25
+  // console.log('allTasksByDefinitionIdCache:', allTasksByDefinitionIdCache);
   return (
     <div>
       <Helmet>
@@ -166,36 +133,88 @@ const Tasks = () => {
       </Helmet>
       <PageContentContainer>
         <ActionBarWrapperSpacer />
-        <PersonSummaryHeader />
-        {taskListByPersonId && selectedPersonList.map((person) => {
-          const showPersonResults = showPerson(person);
-          // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
-          if ((showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive) {
-            return (
-              <OnePersonWrapper key={`team-${person.personId}`}>
-                <PersonSummaryRow hideTasks person={person} teamId={teamId} />
-                <TaskListForPerson
-                  personId={person.personId}
-                  searchText={showPersonResults.searchTextMinusWordsFoundInPersonList}
-                  showCompletedTasks={showCompletedTasks}
-                  taskDefinitionList={taskDefinitionList}
-                  taskListForPersonId={taskListByPersonId[person.personId] || []}
-                />
-              </OnePersonWrapper>
-            );
-          } else {
-            return null;
-          }
-        })}
+        <div>
+          {showTasksByTask ? (
+            <TasksByTaskWrapper>
+              {allTasksByDefinitionIdCache && Object.entries(allTasksByDefinitionIdCache).map(([taskDefinitionId, tasks]) => {
+                // console.log('=== taskDefinitionId:', taskDefinitionId);
+                // const showTaskDefinition = tasks.length > 0; // Also set to false if all tasks are marked as completed
+                const taskDefinition = taskDefinitionList[taskDefinitionId];
+                const showTaskTemp =  showTaskDefinition(searchText, taskDefinition);
+                // console.log('*** showTaskTemp:', showTaskTemp);
+                if (showTaskTemp) {
+                  return (
+                    <OneTaskDefinitionWrapper key={`task-definition-${taskDefinitionId}`}>
+                      <TaskDefinitionHeader>
+                        {taskDefinition.taskName} ({taskDefinitionId})
+                      </TaskDefinitionHeader>
+                      {tasks.map((task) => {
+                        // console.log('===== taskDefinitionId: ', taskDefinitionId, ', task.taskDefinitionId:', task.taskDefinitionId);
+                        const showThisTask = task.statusDone !== true || showCompletedTasks;
+                        if (showThisTask) {
+                          return (
+                            <OneTaskWrapper
+                              key={`task-${task.taskDefinitionId}-${task.personId}`}
+                            >
+                              {/* Complete for: {allPeopleCache[task.personId]?.firstName} {allPeopleCache[task.personId]?.lastName} ({task.taskDefinitionId}) */}
+                              <TaskSummaryRow
+                                hideIfCompleted={!showCompletedTasks}
+                                key={`taskSummaryRow-${task.personId}-${task.taskDefinitionId}`}
+                                personId={convertToInteger(task.personId)}
+                                showMarkCompletedLinkOnTitleLine
+                                showPersonName
+                                taskDefinition={taskDefinition}
+                                task={task}
+                              />
+                            </OneTaskWrapper>
+                          );
+                        } else {
+                          return null;
+                        }
+                      })}
+                    </OneTaskDefinitionWrapper>
+                  );
+                } else {
+                  // console.log('No tasks found for taskDefinitionId:', taskDefinitionId);
+                  return null;
+                }
+              })}
+            </TasksByTaskWrapper>
+          ) : (
+            <TasksByPersonWrapper>
+              <PersonSummaryHeaderWrapper>
+                <PersonSummaryHeader />
+              </PersonSummaryHeaderWrapper>
+              {taskListByPersonId && selectedPersonList.map((person) => {
+                const showPersonResults = showPersonInTaskList(person, searchText, showCompletedTasks, taskDefinitionList, taskListByPersonId);
+                // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
+                if ((showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive) {
+                  return (
+                    <OnePersonWrapper key={`team-${person.personId}`}>
+                      <PersonSummaryRow hideTasks person={person} teamId={teamId} />
+                      {!hideAllTasks && (
+                        <TaskListForPerson
+                          searchText={showPersonResults.searchTextMinusWordsFoundInPersonList}
+                          showCompletedTasks={showCompletedTasks}
+                          taskDefinitionList={taskDefinitionList}
+                          taskListForPersonId={taskListByPersonId[person.personId] || []}
+                        />
+                      )}
+                    </OnePersonWrapper>
+                  );
+                } else {
+                  return null;
+                }
+              })}
+            </TasksByPersonWrapper>
+          )}
+        </div>
       </PageContentContainer>
     </div>
   );
 };
 
 const styles = (theme) => ({
-  ballotButtonIconRoot: {
-    marginRight: 8,
-  },
   addTeamButtonRoot: {
     width: 120,
     [theme.breakpoints.down('md')]: {
@@ -209,6 +228,27 @@ const ActionBarWrapperSpacer = styled('div')`
 `;
 
 const OnePersonWrapper = styled('div')`
+`;
+
+const OneTaskWrapper = styled('div')`
+`;
+
+const OneTaskDefinitionWrapper = styled('div')`
+  margin-bottom: 20px;
+`;
+
+const PersonSummaryHeaderWrapper = styled('div')`
+  margin-left: 45px;
+`;
+
+const TaskDefinitionHeader = styled('h3')`
+  margin-bottom: 10px;
+`;
+
+const TasksByPersonWrapper = styled('div')`
+`;
+
+const TasksByTaskWrapper = styled('div')`
 `;
 
 export default withStyles(styles)(Tasks);

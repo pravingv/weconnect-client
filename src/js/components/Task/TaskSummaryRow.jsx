@@ -17,10 +17,10 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import GoogleDriveShareManager from '../Person/GoogleDriveShareManager';
 
 
-const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => {
+const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitleLine, showPersonName, taskDefinition, task }) => {
   renderLog('TaskSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
-  const { apiDataCache, getAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights } = apiDataCache;
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { allPeopleCache, viewerAccessRights } = apiDataCache;
   const { mutate: saveTask } = useSaveTaskMutation();
 
   const [authenticatedPersonId, setAuthenticatedPersonId] = useState(-1);
@@ -29,6 +29,18 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
   const doneByPersonFirstName = useGetFirstNamePreferred(task.doneByPersonId);
   const doneByPersonFullName = useGetFullNamePreferred(task.doneByPersonId);
+  const personFullName = useGetFullNamePreferred(task.personId);
+
+  const viewPersonClick = (hasEditRights = false) => {
+    setAppContextValue('headerProfileDrawerOpen', true);
+    setAppContextValue('profileDrawerPerson', allPeopleCache[task.personId]);
+    setAppContextValue('profileDrawerPersonId', task.personId);
+    if (hasEditRights) {
+      setAppContextValue('headerProfileSection', 'nameAndPhoto');
+    } else {
+      setAppContextValue('headerProfileSection', 'visibleProfile');
+    }
+  };
 
   useEffect(() => {
     if (authenticatedPerson) {
@@ -68,6 +80,15 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
             <ExpandMore onClick={() => setTaskDetailsOpen(true)} />
           )}
         </TaskCell>
+        {showPersonName && (
+          <TaskCell
+            id={`person-${personId}-${task.taskDefinitionId}`}
+            onClick={() => viewPersonClick(true)}
+            width={180}
+          >
+            {personFullName || 'Person name missing'}
+          </TaskCell>
+        )}
         <TaskCell id={`taskName-${personId}-${task.taskDefinitionId}`} width={800}>
           <span onClick={() => setTaskDetailsOpen(!taskDetailsOpen)}>{taskNameToDisplay}</span>
           {(taskDefinition.taskWhyWeDoIt) && (
@@ -96,6 +117,15 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
                 </>
               )}
             </CompletedBy>
+          )}
+          {showMarkCompletedLinkOnTitleLine && !task.statusDone && (
+            <MarkCompletedOnTitleLine>
+              {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
+                <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
+                  Mark completed
+                </SpanWithLinkStyle>
+              )}
+            </MarkCompletedOnTitleLine>
           )}
         </TaskCell>
       </OneTaskTitle>
@@ -158,6 +188,8 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, taskDefinition, task }) => 
 TaskSummaryRow.propTypes = {
   hideIfCompleted: PropTypes.bool.isRequired,
   personId: PropTypes.number.isRequired,
+  showMarkCompletedLinkOnTitleLine: PropTypes.bool,
+  showPersonName: PropTypes.bool,
   taskDefinition: PropTypes.object.isRequired,
   task: PropTypes.object.isRequired,
 };
@@ -192,6 +224,10 @@ const InfoOutlinedStyled = styled(InfoOutlined)`
   height: 20px;
   margin-left: 2px;
   width: 20px;
+`;
+
+const MarkCompletedOnTitleLine = styled('span')`
+  margin-left: 10px;
 `;
 
 const OneTaskDetails = styled('div')`

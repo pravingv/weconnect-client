@@ -3,24 +3,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import TaskSummaryRow from './TaskSummaryRow';
-import { isSearchTextFoundInTask } from '../../controllers/TaskController';
+import { showTask } from '../../utils/showTask';
+import convertToInteger from '../../common/utils/convertToInteger';
 
 
-const TaskListForPerson = ({ personId, searchText, showCompletedTasks, taskDefinitionList, taskListForPersonId }) => {
+const TaskListForPerson = ({ searchText, showCompletedTasks, taskDefinitionList, taskListForPersonId }) => {
   renderLog('TaskListForPerson');  // Set LOG_RENDER_EVENTS to log all renders
   // console.log('=== TaskListForPerson searchText:', searchText);
   // isSearchTextFoundInTask(searchText, task, taskDefinitionList)
-
-  const showTask = (task) => {
-    // console.log('=== *** showTask:', task, ', searchText:', searchText, ', taskDefinitionList:', taskDefinitionList);
-    // if (!task || task.taskDefinitionId < 1) return false; // Invalid task or task.id
-    if (searchText) {
-      const results = isSearchTextFoundInTask(searchText, task, taskDefinitionList);
-      return results.allSearchWordsWereFound;
-    } else {
-      return true; // Show the task if no searchText is provided
-    }
-  };
 
   return (
     <TaskListWrapper>
@@ -32,7 +22,7 @@ const TaskListForPerson = ({ personId, searchText, showCompletedTasks, taskDefin
           <TaskSummaryRow
             hideIfCompleted={!showCompletedTasks}
             key={`taskSummaryRow-${task.personId}-${task.taskDefinitionId}`}
-            personId={personId}
+            personId={convertToInteger(task.personId)}
             taskDefinition={taskDefinition}
             task={task}
           />
@@ -42,7 +32,6 @@ const TaskListForPerson = ({ personId, searchText, showCompletedTasks, taskDefin
   );
 };
 TaskListForPerson.propTypes = {
-  personId: PropTypes.number.isRequired,
   searchText: PropTypes.string,
   showCompletedTasks: PropTypes.bool,
   taskDefinitionList: PropTypes.array,

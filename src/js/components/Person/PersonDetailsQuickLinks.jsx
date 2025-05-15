@@ -16,18 +16,74 @@ const PersonDetailsQuickLinks = ({ person, teamId }) => {
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
 
-  const [quickLinkCopied, setQuickLinkCopied] = useState('');
+  const [jazzHrEmailsCopied, setJazzHrEmailsCopied] = useState(false);
+  const [jazzHrProfileCopied, setJazzHrProfileCopied] = useState(false);
+  const [linkedInCopied, setLinkedInCopied] = useState(false);
 
-  const copyQuickLink = () => {
-    setQuickLinkCopied('Copied!');
+  const copyJazzHrEmails = () => {
+    setJazzHrEmailsCopied(true);
     setTimeout(() => {
-      setQuickLinkCopied('');
+      setJazzHrEmailsCopied(false);
+    }, 1500);
+  };
+
+  const copyJazzHrProfile = () => {
+    setJazzHrProfileCopied(true);
+    setTimeout(() => {
+      setJazzHrProfileCopied(false);
+    }, 1500);
+  };
+
+  const copyLinkedIn = () => {
+    setLinkedInCopied(true);
+    setTimeout(() => {
+      setLinkedInCopied(false);
     }, 1500);
   };
 
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
   return (
     <PersonDetailsQuickLinksWrapper>
+      {(canEditPerson && person.jazzHrUrl) && (
+        <QuickLinksRow>
+          <Suspense fallback={<></>}>
+            <StyledOpenExternalWebsite
+              linkIdAttribute="jazzHrProfileUrl"
+              url={person.jazzHrUrl}
+              target="_blank"
+              body={(
+                <span>
+                  <LaunchStyled />
+                  {jazzHrProfileCopied ? 'Copied!' : 'JazzHR profile'}
+                </span>
+              )}
+            />
+          </Suspense>
+          <CopyToClipboard text={person.jazzHrUrl} onCopy={() => copyJazzHrProfile()}>
+            <ContentCopyStyled />
+          </CopyToClipboard>
+        </QuickLinksRow>
+      )}
+      {(canEditPerson && person.jazzHrUrl && person.jazzHrUrl.endsWith('/profile')) && (
+        <QuickLinksRow>
+          <Suspense fallback={<></>}>
+            <StyledOpenExternalWebsite
+              linkIdAttribute="jazzHrEmailsUrl"
+              url={person.jazzHrUrl.replace(/\/profile$/, '/message')}
+              target="_blank"
+              body={(
+                <span>
+                  <LaunchStyled />
+                  {jazzHrEmailsCopied ? 'Copied!' : 'JazzHR emails'}
+                </span>
+              )}
+            />
+          </Suspense>
+          <CopyToClipboard text={person.jazzHrUrl.replace(/\/profile$/, '/message')} onCopy={() => copyJazzHrEmails()}>
+            <ContentCopyStyled />
+          </CopyToClipboard>
+        </QuickLinksRow>
+      )}
       {person.linkedInUrl && (
         <QuickLinksRow>
           <Suspense fallback={<></>}>
@@ -38,39 +94,16 @@ const PersonDetailsQuickLinks = ({ person, teamId }) => {
               body={(
                 <span>
                   <LaunchStyled />
-                  LinkedIn
+                  {linkedInCopied ? 'Copied!' : 'LinkedIn'}
                 </span>
               )}
             />
           </Suspense>
-          <CopyToClipboard text={person.linkedInUrl} onCopy={() => copyQuickLink()}>
+          <CopyToClipboard text={person.linkedInUrl} onCopy={() => copyLinkedIn()}>
             <ContentCopyStyled />
           </CopyToClipboard>
         </QuickLinksRow>
       )}
-      {(canEditPerson && person.jazzHrUrl) && (
-        <QuickLinksRow>
-          <Suspense fallback={<></>}>
-            <StyledOpenExternalWebsite
-              linkIdAttribute="jazzHrLink"
-              url={person.jazzHrUrl}
-              target="_blank"
-              body={(
-                <span>
-                  <LaunchStyled />
-                  JazzHR
-                </span>
-              )}
-            />
-          </Suspense>
-          <CopyToClipboard text={person.jazzHrUrl} onCopy={() => copyQuickLink()}>
-            <ContentCopyStyled />
-          </CopyToClipboard>
-        </QuickLinksRow>
-      )}
-      <QuickLinksRow>
-        {quickLinkCopied}
-      </QuickLinksRow>
     </PersonDetailsQuickLinksWrapper>
   );
 };

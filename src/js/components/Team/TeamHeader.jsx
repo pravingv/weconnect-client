@@ -15,6 +15,7 @@ import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { EditStyled } from '../Style/iconStyles';
+import CohortMemberList from './CohortMemberList';
 import TeamMemberList from './TeamMemberList';
 import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
@@ -22,7 +23,13 @@ import { getTeamMembersListByTeamId } from '../../models/TeamModel';
 import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
 
 
-const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, searchText, showAllTeamMembersFromParent, showIcons, team, classes }) => {
+const TeamHeader = (
+  {
+    expandAllTeamMembersFromParent, hideInactiveFromParent, searchText,
+    showAllTeamMembersFromParent, showIcons, showNotOnTeam, showStatusOfferDecisionNeeded,
+    team, classes,
+  },
+) => {
   renderLog('TeamHeader');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
@@ -78,7 +85,10 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
   useEffect(() => {
     let officialEmails = '';
     let personalEmails = '';
-    const updatedTeamMemberList = getTeamMembersListByTeamId(team.id, apiDataCache);
+    let updatedTeamMemberList = [];
+    if (team && team.id && apiDataCache) {
+      updatedTeamMemberList = getTeamMembersListByTeamId(team.id, apiDataCache);
+    }
 
     // console.log('TeamHeader useEffect, updatedTeamMemberList: ', updatedTeamMemberList);
     updatedTeamMemberList.forEach((person) => {
@@ -117,27 +127,41 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
             )}
           </TeamHeaderCell>
           <TeamHeaderCell $cellwidth={335} $largefont $titlecell>
-            {teamLocal && (
+            {teamLocal ? (
               <Link className={classes.teamLocalNameLink} to={`/team-home/${teamLocal.id}`}>
                 {teamLocal.teamName}
               </Link>
+            ) : (
+              <>
+                {showStatusOfferDecisionNeeded ? (
+                  <CohortTitle>Cohort: Connect w/ Hiring Manager</CohortTitle>
+                ) : (
+                  <>
+                    {showNotOnTeam && (
+                      <CohortTitle>Cohort: Not on Team</CohortTitle>
+                    )}
+                  </>
+                )}
+              </>
             )}
           </TeamHeaderCell>
           <ShowOnHover>
-            <ActionBarSection $borderRightOff={!showAllTeamMembers}>
-              <ActionBarItem>
-                <SpanWithLinkStyle onClick={editTeamClick}>
-                  Next meeting
-                </SpanWithLinkStyle>
-              </ActionBarItem>
-              {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
+            {!(showStatusOfferDecisionNeeded || showNotOnTeam) && (
+              <ActionBarSection $borderRightOff={!showAllTeamMembers}>
                 <ActionBarItem>
-                  <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
-                    <PersonAddAltOutlinedStyled />
+                  <SpanWithLinkStyle onClick={editTeamClick}>
+                    Next meeting
                   </SpanWithLinkStyle>
                 </ActionBarItem>
-              )}
-            </ActionBarSection>
+                {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
+                  <ActionBarItem>
+                    <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
+                      <PersonAddAltOutlinedStyled />
+                    </SpanWithLinkStyle>
+                  </ActionBarItem>
+                )}
+              </ActionBarSection>
+            )}
             {showAllTeamMembers && (
               <ActionBarSection $borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
                 <ActionBarItem>
@@ -177,7 +201,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
               </ActionBarSection>
             )}
             {/* Edit icon */}
-            {showIcons && (
+            {showIcons && !(showStatusOfferDecisionNeeded || showNotOnTeam) && (
               <>
                 {viewerCanSeeOrDo(['canEditTeamAnyTeam'], viewerAccessRights) && (
                   <TeamHeaderCell $cellwidth={20} onClick={editTeamClick} $titleCell>
@@ -209,7 +233,7 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
           </TeamHeaderPersonColumnTitles>
         )}
       </OneTeamHeaderOuterWrapper>
-      {showAllTeamMembers && (
+      {(showAllTeamMembers && team && team.id) && (
         <>
           {/* DO NOT REMOVE PASSED IN team */}
           <TeamMemberList
@@ -218,6 +242,17 @@ const TeamHeader = ({ expandAllTeamMembersFromParent, hideInactiveFromParent, se
             searchText={searchText}
             team={team}
             teamId={team.id}
+          />
+        </>
+      )}
+      {(showAllTeamMembers && (showStatusOfferDecisionNeeded || showNotOnTeam)) && (
+        <>
+          <CohortMemberList
+            expandAllTeamMembers={expandAllTeamMembers}
+            hideInactive={false}
+            searchText={searchText}
+            showNotOnTeam={showNotOnTeam}
+            showStatusOfferDecisionNeeded={showStatusOfferDecisionNeeded}
           />
         </>
       )}
@@ -231,25 +266,24 @@ TeamHeader.propTypes = {
   searchText: PropTypes.string,
   showIcons: PropTypes.bool,
   showAllTeamMembersFromParent: PropTypes.bool,
+  showNotOnTeam: PropTypes.bool,
+  showStatusOfferDecisionNeeded: PropTypes.bool,
   team: PropTypes.object,
 };
 
-const styles = (theme) => ({
-  ballotButtonIconRoot: {
-    marginRight: 8,
-  },
-  addTeamButtonRoot: {
-    width: 120,
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-    },
-  },
+const styles = () => ({
   teamLocalNameLink: {
     color: `${DesignTokenColors.neutral800}`,
     fontWeight: 600,
     textDecoration: 'none',
   },
 });
+
+const CohortTitle = styled('div')`
+  color: ${DesignTokenColors.neutral800};
+  font-weight: 600;
+  text-decoration: none;
+`;
 
 const ContentCopyStyled = styled(ContentCopy)`
   height: 16px;
@@ -329,7 +363,7 @@ const TeamHeaderPersonColumnTitles = styled('div')`
   //margin-top: 10px;
 `;
 
-const TeamHeaderCell = styled.div`
+const TeamHeaderCell = styled('div')`
   align-content: center;
   // border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
   ${(props) => (props.$rightAlign ? 'display: flex;' : '')};

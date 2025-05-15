@@ -47,7 +47,15 @@ export const getPersonAwayLabel = (personAwayReason) => {
   }
 };
 
-export const isInOfferProcess = (person) => ((person.statusOfferDecisionNeeded === true) || (person.statusOfferApproved === true)) && person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true;
+// Offer process steps:
+// - Attended Intro to WeVote: statusOfferDecisionNeeded === true
+// - Email sent to volunteer asking them to schedule meeting: statusOfferDecisionNeeded === false
+// - Hiring manager likes, offer should be made: statusOfferApproved === true
+// - Hiring manager does not approve, no offer: statusOfferWillNotBeMade === true
+// - Offer letter sent: statusOfferLetterSent === true
+// - Offer letter signed: statusOfferLetterSigned === true
+// export const isInOfferProcess = (person) => ((person.statusOfferDecisionNeeded === true) || (person.statusOfferApproved === true)) && person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true;
+export const isInOfferProcess = (person) => person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true;
 
 export const searchWordFoundInOnePerson = (searchWord, person) => {
   const fieldsToSearch = [

@@ -105,7 +105,6 @@ const TaskListForPersonManager = ({ personId }) => {
       <EditPersonTasksWrapper>
         {(person && person.personId && taskListByPersonId) && (
           <TaskListForPerson
-            personId={person.personId}
             showCompletedTasks={showCompletedTasks}
             taskDefinitionList={taskDefinitionList}
             taskListForPersonId={taskListByPersonId[person.personId] || []}

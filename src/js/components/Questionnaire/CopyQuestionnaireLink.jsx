@@ -11,7 +11,7 @@ import { SpanWithLinkStyle } from '../Style/linkStyles';
 const CopyQuestionnaireLink = ({ personId, questionnaireId }) => {
   renderLog('CopyQuestionnaireLink');
   const [linkCopied, setLinkCopied] = useState(false);
-  const [linkToBeShared] = useState(`${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}/q/${questionnaireId}/${personId}`);
+  const [linkToBeShared] = useState(`${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}/q/${questionnaireId}${personId ? `/${personId}` : ''}`);
 
   const copyLink = () => {
     // console.log('CopyQuestionnaireLink copyLink');
@@ -38,7 +38,7 @@ const CopyQuestionnaireLink = ({ personId, questionnaireId }) => {
   );
 };
 CopyQuestionnaireLink.propTypes = {
-  personId: PropTypes.number.isRequired,
+  personId: PropTypes.number,
   questionnaireId: PropTypes.number.isRequired,
 };
 
