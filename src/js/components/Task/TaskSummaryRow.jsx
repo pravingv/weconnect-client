@@ -59,17 +59,24 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
     saveTask(requestParams);
   };
 
+  if (!task) {
+    return null;
+  }
   if (hideIfCompleted && task && task.statusDone) {
     return null;
   }
 
   // console.log('TaskSummaryRow taskDefinition:', taskDefinition);
-  let taskName = '';
-  let taskNameCompleted = '';
+  let isGoogleDrivePermissionTask = false;
+  let taskName;
+  let taskNameCompleted;
+  let taskWhyWeDoIt;
   const taskStatusDone = task ? task.statusDone : false;
   if (taskDefinition) {
+    isGoogleDrivePermissionTask = taskDefinition.isGoogleDrivePermissionTask || false;
     taskName = taskDefinition.taskName || 'task name missing';
     taskNameCompleted = taskDefinition.taskNameCompleted;
+    taskWhyWeDoIt = taskDefinition.taskWhyWeDoIt;
   }
   const taskNameToDisplay = taskStatusDone ? taskNameCompleted || taskName : taskName;
   return (
@@ -98,13 +105,13 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
         )}
         <TaskCell id={`taskName-${personId}-${task.taskDefinitionId}`} width={800}>
           <span onClick={() => setTaskDetailsOpen(!taskDetailsOpen)}>{taskNameToDisplay}</span>
-          {(taskDefinition.taskWhyWeDoIt) && (
+          {(taskWhyWeDoIt) && (
             <Tooltip
               arrow
               enterTouchDelay={0} // show with click in mobile
               id={`taskWhyWeDoIt-tooltip-${task.taskDefinitionId}`}
               leaveTouchDelay={3000}
-              title={taskDefinition.taskWhyWeDoIt}
+              title={taskWhyWeDoIt}
             >
               <InfoOutlinedStyled />
             </Tooltip>
@@ -149,7 +156,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
                 personId={personId}
               />
             </div>
-            {(taskDefinition.isGoogleDrivePermissionTask && viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights)) && (
+            {(isGoogleDrivePermissionTask && viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights)) && (
               <GoogleDriveShareManager
                 task={task}
                 taskDefinition={taskDefinition}
