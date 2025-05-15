@@ -267,7 +267,7 @@ const EditQuestionForm = ({ classes }) => {
         {showFieldMappingOptions && (
           <FieldMappingOptions>
             {PERSON_FIELDS_ACCEPTED_FROM_QUESTIONNAIRE.map((fieldName) => (
-              <OneFieldMappingOption key={`option-${fieldName}`}>
+              <OneFieldMappingOptionWrapper key={`option-${fieldName}`}>
                 <CopyToClipboard text={`Person.${fieldName}`} onCopy={() => copyFieldMappingRule(`Person.${fieldName}`)}>
                   <OneFieldMappingOption>
                     Person.
@@ -276,7 +276,7 @@ const EditQuestionForm = ({ classes }) => {
                   </OneFieldMappingOption>
                 </CopyToClipboard>
                 {fieldMappingRuleCopied === `Person.${fieldName}` && <>&nbsp;Copied!</>}
-              </OneFieldMappingOption>
+              </OneFieldMappingOptionWrapper>
             ))}
           </FieldMappingOptions>
         )}
@@ -355,6 +355,12 @@ const MapAnswerTitle = styled('div')`
 const OneFieldMappingOption = styled('div')`
   align-items: center;
   color: ${DesignTokenColors.neutral300};
+  cursor: pointer;
+  display: flex;
+`;
+
+const OneFieldMappingOptionWrapper = styled('div')`
+  align-items: center;
   display: flex;
 `;
 
