@@ -21,6 +21,7 @@ const EditQuestionnaireForm = ({ classes }) => {
   const { mutate: mutateQuestionnaireSave } = useQuestionnaireSaveMutation();
 
   const [instructionsFldValue, setInstructionsFldValue] = useState('');
+  const [isCreatePersonQuestionnaire, setIsCreatePersonQuestionnaire] = useState(false);
   const [isOfferQuestionnaire, setIsOfferQuestionnaire] = useState(false);
   const [nameFldValue, setNameFldValue] = useState('');
   const [questionnaire]  = useState(getAppContextValue('selectedQuestionnaire'));
@@ -36,17 +37,20 @@ const EditQuestionnaireForm = ({ classes }) => {
       setNameFldValue(questionnaire.questionnaireName);
       setTitleFldValue(questionnaire.questionnaireTitle);
       setInstructionsFldValue(questionnaire.questionnaireInstructions);
+      setIsCreatePersonQuestionnaire(questionnaire.isCreatePersonQuestionnaire);
       setIsOfferQuestionnaire(questionnaire.isOfferQuestionnaire);
     } else {
       setNameFldValue('');
       setTitleFldValue('');
       setInstructionsFldValue('');
+      setIsCreatePersonQuestionnaire(false);
       setIsOfferQuestionnaire(false);
     }
   }, [questionnaire]);
 
   const saveQuestionnaire = () => {
     const params = {
+      isCreatePersonQuestionnaire,
       isOfferQuestionnaire,
       questionnaireName: nameInputRef.current.value,
       questionnaireTitle: titleInputRef.current.value,
@@ -128,6 +132,23 @@ const EditQuestionnaireForm = ({ classes }) => {
             />
           )}
           label="Is offer letter questionnaire"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={isCreatePersonQuestionnaire}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isCreatePersonQuestionnaireToBeSaved"
+              name="isCreatePersonQuestionnaire"
+              onChange={(event) => {
+                setIsCreatePersonQuestionnaire(event.target.checked);
+                updateSaveButton();
+              }}
+            />
+          )}
+          label="Create person with this questionnaire"
         />
         <Button
           classes={{ root: classes.saveQuestionnaireButton }}

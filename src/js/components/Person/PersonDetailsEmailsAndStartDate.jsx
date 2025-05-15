@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
@@ -46,14 +47,13 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
       {preferredEmail && (
         <QuickLinksRow>
           <div>
-            Preferred:
-            {'\u00A0'}
+            Preferred:&nbsp;
           </div>
           <div>
             <CopyToClipboard text={preferredEmail} onCopy={() => copyEmailPreferred()}>
               <EmailAddressToBeCopied>
-                {emailPreferredCopied ? 'Copied!' : preferredEmail}
                 <ContentCopyStyled />
+                <SpanWithLinkStyle>{emailPreferredCopied ? 'Copied!' : preferredEmail}</SpanWithLinkStyle>
               </EmailAddressToBeCopied>
             </CopyToClipboard>
           </div>
@@ -62,15 +62,14 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
       {(person.emailOfficial && (preferredEmail !== person.emailOfficial)) && (
         <QuickLinksRow>
           <div>
-            Official:
-            {'\u00A0'}
+            Official:&nbsp;&nbsp;
           </div>
           <div>
             {person.emailOfficial && (
               <CopyToClipboard text={person.emailOfficial} onCopy={() => copyEmailOfficial()}>
                 <EmailAddressToBeCopied>
-                  {emailOfficialCopied ? 'Copied!' : person.emailOfficial || '(email needed)'}
                   <ContentCopyStyled />
+                  <SpanWithLinkStyle>{emailOfficialCopied ? 'Copied!' : person.emailOfficial || '(email needed)'}</SpanWithLinkStyle>
                 </EmailAddressToBeCopied>
               </CopyToClipboard>
             )}
@@ -80,14 +79,13 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
       {(canEditPerson && person.emailPersonal) && (
         <QuickLinksRow>
           <div>
-            Personal:
-            {'\u00A0'}
+            Personal:&nbsp;&nbsp;
           </div>
           <div>
             <CopyToClipboard text={person.emailPersonal} onCopy={() => copyEmailPersonal()}>
               <EmailAddressToBeCopied>
-                {emailPersonalCopied ? 'Copied!' : person.emailPersonal}
                 <ContentCopyStyled />
+                <SpanWithLinkStyle>{emailPersonalCopied ? 'Copied!' : person.emailPersonal}</SpanWithLinkStyle>
               </EmailAddressToBeCopied>
             </CopyToClipboard>
           </div>
@@ -118,13 +116,13 @@ const PersonDetailsEmailsAndStartDateWrapper = styled('div')`
 const QuickLinksRow = styled('div')`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: 15px;
 `;
 
 const EmailAddressToBeCopied = styled('p')`
+  cursor: pointer;
   margin: 0;
-  font-weight: bold;
 `;
 
 export default PersonDetailsEmailsAndStartDate;

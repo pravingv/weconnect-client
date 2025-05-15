@@ -9,6 +9,7 @@ export function getInitialGlobalTaskVariables () {
     allTaskGroupTeamLinksCache: {}, // This is a dictionary key: taskGroupId, value: list of TaskGroupTeamLink entries
     allTaskDefinitionsCache: {}, // This is a dictionary key: taskDefinitionId, value: TaskDefinition dict
     allTaskDependenciesCache: {}, // This is a dictionary key: taskDependencyId, value: TaskDependency dict
+    allTasksByDefinitionIdCache: {}, // This is a dictionary key: taskDefinitionId, value: list of Task dicts
     allTasksCache: {}, // This is a dictionary key: personId, value: another dictionary key: taskDefinitionId, value: Task dict
     mostRecentTaskDefinitionIdSaved: -1,
     mostRecentTaskDefinitionSaved: {
@@ -149,6 +150,7 @@ export function captureTaskStatusListRetrieveData (
   // const allTaskDefinitionsCache = apiDataCache.allTaskDefinitionsCache || {};
   // const allTaskDependenciesCache = apiDataCache.allTaskDependenciesCache || {};
   // const allTaskGroupsCache = apiDataCache.allTaskGroupsCache || {};
+  const allTasksByDefinitionIdCache = apiDataCache.allTasksByDefinitionIdCache || {};
   const allTasksCache = apiDataCache.allTasksCache || {};
   const changeResults = {
     // allTaskDefinitionsCache,
@@ -157,12 +159,15 @@ export function captureTaskStatusListRetrieveData (
     // allTaskDependenciesCacheChanged: false,
     // allTaskGroupsCache,
     // allTaskGroupsCacheChanged: false,
+    allTasksByDefinitionIdCache,
+    allTasksByDefinitionIdCacheChanged: false,
     allTasksCache,
     allTasksCacheChanged: false,
   };
   // const allTaskDefinitionsCacheNew = { ...allTaskDefinitionsCache };
   // const allTaskDependenciesCacheNew = { ...allTaskDependenciesCache };
   // const allTaskGroupsCacheNew = { ...allTaskGroupsCache };
+  const allTasksByDefinitionIdCacheNew = { ...allTasksByDefinitionIdCache };
   const allTasksCacheNew = { ...allTasksCache };
   // let newTaskDefinitionListDataReceived = false;
   // if (data && data.taskDefinitionList && isSuccess === true) {
@@ -194,6 +199,30 @@ export function captureTaskStatusListRetrieveData (
   //     }
   //   });
   // }
+  let newTaskListByDefinitionIdDataReceived = false;
+  if (data && data.taskList && isSuccess === true) {
+    data.taskList.forEach((task) => {
+      if (task && task.taskDefinitionId && task.taskDefinitionId >= 0) {
+        if (!allTasksByDefinitionIdCacheNew[task.taskDefinitionId]) {
+          allTasksByDefinitionIdCacheNew[task.taskDefinitionId] = [];
+        }
+        const existingTaskIndex = allTasksByDefinitionIdCacheNew[task.taskDefinitionId].findIndex(
+          (existingTask) => existingTask.personId === task.personId && existingTask.taskDefinitionId === task.taskDefinitionId);
+
+        if (existingTaskIndex === -1) {
+          // Task doesn't exist, so add it
+          allTasksByDefinitionIdCacheNew[task.taskDefinitionId].push(task);
+          newTaskListByDefinitionIdDataReceived = true;
+        } else {
+          // Task exists, update it if it's different
+          if (!isEqual(allTasksByDefinitionIdCacheNew[task.taskDefinitionId][existingTaskIndex], task)) {
+            allTasksByDefinitionIdCacheNew[task.taskDefinitionId][existingTaskIndex] = task;
+            newTaskListByDefinitionIdDataReceived = true;
+          }
+        }
+      }
+    });
+  }
   let newTaskListDataReceived = false;
   if (data && data.taskList && isSuccess === true) {
     data.taskList.forEach((task) => {
@@ -223,6 +252,12 @@ export function captureTaskStatusListRetrieveData (
   //   changeResults.allTaskDependenciesCache = allTaskDependenciesCacheNew;
   //   changeResults.allTaskDependenciesCacheChanged = true;
   // }
+  if (newTaskListByDefinitionIdDataReceived) {
+    // console.log('TaskStatusListRetrieve setting allTasksByDefinitionIdCacheNew:', allTasksByDefinitionIdCacheNew);
+    dispatch({ type: 'updateByKeyValue', key: 'allTasksByDefinitionIdCache', value: allTasksByDefinitionIdCacheNew });
+    changeResults.allTasksByDefinitionIdCache = allTasksByDefinitionIdCacheNew;
+    changeResults.allTasksByDefinitionIdCacheChanged = true;
+  }
   if (newTaskListDataReceived) {
     // console.log('TaskStatusListRetrieve setting allTasksCacheNew:', allTasksCacheNew);
     dispatch({ type: 'updateByKeyValue', key: 'allTasksCache', value: allTasksCacheNew });

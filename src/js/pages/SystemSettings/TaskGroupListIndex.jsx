@@ -16,7 +16,7 @@ import { generateActivatedByDescription, generateTaskDefinitionListString } from
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 
 
-const TaskGroupListIndex = ({ classes }) => {
+const TaskGroupListIndex = ({ classes, showTaskGroupList }) => {
   renderLog('TaskGroupListIndex');
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights, allPeopleCache, allTaskDefinitionsCache, allTaskGroupsCache } = apiDataCache;
@@ -98,61 +98,65 @@ const TaskGroupListIndex = ({ classes }) => {
   return (
     <TaskGroupListIndexWrapper>
       {/* ****  **** */}
-      <SettingsSubtitle>Groups of Tasks</SettingsSubtitle>
-      {taskGroupList.map((taskGroup) => {
-        const activatedByDescription = generateActivatedByDescription(taskGroup);
-        const taskDefinitionListString = generateTaskDefinitionListString(taskGroup.id, taskDefinitionList);
-        return (
-          <OneQuestionnaireWrapper key={`taskGroup-${taskGroup.id}`}>
-            <ListItemFlexInnerWrapper>
-              <Link to={`/task-group/${taskGroup.id}`} state={taskGroup}>
-                <ActiveOrNotSpan
-                  $turnedOff={!taskGroup.statusActive}
-                >
-                  {taskGroup.taskGroupName}
-                </ActiveOrNotSpan>
-                {' '}
-                ({taskGroup.id})
-              </Link>
-              <EditTaskGroup onClick={() => editTaskGroupClick(taskGroup)}>
-                <EditStyled />
-              </EditTaskGroup>
-            </ListItemFlexInnerWrapper>
-            {(activatedByDescription) && (
-              <ListItemFlexInnerWrapper>
-                <TriggeredBy>Activated by:&nbsp;</TriggeredBy>
-                <TriggeredByDescription>{activatedByDescription}</TriggeredByDescription>
-              </ListItemFlexInnerWrapper>
-            )}
-            {(taskGroup.taskGroupDescription) && (
-              <ListItemFlexInnerWrapper>
-                <TaskGroupDescription>{taskGroup.taskGroupDescription}</TaskGroupDescription>
-              </ListItemFlexInnerWrapper>
-            )}
-            {(taskDefinitionListString) && (
-              <ListItemFlexInnerWrapper>
-                <TriggeredBy>Tasks:&nbsp;</TriggeredBy>
-                <TriggeredByDescription>{taskDefinitionListString}</TriggeredByDescription>
-              </ListItemFlexInnerWrapper>
-            )}
-          </OneQuestionnaireWrapper>
-        );
-      })}
-      <AddButtonWrapper>
-        <Button
-          classes={{ root: classes.addQuestionnaireButtonRoot }}
-          color="primary"
-          variant="outlined"
-          onClick={addTaskGroupClick}
-        >
-          Add Task Grouping
-        </Button>
-      </AddButtonWrapper>
+      {showTaskGroupList && (
+        <DisplayArea>
+          {taskGroupList.map((taskGroup) => {
+            const activatedByDescription = generateActivatedByDescription(taskGroup);
+            const taskDefinitionListString = generateTaskDefinitionListString(taskGroup.id, taskDefinitionList);
+            return (
+              <OneQuestionnaireWrapper key={`taskGroup-${taskGroup.id}`}>
+                <ListItemFlexInnerWrapper>
+                  <Link to={`/task-group/${taskGroup.id}`} state={taskGroup}>
+                    <ActiveOrNotSpan
+                      $turnedOff={!taskGroup.statusActive}
+                    >
+                      {taskGroup.taskGroupName}
+                    </ActiveOrNotSpan>
+                    {' '}
+                    ({taskGroup.id})
+                  </Link>
+                  <EditTaskGroup onClick={() => editTaskGroupClick(taskGroup)}>
+                    <EditStyled />
+                  </EditTaskGroup>
+                </ListItemFlexInnerWrapper>
+                {(activatedByDescription) && (
+                  <ListItemFlexInnerWrapper>
+                    <TriggeredBy>Activated by:&nbsp;</TriggeredBy>
+                    <TriggeredByDescription>{activatedByDescription}</TriggeredByDescription>
+                  </ListItemFlexInnerWrapper>
+                )}
+                {(taskGroup.taskGroupDescription) && (
+                  <ListItemFlexInnerWrapper>
+                    <TaskGroupDescription>{taskGroup.taskGroupDescription}</TaskGroupDescription>
+                  </ListItemFlexInnerWrapper>
+                )}
+                {(taskDefinitionListString) && (
+                  <ListItemFlexInnerWrapper>
+                    <TriggeredBy>Tasks:&nbsp;</TriggeredBy>
+                    <TriggeredByDescription>{taskDefinitionListString}</TriggeredByDescription>
+                  </ListItemFlexInnerWrapper>
+                )}
+              </OneQuestionnaireWrapper>
+            );
+          })}
+          <AddButtonWrapper>
+            <Button
+              classes={{ root: classes.addQuestionnaireButtonRoot }}
+              color="primary"
+              variant="outlined"
+              onClick={addTaskGroupClick}
+            >
+              Add Task Grouping
+            </Button>
+          </AddButtonWrapper>
+        </DisplayArea>
+      )}
     </TaskGroupListIndexWrapper>
   );
 };
 TaskGroupListIndex.propTypes = {
   classes: PropTypes.object.isRequired,
+  showTaskGroupList: PropTypes.bool,
 };
 
 const styles = (theme) => ({
@@ -175,6 +179,9 @@ const AddButtonWrapper = styled('div')`
   margin-top: 24px;
 `;
 
+const DisplayArea = styled('div')`
+`;
+
 const EditTaskGroup = styled('div')`
   cursor: pointer;
   margin-left: 25px;
@@ -188,10 +195,6 @@ const ListItemFlexInnerWrapper = styled('div')`
   align-items: center;
   justify-content: flex-start;
   margin-bottom: 6px;
-`;
-
-const SettingsSubtitle = styled('h2')`
-  margin-top: 30px;
 `;
 
 const TaskGroupListIndexWrapper = styled('div')`

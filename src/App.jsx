@@ -83,6 +83,7 @@ function App () {
                     <Route path="/answers/:questionnaireId/:personId" element={<QuestionnaireAnswers />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/q/:questionnaireId/:personId" element={<AnswerQuestions setShowHeaderFooter={setShowHeaderFooter} />} />
+                    <Route path="/q/:questionnaireId" element={<AnswerQuestions setShowHeaderFooter={setShowHeaderFooter} />} />
                     <Route element={<PrivateRoute />}>
                       <Route path="/faq" element={<FAQ />} />
                       <Route path="/login" element={<Login />} />

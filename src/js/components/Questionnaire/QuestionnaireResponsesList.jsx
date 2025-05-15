@@ -70,7 +70,7 @@ const QuestionnaireResponsesList = ({ personId }) => {
                     body={(
                       <Tooltip title="View answers">
                         <div>
-                          view
+                          view answers
                           <LaunchStyled />
                         </div>
                       </Tooltip>
@@ -104,7 +104,8 @@ const LaunchStyled = styled(Launch)`
 `;
 
 const QuestionnaireResponses = styled('div')`
-  font-weight: 550;
+  font-weight: 500;
+  margin-bottom: 6px;
   margin-top: 20px;
 `;
 const WhenCompleted = styled('div')`
@@ -113,10 +114,12 @@ const WhenCompleted = styled('div')`
 `;
 
 const OneQuestionnaireWrapper = styled('div')`
-  font-weight: 450;
+  display: flex;
+  justify-content: flex-start;
 `;
 
 const QuestionText = styled('div')`
+  margin-right: 8px;
 `;
 
 const QuestionnaireListWrapper = styled('div')`

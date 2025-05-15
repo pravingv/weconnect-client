@@ -31,7 +31,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
   const [quickLinkCopied, setQuickLinkCopied] = useState('');
 
   const copyQuickLink = () => {
-    setQuickLinkCopied('Copied!');
+    setQuickLinkCopied(<CopyToClipboardContainer><ContentCopyStyled />Copied!</CopyToClipboardContainer>);
     setTimeout(() => {
       setQuickLinkCopied('');
     }, 1500);
@@ -69,10 +69,12 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
     let personStatusTemp = '';
     if (!person.statusActive) {
       personStatusTemp = 'account off';
-    } else if (!person.statusOfferApproved) {
-      personStatusTemp = 'hiring manager deciding';
+    } else if (person.statusOfferDecisionNeeded) {
+      personStatusTemp = 'interview needed';
     } else if (person.statusOfferWillNotBeMade) {
       personStatusTemp = 'offer won\'t be made';
+    } else if (!person.statusOfferApproved) {
+      personStatusTemp = 'hiring manager deciding';
     } else if (!person.statusOfferQuestionnaireSent) {
       personStatusTemp = 'needs questionnaire';
     } else if (!person.statusOfferQuestionnaireAnswered) {
@@ -153,7 +155,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
                   ) : (
                     <span>
                       {person.statusOfferLetterSigned ? (
-                        <span>{timeFromDate(person.dateStartDate, true)}{personStatus && ` (${personStatus})`}</span>
+                        <span>{personStatus && `${personStatus}: `}{timeFromDate(person.dateStartDate, true)}</span>
                       ) : (
                         <span>{personStatus && `${personStatus}: `}{formatDateMMMDo(person.dateStartDate)} start</span>
                       )}
@@ -277,6 +279,7 @@ const ContentCopyText = styled('p')`
 const CopyToClipboardContainer = styled('div')`
   align-items: center;
   border-right: 1px solid ${DesignTokenColors.neutralUI300};
+  cursor: pointer;
   display: flex;
   height: 18px;
   justify-content: flex-start;

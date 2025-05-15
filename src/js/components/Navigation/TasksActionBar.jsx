@@ -1,3 +1,4 @@
+import { PersonAddAltOutlined } from '@mui/icons-material';
 import React from 'react';
 import styled from 'styled-components';
 import SearchBar2024 from '../../common/components/Search/SearchBar2024';
@@ -6,6 +7,7 @@ import { ActionBarItem, ActionBarSection, SearchBarWrapper } from '../Style/acti
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 
 
 const TasksActionBar = () => {
@@ -36,31 +38,87 @@ const TasksActionBar = () => {
           searchUpdateDelayTime={0}
         />
       </SearchBarWrapper>
-      <ActionBarSection>
+      {getAppContextValue('tasksActionBarShowTasksByTask') ? (
+        <></>
+      ) : (
+        <ActionBarSection>
+          {getAppContextValue('tasksActionBarHideAllTasks') === true ? (
+            <ActionBarItem>
+              <SpanWithLinkStyle
+                onClick={() => {
+                  setAppContextValue('tasksActionBarHideAllTasks', undefined);
+                  setTimeout(() => {
+                    setAppContextValue('tasksActionBarHideAllTasks', false);
+                  }, 100);
+                }}
+              >
+                Show tasks
+              </SpanWithLinkStyle>
+            </ActionBarItem>
+          ) : (
+            <ActionBarItem>
+              <SpanWithLinkStyle
+                onClick={() => {
+                  setAppContextValue('tasksActionBarHideAllTasks', undefined);
+                  setTimeout(() => {
+                    setAppContextValue('tasksActionBarHideAllTasks', true);
+                  }, 100);
+                }}
+              >
+                Hide tasks
+              </SpanWithLinkStyle>
+            </ActionBarItem>
+          )}
+        </ActionBarSection>
+      )}
+      {((getAppContextValue('tasksActionBarShowTasksByTask') === true) || (getAppContextValue('tasksActionBarHideAllTasks') !== true)) && (
+        <ActionBarSection>
+          <ActionBarItem>
+            {getAppContextValue('tasksActionBarShowCompletedTasks') ? (
+              <SpanWithLinkStyle onClick={() => setAppContextValue('tasksActionBarShowCompletedTasks', false)}>
+                Hide completed tasks
+              </SpanWithLinkStyle>
+            ) : (
+              <SpanWithLinkStyle onClick={() => setAppContextValue('tasksActionBarShowCompletedTasks', true)}>
+                Show completed tasks
+              </SpanWithLinkStyle>
+            )}
+          </ActionBarItem>
+        </ActionBarSection>
+      )}
+      {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
+        <ActionBarSection>
+          <ActionBarItem>
+            <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
+              <PersonAddAltOutlinedStyled />
+            </SpanWithLinkStyle>
+          </ActionBarItem>
+        </ActionBarSection>
+      )}
+      <ActionBarSection $borderRightOff>
         <ActionBarItem>
-          {getAppContextValue('tasksActionBarShowCompletedTasks') ? (
-            <SpanWithLinkStyle onClick={() => setAppContextValue('tasksActionBarShowCompletedTasks', false)}>
-              Hide completed tasks
+          {getAppContextValue('tasksActionBarShowTasksByTask') ? (
+            <SpanWithLinkStyle onClick={() => setAppContextValue('tasksActionBarShowTasksByTask', false)}>
+              By person
             </SpanWithLinkStyle>
           ) : (
-            <SpanWithLinkStyle onClick={() => setAppContextValue('tasksActionBarShowCompletedTasks', true)}>
-              Show completed tasks
+            <SpanWithLinkStyle onClick={() => setAppContextValue('tasksActionBarShowTasksByTask', true)}>
+              By task
             </SpanWithLinkStyle>
           )}
         </ActionBarItem>
       </ActionBarSection>
-      <ActionBarSection>
-        {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
-          <ActionBarItem>
-            <SpanWithLinkStyle onClick={() => addTeamMemberClick()}>
-              Add team member
-            </SpanWithLinkStyle>
-          </ActionBarItem>
-        )}
-      </ActionBarSection>
     </TasksActionBarWrapper>
   );
 };
+
+const PersonAddAltOutlinedStyled = styled(PersonAddAltOutlined)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  margin-right: 2px;
+  width: 18px;
+  height: 18px;
+`;
 
 const TasksActionBarWrapper = styled('div')`
   align-items: center;

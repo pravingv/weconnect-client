@@ -7,6 +7,7 @@ import CopyQuestionnaireLink from './CopyQuestionnaireLink';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
 import QuestionnaireResponsesList from './QuestionnaireResponsesList';
+import { useGetFirstNamePreferred } from '../../models/PersonModel';
 
 
 const ViewQuestionnairesForPerson = ({ personId }) => {
@@ -27,16 +28,19 @@ const ViewQuestionnairesForPerson = ({ personId }) => {
 
   useEffect(() => {
     if (allQuestionnairesCache) {
-      setQuestionnaireList(Object.values(allQuestionnairesCache));
+      const filteredQuestionnaires = Object.values(allQuestionnairesCache)
+        .filter((questionnaire) => !questionnaire.isCreatePersonQuestionnaire);
+      setQuestionnaireList(filteredQuestionnaires);
     }
   }, [allQuestionnairesCache]);
 
+  const personFirstName = useGetFirstNamePreferred(personId);
   return (
     <ViewQuestionnairesForPersonWrapper>
       <QuestionnaireResponsesList personId={personId} />
       <ShowQuestionnaireOptions>
         <div>
-          Questionnaires to Answer
+          Questionnaires {personFirstName} can Answer
         </div>
       </ShowQuestionnaireOptions>
       <QuestionnaireOptions>
@@ -67,6 +71,8 @@ const QuestionnaireOptions = styled('div')`
 `;
 
 const ShowQuestionnaireOptions = styled('div')`
+  font-weight: 500;
+  margin-bottom: 6px;
 `;
 
 export default ViewQuestionnairesForPerson;

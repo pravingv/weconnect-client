@@ -171,6 +171,20 @@ const Teams = () => {
             return null;
           }
         })}
+        <OneTeamWrapper key="team-offerDecisionNeeded">
+          <TeamHeader
+            searchText={searchText}
+            showAllTeamMembersFromParent={showAllTeamMembers}
+            showStatusOfferDecisionNeeded
+          />
+        </OneTeamWrapper>
+        <OneTeamWrapper key="team-notOnTeam">
+          <TeamHeader
+            searchText={searchText}
+            showAllTeamMembersFromParent={showAllTeamMembers}
+            showNotOnTeam
+          />
+        </OneTeamWrapper>
       </PageContentContainer>
     </div>
   );
