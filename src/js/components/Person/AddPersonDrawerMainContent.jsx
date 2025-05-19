@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import arrayContains from '../../common/utils/arrayContains';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { getTeamMembersListByTeamId } from '../../models/TeamModel';
+import { getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useAddPersonToTeamMutation } from '../../react-query/mutations';
 import { alphabetizePeoplesObject, orderListByFurthestFutureStartDate } from '../../utils/utilities';
@@ -57,7 +57,7 @@ const AddPersonDrawerMainContent = () => {
   useEffect(() => {
     const teamId = team ? team.teamId : -1;
     if (teamId >= 0) {
-      const teamMembersListTemp = getTeamMembersListByTeamId(teamId, apiDataCache);
+      const teamMembersListTemp = getTeamMemberPersonListByTeamId(teamId, apiDataCache);
       // console.log('useEffect in AddPersonDrawerMainContent teamMembersListTemp:', teamMembersListTemp);
       setThisTeamsCurrentMembersList(teamMembersListTemp);
     } else {
@@ -114,11 +114,12 @@ const AddPersonDrawerMainContent = () => {
     const plainParams = {
       personId,
       teamId,
+    };
+    addPersonToTeam(makeRequestParams(plainParams, {
       teamMemberFirstName: incomingPerson.firstName,
       teamMemberLastName: incomingPerson.lastName,
       teamName,
-    };
-    addPersonToTeam(makeRequestParams(plainParams, {}));
+    }));
     // Remove this person from the All People less Adds list (since they were added to the team)
 
     const updatedRemainingPeopleToAdd = remainingPeopleToAdd.filter((person) => person.personId !== incomingPerson.personId);

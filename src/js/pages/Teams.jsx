@@ -8,22 +8,24 @@ import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import TeamHeader from '../components/Team/TeamHeader';
 import webAppConfig from '../config';
 import { useConnectAppContext, useConnectDispatch } from '../contexts/ConnectAppContext';
-import { isSearchTextFoundInTeam } from '../controllers/TeamController';
 import capturePersonListRetrieveData from '../models/capturePersonListRetrieveData';
-import { captureTeamListRetrieveData, getTeamMembersListByTeamId } from '../models/TeamModel';
+import { captureTeamListRetrieveData, getTeamMemberPersonListByTeamId } from '../models/TeamModel';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 import { showPersonInMemberList } from '../utils/showPerson';
+import { showCohortTeam, showTeam } from '../utils/showTeam';
 
 
 const Teams = () => {
   renderLog('Teams');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { allPeopleCache, allTeamsCache } = apiDataCache;
+  const { allPeopleCache, allTeamMembersCache, allTeamsCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
   const [mostRecentOnlyPeopleFilterChosen, setMostRecentOnlyPeopleFilterChosen] = useState('');
   const [searchText, setSearchText] = useState('');
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(true);
+  const [statusNotOnTeamCohortMemberList, setStatusNotOnTeamCohortMemberList] = useState([]);
+  const [statusOfferDecisionNeededCohortMemberList, setStatusOfferDecisionNeededCohortMemberList] = useState([]);
   const [teamList, setTeamList] = useState([]);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
@@ -61,30 +63,6 @@ const Teams = () => {
     }
   }, [allPeopleCache, allTeamsCache]);
 
-  const showTeam = (team) => {
-    if (!team || team.teamId < 0) return false; // Invalid person or personId
-    const onlyFiltersSelected = getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH';
-    // console.log('onlyFiltersSelected: ', onlyFiltersSelected);
-    const numberOfTeamMembersFoundDict = getAppContextValue('numberOfTeamMembersFoundDict');
-    if (!numberOfTeamMembersFoundDict) return false; // No data yet
-    try {
-      const teamMembersFound = numberOfTeamMembersFoundDict[team.teamId] && numberOfTeamMembersFoundDict[team.teamId] > 0;
-      // console.log('showTeam, team.teamId: ', team.teamId, ', team.teamName: ', team.teamName, ', teamMembersFound: ', teamMembersFound);
-      if (searchText) {
-        // If the team has any members matching searchText, or team itself matches searchText, show it
-        // console.log('searchText: ', searchText, ', team.teamName: ', team.teamName);
-        return !!(teamMembersFound) || isSearchTextFoundInTeam(searchText, team);
-      } else if (onlyFiltersSelected) {
-        return !!(teamMembersFound);
-      } else {
-        return true; // Show the team if no searchText is provided
-      }
-    } catch (error) {
-      console.error('Error in showTeam:', error);
-      return false;
-    }
-  };
-
   useEffect(() => {
     let mostRecentOnlyPeopleFilterChosenUpdated = '';
     // console.log('getAppContextValue(\'isInternPeopleFilter\'): ', getAppContextValue('isInternPeopleFilter'));
@@ -120,8 +98,8 @@ const Teams = () => {
     let visiblePeopleCount = 0;
     const alreadyCountedList = [];
     teamList.forEach((team) => {
-      if (showTeam(team)) {
-        const updatedTeamMemberList = getTeamMembersListByTeamId(team.id, apiDataCache);
+      if (showTeam(team, searchText, getAppContextValue)) {
+        const updatedTeamMemberList = getTeamMemberPersonListByTeamId(team.id, apiDataCache);
         updatedTeamMemberList.forEach((person) => {
           if (showPersonInMemberList(person, searchText, getAppContextValue)) {
             if (!arrayContains(person.id, alreadyCountedList)) {
@@ -139,6 +117,40 @@ const Teams = () => {
   }, [getAppContextValue, searchText, teamList]);
 
   useEffect(() => {
+    if (allPeopleCache && allTeamMembersCache) {
+      const allPeople = Object.values(allPeopleCache);
+      // const peopleOnTeams = new Set(Object.values(allTeamMembersCache).flat());
+      // const cohortMemberListTemp = allPeople.filter((person) => !peopleOnTeams.has(person.personId));
+      const teamMemberPersonIdsSet = new Set(
+        Object.values(allTeamMembersCache)
+          .flat()
+          .map((teamMember) => teamMember.personId));
+      const teamMemberPersonIds = Array.from(teamMemberPersonIdsSet);
+      // console.log('teams useEffect, teamMemberPersonIds: ', teamMemberPersonIds);
+      // Filter allPeople to get those not in any team
+      const cohortMemberListTemp = allPeople.filter((person) => !arrayContains(person.personId, teamMemberPersonIds));
+      setStatusNotOnTeamCohortMemberList(cohortMemberListTemp);
+    }
+  }, [allPeopleCache, allTeamMembersCache]);
+
+  useEffect(() => {
+    let cohortMemberListTemp = [];
+    if (allPeopleCache) {
+      cohortMemberListTemp = Object.values(allPeopleCache).filter((person) => person.statusOfferDecisionNeeded === true);
+      setStatusOfferDecisionNeededCohortMemberList(cohortMemberListTemp);
+    }
+  }, [allPeopleCache]);
+
+  // useEffect(() => {
+  //   // Starting with statusOfferDecisionNeededCohortMemberList, using isPersonActive && showPersonInMemberList figure out if any people match
+  //   const visiblePeople = statusOfferDecisionNeededCohortMemberList.filter((person) =>
+  //     isPersonActive(person) && showPersonInMemberList(person, searchText, getAppContextValue)
+  //   );
+  //
+  //   setShowStatusOfferDecisionNeededCohort(visiblePeople.length > 0);
+  // }, [statusOfferDecisionNeededCohortMemberList]);
+
+  useEffect(() => {
     setAppContextValue('teamsActionBarShowAllTeamMembers', true);
   }, []);
 
@@ -154,10 +166,11 @@ const Teams = () => {
       </Helmet>
       <PageContentContainer>
         <ActionBarWrapperSpacer />
-        {/* NOTE: we had discussed refactoring team-list-retrieve to not include person data, */}
-        {/* so that team.teamMemberList would only include the personIds of team members */}
+        {/* NOTE: we continue working on refactoring team-list-retrieve to not include person data, */}
+        {/* so that team.teamMemberList would only include the TeamMember data of team members */}
+        {/* We have partially implemented this change by introducing teamMemberInfoList */}
         {teamList.map((team) => {
-          if (showTeam(team)) {
+          if (showTeam(team, searchText, getAppContextValue)) {
             return (
               <OneTeamWrapper key={`team-${team.id}`}>
                 <TeamHeader
@@ -171,20 +184,26 @@ const Teams = () => {
             return null;
           }
         })}
-        <OneTeamWrapper key="team-offerDecisionNeeded">
-          <TeamHeader
-            searchText={searchText}
-            showAllTeamMembersFromParent={showAllTeamMembers}
-            showStatusOfferDecisionNeeded
-          />
-        </OneTeamWrapper>
-        <OneTeamWrapper key="team-notOnTeam">
-          <TeamHeader
-            searchText={searchText}
-            showAllTeamMembersFromParent={showAllTeamMembers}
-            showNotOnTeam
-          />
-        </OneTeamWrapper>
+        {showCohortTeam(searchText, statusOfferDecisionNeededCohortMemberList, false, true) && (
+          <OneTeamWrapper key="team-offerDecisionNeeded">
+            <TeamHeader
+              hideTeamMemberCount
+              searchText={searchText}
+              showAllTeamMembersFromParent={showAllTeamMembers}
+              showStatusOfferDecisionNeeded
+            />
+          </OneTeamWrapper>
+        )}
+        {showCohortTeam(searchText, statusNotOnTeamCohortMemberList, true, false) && (
+          <OneTeamWrapper key="team-notOnTeam">
+            <TeamHeader
+              hideTeamMemberCount
+              searchText={searchText}
+              showAllTeamMembersFromParent={showAllTeamMembers}
+              showNotOnTeam
+            />
+          </OneTeamWrapper>
+        )}
       </PageContentContainer>
     </div>
   );

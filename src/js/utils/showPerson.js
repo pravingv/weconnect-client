@@ -16,6 +16,16 @@ export const isPersonActive = (person) => {
   return endDate > nowDate;
 };
 
+export const showPersonInCohortMemberList = (person, searchTextLocal) => {
+  if (!person || person.id < 0) return false; // Invalid person or personId
+  if (searchTextLocal) {
+    const results = isSearchTextFoundInPerson(searchTextLocal, person);
+    return results.allSearchWordsWereFound;
+  } else {
+    return true; // Show the person if no searchText is provided, or there are any other filters
+  }
+};
+
 export const showPersonInMemberList = (person, searchTextLocal, getAppContextValue) => {
   if (!person || person.id < 0) return false; // Invalid person or personId
   const pigsCanFly = false;

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
-import { getTeamMembersListByTeamId } from '../../models/TeamModel';
+import { getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
 import PersonSummaryRow from '../Person/PersonSummaryRow';
@@ -19,8 +19,6 @@ const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId
 
   const [teamMemberListApiDataCache, setTeamMemberListApiDataCache] = useState([]);
   const [teamMemberListReactQuery, setTeamMemberListReactQuery] = useState(team.teamMemberList || []);
-  // const teamMemberList = useGetTeamMembersListByTeamId(teamId);
-  // console.log('TeamMemberList teamMemberList:', teamMemberList);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -44,7 +42,7 @@ const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId
   }, [dataTLR, isSuccessTLR]);
 
   useEffect(() => {
-    const updatedTeamMemberList = getTeamMembersListByTeamId(teamId, apiDataCache);
+    const updatedTeamMemberList = getTeamMemberPersonListByTeamId(teamId, apiDataCache);
     setTeamMemberListApiDataCache(updatedTeamMemberList);
   }, [apiDataCache, teamId]);
 

@@ -81,13 +81,19 @@ const HeaderProfileDrawer = () => {
   const profileNavOptions = [
     { icon: <AccountCircle />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
   ];
-
   if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights)) {
     profileNavOptions.push(
       { icon: <ManageAccounts />, linkName: 'nameAndPhoto', linkTextJsx: <>Edit Info</> },
+    );
+  }
+  profileNavOptions.push(
+    { icon: <People />, linkName: 'personTeams', linkTextJsx: <>Teams</> },
+    { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Onboarding Tasks</> },
+  );
+
+  if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights)) {
+    profileNavOptions.push(
       { icon: <CalendarMonth />, linkName: 'personAvailability', linkTextJsx: <>Availability</> },
-      { icon: <TaskAlt />, linkName: 'personTasks', linkTextJsx: <>Onboarding Tasks</> },
-      { icon: <People />, linkName: 'personTeams', linkTextJsx: <>Teams</> },
       { icon: <Quiz />, linkName: 'personQuestionnaires', linkTextJsx: <>Questionnaires</> },
     );
   }

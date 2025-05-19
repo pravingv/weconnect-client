@@ -28,12 +28,28 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
   const [personRowUnfurled, setPersonRowUnfurled] = useState(personRowUnfurledFromParent);
   const [personRowUnfurledFromParentAlreadySet, setPersonRowUnfurledFromParentAlreadySet] = useState(personRowUnfurledFromParent);
   const [personStatus, setPersonStatus] = useState('');
-  const [quickLinkCopied, setQuickLinkCopied] = useState('');
+  const [nameCopied, setNameCopied] = useState(false);
+  const [officialEmailCopied, setOfficialEmailCopied] = useState(false);
+  const [personalEmailCopied, setPersonalEmailCopied] = useState(false);
 
-  const copyQuickLink = () => {
-    setQuickLinkCopied(<CopyToClipboardContainer><ContentCopyStyled />Copied!</CopyToClipboardContainer>);
+  const copyName = () => {
+    setNameCopied(true);
     setTimeout(() => {
-      setQuickLinkCopied('');
+      setNameCopied(false);
+    }, 1500);
+  };
+
+  const copyOfficialEmail = () => {
+    setOfficialEmailCopied(true);
+    setTimeout(() => {
+      setOfficialEmailCopied(false);
+    }, 1500);
+  };
+
+  const copyPersonalEmail = () => {
+    setPersonalEmailCopied(true);
+    setTimeout(() => {
+      setPersonalEmailCopied(false);
     }, 1500);
   };
 
@@ -92,6 +108,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
   }, [person]);
 
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
+  const emailPersonalTurnedOn = false;
   const startDateIsInFuture = person.dateStartDate && new Date(person.dateStartDate) > new Date();
   return (
     <OnePersonOuterWrapper>
@@ -114,12 +131,29 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         </PersonCell>
         <PersonCell
           id={`fullNamePreferred-personId-${person.personId}`}
-          onClick={() => viewPersonClick(canEditPerson)}
           $cellwidth={180}
         >
-          <SpanWithLinkStyle className={classes.teamMemberName}>
+          <SpanWithLinkStyle
+            className={classes.teamMemberName}
+            onClick={() => viewPersonClick(canEditPerson)}
+          >
             {getFullNamePreferredPerson(person)}
           </SpanWithLinkStyle>
+          <ShowNameOnHover>
+            <CopyToClipboard text={getFullNamePreferredPerson(person)} onCopy={() => copyName()}>
+              <CopyNameToClipboardContainer>
+                {nameCopied ? (
+                  <ContentCopyNameText>
+                    Copied!
+                  </ContentCopyNameText>
+                ) : (
+                  <SpanWithLinkStyle>
+                    <ContentCopyNameStyled />
+                  </SpanWithLinkStyle>
+                )}
+              </CopyNameToClipboardContainer>
+            </CopyToClipboard>
+          </ShowNameOnHover>
         </PersonCell>
         <PersonCell
           id={`location-personId-${person.personId}`}
@@ -130,7 +164,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         </PersonCell>
         <PersonCell
           id={`jobTitle-personId-${person.personId}`}
-          $cellwidth={210}
+          $cellwidth={250}
           $smallestfont
         >
           {person.jobTitle}
@@ -181,25 +215,55 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         <ShowOnHover>
           {person.emailOfficial ? (
             <PersonCell
-              $cellwidth={150}
+              $cellwidth={111}
               $smallestfont
             >
-              {quickLinkCopied || (
-                <CopyToClipboard text={person.emailOfficial} onCopy={() => copyQuickLink()}>
-                  <CopyToClipboardContainer>
-                    <ContentCopyStyled />
-                    <ContentCopyText>{webAppConfig.ORGANIZATION_NAME || 'Official'} email</ContentCopyText>
-                  </CopyToClipboardContainer>
-                </CopyToClipboard>
-              )}
+              <CopyToClipboard text={person.emailOfficial} onCopy={() => copyOfficialEmail()}>
+                <CopyToClipboardContainer>
+                  <ContentCopyStyled />
+                  <ContentCopyText>
+                    <SpanWithLinkStyle>
+                      {officialEmailCopied ? 'Copied!' : `${webAppConfig.ORGANIZATION_NAME || 'Official'} email`}
+                    </SpanWithLinkStyle>
+                  </ContentCopyText>
+                </CopyToClipboardContainer>
+              </CopyToClipboard>
             </PersonCell>
           ) : (
             <PersonCell
-              $cellwidth={150}
+              $cellwidth={111}
               $smallestfont
             >
               &nbsp;
             </PersonCell>
+          )}
+          {emailPersonalTurnedOn && (
+            <div>
+              {person.emailPersonal ? (
+                <PersonCell
+                  $cellwidth={118}
+                  $smallestfont
+                >
+                  <CopyToClipboard text={person.emailPersonal} onCopy={() => copyPersonalEmail()}>
+                    <CopyToClipboardContainer>
+                      <ContentCopyStyled />
+                      <ContentCopyText>
+                        <SpanWithLinkStyle>
+                          {personalEmailCopied ? 'Copied!' : 'Personal email'}
+                        </SpanWithLinkStyle>
+                      </ContentCopyText>
+                    </CopyToClipboardContainer>
+                  </CopyToClipboard>
+                </PersonCell>
+              ) : (
+                <PersonCell
+                  $cellwidth={118}
+                  $smallestfont
+                >
+                  &nbsp;
+                </PersonCell>
+              )}
+            </div>
           )}
           {canEditPerson && (
             <PersonCell
@@ -263,6 +327,14 @@ const styles = (theme) => ({
   },
 });
 
+const ContentCopyNameStyled = styled(ContentCopy)`
+  color: ${DesignTokenColors.primary500};
+  height: 16px;
+  margin: 0;
+  margin-bottom: -2px;
+  width: 16px;
+`;
+
 const ContentCopyStyled = styled(ContentCopy)`
   color: ${DesignTokenColors.primary500};
   height: 16px;
@@ -270,10 +342,23 @@ const ContentCopyStyled = styled(ContentCopy)`
   width: 16px;
 `;
 
+const ContentCopyNameText = styled('p')`
+  color: ${DesignTokenColors.primary500};
+  // margin-bottom: 2px;
+  padding-right: 8px;
+`;
+
 const ContentCopyText = styled('p')`
   color: ${DesignTokenColors.primary500};
-  font-weight: bold;
   padding-right: 8px;
+`;
+
+const CopyNameToClipboardContainer = styled('div')`
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  height: 18px;
+  justify-content: flex-start;
 `;
 
 const CopyToClipboardContainer = styled('div')`
@@ -300,20 +385,22 @@ const OnePersonOuterWrapper = styled('div')`
 
 const HideOnHover = styled('div')`
   display: flex;
+  // display: none;
   align-items: center;
   justify-content: flex-end;
-  min-width: 300px;
-  max-width: 300px;
-  width: 300px;
 `;
 
 const ShowOnHover = styled('div')`
+  // display: flex;
   display: none;
   align-items: center;
   justify-content: flex-end;
-  min-width: 250px;
-  max-width: 250px;
-  width: 220px;
+  width: 309px;
+`;
+
+const ShowNameOnHover = styled('span')`
+  display: none;
+  margin-left: 4px;
 `;
 
 const NumberOfTeams = styled('span')`
@@ -377,6 +464,12 @@ const PersonCell = styled.div`
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
+
+  &:hover {
+    ${ShowNameOnHover} {
+      display: inline-block;
+    }
+  }
 `;
 
 export default withStyles(styles)(PersonSummaryRow);
