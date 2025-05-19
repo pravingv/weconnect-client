@@ -11,7 +11,7 @@ import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { onlyShowPersonWithPeopleFiltersExactMatch, isSearchTextFoundInPerson } from '../../controllers/PersonController';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
-import { getTeamMembersListByTeamId } from '../../models/TeamModel';
+import { getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
 
 
 const TeamsActionBar = () => {
@@ -76,7 +76,7 @@ const TeamsActionBar = () => {
     // console.log('searchText: ', searchText, ', onlyFiltersSelected: ', onlyFiltersSelected);
     teamList.forEach((team) => {
       teamId = team.teamId;
-      const updatedTeamMemberList = getTeamMembersListByTeamId(teamId, apiDataCache);
+      const updatedTeamMemberList = getTeamMemberPersonListByTeamId(teamId, apiDataCache);
       if (searchText) {
         // numberOfTeamMembersFound = updatedTeamMemberList.filter((person) => isSearchTextFoundInPerson(searchText, person)).length;
         numberOfTeamMembersFound = updatedTeamMemberList.filter((person) => {
@@ -213,7 +213,7 @@ const TeamsActionBarWrapper = styled('div')`
 `;
 
 const ViewingCount = styled('div')`
-  color: ${DesignTokenColors.neutralUI200};
+  color: ${DesignTokenColors.neutralUI400};
   font-size: .8em;
   padding-left: 15px;
 `;

@@ -19,29 +19,32 @@ import CohortMemberList from './CohortMemberList';
 import TeamMemberList from './TeamMemberList';
 import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
-import { getTeamMembersListByTeamId } from '../../models/TeamModel';
+import { getTeamMemberListByTeamId, getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
 import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
 
 
 const TeamHeader = (
   {
-    expandAllTeamMembersFromParent, hideInactiveFromParent, searchText,
+    expandAllTeamMembersFromParent, hideInactiveFromParent, hideTeamMemberCount, searchText,
     showAllTeamMembersFromParent, showIcons, showNotOnTeam, showStatusOfferDecisionNeeded,
     team, classes,
   },
 ) => {
   renderLog('TeamHeader');
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights } = apiDataCache;
+  const { allPeopleCache, viewerAccessRights } = apiDataCache;
 
   const [expandAllTeamMembers, setExpandAllTeamMembers] = useState(expandAllTeamMembersFromParent);
   const [hideInactive] = useState(hideInactiveFromParent);
+  const [numberOfTeamMembers, setNumberOfTeamMembers] = useState(0);
   const [officialEmailsToCopy, setOfficialEmailsToCopy] = useState('');
   const [officialEmailsCopied, setOfficialEmailsCopied] = useState(false);
   const [personalEmailsToCopy, setPersonalEmailsToCopy] = useState('');
   const [personalEmailsCopied, setPersonalEmailsCopied] = useState(false);
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(showAllTeamMembersFromParent);
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
+  const [teamLeads, setTeamLeads] = useState('');
+  const [teamLeadsCount, setTeamLeadsCount] = useState(0);
   let teamLocal = team;
   if (!teamLocal || !teamLocal.teamName) {
     teamLocal = getAppContextValue('teamForAddTeamDrawer');
@@ -83,15 +86,43 @@ const TeamHeader = (
   }, [showAllTeamMembers, showAllTeamMembersFromParent, showAllTeamMembersFromParentAlreadySet]);
 
   useEffect(() => {
-    let officialEmails = '';
-    let personalEmails = '';
+    // These are the TeamMember dictionaries (as opposed to person dictionaries)
+    let teamLeadsCountTemp = 0;
+    let teamLeadsTemp = '';
     let updatedTeamMemberList = [];
     if (team && team.id && apiDataCache) {
-      updatedTeamMemberList = getTeamMembersListByTeamId(team.id, apiDataCache);
+      updatedTeamMemberList = getTeamMemberListByTeamId(team.id, apiDataCache);
+    }
+    updatedTeamMemberList.forEach((teamMember) => {
+      if (teamMember && teamMember.personId && teamMember.personId >= 0) {
+        const person = allPeopleCache[teamMember.personId];
+        if (person && person.id) {
+          if (isPersonActive(person) || !hideInactive) {
+            if (teamMember.isTeamLead) {
+              teamLeadsTemp += `${person.firstNamePreferred || person.firstName}, `;
+              teamLeadsCountTemp += 1;
+            }
+          }
+        }
+      }
+    });
+    // Remove trailing comma and space
+    teamLeadsTemp = teamLeadsTemp.replace(/, $/, '');
+
+    setTeamLeads(teamLeadsTemp);
+    setTeamLeadsCount(teamLeadsCountTemp);
+  }, [apiDataCache, team]);
+
+  useEffect(() => {
+    let numberOfTeamMembersTemp = 0;
+    let officialEmails = '';
+    let personalEmails = '';
+    let updatedTeamMemberPersonList = [];
+    if (team && team.id && apiDataCache) {
+      updatedTeamMemberPersonList = getTeamMemberPersonListByTeamId(team.id, apiDataCache);
     }
 
-    // console.log('TeamHeader useEffect, updatedTeamMemberList: ', updatedTeamMemberList);
-    updatedTeamMemberList.forEach((person) => {
+    updatedTeamMemberPersonList.forEach((person) => {
       if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
         if (person.emailOfficial) {
           officialEmails += `${person.emailOfficial}, `;
@@ -99,6 +130,7 @@ const TeamHeader = (
         if (person.emailPersonal) {
           personalEmails += `${person.emailPersonal}, `;
         }
+        numberOfTeamMembersTemp += 1;
       }
     });
 
@@ -106,11 +138,11 @@ const TeamHeader = (
     officialEmails = officialEmails.replace(/, $/, '');
     personalEmails = personalEmails.replace(/, $/, '');
 
+    setNumberOfTeamMembers(numberOfTeamMembersTemp);
     setOfficialEmailsToCopy(officialEmails);
     setPersonalEmailsToCopy(personalEmails);
   }, [apiDataCache, team, searchText, hideInactive, getAppContextValue]);
 
-  // console.log('TeamHeader teamLocal.teamName ', teamLocal.teamName);
   return (
     <OneTeamOuterWrapper>
       <OneTeamHeaderOuterWrapper>
@@ -145,9 +177,25 @@ const TeamHeader = (
               </>
             )}
           </TeamHeaderCell>
+          <HideOnHover>
+            {teamLeadsCount > 0 && (
+              <ActionBarSection>
+                <ActionBarItem>
+                  <TeamLead>{teamLeadsCount === 1 ? 'Lead: ' : 'Leads: '}{teamLeads}</TeamLead>
+                </ActionBarItem>
+              </ActionBarSection>
+            )}
+            {!hideTeamMemberCount && (
+              <ActionBarSection $borderRightOff>
+                <ActionBarItem>
+                  <TeamMemberCount>{numberOfTeamMembers} {numberOfTeamMembers === 1 ? 'person' : 'people'}</TeamMemberCount>
+                </ActionBarItem>
+              </ActionBarSection>
+            )}
+          </HideOnHover>
           <ShowOnHover>
             {!(showStatusOfferDecisionNeeded || showNotOnTeam) && (
-              <ActionBarSection $borderRightOff={!showAllTeamMembers}>
+              <ActionBarSection>
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={editTeamClick}>
                     Next meeting
@@ -162,44 +210,42 @@ const TeamHeader = (
                 )}
               </ActionBarSection>
             )}
-            {showAllTeamMembers && (
-              <ActionBarSection $borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
-                <ActionBarItem>
-                  <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(true)}>
-                    Expand all
-                  </SpanWithLinkStyle>
-                </ActionBarItem>
+            <ActionBarSection $borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
+              <ActionBarItem>
+                <SpanWithLinkStyle onClick={() => { setExpandAllTeamMembers(true); setShowAllTeamMembers(true); }}>
+                  Expand all
+                </SpanWithLinkStyle>
+              </ActionBarItem>
+              {showAllTeamMembers && (
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(false)}>
                     Collapse all
                   </SpanWithLinkStyle>
                 </ActionBarItem>
-              </ActionBarSection>
-            )}
-            {showAllTeamMembers && (
-              <ActionBarSection $borderRightOff>
-                {officialEmailsToCopy && (
-                  <ActionBarItem>
-                    <CopyToClipboard text={officialEmailsToCopy} onCopy={() => copyOfficialEmails()}>
-                      <CopyToClipboardContainer>
-                        <ContentCopyStyled />
-                        <ContentCopyText>{officialEmailsCopied ? 'Copied!' : 'Official emails'}</ContentCopyText>
-                      </CopyToClipboardContainer>
-                    </CopyToClipboard>
-                  </ActionBarItem>
-                )}
-                {personalEmailsToCopy && (
-                  <ActionBarItem>
-                    <CopyToClipboard text={personalEmailsToCopy} onCopy={() => copyPersonalEmails()}>
-                      <CopyToClipboardContainer>
-                        <ContentCopyStyled />
-                        <ContentCopyText>{personalEmailsCopied ? 'Copied!' : 'Personal emails'}</ContentCopyText>
-                      </CopyToClipboardContainer>
-                    </CopyToClipboard>
-                  </ActionBarItem>
-                )}
-              </ActionBarSection>
-            )}
+              )}
+            </ActionBarSection>
+            <ActionBarSection $borderRightOff>
+              {officialEmailsToCopy && (
+                <ActionBarItem>
+                  <CopyToClipboard text={officialEmailsToCopy} onCopy={() => copyOfficialEmails()}>
+                    <CopyToClipboardContainer>
+                      <ContentCopyStyled />
+                      <ContentCopyText>{officialEmailsCopied ? 'Copied!' : 'Official emails'}</ContentCopyText>
+                    </CopyToClipboardContainer>
+                  </CopyToClipboard>
+                </ActionBarItem>
+              )}
+              {personalEmailsToCopy && (
+                <ActionBarItem>
+                  <CopyToClipboard text={personalEmailsToCopy} onCopy={() => copyPersonalEmails()}>
+                    <CopyToClipboardContainer>
+                      <ContentCopyStyled />
+                      <ContentCopyText>{personalEmailsCopied ? 'Copied!' : 'Personal emails'}</ContentCopyText>
+                    </CopyToClipboardContainer>
+                  </CopyToClipboard>
+                </ActionBarItem>
+              )}
+            </ActionBarSection>
             {/* Edit icon */}
             {showIcons && !(showStatusOfferDecisionNeeded || showNotOnTeam) && (
               <>
@@ -223,7 +269,7 @@ const TeamHeader = (
             <TeamHeaderCell $cellwidth={150}>
               Location
             </TeamHeaderCell>
-            <TeamHeaderCell $cellwidth={210}>
+            <TeamHeaderCell $cellwidth={250}>
               Title
             </TeamHeaderCell>
             <TeamHeaderCell $cellwidth={150} />
@@ -263,6 +309,7 @@ TeamHeader.propTypes = {
   classes: PropTypes.object,
   expandAllTeamMembersFromParent: PropTypes.bool,
   hideInactiveFromParent: PropTypes.bool,
+  hideTeamMemberCount: PropTypes.bool,
   searchText: PropTypes.string,
   showIcons: PropTypes.bool,
   showAllTeamMembersFromParent: PropTypes.bool,
@@ -330,6 +377,12 @@ const PersonAddAltOutlinedStyled = styled(PersonAddAltOutlined)`
   height: 18px;
 `;
 
+const HideOnHover = styled('div')`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
 const ShowOnHover = styled('div')`
   // display: flex; // Temp while I'm working on it
   display: none;
@@ -346,6 +399,9 @@ const TeamHeaderMainRow = styled('div')`
   //margin-top: 10px;
 
   &:hover {
+    ${HideOnHover} {
+      display: none;
+    }
     ${ShowOnHover} {
       display: flex;
     }
@@ -375,6 +431,16 @@ const TeamHeaderCell = styled('div')`
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
+`;
+
+const TeamLead = styled('div')`
+  color: ${DesignTokenColors.neutralUI400};
+  // font-size: .9em;
+`;
+
+const TeamMemberCount = styled('div')`
+  color: ${DesignTokenColors.neutralUI400};
+  // font-size: .8em;
 `;
 
 export default withStyles(styles)(TeamHeader);

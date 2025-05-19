@@ -1,11 +1,11 @@
 // TeamModel.js
 // Functions related to getting data from the apiDataCache, which stores data
 // received from our API servers.
-import { useMemo } from 'react';
 import isEqual from 'lodash-es/isEqual';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import weConnectQueryFn from '../react-query/WeConnectQuery';
 import { useConnectAppContext } from '../contexts/ConnectAppContext';
+import arrayContains from '../common/utils/arrayContains';
 
 export const useGetTeamById = (teamId) => {
   const { apiDataCache } = useConnectAppContext();
@@ -20,14 +20,35 @@ export const useGetTeamById = (teamId) => {
   }
 };
 
-export const getTeamMembersListByTeamId = (teamId, apiDataCache) => {
+export const getTeamMemberEntryByPersonIdAndTeamId = (personId, teamId, apiDataCache) => {
+  const { allTeamMembersCache } = apiDataCache;
+  if (!allTeamMembersCache || !allTeamMembersCache[teamId]) {
+    return undefined;
+  }
+  return allTeamMembersCache[teamId].find((teamMember) => teamMember.personId === personId);
+};
+
+export const getTeamMemberListByTeamId = (teamId, apiDataCache) => {
+  const { allTeamMembersCache } = apiDataCache;
+  if (!allTeamMembersCache || !allTeamMembersCache[teamId]) {
+    return [];
+  }
+  return allTeamMembersCache[teamId];
+};
+
+export const getTeamMemberPersonListByTeamId = (teamId, apiDataCache) => {
   const { allPeopleCache, allTeamMembersCache } = apiDataCache;
   if (!allTeamMembersCache || !allTeamMembersCache[teamId]) {
     return [];
   }
-  const personIds = allTeamMembersCache[teamId];
-  const teamMembers = personIds.map((personId) => allPeopleCache[personId] || null).filter(Boolean);
-  const teamMembersSorted = teamMembers.sort((a, b) => {
+  const teamMemberPersonIdsSet = new Set(
+    Object.values(allTeamMembersCache[teamId])
+      .flat()
+      .map((teamMember) => teamMember.personId));
+  // const personIds = allTeamMembersCache[teamId];
+  const teamMemberPersonIds = Array.from(teamMemberPersonIdsSet);
+  const teamMemberPersonList = teamMemberPersonIds.map((personId) => allPeopleCache[personId] || null).filter(Boolean);
+  const teamMemberPersonListSorted = teamMemberPersonList.sort((a, b) => {
     // Check if dateStartDate is empty or null
     if (!a.dateStartDate && !b.dateStartDate) return 0; // Both empty, maintain original order
     if (!a.dateStartDate) return 1; // a should come after b
@@ -38,19 +59,7 @@ export const getTeamMembersListByTeamId = (teamId, apiDataCache) => {
     return dateA - dateB; // ascending order (oldest first)
   });
   // Add sort to put team leads at top of list
-  return teamMembersSorted;
-};
-
-export const useGetTeamMembersListByTeamId = (teamId) => {
-  const { apiDataCache } = useConnectAppContext();
-  const { allPeopleCache, allTeamMembersCache } = apiDataCache;
-  return useMemo(() => {
-    if (!allTeamMembersCache || !allTeamMembersCache[teamId]) {
-      return [];
-    }
-    const personIds = allTeamMembersCache[teamId];
-    return personIds.map((personId) => allPeopleCache[personId] || null);
-  }, [allTeamMembersCache, teamId]);
+  return teamMemberPersonListSorted;
 };
 
 // This is called following:
@@ -82,11 +91,12 @@ export function captureTeamListRetrieveData (
     let newTeamDataReceived = false;
     let teamTrimmed;
     let newTeamMemberDataReceived = false;
-    let teamMemberListOfPersonIdsAtStart = [];
+    const teamMemberListOfPersonIdsAtStart = [];
 
     data.teamList.forEach((team) => {
       if (team && team.teamId && team.teamId >= 0) {
         teamTrimmed = { ...team };
+        delete teamTrimmed.teamMemberInfoList;
         delete teamTrimmed.teamMemberList;
         if (!allTeamsCacheNew[teamTrimmed.teamId]) {
           allTeamsCacheNew[teamTrimmed.teamId] = teamTrimmed;
@@ -96,31 +106,40 @@ export function captureTeamListRetrieveData (
           newTeamDataReceived = true;
         }
       }
-      if (team && team.teamMemberList) {
+      if (team && team.teamMemberInfoList) {
         if (!allTeamMembersCacheNew[team.teamId]) {
           allTeamMembersCacheNew[team.teamId] = [];
         }
         // Reset this list, so we can see if any former team members have been removed
-        teamMemberListOfPersonIdsAtStart = [...allTeamMembersCacheNew[team.teamId]];
-        team.teamMemberList.forEach((person) => {
-          if (person && person.personId && person.personId >= 0) {
-            // Capture for each person, which teams they are in
-            if (!allPeopleTeamIdListsNew[person.personId]) {
-              allPeopleTeamIdListsNew[person.personId] = [];
+        if (allTeamMembersCacheNew) {
+          const allTeamMembersAsList = Object.values(allTeamMembersCacheNew[team.teamId]);
+          // console.log('allTeamMembersAsList:', allTeamMembersAsList);
+          allTeamMembersAsList.forEach((teamMember) => {
+            if (teamMember && teamMember.personId >= 0 && !arrayContains(teamMember.personId, teamMemberListOfPersonIdsAtStart)) {
+              teamMemberListOfPersonIdsAtStart.push(teamMember.personId);
             }
-            if (!allPeopleTeamIdListsNew[person.personId].includes(team.teamId)) {
-              allPeopleTeamIdListsNew[person.personId].push(team.teamId);
+          });
+        }
+        // console.log('teamMemberListOfPersonIdsAtStart:', teamMemberListOfPersonIdsAtStart);
+        team.teamMemberInfoList.forEach((teamMember) => {
+          if (teamMember && teamMember.personId && teamMember.personId >= 0) {
+            // Capture for each person, which teams they are in
+            if (!allPeopleTeamIdListsNew[teamMember.personId]) {
+              allPeopleTeamIdListsNew[teamMember.personId] = [];
+            }
+            if (!allPeopleTeamIdListsNew[teamMember.personId].includes(team.teamId)) {
+              allPeopleTeamIdListsNew[teamMember.personId].push(team.teamId);
               newPeopleTeamIdDataReceived = true;
             }
             // Capture which team this person is in
-            if (!allTeamMembersCacheNew[team.teamId].includes(person.personId)) {
-              allTeamMembersCacheNew[team.teamId].push(person.personId);
+            if (!allTeamMembersCacheNew[team.teamId].some((oneTeamMember) => oneTeamMember.personId === teamMember.personId)) {
+              allTeamMembersCacheNew[team.teamId].push(teamMember);
               newTeamMemberDataReceived = true;
             }
             // Remove the person from the list of team members in the cache so we know if anyone has been removed
-            if (teamMemberListOfPersonIdsAtStart.includes(person.personId)) {
+            if (teamMemberListOfPersonIdsAtStart && teamMemberListOfPersonIdsAtStart.includes(teamMember.personId)) {
               try {
-                const index = teamMemberListOfPersonIdsAtStart.indexOf(person.personId);
+                const index = teamMemberListOfPersonIdsAtStart.indexOf(teamMember.personId);
                 teamMemberListOfPersonIdsAtStart.splice(index, 1);
               } catch (error) {
                 console.error('Error removing team member from teamMemberListOfPersonIdsAtStart:', error);
@@ -128,11 +147,11 @@ export function captureTeamListRetrieveData (
             }
           }
         });
-        if (teamMemberListOfPersonIdsAtStart.length > 0) {
+        if (teamMemberListOfPersonIdsAtStart && teamMemberListOfPersonIdsAtStart.length > 0) {
           // We need to remove these people from the cache as they have been removed from the team
           // console.log('+++ team members leftover in teamMemberListOfPersonIdsAtStart');
           allTeamMembersCacheNew[team.teamId] = allTeamMembersCacheNew[team.teamId].filter(
-            (personId) => !teamMemberListOfPersonIdsAtStart.includes(personId),
+            (teamMemberDict) => !teamMemberListOfPersonIdsAtStart.includes(teamMemberDict.personId),
           );
           newTeamMemberDataReceived = true;
         }

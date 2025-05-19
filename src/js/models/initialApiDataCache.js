@@ -39,7 +39,7 @@ const initialApiDataCache = () => {
   // These are the "AppContextValues" (i.e., global state variables) used in the TeamModel
   const initialGlobalTeamVariables = {
     allTeamsCache: {}, // This is a dictionary key: teamId, value: team dict
-    allTeamMembersCache: {}, // This is a dictionary key: teamId, value: list of personIds in the team
+    allTeamMembersCache: {}, // This is a dictionary key: teamId, value: list of TeamMember table dictionaries
     mostRecentTeamIdSaved: -1,
     mostRecentTeamMemberIdSaved: -1,
     mostRecentTeamSaved: {

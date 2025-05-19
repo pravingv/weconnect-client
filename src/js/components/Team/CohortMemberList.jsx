@@ -8,6 +8,7 @@ import capturePersonListRetrieveData from '../../models/capturePersonListRetriev
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
 import PersonSummaryRow from '../Person/PersonSummaryRow';
+import arrayContains from '../../common/utils/arrayContains';
 
 const CohortMemberList = ({ expandAllTeamMembers, hideInactive, searchText, showNotOnTeam, showStatusOfferDecisionNeeded }) => {
   renderLog('CohortMemberList');
@@ -28,8 +29,10 @@ const CohortMemberList = ({ expandAllTeamMembers, hideInactive, searchText, show
   useEffect(() => {
     if (allPeopleCache && allTeamMembersCache && showNotOnTeam) {
       const allPeople = Object.values(allPeopleCache);
-      const peopleOnTeams = new Set(Object.values(allTeamMembersCache).flat());
-      const cohortMemberListTemp = allPeople.filter((person) => !peopleOnTeams.has(person.personId));
+      const peopleOnTeamsSet = new Set(Object.values(allTeamMembersCache).flat());
+      const peopleOnTeams = Array.from(peopleOnTeamsSet);
+      const peopleOnTeamsIds = peopleOnTeams.map((person) => person.personId);
+      const cohortMemberListTemp = allPeople.filter((person) => !arrayContains(person.personId, peopleOnTeamsIds));
       setCohortMemberList(cohortMemberListTemp);
     }
   }, [allPeopleCache, allTeamMembersCache, showNotOnTeam]);
