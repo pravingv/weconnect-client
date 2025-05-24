@@ -1,16 +1,15 @@
 import CloseIcon from '@mui/icons-material/Close';
-import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { ButtonPanel } from './systemSettingsCommonStyles';
 
 const SlackChannelMembers = () => {
   renderLog('SlackChannelMembers');
@@ -51,9 +50,8 @@ const SlackChannelMembers = () => {
             size="small"
             onClick={handleOpen}
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
-            startIcon={<LockOutlineIcon />}
           >
-            Admins Only:  Slack List Channel Members
+            Slack List Channel Members
           </Button>
           <br />
           <Dialog
@@ -83,16 +81,15 @@ const SlackChannelMembers = () => {
               <CloseIcon />
             </IconButton>
             <DialogContent dividers>
-            <TextField
-              id="channel_input"
-              label="Channel ID"
-              inputRef={channelInputRef}
-              name="Channel"
-              defaultValue="C08NMFNEUNB"
-              sx={{ minWidth: '400px', marginRight: '10px' }}
-            />
-            {/* <div style={{ marginTop: '11px', fontWeight: '700' }}>{resultsText}</div> */}
-            <pre id="jsonResults" style={{ marginTop: '11px', fontWeight: '700' }} />
+              <TextField
+                id="channel_input"
+                label="Channel ID"
+                inputRef={channelInputRef}
+                name="Channel"
+                defaultValue="C08NMFNEUNB"
+                sx={{ minWidth: '400px', marginRight: '10px' }}
+              />
+              <pre id="jsonResults" style={{ marginTop: '11px', fontWeight: '700' }} />
             </DialogContent>
             <DialogActions>
               <Button autoFocus variant="outlined" onClick={listMembers}>
@@ -110,10 +107,5 @@ SlackChannelMembers.propTypes = {
 
 const styles = () => ({
 });
-
-const ButtonPanel = styled('div')`
-  padding: 5px;
-  width: fit-content;
-`;
 
 export default withStyles(styles)(SlackChannelMembers);

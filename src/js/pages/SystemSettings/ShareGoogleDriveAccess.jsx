@@ -1,16 +1,15 @@
 import CloseIcon from '@mui/icons-material/Close';
-import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { ButtonPanel } from './systemSettingsCommonStyles';
 
 const ShareGoogleDriveAccess = (params) => {
   renderLog('ShareGoogleDriveAccess');
@@ -95,19 +94,19 @@ const ShareGoogleDriveAccess = (params) => {
   let shareMessage;
   let actionButtonText;
   if (isShare) {
-    buttonLabel = 'Admins Only: Share Google Drive Access';
+    buttonLabel = 'Share Google Drive Access';
     dialogTitleText = 'Enter staff members wevoteeducation.org info';
     shareMessage = 'This shares all files on a directory basis, and any subdirectories of the directory are included. To share the entire drive, ' +
       'enter "We Vote Education" (exact spelling and spacing is required).';
     actionButtonText = 'Share Drive Folder';
   } else if (isTransfer) {
-    buttonLabel = 'Admins Only: Transfer Ownership of Google Drive Files';
+    buttonLabel = 'Transfer Ownership of Google Drive Files';
     dialogTitleText = 'Enter staff member\'s wevoteeducation.org info and the email of the staff inheriting ownership';
     shareMessage = 'This transfers the ownership of all files and directories in the \'We Vote Education\' drive, from a Member/User/Staff/Person to the \'New Owner\'.  The \'Member\' is demoted from \'owner\' to \'editor\' for those files. \n' +
       'To stop the Member from accessing the files, make their deactivate their wevoteeductation.org Google account.';
     actionButtonText = 'Transfer File and Folder Ownership';
   } else if (isRevoke) {
-    buttonLabel = 'Admins Only: Revoke Sharing of Google Drive Access';
+    buttonLabel = 'Revoke Sharing of Google Drive Access';
     dialogTitleText = 'Enter staff member\'s wevoteeducation.org info';
     shareMessage = 'This revokes sharing of all files and directories for the Member';
     actionButtonText = 'Revoke Sharing';
@@ -123,7 +122,6 @@ const ShareGoogleDriveAccess = (params) => {
             size="small"
             onClick={handleOpen}
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
-            startIcon={<LockOutlineIcon />}
           >
             {buttonLabel}
           </Button>
@@ -209,10 +207,5 @@ ShareGoogleDriveAccess.propTypes = {
 
 const styles = () => ({
 });
-
-const ButtonPanel = styled('div')`
-  padding: 5px;
-  width: fit-content;
-`;
 
 export default withStyles(styles)(ShareGoogleDriveAccess);

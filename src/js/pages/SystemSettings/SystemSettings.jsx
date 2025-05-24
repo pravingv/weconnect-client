@@ -1,7 +1,6 @@
 import { KeyboardArrowDown, KeyboardArrowUp, South } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import { withStyles } from '@mui/styles';
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
@@ -13,20 +12,9 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
-import CreateNewGoogleUser from './CreateNewGoogleUser';
-import GetOneGoogleUser from './GetOneGoogleUser';
-import JazzHrAccess from './JazzHrAccess';
 import PermissionsAdministration from './PermissionsAdministration';
-import ResetGoogleUserPassword from './ResetGoogleUserPassword';
-import GrantGoogleDriveAccess from './ShareGoogleDriveAccess';
-import SlackChannelInvite from './SlackChannelInvite';
-import SlackChannelMembers from './SlackChannelMembers';
-import SlackGetPresence from './SlackGetPresence';
-import SlackListUsers from './SlackListMembers';
-import SlackSendMessage from './SlackSendMessage';
 import QuestionnaireListIndex from './QuestionnaireListIndex';
 import TaskGroupListIndex from './TaskGroupListIndex';
-import UploadCSV from './UploadCSV';
 
 
 const SystemSettings = () => {
@@ -38,7 +26,6 @@ const SystemSettings = () => {
   const [personIdsList, setPersonIdsList] = useState([]);
   const [showQuestionnaireList, setShowQuestionnaireList] = useState(false);
   const [showTaskGroupList, setShowTaskGroupList] = useState(false);
-  const [canDoAnythingIsAdmin, setCanDoAnythingIsAdmin] = useState(false);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -74,10 +61,6 @@ const SystemSettings = () => {
       setPersonIdsList(allCachedPeopleList.map((person) => person.personId));
     }
   }, [allPeopleCache]);
-
-  useEffect(() => {
-    setCanDoAnythingIsAdmin(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
-  }, [viewerAccessRights]);
 
   if (!viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
     return (
@@ -129,48 +112,11 @@ const SystemSettings = () => {
         {/* ****  **** */}
         <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
         <PermissionsAdministration />
-        {canDoAnythingIsAdmin && (
-          <div style={{ paddingTop: '2rem' }}>
-            <UploadCSV />
-            <ButtonDividerLine />
-            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
-              <CreateNewGoogleUser isCreate />
-              <CreateNewGoogleUser isCreate={false} />
-            </div>
-            <ButtonDividerLine />
-            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
-              <GetOneGoogleUser getAll={false} />
-              <GetOneGoogleUser getAll />
-              <ResetGoogleUserPassword />
-            </div>
-            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
-              <GrantGoogleDriveAccess isShare />
-              {/* <GrantGoogleDriveAccess isRevoke /> Doesn't find all the files, and low priority */}
-              <GrantGoogleDriveAccess isTransfer />
-            </div>
-            <ButtonDividerLine />
-            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
-              <SlackSendMessage />
-              <SlackListUsers />
-              <SlackGetPresence />
-              <SlackChannelInvite />
-            </div>
-            <div style={{ display: 'flex', paddingTop: '.5rem'  }}>
-              <SlackChannelMembers />
-            </div>
-            <ButtonDividerLine />
-            <div style={{ display: 'flex', paddingTop: '.5rem' }}>
-              <JazzHrAccess isGetUsers />
-              <JazzHrAccess isGetApplicants />
-            </div>
-          </div>
-        )}
       </PageContentContainer>
     </div>
   );
 };
 SystemSettings.propTypes = {
-  classes: PropTypes.object.isRequired,
 };
 
 const styles = (theme) => ({
@@ -193,12 +139,6 @@ const KeyboardArrowUpStyled = styled(KeyboardArrowUp)`
 
 const SettingsSubtitle = styled('h2')`
   margin-bottom: 0;
-`;
-
-const ButtonDividerLine = styled('div')`
-  padding-top: 4px;
-  padding-bottom: -1px;
-  border-bottom: 1px solid #BCC6CC;
 `;
 
 export default withStyles(styles)(SystemSettings);

@@ -1,16 +1,15 @@
 import CloseIcon from '@mui/icons-material/Close';
-import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { ButtonPanel } from './systemSettingsCommonStyles';
 
 const SlackGetPresence = () => {
   renderLog('SlackGetPresence');
@@ -52,9 +51,8 @@ const SlackGetPresence = () => {
             size="small"
             onClick={handleOpen}
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
-            startIcon={<LockOutlineIcon />}
           >
-            Admins Only:  Slack Get Member&apos;s Presence
+            Slack Get Member&apos;s Presence
           </Button>
           <br />
           <Dialog
@@ -112,10 +110,5 @@ SlackGetPresence.propTypes = {
 
 const styles = () => ({
 });
-
-const ButtonPanel = styled('div')`
-  padding: 5px;
-  width: fit-content;
-`;
 
 export default withStyles(styles)(SlackGetPresence);

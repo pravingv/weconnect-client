@@ -10,9 +10,10 @@ const METHOD = {
 
 // https://refine.dev/blog/react-query-guide/#performing-basic-data-fetching
 // Define a default query function that will receive the query key
-const weConnectQueryFn = async (queryKey, params, isGet) => {
+const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) => {
   // console.log('weConnectQueryFn : ', queryKey, params, isGet);
-  const url = new URL(`${queryKey}/`, webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
+  const url = new URL(`${queryKey}/`,
+    forceMaster ? 'https://teamapi.wevote.org/apis/v1/' : webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
   // console.log(queryKey, params, isGet);
   if (isGet) {
     url.search = new URLSearchParams(params);
