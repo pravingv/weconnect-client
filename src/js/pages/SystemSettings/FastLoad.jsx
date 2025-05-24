@@ -58,8 +58,8 @@ const FastLoad = () => {
       }
     }
     setTablesLoaded(loaded);
-    if (tablesLoaded) {
-      $('#done').css('display', 'block');
+    if (loaded) {
+      $('#done').css('display', 'contents');
     }
   };
 
@@ -107,7 +107,7 @@ const FastLoad = () => {
           <div id="done" style={{ display: 'none' }}>
             <Alert severity="success">
               <AlertTitle>{tablesLoaded} Tables loaded</AlertTitle>
-              Your sign-in Person has been overwritten.  In a terminal, run <b>node ./node_scripts/createDevUser Samuel Adams samuel@adams.com ale</b> to make a new admin user for yourself.
+              The account that you sign into your local weconnect-server has been overwritten.  In a terminal, run <b>node ./node_scripts/createDevUser Samuel Adams samuel@adams.com ale</b> to make a new admin user for yourself (any name or password is fine for this command).
             </Alert>
           </div>
           <IconButton
