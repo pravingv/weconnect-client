@@ -1,4 +1,4 @@
-import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import { Button, FormControl, FormLabel, Select, MenuItem, TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -87,26 +87,20 @@ const EditPersonAwayForm = ({ classes, personId }) => {
 
   return (
     <EditPersonAwayFormWrapper>
-      <FormControl>
+      <FormControl fullWidth sx={{ marginBottom: '20px' }}>
         <FormLabel id="personAwayReasonId">Why I&#39;m Away</FormLabel>
-        <RadioGroup
-          aria-labelledby="personAwayReasonId"
+        <Select
+          id="personAwayReasonSelect"
           inputRef={awayReasonInputRef}
           value={awayReasonRadioValue}
-          name="personAwayReason"
           onChange={handleRadioChange}
-          row
-          sx={{ paddingBottom: '20px' }}
         >
           {PERSON_AWAY_REASONS_WITH_HR.map((reason) => (
-            <FormControlLabel
-              control={<Radio />}
-              key={reason}
-              label={getPersonAwayLabel(reason)}
-              value={reason}
-            />
+            <MenuItem key={reason} value={reason}>
+              {getPersonAwayLabel(reason)}
+            </MenuItem>
           ))}
-        </RadioGroup>
+        </Select>
       </FormControl>
       <FormControl classes={{ root: classes.formControl }}>
         <TextField
