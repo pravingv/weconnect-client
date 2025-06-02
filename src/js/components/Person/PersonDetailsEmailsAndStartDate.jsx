@@ -58,6 +58,7 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
 
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
   const preferredEmail = person.emailPreferred || person.emailOfficial || '';
+  const formattedEndDate = person.dateEndDate ? new Date(person.dateEndDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
   const formattedStartDate = person.dateStartDate ? new Date(person.dateStartDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
   return (
     <PersonDetailsEmailsAndStartDateWrapper>
@@ -131,6 +132,16 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
             {person.statusOfferLetterSigned && (
               <span>&nbsp;-&nbsp;{timeFromDate(person.dateStartDate, true)}</span>
             )}
+          </div>
+        </QuickLinksRow>
+      )}
+      {person.dateEndDate && (
+        <QuickLinksRow>
+          <div>
+            End date:&nbsp;&nbsp;
+          </div>
+          <div>
+            {formattedEndDate}
           </div>
         </QuickLinksRow>
       )}
