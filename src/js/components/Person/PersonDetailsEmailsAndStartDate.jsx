@@ -1,8 +1,9 @@
 import { ContentCopy } from '@mui/icons-material';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
+import { timeFromDate } from '../../common/utils/dateFormat';
 import { renderLog } from '../../common/utils/logging';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
@@ -18,6 +19,7 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
   const [emailOfficialCopied, setEmailOfficialCopied] = useState(false);
   const [emailPersonalCopied, setEmailPersonalCopied] = useState(false);
   const [emailPreferredCopied, setEmailPreferredCopied] = useState(false);
+  const [personStatus, setPersonStatus] = useState('');
 
   const copyEmailOfficial = () => {
     setEmailOfficialCopied(true);
@@ -40,8 +42,23 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
     }, 1500);
   };
 
+  useEffect(() => {
+    let personStatusTemp = '';
+    if (!person.statusActive) {
+      personStatusTemp = 'account off';
+    } else if (person.statusOfferWillNotBeMade) {
+      personStatusTemp = 'offer won\'t be made';
+    } else if (person.statusResigned) {
+      personStatusTemp = 'resigned';
+    } else if (person.statusOnLeave) {
+      personStatusTemp = 'on leave';
+    }
+    setPersonStatus(personStatusTemp);
+  }, [person]);
+
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
   const preferredEmail = person.emailPreferred || person.emailOfficial || '';
+  const formattedStartDate = person.dateStartDate ? new Date(person.dateStartDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
   return (
     <PersonDetailsEmailsAndStartDateWrapper>
       {preferredEmail && (
@@ -88,6 +105,42 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
                 <SpanWithLinkStyle>{emailPersonalCopied ? 'Copied!' : person.emailPersonal}</SpanWithLinkStyle>
               </EmailAddressToBeCopied>
             </CopyToClipboard>
+          </div>
+        </QuickLinksRow>
+      )}
+      {(person.birthdayMonthAndDay && person.birthdayMonthAndDay !== 'n/a') && (
+        <QuickLinksRow>
+          <div>
+            Birthday:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+          <div>
+            {person.birthdayMonthAndDay}
+            {personStatus && (
+              <span>&nbsp;-&nbsp;{personStatus}</span>
+            )}
+          </div>
+        </QuickLinksRow>
+      )}
+      {person.dateStartDate && (
+        <QuickLinksRow>
+          <div>
+            Start date:&nbsp;&nbsp;
+          </div>
+          <div>
+            {formattedStartDate}
+            {person.statusOfferLetterSigned && (
+              <span>&nbsp;-&nbsp;{timeFromDate(person.dateStartDate, true)}</span>
+            )}
+          </div>
+        </QuickLinksRow>
+      )}
+      {person.hoursPerWeekEstimate && (
+        <QuickLinksRow>
+          <div>
+            Hours per week:&nbsp;
+          </div>
+          <div>
+            {person.hoursPerWeekEstimate}
           </div>
         </QuickLinksRow>
       )}
