@@ -99,12 +99,12 @@ const EditTaskGroupForm = ({ classes }) => {
   useEffect(() => {
     if (allTeamsCache) {
       const teamListSimple = Object.values(allTeamsCache);
-      const activeTeams = teamListSimple
-        .filter((team) => team.statusActive === true)
-        .sort((a, b) => a.teamName.localeCompare(b.teamName));
-      setTeamList(activeTeams);
+      const activeTeams = teamListSimple.filter((team) => team.statusActive === true);
+      const sortedActiveTeams = activeTeams
+        .sort((a, b) => a.teamName.toLowerCase().localeCompare(b.teamName.toLowerCase()));
+      setTeamList(sortedActiveTeams);
       // Create a dictionary with team.id as key and team object as value
-      const teamDict = activeTeams.reduce((acc, team) => {
+      const teamDict = sortedActiveTeams.reduce((acc, team) => {
         acc[team.id] = team;
         return acc;
       }, {});
@@ -113,12 +113,22 @@ const EditTaskGroupForm = ({ classes }) => {
   }, [allTeamsCache]);
 
   useEffect(() => {
-    if (allTaskGroupTeamLinksCache) {
+    if (allTaskGroupTeamLinksCache && teamDictByTeamId) {
       const taskGroupTeamLinksForThisTaskGroup = allTaskGroupTeamLinksCache[taskGroup ? taskGroup.id : '-1'] || [];
       const linkedTeamIds = taskGroupTeamLinksForThisTaskGroup.map((TaskGroupTeamLinkTemp) => TaskGroupTeamLinkTemp.teamId);
-      setLinkedTeamIdList(linkedTeamIds);
+
+      // Sort the linkedTeamIds based on the teamName
+      const sortedLinkedTeamIds = linkedTeamIds
+        .filter((teamId) => teamDictByTeamId[teamId]) // Ensure the team exists in the dictionary
+        .sort((a, b) => {
+          const teamNameA = teamDictByTeamId[a].teamName.toLowerCase();
+          const teamNameB = teamDictByTeamId[b].teamName.toLowerCase();
+          return teamNameA.localeCompare(teamNameB);
+        });
+
+      setLinkedTeamIdList(sortedLinkedTeamIds);
     }
-  }, [allTaskGroupTeamLinksCache, taskGroup]);
+  }, [allTaskGroupTeamLinksCache, taskGroup, teamDictByTeamId]);
 
   const deleteTaskGroupTeamLink = (teamIdTemp) => {
     const requestParams = makeRequestParams({
