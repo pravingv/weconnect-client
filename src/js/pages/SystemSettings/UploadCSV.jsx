@@ -1,17 +1,16 @@
 import CloseIcon from '@mui/icons-material/Close';
-import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button, DialogActions, IconButton, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 // eslint-disable-next-line import/no-unresolved
 import { useFilePicker } from 'use-file-picker';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { ButtonPanel } from './systemSettingsCommonStyles';
 
 const UploadCSV = (classes) => {
   const { apiDataCache } = useConnectAppContext();
@@ -89,9 +88,8 @@ const UploadCSV = (classes) => {
             size="small"
             onClick={() => openFilePicker()}
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
-            startIcon={<LockOutlineIcon />}
           >
-            Admins Only:  Select csv file to upload
+            Select csv file to upload
           </Button>
           <br />
           <Dialog
@@ -141,11 +139,6 @@ UploadCSV.propTypes = {
 
 const styles = () => ({
 });
-
-const ButtonPanel = styled('div')`
-  padding: 18px 5px 5px 5px;
-  width: fit-content;
-`;
 
 // Save as an example of styled MUI components
 // const BootstrapDialog = styled(Dialog)(({ theme }) => ({

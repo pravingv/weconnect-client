@@ -1,3 +1,4 @@
+import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button } from '@mui/material';
 import {
   AccountCircle,
@@ -13,6 +14,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
+import AdminFunctions from '../Person/AdminFunctions';
 import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { clearSignedInGlobals } from '../../contexts/contextFunctions';
@@ -98,6 +100,12 @@ const HeaderProfileDrawer = () => {
     );
   }
 
+  if (viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights)) {
+    profileNavOptions.push(
+      { icon: <LockOutlineIcon />, linkName: 'adminFunctions', linkTextJsx: <>Admin Functions</> },
+    );
+  }
+
   // useEffect to handle which component to display from nav
   useEffect(() => {
     let component = <></>;
@@ -162,6 +170,14 @@ const HeaderProfileDrawer = () => {
             {personViewedInDrawer && (
               <VisibleProfile personId={personViewedInDrawer.personId} />
             )}
+          </>
+        );
+        break;
+      case 'adminFunctions':
+        component = (
+          <>
+            <ProfileComponentTitle>Admin Functions</ProfileComponentTitle>
+            <AdminFunctions />
           </>
         );
         break;

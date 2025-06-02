@@ -1,16 +1,15 @@
 import CloseIcon from '@mui/icons-material/Close';
-import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { ButtonPanel } from './systemSettingsCommonStyles';
 
 const JazzHrAccess = (params) => {
   renderLog('JazzHrAccess');
@@ -98,13 +97,13 @@ const JazzHrAccess = (params) => {
   let shareMessage;
   let actionButtonText;
   if (isGetUsers) {
-    buttonLabel = 'Admins Only: Search JazzHR for Users';
+    buttonLabel = 'Search JazzHR for Users';
     dialogTitleText = 'Enter full or partial name, and/or full or partial email address.';
     shareMessage = 'In the name field it could be \'George\' or \'Washington\' or \'George Washington\'\n' +
       'In the email field needs to be a exact match like \'george.washington@whitehouse.gov\'';
     actionButtonText = 'Search For Users';
   } else if (isGetApplicants) {
-    buttonLabel = 'Admins Only: Search JazzHR for Applicants';
+    buttonLabel = 'Search JazzHR for Applicants';
     dialogTitleText = 'Enter one or more search criteria';
     shareMessage = 'The recruiter_id, status, and rating fields are also supported by the weconnect-server api endpoint, but are not in this test UI';
     actionButtonText = 'Search For Applicants';
@@ -120,7 +119,6 @@ const JazzHrAccess = (params) => {
             size="small"
             onClick={handleOpen}
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
-            startIcon={<LockOutlineIcon />}
           >
             {buttonLabel}
           </Button>
@@ -231,10 +229,5 @@ JazzHrAccess.propTypes = {
 
 const styles = () => ({
 });
-
-const ButtonPanel = styled('div')`
-  padding: 5px;
-  width: fit-content;
-`;
 
 export default withStyles(styles)(JazzHrAccess);

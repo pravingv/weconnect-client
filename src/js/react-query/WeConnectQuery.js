@@ -1,7 +1,7 @@
 // /src/js/react-query/WeConnectQuery.js
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { reactQueryLog } from '../common/utils/logging';
+import { httpLog, reactQueryLog } from '../common/utils/logging';
 import webAppConfig from '../config';
 
 const METHOD = {
@@ -9,11 +9,19 @@ const METHOD = {
   POST: false,
 };
 
+
 // https://refine.dev/blog/react-query-guide/#performing-basic-data-fetching
 // Define a default query function that will receive the query key
-const weConnectQueryFn = async (queryKey, params, isGet) => {
-  // console.log('weConnectQueryFn : ', queryKey, params, isGet);
-  const url = new URL(`${queryKey}/`, webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
+const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) => {
+  const res = { queryKey, isGet, forceMaster };
+  Object.keys(params).forEach((key) => {
+    res[key] = params[key];
+  });
+
+
+  httpLog('HTTP weConnectQueryFn : ', JSON.stringify(res || {}));
+  const url = new URL(`${queryKey}/`,
+    forceMaster ? 'https://teamapi.wevote.org/apis/v1/' : webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
   // console.log(queryKey, params, isGet);
   if (isGet) {
     url.search = new URLSearchParams(params);
