@@ -61,7 +61,7 @@ const ShareGoogleDriveAccess = (params) => {
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
-  const [driveDomain, setDriveDomain] = useState('wevoteeducation');
+  // const [driveDomain, setDriveDomain] = useState('wevoteeducation');
   const [resultsText, setResultsText] = useState('');
   const emailInputRef = useRef(null);
   const driveFolderInputRef = useRef(null);
@@ -77,7 +77,7 @@ const ShareGoogleDriveAccess = (params) => {
     const role = roleInputRef.current.value;  // no error checking for this demo code, must be one of 'reader', 'commenter', 'writer', or 'owner'
     console.log(`shareAccess ${primaryEmail}`);
 
-    const isWeVoteEducationC3 = driveDomain === 'wevoteeducation';
+    const isWeVoteEducationC3 = true; // doesn't matter, relies on api.superadminuser@wevoteeducation.org, not differing JWTs on the server driveDomain === 'wevoteeducation';
     const data = await weConnectQueryFn('google-share-drive-access', { primaryEmail, driveFolder, isWeVoteEducationC3, role }, METHOD.POST);
     console.log('shareGoogleDriveAccess', data);
     if (data?.success) {
@@ -137,9 +137,9 @@ const ShareGoogleDriveAccess = (params) => {
     setOpen(true);
   };
 
-  const handleDomainChange = (event) => {
-    setDriveDomain(event.target.value);
-  };
+  // const handleDomainChange = (event) => {
+  //   setDriveDomain(event.target.value);
+  // };
 
   let buttonLabel;
   let dialogTitleText;
@@ -217,16 +217,16 @@ const ShareGoogleDriveAccess = (params) => {
                     defaultValue="UA Api Test Folder"
                     sx={{ minWidth: '250px', marginRight: '10px' }}
                   />
-                  <TextField
-                    select
-                    label="Select a drive domain"
-                    value={driveDomain}
-                    onChange={handleDomainChange}
-                    sx={{ width: 250, marginRight: '10px' }}
-                  >
-                    <MenuItem value="wevoteeducation">wevoteeducation.org (c3)</MenuItem>
-                    <MenuItem value="wevoteus">wevote.us (c4)</MenuItem>
-                  </TextField>
+                  {/* <TextField */}
+                  {/*  select */}
+                  {/*  label="Select a drive domain" */}
+                  {/*  value={driveDomain} */}
+                  {/*  onChange={handleDomainChange} */}
+                  {/*  sx={{ width: 250, marginRight: '10px' }} */}
+                  {/* > */}
+                  {/*  <MenuItem value="wevoteeducation">wevoteeducation.org (c3)</MenuItem> */}
+                  {/*  <MenuItem value="wevoteus">wevote.us (c4)</MenuItem> */}
+                  {/* </TextField> */}
                   <TextField
                     select
                     id="access_input"
