@@ -1,9 +1,10 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { Button, DialogActions, IconButton, TextField } from '@mui/material';
+import { Button, DialogActions, IconButton, MenuItem, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
+import PropTypes from 'prop-types';
 import React, { useRef, useState } from 'react';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
@@ -11,11 +12,56 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
+const ShareMessage = ({ isShare, isTransfer, isRevoke }) => {
+  if (isShare) {
+    return (
+      <>
+        <div>
+          This shares all files on a directory basis, and any subdirectories of that shared directory are included. To
+          share
+          the entire wevoteeducation.org C3 drive, enter &#34;We Vote Education&#34; (exact spelling and spacing is
+          required).
+        </div>
+        <div>
+          Before sharing a drive in the wevote.us C4 drive domain, make sure that the drive or highest folder of the
+          drive is already
+          shared to api.superadminuser@wevoteeducation.org (Engineering & Data Storage Team, We Vote USA has already
+          been shared to api.superadminuser@wevoteeducation.org)
+        </div>
+        <div>
+          The wevote.us C4 drive, unlike the wevoteeducation.org C3 drive does not have a
+          common &quot;root&quot; folder
+          (like &quot;We Vote Education&quot;), so each folder will need to be shared
+          individually to api.superadminuser@wevoteeducation.org
+        </div>
+      </>
+    );
+  } else if (isTransfer) {
+    return (
+      <>
+        <div>This transfers the ownership of all files and directories in the &quot;We Vote Education&quot; drive, from a Member/User/Staff/Person to the &quot;New Owner&quot;.  The &quot;Member&quot; is demoted from &quot;owner&quot; to &quot;editor&quot; for those files.</div>
+        <div>To stop the Member from accessing the files, make their deactivate their wevoteeductation.org Google account.</div>
+      </>
+    );
+  } else if (isRevoke) {
+    return (
+      <div>This revokes sharing of all files and directories for the Member</div>
+    );
+  }
+  return <></>;
+};
+ShareMessage.propTypes = {
+  isShare: PropTypes.bool,
+  isTransfer: PropTypes.bool,
+  isRevoke: PropTypes.bool,
+};
+
 const ShareGoogleDriveAccess = (params) => {
   renderLog('ShareGoogleDriveAccess');
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
+  const [driveDomain, setDriveDomain] = useState('wevoteeducation');
   const [resultsText, setResultsText] = useState('');
   const emailInputRef = useRef(null);
   const driveFolderInputRef = useRef(null);
@@ -31,7 +77,8 @@ const ShareGoogleDriveAccess = (params) => {
     const role = roleInputRef.current.value;  // no error checking for this demo code, must be one of 'reader', 'commenter', 'writer', or 'owner'
     console.log(`shareAccess ${primaryEmail}`);
 
-    const data = await weConnectQueryFn('google-share-drive-access', { primaryEmail, driveFolder, role }, METHOD.POST);
+    const isWeVoteEducationC3 = driveDomain === 'wevoteeducation';
+    const data = await weConnectQueryFn('google-share-drive-access', { primaryEmail, driveFolder, isWeVoteEducationC3, role }, METHOD.POST);
     console.log('shareGoogleDriveAccess', data);
     if (data?.success) {
       setResultsText(`The drive folder '${driveFolder}' was shared with '${primaryEmail}'`);
@@ -60,7 +107,7 @@ const ShareGoogleDriveAccess = (params) => {
     const ownersEmail = emailInputRef.current.value;
 
     console.log(`revokeSharing ${ownersEmail}`);
-    const data = await weConnectQueryFn('google-revoke-sharing', {ownersEmail }, METHOD.POST);
+    const data = await weConnectQueryFn('google-revoke-sharing', { ownersEmail }, METHOD.POST);
     console.log('revokeSharing', data);
     if (data?.success) {
       setResultsText(`User "${ownersEmail}"s' drive sharing was revoked`);
@@ -72,6 +119,7 @@ const ShareGoogleDriveAccess = (params) => {
   };
 
   const googleShareClick = async () => {
+    setResultsText('');
     if (isShare) {
       await shareAccess();
     } else if (isRevoke) {
@@ -89,26 +137,25 @@ const ShareGoogleDriveAccess = (params) => {
     setOpen(true);
   };
 
+  const handleDomainChange = (event) => {
+    setDriveDomain(event.target.value);
+  };
+
   let buttonLabel;
   let dialogTitleText;
-  let shareMessage;
   let actionButtonText;
+
   if (isShare) {
     buttonLabel = 'Share Google Drive Access';
     dialogTitleText = 'Enter staff members wevoteeducation.org info';
-    shareMessage = 'This shares all files on a directory basis, and any subdirectories of the directory are included. To share the entire drive, ' +
-      'enter "We Vote Education" (exact spelling and spacing is required).';
     actionButtonText = 'Share Drive Folder';
   } else if (isTransfer) {
     buttonLabel = 'Transfer Ownership of Google Drive Files';
     dialogTitleText = 'Enter staff member\'s wevoteeducation.org info and the email of the staff inheriting ownership';
-    shareMessage = 'This transfers the ownership of all files and directories in the \'We Vote Education\' drive, from a Member/User/Staff/Person to the \'New Owner\'.  The \'Member\' is demoted from \'owner\' to \'editor\' for those files. \n' +
-      'To stop the Member from accessing the files, make their deactivate their wevoteeductation.org Google account.';
     actionButtonText = 'Transfer File and Folder Ownership';
   } else if (isRevoke) {
     buttonLabel = 'Revoke Sharing of Google Drive Access';
     dialogTitleText = 'Enter staff member\'s wevoteeducation.org info';
-    shareMessage = 'This revokes sharing of all files and directories for the Member';
     actionButtonText = 'Revoke Sharing';
   }
 
@@ -135,7 +182,9 @@ const ShareGoogleDriveAccess = (params) => {
             <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
               {dialogTitleText}
               <br />
-              <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>{shareMessage}</div>
+              <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>
+                <ShareMessage isShare={isShare || false} isTransfer={isTransfer || false} isRevoke={isRevoke || false} />
+              </div>
             </DialogTitle>
             <IconButton
               aria-label="close"
@@ -169,13 +218,29 @@ const ShareGoogleDriveAccess = (params) => {
                     sx={{ minWidth: '250px', marginRight: '10px' }}
                   />
                   <TextField
+                    select
+                    label="Select a drive domain"
+                    value={driveDomain}
+                    onChange={handleDomainChange}
+                    sx={{ width: 250, marginRight: '10px' }}
+                  >
+                    <MenuItem value="wevoteeducation">wevoteeducation.org (c3)</MenuItem>
+                    <MenuItem value="wevoteus">wevote.us (c4)</MenuItem>
+                  </TextField>
+                  <TextField
+                    select
                     id="access_input"
                     label="Role {'reader', 'commenter', 'writer', or 'owner'}"
                     inputRef={roleInputRef}
                     name="role"
                     defaultValue="writer"
                     sx={{ minWidth: '300px', marginRight: '10px' }}
-                  />
+                  >
+                    <MenuItem value="writer">writer</MenuItem>
+                    <MenuItem value="reader">reader</MenuItem>
+                    <MenuItem value="commenter">commenter</MenuItem>
+                    <MenuItem value="owner">owner</MenuItem>
+                  </TextField>
                 </>
               )}
               {isTransfer && (
