@@ -1,9 +1,7 @@
 import styled from 'styled-components';
 import standardBoxShadow from '../../common/components/Style/standardBoxShadow';
-import { hasDynamicIsland, isAndroidSizeMD, isAndroidSizeWide, isAndroidSizeXL, isIOSAppOnMac, isIPad, isIPad11in, isIPadMini, isIPhone14Pro, isIPhone4p7in, isIPhone5p5inEarly, isIPhone5p5inMini } from '../../common/utils/cordovaUtils';
-import { normalizedHrefPage } from '../../common/utils/hrefUtils';
-import { isAndroid, isCordova, isWebApp } from '../../common/utils/isCordovaOrWebApp';
-import isMobileScreenSize, { isTablet } from '../../common/utils/isMobileScreenSize';
+import { hasDynamicIsland, isIPhone5p5inMini } from '../../common/utils/cordovaUtils';
+import { isWebApp } from '../../common/utils/isCordovaOrWebApp';
 import { cordovaBallotFilterTopMargin } from '../../utils/cordovaOffsets';
 
 
@@ -22,12 +20,7 @@ export const IOSNotchedSpacer = styled('div')`
 `;
 
 export const IOSNoNotchSpacer = styled('div')`
-  height: ${() => {
-    if (isIPad())                                   return '26px';
-    if (isIPhone4p7in() || isIPhone5p5inEarly())    return '22px';
-    return                                                 '36px';
-  }};
-  top: ${() => ((isIPhone4p7in() ? '-1px' : '0px'))};
+  height: 36px;
   position: fixed;
   //background: white;
   width: 100%;
@@ -36,31 +29,10 @@ export const IOSNoNotchSpacer = styled('div')`
 `;
 
 function getPaddingTop () {
-  /* removed until this can become a functional component 12/29/24
-
-  if (isCordova()) {
-    if ((normalizedHrefPage() === 'ballot') ||
-        (normalizedHrefPage() === 'friends' && VoterStore.getVoterIsSignedIn())) {
-      return `${cordovaComplexHeaderPageContainerTopOffset()} !important`;
-    } else {
-      // The following line sets the value directly (non-ideal)
-      cordovaSimplePageContainerTopOffset();
-      return '';
-    }
-  }
-  return cordovaScrollablePaneTopPadding();  // 5/14/22 TODO: Refactor this...  Funny that this is no longer used for Cordova, only for the WebApp
-  */
   return '';
 }
 
 function getPaddingBottom () {
-  if (isCordova()) {
-    const pages = ['ready', 'settings', 'more/attributions', 'more/privacy', 'more/terms', 'more/faq'];
-    const page = normalizedHrefPage() || 'ready';  // readyLight has path '/'
-    if (pages.includes(page)) {
-      return '120px';
-    }
-  }
   return '';
 }
 
@@ -118,41 +90,28 @@ export const DualHeaderContainer = styled('div', {
   left: 0;
 `));
 
-/* eslint-disable no-nested-ternary */
 export const HeadroomWrapper = styled('div')`
   position: fixed;
-  top: ${() => (hasDynamicIsland() ? (isIPhone14Pro() ? '22px' : '12px') : '0px')};
   left: 0;
   width: 100%;
   background: white;
   z-index: 2;
 `;
 
-export const TopOfPageHeader = styled('div')(({ theme }) => (`
+export const TopOfPageHeader = styled('div')`
   width: 100%;
   max-width: 960px;
-  justify-content: space-between;  // .header-backto-toolbar
+  justify-content: space-between;
   display: grid;
   grid-template-columns: auto auto auto;
   height: fit-content;
   margin: auto;
-  ${theme.breakpoints.down('md')} {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-  ${() => ((isIPad11in() || isIPadMini()) ? {
-    paddingLeft: '15px',
-    paddingRight: '15px',
-  } : {})
-  }
-`));
+`;
 
 export const TopRowOneLeftContainer = styled('div')`
    grid-row-start: 1;
    grid-row-end: 1;
    grid-column: 1 / 2;
-  //display: flex;
-  //justify-content: flex-start;
 `;
 
 export const TopRowOneMiddleContainer = styled('div')`
@@ -162,171 +121,16 @@ export const TopRowOneMiddleContainer = styled('div')`
 `;
 
 export const TopRowOneRightContainer = styled('div')`
-  // padding-right: 0px;
-  // {() => (((isMobileScreenSize() && !isIPhone5p5inMini()) || isIPadGiantSize()) ? '15px' : '0px')}; // Can this always be 0px?
-  padding-right: ${() => {
-    // if (isAndroidSizeWide()) return '55px';
-    if (isAndroidSizeMD() || isAndroidSizeXL() || isAndroidSizeWide() || isTablet()) return '15px';
-    return '0px';
-  }};
   display: flex;
   justify-content: flex-end;
   cursor: pointer;
-
-  // z-index: 3; //to float above the account/ProfilePopUp menu option grey div
-  // {theme.breakpoints.down('sm')} {
-  //   padding-left: {(props) => (props.cordova ? '0 !important' : 'calc(100% - 147px)')};
-  // }
 `;
 
 export const TopRowTwoLeftContainer = styled('div')`
   grid-row-start: 2;
   grid-row-end: 3;
-  grid-column: ${() => (['measure', 'friends', 'office'].includes(normalizedHrefPage()) ? '1 / 4' : '1 / 3')};
-  padding-bottom: ${() => {
-    if (normalizedHrefPage() === 'measure') {
-      return isAndroid() ? '0px' : '28px';
-    }
-    return '7px';
-  }};
+  grid-column: 1 / 3;
+  padding-bottom: 7px;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-
-export const TopRowTwoRightContainer = styled('div')`
-  display: flex;
-  justify-content: space-between;
-  cursor: pointer;
-  padding-right: ${() => ((isMobileScreenSize()) ? '15px' : '0px')};  //grid-row-start: 2;
-  ${() => {
-    if ((isWebApp() && !isMobileScreenSize())) {
-      return {
-        gridRow: '2 / 2',
-        gridColumn: '3 /3',
-        paddingRight: '13px',
-      };
-    } else if (isAndroidSizeXL() || isAndroidSizeWide()) {
-      return {
-        gridRow: '2 / 2',
-        gridColumn: '3 /3',
-      };
-    }
-    return {};
-  }};
-`;
-
-// function getBackToPaddingTop () {
-//   // Calculated approach Nov 2022
-//   const { $ } = window;
-//   if (!$) {
-//     // To trap "$ is not a function" crash
-//     return '0px';
-//   }
-//   const headerBack = $('#headerBackToBallotAppBar');
-//   if (isIOS() && headerBack.length) {
-//     const iOSNotchedSpacer = $('div[class*=\'IOSNotchedSpacer\']');
-//     const iOSNoNotchSpacer = $('div[class*=\'IOSNoNotchSpacer\']');
-//     const height = iOSNotchedSpacer.length ? iOSNotchedSpacer.outerHeight() : iOSNoNotchSpacer.outerHeight();
-//     cordovaOffsetLog(`getBackToPaddingTop #headerBackToBallotAppBar iOS[No]NotchedSpacer.outerHeight(): ${height}, page: ${pageEnumeration()}`);
-//     return `${height}px`;
-//   }
-//   // end calculated approach
-//
-//   // IMPORTANT: This is a last chance way to adjust the height, to be used only if cordovaScrollablePaneTopPadding can't do it!
-//   if ([CordovaPageConstants.candidateWild,
-//     CordovaPageConstants.officeWild,
-//     CordovaPageConstants.settingsProfile,
-//     CordovaPageConstants.settingsAccount,
-//     CordovaPageConstants.settingsNotifications,
-//     CordovaPageConstants.settingsSubscription,
-//     CordovaPageConstants.settingsWild,
-//     CordovaPageConstants.measureWild,
-//     CordovaPageConstants.valuesList,
-//     CordovaPageConstants.valuesWild].includes(pageEnumeration())) {
-//     if (isIPhone4p7in())      return '20px';
-//     if (isIPhone5p5inEarly()) return '20px';
-//     if (isIPhone5p5inMini())  return '39px';
-//     if (isIPhone6p1in())      return '34px';
-//     if (isIPhone6p5in())      return '34px';
-//     if (hasIPhoneNotch())     return '34px';
-//     if (isIPad())             return '24px';
-//   }
-//   return '0px';
-// }
-
-// export const AppBarForBackTo = styled(AppBar)(({ theme }) => (`
-//   border-top: none;
-//   border-right: none;
-//   border-left: none;
-//   border-image: initial;
-//   display: flex;
-//   justify-content: center;
-//   padding-top: ${getBackToPaddingTop()};
-//   ${() => {
-//     if (AppObservableStore.getScrolledDown() && ![
-//       CordovaPageConstants.officeWild,
-//       CordovaPageConstants.measureWild,
-//       CordovaPageConstants.valuesList,
-//       CordovaPageConstants.valuesWild].includes(pageEnumeration())) {
-//       // Do not show border or shadow
-//       return {};
-//     }
-//     return {
-//       borderBottom: '1px solid rgb(170, 170, 170)',
-//       boxShadow: standardBoxShadow('wide'),
-//     };
-//   }};
-//   ${theme.breakpoints.down('sm')} {
-//     display: inherit;
-//   };
-// `));
-
-export const OfficeShareWrapper = styled('div')`
-  margin-bottom: 12px;
-  margin-right: ${(isIPad() || isIOSAppOnMac()) ? '19px' : ''};
-`;
-
-export const FirstRowPhoneOrEmail = styled('div')`
-  margin: 5px 0 2px 0;
-  text-align: center;
-`;
-
-export const SecondRowPhoneOrEmail = styled('div')`
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const SecondRowPhoneOrEmailDiv = styled('div')`
-  width: 250px;
-  display: flex;
-  justify-content: space-between;
-`;
-
-export const AllPhoneOrEmailTypes = styled('div')`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-export const TermsAndPrivacyText = styled('span')`
-  color: #999;
-  font-size: .9em;
-  font-weight: 400;
-  .u-cursor--pointer:hover {
-    color: #0156b3;
-    text-decoration: underline;
-  }
-  * {
-    span:hover {
-      color: #0156b3;
-      text-decoration: underline;
-    }
-`;
-
-export const DeviceInformationSpan = styled('span')`
-  color: #007bff;
-  font-size: 18px;
-  font-weight: 400;
 `;
