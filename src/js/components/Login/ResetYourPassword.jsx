@@ -32,7 +32,8 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
   const [personId, setPersonId] = useState('');
 
   const emailRef = useRef('');
-  const emailDisabledRef = useRef('');
+  const emailPersonalRef = useRef('');
+  const emailOfficialRef = useRef('');
   const password1Ref = useRef('');
   const password2Ref = useRef('');
   const authPersonRef = useRef(undefined);
@@ -46,7 +47,8 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     if (secretCodeVerified === true) {
       console.log('received new secretCodeVerifiedForReset', secretCodeVerified);
       setDisplayEmailAddress(false);
-      emailDisabledRef.current = authPersonRef.current?.emailPersonal || '';
+      emailPersonalRef.current = authPersonRef.current?.emailPersonal || '';
+      emailOfficialRef.current = authPersonRef.current?.emailOfficial || '';
       emailRef.current = '';
       password1Ref.current = '';
       password2Ref.current = '';
@@ -60,7 +62,16 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     if (authP && open) {
       setPersonId(authP.id);
       weConnectQueryFn('send-email-code', { personId: authP.id }, METHOD.POST)
-        .then(setAppContextValue('openVerifySecretCodeModalDialog', true));
+        .then((data) => {
+          console.log('send-email-code', data);
+          if (data?.personFound === true) {
+            setAppContextValue('openVerifySecretCodeModalDialog', true);
+          } else {
+            setAppContextValue('openVerifySecretCodeModalDialog', false);
+            setDisplayEmailAddress(true);
+            setWarningLine('There is no staff member with this email address.');
+          }
+        });
     }
     // eslint would have us add getAppContextValue and setAppContextValue, which causes and endless loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -106,22 +117,39 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
       return;
     }
     setWarningLine('');
-    setAppContextValue('openVerifySecretCodeModalDialog', true);
-    // Logout so that the current sessionID will not be reused when resetting password for a potentially differnt staff member
+    // setAppContextValue('openVerifySecretCodeModalDialog', true);
+    // Logout so that the current sessionID will not be reused when resetting password for a potentially different staff member
     await mutateLogout();
     // This retrieve will set the 'authenticatedPerson' app context value, and bring back a new sessionID (without touching the cookie)
-    // console.log('mutateRetrievePersonByEmail: retrieving person by email:', email);
-    // Note: ResetYourPassword can only be used with emailPersonal so far.
-    //  Needs to be extended to include emailOfficial.
-    await mutateRetrievePersonByEmail({ emailPersonal: email });
-    // await mutateRetrievePersonByEmail({
-    //   OR: [
-    //     { emailPersonal: email },
-    //     { emailOfficial: email },
-    //   ]});
+    console.log('mutateRetrievePersonByEmail: retrieving person by email:', email);
+    await mutateRetrievePersonByEmail({ email });
+    const ret = getAppContextValue('authenticatedPerson');
+    console.log('mutateRetrievePersonByEmail', ret);
     // TODO: If person is not found by this email, show a warning message asking the user to enter a different email
     // setWarningLine('Email not found. Please enter different email address.');
   };
+
+  function getEmailMarkup () {
+    return (
+      <span>
+        {emailPersonalRef.current.length && emailOfficialRef.current.length && (
+          <>
+            For both emails:<span style={{ paddingRight: 20 }} /><b>{emailPersonalRef.current}</b> and <b>{emailOfficialRef.current}</b>
+          </>
+        )}
+        {emailPersonalRef.current.length  && emailOfficialRef.current.length === 0 && (
+          <>
+            Email:<span style={{ paddingRight: 20 }} /><b>{emailPersonalRef.current}</b>
+          </>
+        )}
+        {emailPersonalRef.current.length === 0 && emailOfficialRef.current.length && (
+          <>
+            Email:<span style={{ paddingRight: 20 }} /><b>{emailOfficialRef.current}</b>
+          </>
+        )}
+      </span>
+    );
+  }
 
   return (
     <>
@@ -155,7 +183,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
             ) : (
               <>
                 {/* EmailDiv clues in Google "Update password?" dialog to display this email, it probably could be css hidden */}
-                <EmailDiv id="username">Email: &nbsp;&nbsp;&nbsp;{emailDisabledRef.current}</EmailDiv>
+                <EmailDiv id="username">{getEmailMarkup()}</EmailDiv>
                 <TextField
                   autoFocus
                   fullWidth
