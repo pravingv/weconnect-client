@@ -1,5 +1,5 @@
-import { Button, Tab, Tabs } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
@@ -9,29 +9,46 @@ import standardBoxShadow from '../../common/components/Style/standardBoxShadow';
 import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { normalizedHrefPage } from '../../common/utils/hrefUtils';
 import { authLog, renderLog, routingLog } from '../../common/utils/logging';
-import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
+import { captureQuestionnaireListRetrieveData } from '../../models/QuestionnaireModel';
+import { captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
+import { captureTeamListRetrieveData } from '../../models/TeamModel';
+import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
 import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
 import TasksActionBar from './TasksActionBar';
 import TeamsActionBar from './TeamsActionBar';
 
+/* eslint-disable react-hooks/exhaustive-deps */
+
 const HEADER_TAB_DASHBOARD = 1;
-const HEADER_TAB_TASKS = 2;
-const HEADER_TAB_TEAMS = 3;
+const HEADER_TAB_TEAMS = 2;
+const HEADER_TAB_TASKS = 3;
 const HEADER_TAB_SETTINGS = 4;
+
 
 const HeaderBar = ({ hideTabs }) => {
   renderLog('HeaderBar');
   const navigate = useNavigate();
-  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const { allPeopleCache, allQuestionnairesCache, apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
+  const dispatch = useConnectDispatch();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scrolledDown] = useState(false);
   const [showTabs, setShowTabs] = useState(true);
   const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
+  const [personIdsList, setPersonIdsList] = useState([]);
+  const [seconds, setSeconds] = useState(0);
+  const [shouldExecutePersonListRetrieve, setShouldExecutePersonListRetrieve] = useState(false);
+  const [shouldExecuteTeamListRetrieve, setShouldExecuteTeamListRetrieve] = useState(false);
+  const [shouldExecuteTaskListRetrieve, setShouldExecuteTaskListRetrieve] = useState(false);
+  const [shouldExecuteTaskGroupListRetrieve, setShouldExecuteTaskGroupListRetrieve] = useState(false);
+  const [shouldExecuteQuestionnaireListRetrieve, setShouldExecuteQuestionnaireListRetrieve] = useState(false);
+  const [displayResetButton, setDisplayResetButton] = useState(false);
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
@@ -55,38 +72,164 @@ const HeaderBar = ({ hideTabs }) => {
     switch (normalizedHrefPage()) {
       case 'dashboard':
         setTabsValue(HEADER_TAB_DASHBOARD);
+        setDisplayResetButton(false);
         break;
       case 'tasks':
         setTabsValue(HEADER_TAB_TASKS);
+        setDisplayResetButton(true);
         break;
       case 'team-home':
       case 'teams':
         setTabsValue(HEADER_TAB_TEAMS);
+        setDisplayResetButton(true);
         break;
       case 'questionnaire':
+        // Yuck, no tab position makes sense here
+        setDisplayResetButton(true);
+        break;
       case 'system-settings':
+        setTabsValue(HEADER_TAB_SETTINGS);
+        setDisplayResetButton(true);
+        break;
       case 'task-group':
         if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
           setTabsValue(HEADER_TAB_SETTINGS);
+          setDisplayResetButton(true);
         }
         break;
       default:
+        setDisplayResetButton(false);
         setTabsValue(HEADER_TAB_DASHBOARD);
+        break;
+    }
+  };
+
+  const goodAllPeopleCache =  allPeopleCache !== undefined;
+  let allCachedPeopleList = [];
+  if (goodAllPeopleCache) {
+    allCachedPeopleList = Object.values(allPeopleCache);
+    setPersonIdsList(allCachedPeopleList.map((person) => person.personId));
+  }
+
+  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.GET, shouldExecuteTaskListRetrieve && goodAllPeopleCache);
+  useEffect(() => {
+    if (taskStatusListRetrieveResults) {
+      captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch);
+    }
+  }, [personIdsList, taskStatusListRetrieveResults]);
+
+  const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET, shouldExecuteQuestionnaireListRetrieve);
+  useEffect(() => {
+    if (questionnaireListRetrieveResults) {
+      captureQuestionnaireListRetrieveData(questionnaireListRetrieveResults, apiDataCache, dispatch);
+      setShouldExecuteQuestionnaireListRetrieve(false);
+    }
+  }, [questionnaireListRetrieveResults, allQuestionnairesCache, apiDataCache, dispatch]);
+
+  const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET, shouldExecuteTeamListRetrieve);
+  useEffect(() => {
+    if (teamListRetrieveResults) {
+      captureTeamListRetrieveData(teamListRetrieveResults, apiDataCache, dispatch);
+      setShouldExecuteTeamListRetrieve(false);
+    }
+  }, [teamListRetrieveResults]);
+
+  const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET, shouldExecutePersonListRetrieve);
+  useEffect(() => {
+    if (personListRetrieveResults) {
+      capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
+      setShouldExecutePersonListRetrieve(false);
+    }
+  }, [personListRetrieveResults, allPeopleCache, dispatch]);
+
+  const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET, shouldExecuteTaskGroupListRetrieve);
+  useEffect(() => {
+    if (taskGroupListRetrieveResults) {
+      captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
+      setShouldExecuteTaskGroupListRetrieve(false);
+    }
+  }, [apiDataCache, dispatch, taskGroupListRetrieveResults]);
+
+
+  const doTheRefresh = () => {
+    switch (normalizedHrefPage()) {
+      case 'tasks':
+        setShouldExecuteTaskListRetrieve(true);
+        break;
+      case 'team-home':
+      case 'teams':
+        setShouldExecuteTeamListRetrieve(true);
+        break;
+      case 'questionnaire':
+        setShouldExecuteQuestionnaireListRetrieve(true);
+        break;
+      case 'system-settings':
+        setShouldExecutePersonListRetrieve(true);
+        break;
+      case 'task-group':
+        if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
+          setShouldExecuteTaskGroupListRetrieve(true);
+        }
+        break;
+      default:
         break;
     }
   };
 
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
   useEffect(() => {
-    // Track new user logging in, possibly after a reset password, and display the resulting appropriate tabs
-    // console.log('useEffect  authenticatedPerson changed');
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticatedPerson]);
+
+  const initializeSeconds = () => {
+    switch (normalizedHrefPage()) {
+      case 'tasks':
+        setSeconds(30);     // task-status-list-retrieve 30 seconds (.5 minutes)
+        return 30;
+      case 'team-home':
+      case 'teams':
+        setSeconds(60);     // team-list-retrieve 60 seconds (1 minute)
+        return 60;
+      case 'questionnaire':
+        setSeconds(120);    // questionnaire-responses-list-retrieve  120 seconds (2 minutes)
+        return 120;
+      case 'system-settings':
+        setSeconds(120);    // person-list-retrieve 120 seconds (2 minutes)
+        return 120;
+      case 'task-group':
+        if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
+          setSeconds(120);     // task-status-list-retrieve 30 seconds (.5 minutes)
+          return 120;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+  };
+
+  useEffect(() => {
+    initializeSeconds();
+
+    const interval = setInterval(() => {
+      setSeconds((prevSecs) => {
+        // console.log('seconds', prevSecs);
+        if (prevSecs === 1) {
+          const retSecs = initializeSeconds();
+          doTheRefresh();
+          return retSecs;
+        } else {
+          return prevSecs - 1;
+        }
+      });
+    }, 1000); // Update every 1 second
+
+    return () => clearInterval(interval); // Cleanup function
+  }, []); // Empty dependency array means this effect runs once on mount and cleans up on unmount
 
   const handleTabChange = (event, newValue) => {
     // setTabsValue(newValue);
+    console.log('----------', newValue);
     if (newValue) {
       switch (newValue) {
         case HEADER_TAB_DASHBOARD:
@@ -158,6 +301,7 @@ const HeaderBar = ({ hideTabs }) => {
     setAppContextValue('profileDrawerPerson', authenticatedPerson);
     setAppContextValue('profileDrawerPersonId', authenticatedPerson.id);
   };
+
   return (
     <HeaderBarWrapper
       $hasNotch={hasIPhoneNotch()}
@@ -193,6 +337,17 @@ const HeaderBar = ({ hideTabs }) => {
           >
             {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
           </Button>
+          {displayResetButton && (
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', marginTop: '13px', minWidth: '110px' }}
+              id="refreshButton"
+              onClick={() => setSeconds(1)}
+            >
+              {`Refresh in ${seconds}`}
+            </Button>
+          )}
         </TopRowOneRightContainer>
         <TopRowTwoLeftContainer>
           {(normalizedHrefPage() === 'teams') ? (
