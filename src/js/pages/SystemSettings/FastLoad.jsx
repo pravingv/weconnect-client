@@ -13,12 +13,16 @@ import { ButtonPanel } from './systemSettingsCommonStyles';
 
 const FastLoad = () => {
   const [open, setOpen] = useState(false);
+  const [showUnanonOptions, setShowUnanonOptions] = useState(false);
+  const [showUnanonButton, setShowUnanonButton] = useState(true);
   const [showTable, setShowTable] =  useState(false);
   const [tablesLoaded, setTablesLoaded] =  useState(0);
   const emailInputRef = useRef('');
   const passwordInputRef = useRef('');
 
   const fastLoad = async () => {
+    setShowUnanonButton(false);
+    setShowUnanonOptions(false);
     const $tb = $('#tableBody');
     $tb.empty();
     setShowTable(true);
@@ -39,8 +43,8 @@ const FastLoad = () => {
       const tablePacket = await weConnectQueryFn('fast-load-table-retrieve', {
         tableName: table,
         doNotAnonymize,
-        email: emailInputRef.current.value,
-        password: passwordInputRef.current.value,
+        email: emailInputRef?.current?.value,
+        password: passwordInputRef?.current?.value,
       }, METHOD.POST, forceMaster);
       console.log('response for ', table);
       if (tablePacket) {
@@ -67,8 +71,16 @@ const FastLoad = () => {
     setOpen(true);
   };
 
+  const handleshowUnanonOptions = () => {
+    setShowUnanonOptions(!showUnanonOptions);
+    setShowUnanonButton(false);
+  };
+
   const handleClose = () => {
     setOpen(false);
+    setShowUnanonOptions(false);
+    setShowUnanonButton(true);
+    setShowTable(false);
   };
 
 
@@ -96,14 +108,10 @@ const FastLoad = () => {
             in AWS.
           </DialogTitle>
           <div style={{ margin: '0 0 5px 30px' }}>
-            Your current data can be restored with a <i>psql -X</i> from a <i>pg_dump</i> that will be created in the
+            Only in the very rare case where you need to restore your current data, it can be restored with a <i>psql -X</i> from a <i>pg_dump</i> that will be created in the
             project dir on your computer. See instructions in <i>FastLoad.jsx</i>
           </div>
-          <div style={{ margin: '0 0 15px 30px' }}>
-            As a developer, you have <i>isAdmin</i> rights on the local server, if you also have <i>isAdmin</i> rights
-            on the Master server AND you want fast load to return un-anonymized data, enter your master server email and
-            password below.
-          </div>
+
           <div id="done" style={{ display: 'none' }}>
             <Alert severity="success">
               <AlertTitle>{tablesLoaded} Tables loaded</AlertTitle>
@@ -122,23 +130,47 @@ const FastLoad = () => {
           >
             <CloseIcon />
           </IconButton>
-          <DialogContent dividers>
-            <TextField
-              id="search_input"
-              label="Master Server Login Email"
-              inputRef={emailInputRef}
-              name="firstName"
-              defaultValue=""
-              sx={{ minWidth: '250px', marginRight: '10px' }}
-            />
-            <TextField
-              id="search_input"
-              label="Master Server Password"
-              inputRef={passwordInputRef}
-              name="firstName"
-              defaultValue=""
-              sx={{ minWidth: '250px', marginRight: '10px' }}
-            />
+          <DialogContent dividers style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <Button
+              color="primary"
+              variant="outlined"
+              size="small"
+              onClick={handleshowUnanonOptions}
+              sx={{
+                backgroundColor: 'white',
+                whiteSpace: 'nowrap',
+                fontSize: '11px',
+                color: '#6b6b6b',
+                display: showUnanonButton ? 'flex' : 'none',
+              }}
+            >
+              Only click this if you are sure you need un-anonymized Data
+            </Button>
+            {showUnanonOptions && (
+              <>
+                <div style={{ margin: '20px 0 10px 10px' }}>
+                  <span style={{ fontWeight: '600' }}>ONLY in the rare situation where you need non-anonymized data: </span>
+                  The email/password is provided to allow you to access un-anonymized data.  To get this specialized data you must have <i>isAdmin</i> rights on the
+                  Master server.
+                </div>
+                <TextField
+                  id="search_input"
+                  label="Master Server Login Email"
+                  inputRef={emailInputRef}
+                  name="firstName"
+                  defaultValue=""
+                  sx={{ minWidth: '250px', marginLeft: '10px', marginRight: '10px' }}
+                />
+                <TextField
+                  id="search_input"
+                  label="Master Server Password"
+                  inputRef={passwordInputRef}
+                  name="firstName"
+                  defaultValue=""
+                  sx={{ minWidth: '250px', marginRight: '10px' }}
+                />
+              </>
+            )}
             <table style={{ paddingTop: '20px', display: `${showTable ? 'table' : 'none'}` }}>
               <thead>
                 <tr>
