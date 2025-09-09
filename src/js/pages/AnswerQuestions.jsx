@@ -137,6 +137,14 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
         // Store only the integer version
         inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: newValueAsInteger };
         setInputValues(inputValuesRevised);
+      } else if (question.answerType === 'DATE') {
+        // Regex for YYYY-MM-DD
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        inError = !dateRegex.test(newValue);
+        setInputValuesInError({ ...inputValuesInError, [questionId]: inError });
+        // Store the raw value if valid, otherwise store empty string
+        inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: inError ? '' : newValue};
+        setInputValues(inputValuesRevised);
       } else {
         inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: newValue };
         setInputValues(inputValuesRevised);
@@ -215,6 +223,9 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
       default:
       case 'STRING':
         helperText = '';
+        break;
+      case 'DATE':
+        helperText = 'Please enter the date in the format of YYYY-MM-DD (e.g., 2025-01-01).';
         break;
     }
     // console.log('helperTextIfQuestionIdInError helperText:', helperText);
