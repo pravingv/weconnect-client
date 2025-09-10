@@ -341,7 +341,7 @@ const HeaderBar = ({ hideTabs }) => {
             <Button
               variant="outlined"
               size="small"
-              sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', marginTop: '13px', minWidth: '110px' }}
+              sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', margin: '13px 0 0 8px', minWidth: '110px' }}
               id="refreshButton"
               onClick={() => setSeconds(1)}
             >
