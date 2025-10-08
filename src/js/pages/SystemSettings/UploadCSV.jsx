@@ -12,12 +12,25 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
+
+/*
+This feature was used to populate local postgres databases before there was a master server, and
+it was used to initially populate the master server.  It will probably never be needed again for
+local servers, and almost certainly will not be needed to populate the master server.
+ */
 const UploadCSV = (classes) => {
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
   const [resultsText, setResultsText] = useState([]);
+  const [featureDisabled, setFeatureDisabled] = useState(false);
 
+  useEffect(() => {
+    const { location: { hostname } } = window;
+    if (hostname.includes('wevote.org')) {
+      setFeatureDisabled(true);
+    }
+  }, []);
 
   const [isAdmin] = useState(viewerCanSeeOrDo(['canEditPermissionsAnyone'], viewerAccessRights));
 
@@ -88,8 +101,11 @@ const UploadCSV = (classes) => {
             size="small"
             onClick={() => openFilePicker()}
             sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
+            disabled={featureDisabled}
           >
-            Select csv file to upload
+            {featureDisabled ? 'Csv upload can only be run from your local server' : 'Select csv file to upload'}
+
+
           </Button>
           <br />
           <Dialog

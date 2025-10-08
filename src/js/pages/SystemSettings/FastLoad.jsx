@@ -5,7 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
@@ -15,14 +15,25 @@ const FastLoad = () => {
   const [open, setOpen] = useState(false);
   const [showUnanonOptions, setShowUnanonOptions] = useState(false);
   const [showUnanonButton, setShowUnanonButton] = useState(true);
+  const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [featureDisabled, setFeatureDisabled] = useState(false);
   const [showTable, setShowTable] =  useState(false);
   const [tablesLoaded, setTablesLoaded] =  useState(0);
   const emailInputRef = useRef('');
   const passwordInputRef = useRef('');
 
-  const fastLoad = async () => {
+  useEffect(() => {
+    const { location: { hostname } } = window;
+    if (hostname.includes('wevote.org')) {
+      setFeatureDisabled(true);
+    }
+  }, []);
+
+  const doFastLoad = async () => {
     setShowUnanonButton(false);
     setShowUnanonOptions(false);
+    setButtonsDisabled(true);
+
     const $tb = $('#tableBody');
     $tb.empty();
     setShowTable(true);
@@ -93,8 +104,9 @@ const FastLoad = () => {
           size="small"
           onClick={() => handleOpen()}
           sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
+          disabled={featureDisabled}
         >
-          Fast Load Data From Master Server
+          {featureDisabled ? 'Fast Load can only be run from your local server' : 'Fast Load Data From Master Server'}
         </Button>
         <br />
         <Dialog
@@ -136,6 +148,7 @@ const FastLoad = () => {
               variant="outlined"
               size="small"
               onClick={handleshowUnanonOptions}
+              disabled={buttonsDisabled}
               sx={{
                 backgroundColor: 'white',
                 whiteSpace: 'nowrap',
@@ -144,7 +157,7 @@ const FastLoad = () => {
                 display: showUnanonButton ? 'flex' : 'none',
               }}
             >
-              Only click this if you are sure you need un-anonymized Data
+              Only click this if you COMPLETELY are sure you need un-anonymized Data
             </Button>
             {showUnanonOptions && (
               <>
@@ -184,7 +197,7 @@ const FastLoad = () => {
             </table>
           </DialogContent>
           <DialogActions>
-            <Button autoFocus variant="outlined" onClick={fastLoad}>
+            <Button autoFocus variant="outlined" onClick={doFastLoad}>
               Overwrite ALL local data, with data from the master server
             </Button>
           </DialogActions>
