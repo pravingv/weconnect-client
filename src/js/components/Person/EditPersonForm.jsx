@@ -5,6 +5,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import PropTypes from 'prop-types';
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -17,6 +18,8 @@ import { usePersonSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+
+dayjs.extend(utc)
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
@@ -43,9 +46,16 @@ const EditPersonForm = ({ classes }) => {
   const [emailOfficialVerified, setEmailOfficialVerified] = useState(emailOfficialVerifiedInitial);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
 
+  const getDateDefaultValue = (dateString) => {
+    if (!dateString) return null;
+    // Parse as UTC date to avoid timezone shifts
+    const date = dayjs.utc(dateString);
+    return date.isValid() ? date : null;
+  };
+  const [dateStartDate, setDateStartDate] = useState(getDateDefaultValue(initialPerson.dateStartDate));
+  const [dateEndDate, setDateEndDate] = useState(getDateDefaultValue(initialPerson.dateEndDate));
+
   const birthdayMonthAndDayInputRef = useRef('');
-  const dateEndDateInputRef = useRef('');
-  const dateStartDateInputRef = useRef('');
   const emailPersonalInputRef = useRef('');
   const emailPreferredInputRef = useRef('');
   const firstNameInputRef = useRef('');
@@ -82,12 +92,6 @@ const EditPersonForm = ({ classes }) => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
-  const getDateDefaultValue = (dateString) => {
-    if (!dateString) return null;
-    const date = dayjs(dateString);
-    return date.isValid() ? date : null;
-  };
-
   const savePerson = () => {
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
     activePerson.emailPreferred = emailPreferredInputRef.current.value;
@@ -100,8 +104,12 @@ const EditPersonForm = ({ classes }) => {
     if (viewerIsOnHrTeam) {
       // The fields that you need to be in HR to update
       activePerson.birthdayMonthAndDay = birthdayMonthAndDayInputRef.current.value;
-      activePerson.dateEndDate = dateEndDateInputRef.current.value;
-      activePerson.dateStartDate = dateStartDateInputRef.current.value;
+      console.log('Saving dates:', {
+        dateStartDate: dateStartDate ? dateStartDate.format('YYYY-MM-DD') : null,
+        dateEndDate: dateEndDate ? dateEndDate.format('YYYY-MM-DD') : null,
+      });
+      activePerson.dateEndDate = dateEndDate ? dateEndDate.utc().format('YYYY-MM-DD') : '';
+      activePerson.dateStartDate = dateStartDate ? dateStartDate.utc().format('YYYY-MM-DD') : '';
       // console.log('dateStartDate:', dateStartDateInputRef.current.value, ', dateEndDate:', dateEndDateInputRef.current.value);
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
@@ -598,10 +606,10 @@ const EditPersonForm = ({ classes }) => {
           >
             <DateWrapper>
               <DatePicker
-                defaultValue={getDateDefaultValue(activePerson.dateStartDate)}
-                inputRef={dateStartDateInputRef}
+                value={dateStartDate}
                 label="Start Date"
-                onChange={() => {
+                onChange={(newValue) => {
+                  setDateStartDate(newValue);
                   setSaveButtonActive(true);
                 }}
                 renderInput={() => (
@@ -611,10 +619,10 @@ const EditPersonForm = ({ classes }) => {
             </DateWrapper>
             <DateWrapper>
               <DatePicker
-                defaultValue={getDateDefaultValue(activePerson.dateEndDate)}
-                inputRef={dateEndDateInputRef}
+                value={dateEndDate}
                 label="End Date"
-                onChange={() => {
+                onChange={(newValue) => {
+                  setDateEndDate(newValue);
                   setSaveButtonActive(true);
                 }}
                 renderInput={() => (
