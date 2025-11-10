@@ -12,7 +12,6 @@ import SlackChannelMembers from '../../pages/SystemSettings/SlackChannelMembers'
 import SlackGetPresence from '../../pages/SystemSettings/SlackGetPresence';
 import SlackListUsers from '../../pages/SystemSettings/SlackListMembers';
 import SlackSendMessage from '../../pages/SystemSettings/SlackSendMessage';
-import UploadCSV from '../../pages/SystemSettings/UploadCSV';
 
 const AdminFunctions = () => {
   renderLog('AdminFunctions');  // Set LOG_RENDER_EVENTS to log all renders
@@ -23,8 +22,8 @@ const AdminFunctions = () => {
       <div style={{ paddingTop: '2rem' }}>
         <SectionTitle>Overwrite your Local Postgres WeConnectDB with the data from the Master Database in AWS:</SectionTitle>
         <FastLoad />
-        <SectionTitle>Upload a CSV file from Google Docs to import into the local database:</SectionTitle>
-        <UploadCSV />
+        {/* <SectionTitle>Upload a CSV file from Google Docs to import into the local database:</SectionTitle> */}
+        {/* <UploadCSV /> */}
         <ButtonDividerLine />
         <SectionTitle>Google Users Creation:</SectionTitle>
         <ButtonRow>
