@@ -228,7 +228,9 @@ const Login = ({ classes }) => {
   };
 
   const signOutButtonPressed = async () => {
-    passwordFldRef.current.value = '';   // Blank the email field after signing out
+    if (passwordFldRef.current) {
+      passwordFldRef.current.value = '';   // Blank the email field after signing out
+    }
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     setOpenResetPasswordDialog(false);
     // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
@@ -301,6 +303,11 @@ const Login = ({ classes }) => {
   // console.log(getAppContextData());
   const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
   const isAuthSafe = getAppContextValue('isAuthenticated') || false;
+  let isAuthenticated = false;
+  let authenticatedPerson = {};
+  if (dataAuth) {
+    ({ isAuthenticated, person: authenticatedPerson } = dataAuth);
+  }
   const displayVerify =
     !isForSomeOneElse &&
     authPerson.current &&
@@ -329,132 +336,149 @@ const Login = ({ classes }) => {
               />
             </span>
             <span style={{ float: 'right', height: '100%', padding: '31px 0 40px 0' }}>
-              Sign in
+              {(isAuthenticated && authenticatedPerson) ? (
+                <span>
+                  Signed In
+                </span>
+              ) : (
+                <span>
+                  Sign In
+                </span>
+              )}
             </span>
           </h1>
         </div>
-        <div style={{ marginLeft: '80px' }}>
-          <div id="warningLine" style={{ color: 'red', paddingTop: '10px', paddingBottom: '20px' }}>{warningLine}</div>
-          <div id="successLine" style={{ color: 'green', paddingTop: '10px', paddingBottom: '20px' }}>{successLine}</div>
-          <span style={{ display: 'flex' }}>
-            <TextField id="FirstName"
-                       label="First Name"
+        { (!(isAuthenticated && authenticatedPerson)) ? (
+          <div style={{ marginLeft: '80px' }}>
+            <div id="warningLine" style={{ color: 'red', paddingTop: '10px', paddingBottom: '20px' }}>{warningLine}</div>
+            <div id="successLine" style={{ color: 'green', paddingTop: '10px', paddingBottom: '20px' }}>{successLine}</div>
+            <span style={{ display: 'flex' }}>
+              <TextField id="FirstName"
+                         label="First Name"
+                         helperText={showCreateStuff ? 'Required' : ''}
+                         variant="outlined"
+                         inputRef={firstNameFldRef}
+                         sx={{ paddingBottom: '15px',
+                           paddingRight: '10px',
+                           display: showCreateStuff ? 'block' : 'none'  }}
+              />
+              <TextField id="LastName"
+                         label="Last Name"
+                         helperText={showCreateStuff ? 'Required' : ''}
+                         variant="outlined"
+                         inputRef={lastNameFldRef}
+                         sx={{ paddingBottom: '15px',
+                           display: showCreateStuff ? 'block' : 'none'  }}
+              />
+            </span>
+            <TextField id="email"
+                       label={showCreateStuff ? 'Your personal email' : 'Your email address'}
                        helperText={showCreateStuff ? 'Required' : ''}
                        variant="outlined"
-                       inputRef={firstNameFldRef}
-                       sx={{ paddingBottom: '15px',
-                         paddingRight: '10px',
-                         display: showCreateStuff ? 'block' : 'none'  }}
-            />
-            <TextField id="LastName"
-                       label="Last Name"
-                       helperText={showCreateStuff ? 'Required' : ''}
-                       variant="outlined"
-                       inputRef={lastNameFldRef}
-                       sx={{ paddingBottom: '15px',
-                         display: showCreateStuff ? 'block' : 'none'  }}
-            />
-          </span>
-          <TextField id="email"
-                     label={showCreateStuff ? 'Your personal email' : 'Your email address'}
-                     helperText={showCreateStuff ? 'Required' : ''}
-                     variant="outlined"
-                     inputRef={emailPersonalFldRef}
-                     sx={{ display: 'block', paddingBottom: '15px' }}
-          />
-          <TextField id="secondEmail"
-                     label="Second Email"
-                     helperText="Optional, possibly your wevote.us email"
-                     variant="outlined"
-                     inputRef={emailOfficialFldRef}
-                     sx={{ paddingBottom: '15px',
-                       display: showCreateStuff ? 'block' : 'none' }}
-          />
-          <TextField id="location"
-                     label="Location"
-                     variant="outlined"
-                     inputRef={locationFldRef}
-                     helperText="City, State (2 chars)"
-                     sx={{ paddingBottom: '15px',
-                       display: showCreateStuff ? 'block' : 'none'  }}
-          />
-          <span style={{ display: 'flex' }}>
-            <TextField id="password"
-                       label="Password"
-                       variant="outlined"
-                       // type="password"
-                       autoComplete="current-password"
-                       inputRef={passwordFldRef}
-                       // defaultValue="12345678"
+                       inputRef={emailPersonalFldRef}
                        sx={{ display: 'block', paddingBottom: '15px' }}
             />
-            <TextField id="confirmPassword"
-                       label="Confirm Password"
+            <TextField id="secondEmail"
+                       label="Second Email"
+                       helperText="Optional, possibly your wevote.us email"
                        variant="outlined"
-                       // type="password"
-                       inputRef={confirmPasswordFldRef}
-                       // defaultValue="12345678"
-                       sx={{ padding: '0 0 15px 10px', display: showCreateStuff ? 'block' : 'none'  }}
+                       inputRef={emailOfficialFldRef}
+                       sx={{ paddingBottom: '15px',
+                         display: showCreateStuff ? 'block' : 'none' }}
             />
-          </span>
-          <span style={{ display: 'flex' }}>
-            <Button
-              classes={{ root: classes.loginButtonRoot }}
-              color="primary"
-              variant="contained"
-              onClick={showCreateStuff ? createPressed : loginPressed}
-              sx={{ marginBottom: '15px', display: showCreateStuff ? 'none' : 'flex'  }}
-            >
-              Sign In
-            </Button>
-            <Button
-              classes={{ root: classes.loginButtonRoot }}
-              color="primary"
-              onClick={resetYourPasswordClicked}
-              sx={showCreateStuff ? { display: 'none' } : { margin: '0 0 15px 20px !important', width: '200px !important' }}
-            >
-              Reset your password
-            </Button>
-          </span>
-          <div style={{ paddingTop: '35px' }} />
-          {!isAuthSafe && (
+            <TextField id="location"
+                       label="Location"
+                       variant="outlined"
+                       inputRef={locationFldRef}
+                       helperText="City, State (2 chars)"
+                       sx={{ paddingBottom: '15px',
+                         display: showCreateStuff ? 'block' : 'none'  }}
+            />
+            <span style={{ display: 'flex' }}>
+              <TextField id="password"
+                         label="Password"
+                         variant="outlined"
+                         // type="password"
+                         autoComplete="current-password"
+                         inputRef={passwordFldRef}
+                         // defaultValue="12345678"
+                         sx={{ display: 'block', paddingBottom: '15px' }}
+              />
+              <TextField id="confirmPassword"
+                         label="Confirm Password"
+                         variant="outlined"
+                         // type="password"
+                         inputRef={confirmPasswordFldRef}
+                         // defaultValue="12345678"
+                         sx={{ padding: '0 0 15px 10px', display: showCreateStuff ? 'block' : 'none'  }}
+              />
+            </span>
+            <span style={{ display: 'flex' }}>
+              <Button
+                classes={{ root: classes.loginButtonRoot }}
+                color="primary"
+                variant="contained"
+                onClick={showCreateStuff ? createPressed : loginPressed}
+                sx={{ marginBottom: '15px', display: showCreateStuff ? 'none' : 'flex'  }}
+              >
+                Sign in
+              </Button>
+              <Button
+                classes={{ root: classes.loginButtonRoot }}
+                color="primary"
+                onClick={resetYourPasswordClicked}
+                sx={showCreateStuff ? { display: 'none' } : { margin: '0 0 15px 20px !important', width: '200px !important' }}
+              >
+                Reset your password
+              </Button>
+            </span>
+            <div style={{ paddingTop: '35px' }} />
+            {/* 2025-10-10 We don't want to let people create accounts right now
+            {!isAuthSafe && (
+              <Button
+                classes={{ root: classes.buttonDesktop }}
+                color="primary"
+                variant="contained"
+                onClick={createPressed}
+              >
+                {showCreateStuff ? 'Save New Account' : 'Create Account'}
+              </Button>
+            )}
+            */}
+          </div>
+        ) : (
+          <div style={{ marginLeft: '80px' }}>
+            {isAdmin && (
+              <Button
+                classes={{ root: classes.buttonDesktop }}
+                color="primary"
+                variant="contained"
+                onClick={createForSomeoneElsePressed}
+              >
+                Admin Feature: Create Account for Someone Else
+              </Button>
+            )}
+            <div style={{ paddingTop: '35px' }} />
+            <div style={{ paddingTop: '35px' }} />
             <Button
               classes={{ root: classes.buttonDesktop }}
               color="primary"
               variant="contained"
-              onClick={createPressed}
+              onClick={signOutButtonPressed}
+              sx={showCreateStuff ? { display: 'none' } : {}}
             >
-              {showCreateStuff ? 'Save New Account' : 'Create Account'}
+              Sign Out
             </Button>
-          )}
-          {isAdmin && (
-            <Button
-              classes={{ root: classes.buttonDesktop }}
-              color="primary"
-              variant="contained"
-              onClick={createForSomeoneElsePressed}
-            >
-              Create Account for Someone Else
-            </Button>
-          )}
-          <div style={{ paddingTop: '35px' }} />
-          <div style={{ paddingTop: '35px' }} />
-          <Button
-            classes={{ root: classes.buttonDesktop }}
-            color="primary"
-            variant="contained"
-            onClick={signOutButtonPressed}
-            sx={showCreateStuff ? { display: 'none' } : {}}
-          >
-            Sign Out
-          </Button>
+          </div>
+        )}
+        <div style={{ marginLeft: '80px' }}>
+          {displayVerify && <VerifySecretCodeModal person={authPerson.current} />}
+          <ResetYourPassword openDialog={openResetPasswordDialog} closeDialog={closeResetYourPassword} />
           <DateDisplay>
             <div>Compile Date:</div>
             <div style={{ paddingLeft: 10 }}>{compileDate}</div>
           </DateDisplay>
         </div>
-        {displayVerify && <VerifySecretCodeModal person={authPerson.current} />}
-        <ResetYourPassword openDialog={openResetPasswordDialog} closeDialog={closeResetYourPassword} />
       </PageContentContainer>
     </div>
   );

@@ -35,6 +35,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [statusActive, setStatusActive] = useState(false);
   const [statusOfferApproved, setStatusOfferApproved] = useState(false);
+  const [statusOfferDecisionNeededSetFalse, setStatusOfferDecisionNeededSetFalse] = useState(false);
   const [statusOfferLetterCreated, setStatusOfferLetterCreated] = useState(false);
   const [statusOfferLetterSigned, setStatusOfferLetterSigned] = useState(false);
   const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
@@ -63,6 +64,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setQuestionnaireId(taskDefinition.questionnaireId);
       setStatusActive(taskDefinition.statusActive);
       setStatusOfferApproved(taskDefinition.statusOfferApproved);
+      setStatusOfferDecisionNeededSetFalse(taskDefinition.statusOfferDecisionNeededSetFalse);
       setStatusOfferLetterCreated(taskDefinition.statusOfferLetterCreated);
       setStatusOfferLetterSigned(taskDefinition.statusOfferLetterSigned);
       setStatusOfferQuestionnaireAnswered(taskDefinition.statusOfferQuestionnaireAnswered);
@@ -81,6 +83,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setQuestionnaireId('');
       setStatusActive(false);
       setStatusOfferApproved(false);
+      setStatusOfferDecisionNeededSetFalse(false);
       setStatusOfferLetterCreated(false);
       setStatusOfferLetterSigned(false);
       setStatusOfferQuestionnaireAnswered(false);
@@ -105,6 +108,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
   }, []);
 
   const saveTaskDefinition = () => {
+    // console.log('Saving task definition statusOfferDecisionNeededSetFalse:', statusOfferDecisionNeededSetFalse);
     const requestParams = makeRequestParams({
       taskDefinitionId: taskDefinition ? taskDefinition.id : '-1',
       taskGroupId: taskGroup.taskGroupId,
@@ -115,6 +119,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       questionnaireId,
       statusActive,
       statusOfferApproved,
+      statusOfferDecisionNeededSetFalse,
       statusOfferLetterCreated,
       statusOfferLetterSigned,
       statusOfferQuestionnaireAnswered,
@@ -323,6 +328,23 @@ const EditTaskDefinitionForm = ({ classes }) => {
         <CustomizationTokensHeader>
           When this task marked completed, also update:
         </CustomizationTokensHeader>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferDecisionNeededSetFalse || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferDecisionNeededSetFalseToBeSaved"
+              name="statusOfferDecisionNeededSetFalse"
+              onChange={(event) => {
+                setStatusOfferDecisionNeededSetFalse(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferDecisionNeeded to FALSE"
+        />
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
           control={(

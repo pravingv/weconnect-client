@@ -237,7 +237,7 @@ const TeamsActionBar = () => {
               }, 100);
             }}
           >
-            Expand all
+            Expand&nbsp;all
           </SpanWithLinkStyle>
         </ActionBarItem>
         <ActionBarItem>
@@ -252,7 +252,7 @@ const TeamsActionBar = () => {
               }, 100);
             }}
           >
-            Collapse all
+            Collapse&nbsp;all
           </SpanWithLinkStyle>
         </ActionBarItem>
       </ActionBarSection>
@@ -267,7 +267,7 @@ const TeamsActionBar = () => {
         {viewerCanSeeOrDo(['canAddTeam'], viewerAccessRights) && (
           <ActionBarItem>
             <SpanWithLinkStyle onClick={() => addTeamClick()}>
-              Add team
+              Add&nbsp;team
             </SpanWithLinkStyle>
           </ActionBarItem>
         )}
@@ -312,10 +312,12 @@ const ViewingCount = styled('div')`
   color: ${DesignTokenColors.neutralUI400};
   font-size: .8em;
   padding-right: 15px;
+  white-space: nowrap;
 `;
 
 const DownloadStyled = styled(Download)`
-  font-size: 1.7em;
+  color: ${DesignTokenColors.neutral200};
+  font-size: 1.3em;
   padding-right: 15px;
 `;
 

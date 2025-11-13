@@ -213,13 +213,13 @@ const TeamHeader = (
             <ActionBarSection $borderRightOff={!officialEmailsToCopy && !personalEmailsToCopy}>
               <ActionBarItem>
                 <SpanWithLinkStyle onClick={() => { setExpandAllTeamMembers(true); setShowAllTeamMembers(true); }}>
-                  Expand all
+                  Expand&nbsp;all
                 </SpanWithLinkStyle>
               </ActionBarItem>
               {showAllTeamMembers && (
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={() => setExpandAllTeamMembers(false)}>
-                    Collapse all
+                    Collapse&nbsp;all
                   </SpanWithLinkStyle>
                 </ActionBarItem>
               )}
