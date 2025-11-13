@@ -30,7 +30,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
   const locationInputRef = useRef('');
   const phoneNumberInputRef = useRef('');
   const statusOfferApprovedInputRef = useRef(false);
-  const statusOfferDecisionNeededInputRef = useRef(false);
+  const statusOfferDecisionNeededSetFalseInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
 
   useEffect(() => {  // Replaces onAppObservableStoreChange and will be called whenever the context value changes
@@ -56,7 +56,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
       phoneNumber: phoneNumberInputRef.current.value,
       statusActive: true,
       statusOfferApproved: statusOfferApprovedInputRef.current.checked,
-      statusOfferDecisionNeeded: !statusOfferDecisionNeededInputRef.current.checked, // statusOfferDecisionNeeded reversed on purpose
+      statusOfferDecisionNeeded: !statusOfferDecisionNeededSetFalseInputRef.current.checked, // statusOfferDecisionNeeded reversed on purpose
       statusOfferLetterSigned: statusOfferLetterSignedInputRef.current.checked,
     };
     if (locationInputRef.current.value && locationInputRef.current.value.length) {
@@ -169,9 +169,9 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
             <Checkbox
               className={classes.checkboxRoot}
               color="primary"
-              id="statusOfferDecisionNeededToBeSaved"
-              inputRef={statusOfferDecisionNeededInputRef}
-              name="statusOfferDecisionNeeded"
+              id="statusOfferDecisionNeededSetFalseToBeSaved"
+              inputRef={statusOfferDecisionNeededSetFalseInputRef}
+              name="statusOfferDecisionNeededSetFalse"
               onChange={() => updateSaveButton()}
             />
           )}

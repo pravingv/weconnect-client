@@ -74,7 +74,7 @@ const EditPersonForm = ({ classes }) => {
   const statusActiveInputRef = useRef(false);
   const statusAvailableForSpecialProjectsInputRef = useRef(false);
   const statusOfferApprovedInputRef = useRef(false);
-  const statusOfferDecisionNeededInputRef = useRef(false);
+  const statusOfferDecisionNeededSetFalseInputRef = useRef(false);
   const statusOfferLetterCreatedInputRef = useRef(false);
   const statusOfferLetterSignedInputRef = useRef(false);
   const statusOfferQuestionnaireAnsweredInputRef = useRef(false);
@@ -124,7 +124,7 @@ const EditPersonForm = ({ classes }) => {
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
       activePerson.jobTitle = jobTitleInputRef.current.value;
       activePerson.statusOfferApproved = statusOfferApprovedInputRef.current.checked;
-      activePerson.statusOfferDecisionNeeded = !statusOfferDecisionNeededInputRef.current.checked; // statusOfferDecisionNeeded reversed on purpose
+      activePerson.statusOfferDecisionNeeded = !statusOfferDecisionNeededSetFalseInputRef.current.checked; // statusOfferDecisionNeeded reversed on purpose
       activePerson.statusOfferLetterCreated = statusOfferLetterCreatedInputRef.current.checked;
       activePerson.statusOfferLetterSigned = statusOfferLetterSignedInputRef.current.checked;
       activePerson.statusOfferQuestionnaireAnswered = statusOfferQuestionnaireAnsweredInputRef.current.checked;
@@ -362,9 +362,9 @@ const EditPersonForm = ({ classes }) => {
               checked={!activePerson.statusOfferDecisionNeeded}
               className={classes.checkboxRoot}
               color="primary"
-              id="statusOfferDecisionNeededToBeSaved"
-              inputRef={statusOfferDecisionNeededInputRef}
-              name="statusOfferDecisionNeeded"
+              id="statusOfferDecisionNeededSetFalseToBeSaved"
+              inputRef={statusOfferDecisionNeededSetFalseInputRef}
+              name="statusOfferDecisionNeededSetFalse"
               onChange={(event) => {
                 setActivePerson((prev) => ({
                   ...prev,

@@ -96,6 +96,7 @@ const PermissionsAdministration = ({ classes }) => {
     if (person.isTeamLead === null) person.isTeamLead = false;
     if (person.statusEmailCreated === null) person.statusEmailCreated = false;
     if (person.statusActive === null) person.statusActive = true;
+    if (person.statusOfferDecisionNeeded === null) person.statusOfferDecisionNeeded = true;
     if (person.statusOfferLetterCreated === null) person.statusOfferLetterCreated = false;
     if (person.statusOfferLetterSigned === null) person.statusOfferLetterSigned = false;
     if (person.statusOnLeave === null) person.statusOnLeave = false;

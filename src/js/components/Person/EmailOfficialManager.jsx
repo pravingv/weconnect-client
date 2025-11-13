@@ -96,7 +96,8 @@ const EmailOfficialManager = (
       setNewAccountNotification(
         `Hi${(firstNameToDisplay) && ` ${firstNameToDisplay}`}, I have just created your new Gmail-powered ${webAppConfig.ORGANIZATION_NAME} email account. Can you please verify you can sign in?
 Username: ${primaryEmail}
-Password (expires in 48 hours): ${password}`,
+Password (expires in 48 hours): ${password}
+Please note that we prefer that you keep your Slack account connected to your personal email address (as opposed to switching Slack to your new WeVote email address.)`,
       );
       setShowNewAccountNotification(true);
     } else {

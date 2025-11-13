@@ -147,7 +147,7 @@ const PersonSummaryRowTripleDot = ({ person, teamId }) => {
               )}
             </PopoverViewDetailsText>
           )}
-          {(teamId > 0 && viewerCanSeeOrDo(['canRemoveTeamMemberAnyTeam'], viewerAccessRights)) && (
+          {(teamId > 0 && (viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) || viewerCanSeeOrDo(['canRemoveTeamMemberAnyTeam'], viewerAccessRights))) && (
             <PopoverViewDetailsText>
               <StyledTypography onClick={() => removeTeamMemberClick(person)}>
                 Remove

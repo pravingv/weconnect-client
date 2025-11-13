@@ -34,6 +34,7 @@ export const DrawerHeaderAnimateDownOuterContainer = styled.div.attrs(({ scrolle
       box-shadow: ${standardBoxShadow('wide')};
     `}
 `;
+
 export const DrawerHeaderAnimateDownInnerContainer = styled('div')`
   display: flex;
   flex-direction: column;
