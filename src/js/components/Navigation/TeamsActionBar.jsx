@@ -1,7 +1,9 @@
-import { PersonAddAltOutlined } from '@mui/icons-material';
+import { PersonAddAltOutlined, Download } from '@mui/icons-material';
 import isEqual from 'lodash-es/isEqual';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
+import { jsonToCSV } from 'react-papaparse';
+import { saveAs } from 'file-saver';
 import SearchBar2024 from '../../common/components/Search/SearchBar2024';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
@@ -119,6 +121,91 @@ const TeamsActionBar = () => {
     setVisiblePeopleCount(getAppContextValue('teamsPageVisiblePeopleCount'));
   }, [getAppContextValue]);
 
+  const flattenedData = useMemo(() => {
+    if (
+      !apiDataCache?.allTeamMembersCache ||
+      !apiDataCache?.allTeamsCache ||
+      !apiDataCache?.allPeopleCache
+    ) return [];
+
+    const allPeople = apiDataCache.allPeopleCache;
+
+    return Object.entries(apiDataCache.allTeamMembersCache).flatMap(
+      ([teamId, members]) => {
+        const team = apiDataCache.allTeamsCache[teamId];
+        if (!team) return [];
+
+        return members.map((member) => {
+          const person = allPeople[member.personId]; // ← LOOKUP PERSON DATA HERE
+
+          return {
+            teamId: team.id,
+            teamName: team.teamName,
+            personId: person.personId,
+            birthdayMonthAndDay: person.birthdayMonthAndDay,
+            emailOfficial: person.emailOfficial,
+            emailOfficialAlternate: person.emailOfficialAlternate,
+            emailOfficialVerified: person.emailOfficialVerified,
+            emailPersonal: person.emailPersonal,
+            emailPersonalAlternate: person.emailPersonalAlternate,
+            emailPreferred: person.emailPreferred,
+            firstName: person.firstName,
+            firstNamePreferred: person.firstNamePreferred,
+            gender: person.gender,
+            hoursPerWeekEstimate: person.hoursPerWeekEstimate,
+            jobTitle: person.jobTitle,
+            lastName: person.lastName,
+            location: person.location,
+            phoneNumber: person.phoneNumber,
+            stateCode: person.stateCode,
+            uploadedImageUrlLarge: person.uploadedImageUrlLarge,
+            uploadedImageUrlSmall: person.uploadedImageUrlSmall,
+            jazzHrUrl: person.jazzHrUrl,
+            linkedInUrl: person.linkedInUrl,
+            dateCreated: person.dateCreated,
+            dateEmailCreated: person.dateEmailCreated,
+            dateEndDate: person.dateEndDate,
+            dateLastActive: person.dateLastActive,
+            dateLastOnLeave: person.dateLastOnLeave,
+            dateLastUpdated: person.dateLastUpdated,
+            dateLastResigned: person.dateLastResigned,
+            dateOfferLetterCreated: person.dateOfferLetterCreated,
+            dateOfferLetterSigned: person.dateOfferLetterSigned,
+            dateStartDate: person.dateStartDate,
+            isAdmin: person.isAdmin,
+            isHRAdmin: person.isHRAdmin,
+            isHROfferAdmin: person.isHROfferAdmin,
+            isHRGeneralist1: person.isHRGeneralist1,
+            isHRGeneralist2: person.isHRGeneralist2,
+            isHiringManager: person.isHiringManager,
+            isIntern: person.isIntern,
+            isTeamLead: person.isTeamLead,
+            statusActive: person.statusActive,
+            statusAvailableForSpecialProjects: person.statusAvailableForSpecialProjects,
+            statusEmailCreated: person.statusEmailCreated,
+            statusOfferApproved: person.statusOfferApproved,
+            statusOfferLetterCreated: person.statusOfferLetterCreated,
+            statusOfferLetterSigned: person.statusOfferLetterSigned,
+            statusOfferDecisionNeeded: person.statusOfferDecisionNeeded,
+            statusOfferQuestionnaireAnswered: person.statusOfferQuestionnaireAnswered,
+            statusOfferQuestionnaireSent: person.statusOfferQuestionnaireSent,
+            statusOfferWillNotBeMade: person.statusOfferWillNotBeMade,
+            statusOnLeave: person.statusOnLeave,
+            statusResigned: person.statusResigned,
+          };
+        });
+      },
+    );
+  }, [apiDataCache]);
+
+
+  const handleDownloadCSV = useCallback(() => {
+    if (!flattenedData.length) return;
+
+    const csv = jsonToCSV(flattenedData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, 'team_members.csv');
+  }, [flattenedData]);
   // const oneTeam = teamList.find((tm) => tm.teamId === 10);
   // console.log('teams render, team.length: ', teamList.length);
   // console.log('teams render, team 10, (cyclorama ) team name: ', oneTeam && oneTeam.teamName);
@@ -185,13 +272,22 @@ const TeamsActionBar = () => {
           </ActionBarItem>
         )}
       </ActionBarSection>
-      <ViewingCount>
-        Viewing
-        {' '}
-        {visiblePeopleCount}
-        {' '}
-        {visiblePeopleCount === 1 ? 'person' : 'people'}
-      </ViewingCount>
+      <ActionBarSection>
+        <ViewingCount>
+          Viewing
+          {' '}
+          {visiblePeopleCount}
+          {' '}
+          {visiblePeopleCount === 1 ? 'person' : 'people'}
+        </ViewingCount>
+      </ActionBarSection>
+      {viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) && (
+        <ActionBarSection>
+          <SpanWithLinkStyle onClick={handleDownloadCSV}>
+            <DownloadStyled />
+          </SpanWithLinkStyle>
+        </ActionBarSection>
+      )}
     </TeamsActionBarWrapper>
   );
 };
@@ -215,7 +311,12 @@ const TeamsActionBarWrapper = styled('div')`
 const ViewingCount = styled('div')`
   color: ${DesignTokenColors.neutralUI400};
   font-size: .8em;
-  padding-left: 15px;
+  padding-right: 15px;
+`;
+
+const DownloadStyled = styled(Download)`
+  font-size: 1.7em;
+  padding-right: 15px;
 `;
 
 export default TeamsActionBar;
