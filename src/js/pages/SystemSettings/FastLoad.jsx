@@ -48,7 +48,8 @@ const FastLoad = () => {
     $tb.append(insertableHtml);
 
     let loaded = 0;
-    const doNotAnonymize =  emailInputRef.current?.value && emailInputRef.current.value.length > 0 && passwordInputRef.current?.value && passwordInputRef.current.value.length > 0;
+    const doNotAnonymize = !(emailInputRef.current?.value && emailInputRef.current.value.length > 0 && passwordInputRef.current?.value && passwordInputRef.current.value.length > 0);
+    console.log(`doFastLoad doNotAnonymize: ${doNotAnonymize}`);
     /* eslint-disable no-await-in-loop */
     for (let i = 0; i < allowableTables.length; i++) {
       const table = allowableTables[i];
