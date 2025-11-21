@@ -126,7 +126,7 @@ const TaskGroup = ({ classes }) => {
       </Helmet>
       <PageContentContainer>
         <TaskGroupBreadcrumbWrapper>
-          <Link to="/system-settings">Task Groups</Link>
+          <Link to="/system-settings/groups-of-tasks">Task Groups</Link>
           {' '}
           &gt;
           {' '}
