@@ -113,42 +113,42 @@ const Content = styled(PageContentContainer)`
 
 const Label = styled('div')`
   position: absolute;
-  top: -18px;
-  left: 24px;
+  top: -24px;
+  left: 30px;
   background: #fff;
-  padding: 0 10px;
+  padding: 0 16px;
   color: #1e6fb9;
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
 `;
 
 const Settings = styled('div')`
   position: relative;
-  border: 2px solid #1e6fb9;
+  border: 1px solid #1e6fb9;
   border-radius: 14px;
-  padding: 45px 30px 35px;
-  max-width: 560px;
-  width: 100%;
+  padding: 60px 60px 50px;
+  max-width: 800px;
+  width: 90%;
   background: white;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 `;
 
+
 const StyledButton = styled(Button)`
-  padding: 16px 14px;
-  border-radius: 14px;
-  min-height: 54px;
+  min-height: 60px;
+  font-size: 18px;
+  border-radius: 12px;
+  padding: 16px 20px;
   width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
-  font-size: 17px;
-  font-weight: 500;
 `;
 
 const Wrapper = styled('div')`
   display: flex;
-  padding: 40px 20px;
+  justify-content: center;
+  padding: 60px 20px;
 `;
 
 export default SystemSettings;
