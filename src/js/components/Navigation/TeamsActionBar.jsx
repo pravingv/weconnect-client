@@ -128,75 +128,94 @@ const TeamsActionBar = () => {
       !apiDataCache?.allPeopleCache
     ) return [];
 
-    const allPeople = apiDataCache.allPeopleCache;
+    const { allTeamMembersCache } = apiDataCache;
 
-    return Object.entries(apiDataCache.allTeamMembersCache).flatMap(
-      ([teamId, members]) => {
-        const team = apiDataCache.allTeamsCache[teamId];
-        if (!team) return [];
+    const allTeamNames = Object.values(allTeamsCache)
+      .map((team) => team.teamName
+        .replace(/,/g, '')   // remove commas
+        .replace(/\s+/g, '-'))
+      .sort((a, b) => a.localeCompare(b));
+    const personMap = {};
 
-        return members.map((member) => {
-          const person = allPeople[member.personId]; // ← LOOKUP PERSON DATA HERE
+    Object.entries(allTeamMembersCache).forEach(([teamId, members]) => {
+      const team = allTeamsCache[teamId];
+      if (!team) return;
 
-          return {
-            teamId: team.id,
-            teamName: team.teamName,
-            personId: person.personId,
-            birthdayMonthAndDay: person.birthdayMonthAndDay,
-            emailOfficial: person.emailOfficial,
-            emailOfficialAlternate: person.emailOfficialAlternate,
-            emailOfficialVerified: person.emailOfficialVerified,
-            emailPersonal: person.emailPersonal,
-            emailPersonalAlternate: person.emailPersonalAlternate,
-            emailPreferred: person.emailPreferred,
-            firstName: person.firstName,
-            firstNamePreferred: person.firstNamePreferred,
-            gender: person.gender,
-            hoursPerWeekEstimate: person.hoursPerWeekEstimate,
-            jobTitle: person.jobTitle,
-            lastName: person.lastName,
-            location: person.location,
-            phoneNumber: person.phoneNumber,
-            stateCode: person.stateCode,
-            uploadedImageUrlLarge: person.uploadedImageUrlLarge,
-            uploadedImageUrlSmall: person.uploadedImageUrlSmall,
-            jazzHrUrl: person.jazzHrUrl,
-            linkedInUrl: person.linkedInUrl,
-            dateCreated: person.dateCreated,
-            dateEmailCreated: person.dateEmailCreated,
-            dateEndDate: person.dateEndDate,
-            dateLastActive: person.dateLastActive,
-            dateLastOnLeave: person.dateLastOnLeave,
-            dateLastUpdated: person.dateLastUpdated,
-            dateLastResigned: person.dateLastResigned,
-            dateOfferLetterCreated: person.dateOfferLetterCreated,
-            dateOfferLetterSigned: person.dateOfferLetterSigned,
-            dateStartDate: person.dateStartDate,
-            isAdmin: person.isAdmin,
-            isHRAdmin: person.isHRAdmin,
-            isHROfferAdmin: person.isHROfferAdmin,
-            isHRGeneralist1: person.isHRGeneralist1,
-            isHRGeneralist2: person.isHRGeneralist2,
-            isHiringManager: person.isHiringManager,
-            isIntern: person.isIntern,
-            isTeamLead: person.isTeamLead,
-            statusActive: person.statusActive,
-            statusAvailableForSpecialProjects: person.statusAvailableForSpecialProjects,
-            statusEmailCreated: person.statusEmailCreated,
-            statusOfferApproved: person.statusOfferApproved,
-            statusOfferLetterCreated: person.statusOfferLetterCreated,
-            statusOfferLetterSigned: person.statusOfferLetterSigned,
-            statusOfferDecisionNeeded: person.statusOfferDecisionNeeded,
-            statusOfferQuestionnaireAnswered: person.statusOfferQuestionnaireAnswered,
-            statusOfferQuestionnaireSent: person.statusOfferQuestionnaireSent,
-            statusOfferWillNotBeMade: person.statusOfferWillNotBeMade,
-            statusOnLeave: person.statusOnLeave,
-            statusResigned: person.statusResigned,
+      // Clean the team name for the CSV column
+      const teamColumnName = team.teamName
+        .replace(/,/g, '')
+        .replace(/\s+/g, '-');
+
+      members.forEach((member) => {
+        const person = allPeopleCache[member.personId];
+        if (!person) return;
+
+        if (!personMap[person.personId]) {
+          // 2A️⃣ Initialize all person-level fields
+          personMap[person.personId] = {
+            PersonId: person.personId,
+            BirthdayMonthAndDay: person.birthdayMonthAndDay,
+            EmailOfficial: person.emailOfficial,
+            EmailOfficialAlternate: person.emailOfficialAlternate,
+            EmailOfficialVerified: person.emailOfficialVerified,
+            EmailPersonal: person.emailPersonal,
+            EmailPersonalAlternate: person.emailPersonalAlternate,
+            EmailPreferred: person.emailPreferred,
+            FirstName: person.firstName,
+            FirstNamePreferred: person.firstNamePreferred,
+            Gender: person.gender,
+            HoursPerWeekEstimate: person.hoursPerWeekEstimate,
+            JobTitle: person.jobTitle,
+            LastName: person.lastName,
+            Location: person.location,
+            PhoneNumber: person.phoneNumber,
+            StateCode: person.stateCode,
+            UploadedImageUrlLarge: person.uploadedImageUrlLarge,
+            UploadedImageUrlSmall: person.uploadedImageUrlSmall,
+            JazzHrUrl: person.jazzHrUrl,
+            LinkedInUrl: person.linkedInUrl,
+            DateCreated: person.dateCreated,
+            DateEmailCreated: person.dateEmailCreated,
+            DateEndDate: person.dateEndDate,
+            DateLastActive: person.dateLastActive,
+            DateLastOnLeave: person.dateLastOnLeave,
+            DateLastUpdated: person.dateLastUpdated,
+            DateLastResigned: person.dateLastResigned,
+            DateOfferLetterCreated: person.dateOfferLetterCreated,
+            DateOfferLetterSigned: person.dateOfferLetterSigned,
+            DateStartDate: person.dateStartDate,
+            IsAdmin: person.isAdmin,
+            IsHRAdmin: person.isHRAdmin,
+            IsHROfferAdmin: person.isHROfferAdmin,
+            IsHRGeneralist1: person.isHRGeneralist1,
+            IsHRGeneralist2: person.isHRGeneralist2,
+            IsHiringManager: person.isHiringManager,
+            IsIntern: person.isIntern,
+            IsTeamLead: person.isTeamLead,
+            StatusActive: person.statusActive,
+            StatusAvailableForSpecialProjects: person.statusAvailableForSpecialProjects,
+            StatusEmailCreated: person.statusEmailCreated,
+            StatusOfferApproved: person.statusOfferApproved,
+            StatusOfferLetterCreated: person.statusOfferLetterCreated,
+            StatusOfferLetterSigned: person.statusOfferLetterSigned,
+            StatusOfferDecisionNeeded: person.statusOfferDecisionNeeded,
+            StatusOfferQuestionnaireAnswered: person.statusOfferQuestionnaireAnswered,
+            StatusOfferQuestionnaireSent: person.statusOfferQuestionnaireSent,
+            StatusOfferWillNotBeMade: person.statusOfferWillNotBeMade,
+            StatusOnLeave: person.statusOnLeave,
+            StatusResigned: person.statusResigned,
+            teamIds: [team.id],
+            ...Object.fromEntries(allTeamNames.map((name) => [name, ''])),
           };
-        });
-      },
-    );
+        } else {
+          personMap[person.personId].teamIds.push(team.id);
+        }
+        personMap[person.personId][teamColumnName] = 1;
+      });
+    });
+    return Object.values(personMap);
   }, [apiDataCache]);
+
 
 
   const handleDownloadCSV = useCallback(() => {
