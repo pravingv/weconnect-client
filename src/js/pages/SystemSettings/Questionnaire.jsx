@@ -218,7 +218,7 @@ const Questionnaire = ({ classes }) => {
       </Helmet>
       <PageContentContainer>
         <QuestionnaireBreadcrumbWrapper>
-          <Link to="/system-settings" style={{ height: '40px', fontSize: 'large' }} className="u-cursor--pointer u-link-color">
+          <Link to="/system-settings/questionnaires" style={{ height: '40px', fontSize: 'large' }} className="u-cursor--pointer u-link-color">
             Questionnaires
           </Link>
           {questionnaire && questionnaire.questionnaireId && (
