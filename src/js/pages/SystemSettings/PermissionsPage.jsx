@@ -13,13 +13,14 @@ export default function PermissionsPage() {
         <title>Permissions Administration - WeConnect Admin</title>
       </Helmet>
       <PageContentContainer style={{ maxWidth: '1500px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '20px' }}>
           <h1>Permissions Administration</h1>
           <Button
             variant="outlined"
+            size="small"
             onClick={() => navigate('/system-settings')}
           >
-            ← Back to System Settings
+            ← Back to Settings
           </Button>
         </div>
         <PermissionsAdministration />
