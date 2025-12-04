@@ -138,7 +138,10 @@
     "styled-components": "^6.1.15",
     "topojson-client": "^3.1.0",
     "use-file-picker": "^2.1.2",
-    "validator": "^13.12.0"
+    "validator": "^13.12.0",
+    "react-papaparse": "^4.4.0",
+    "file-saver": "^2.0.5",
+    "react-router-dom": "^7.1.1"
   },
   "bugs": {
     "url": "https://github.com/wevote/weconnect/issues"
