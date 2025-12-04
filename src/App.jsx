@@ -22,10 +22,13 @@ import Login from './js/pages/Login';
 const AnswerQuestions = React.lazy(() => import(/* webpackChunkName: 'AnswerQuestions' */ './js/pages/AnswerQuestions'));
 const FAQ = React.lazy(() => import(/* webpackChunkName: 'FAQ' */ './js/pages/FAQ'));
 // const Footer = React.lazy(() => import(/* webpackChunkName: 'Footer' */ './js/components/Navigation/Footer'));
+const GroupsOfTasksPage = React.lazy(() => import('./js/pages/SystemSettings/GroupsOfTasksPage'));
 const Header = React.lazy(() => import(/* webpackChunkName: 'Header' */ './js/components/Navigation/Header'));
 const PageNotFound = React.lazy(() => import(/* webpackChunkName: 'PageNotFound' */ './js/pages/PageNotFound'));
+const PermissionsPage = React.lazy(() => import('./js/pages/SystemSettings/PermissionsPage'));
 const QuestionnaireAnswers = React.lazy(() => import(/* webpackChunkName: 'QuestionnaireAnswers' */ './js/pages/QuestionnaireAnswers'));
 const QuestionnaireQuestionList = React.lazy(() => import(/* webpackChunkName: 'QuestionnaireQuestionList' */ './js/pages/SystemSettings/Questionnaire'));
+const QuestionnairesPage = React.lazy(() => import('./js/pages/SystemSettings/QuestionnairesPage'));
 const SystemSettings = React.lazy(() => import(/* webpackChunkName: 'SystemSettings' */ './js/pages/SystemSettings/SystemSettings'));
 const TeamHome = React.lazy(() => import(/* webpackChunkName: 'TeamHome' */ './js/pages/TeamHome'));
 const TaskGroup = React.lazy(() => import(/* webpackChunkName: 'TaskGroup' */ './js/pages/SystemSettings/TaskGroup'));
@@ -89,6 +92,9 @@ function App () {
                       <Route path="/login" element={<Login />} />
                       <Route path="/questionnaire/:questionnaireId" element={<QuestionnaireQuestionList />} />
                       <Route path="/system-settings" element={<SystemSettings />} />
+                      <Route path="/system-settings/groups-of-tasks" element={<GroupsOfTasksPage />} />
+                      <Route path="/system-settings/permissions" element={<PermissionsPage />} />
+                      <Route path="/system-settings/questionnaires" element={<QuestionnairesPage />} />
                       <Route path="/tasks" element={<Tasks />} />
                       <Route path="/task-group/:taskGroupId" element={<TaskGroup />} />
                       <Route path="/teams" element={<Teams />} />

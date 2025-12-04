@@ -1,5 +1,4 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, AlertTitle } from '@mui/lab';
 import { Button, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -19,6 +18,7 @@ const FastLoad = () => {
   const [featureDisabled, setFeatureDisabled] = useState(false);
   const [showTable, setShowTable] =  useState(false);
   const [tablesLoaded, setTablesLoaded] =  useState(0);
+  const [tablesMax, setTablesMax] =  useState(0);
   const emailInputRef = useRef('');
   const passwordInputRef = useRef('');
 
@@ -40,14 +40,16 @@ const FastLoad = () => {
     const forceMaster = true;  // Must be true, when checking in this file!  Override webAppConfig.STAFF_API_SERVER_API_ROOT_URL, since in this case we ALWAYS want to hit the master server
     const data = await weConnectQueryFn('fast-load-get-allowable-tables', {}, METHOD.POST, forceMaster);
     const { allowableTables } = data;
+    setTablesMax(allowableTables.length);
     let insertableHtml = '';
     allowableTables.forEach((table) => {
-      insertableHtml += `<tr><td>${table}</td><td id="${table}_id">Not yet started</td></tr>`;
+      insertableHtml += `<tr id="tables"><td>${table}</td><td id="${table}_id">Not yet started</td></tr>`;
     });
     $tb.append(insertableHtml);
 
     let loaded = 0;
-    const doNotAnonymize =  emailInputRef.current?.value && emailInputRef.current.value.length > 0 && passwordInputRef.current?.value && passwordInputRef.current.value.length > 0;
+    const doNotAnonymize = !(emailInputRef.current?.value && emailInputRef.current.value.length > 0 && passwordInputRef.current?.value && passwordInputRef.current.value.length > 0);
+    console.log(`doFastLoad doNotAnonymize: ${doNotAnonymize}`);
     /* eslint-disable no-await-in-loop */
     for (let i = 0; i < allowableTables.length; i++) {
       const table = allowableTables[i];
@@ -58,18 +60,26 @@ const FastLoad = () => {
         password: passwordInputRef?.current?.value,
       }, METHOD.POST, forceMaster);
       console.log('response for ', table);
+      // console.log('response for tablePacket', JSON.stringify(tablePacket));
       if (tablePacket) {
         const { tableJSON } = tablePacket;
-        await weConnectQueryFn('fast-load-local-table-replace', { tablePacket }, METHOD.POST);
+        if (table === 'TaskDefinition') {
+          console.log('November 16, 2025:  Need to manually insert a boolean field into the TaskDefinition table in order for that table to fast load, the field (which is only on the production sever, and not in the code) is "statusOfferDecisionNeededSetFalse"');
+        }
+        const replaceResponse = await weConnectQueryFn('fast-load-local-table-replace', { tablePacket }, METHOD.POST);
         const count = tableJSON?.length || 0;
-        if (count === 0) {
-          $(`#${table}_id`).html('<td>no rows returned for table</td>');
+        if (replaceResponse?.error) {
+          console.log(`replaceResonse sent an error ${replaceResponse.error}`);
+          $(`#${table}_id`).html(`<td style="color: red">${replaceResponse.error}</td>`);
+        } else if (count === 0) {
+          $(`#${table}_id`).html('<td style="color: red">no rows replaced by local server</td>');
         } else {
           $(`#${table}_id`).html(`<td><b>${count}</b> rows inserted</td>`);
           loaded += 1;
         }
       } else {
         console.error('fast-load-table-retrieve failed');
+        $(`#${table}_id`).html('<td style="background-color: #FFFF00">Received zero rows from master</td>');
       }
     }
     setTablesLoaded(loaded);
@@ -113,22 +123,16 @@ const FastLoad = () => {
           onClose={handleClose}
           aria-labelledby="customized-dialog-title"
           open={open}
-          PaperProps={{ sx: { width: '95%', maxWidth: '95%' }  }}
+          PaperProps={{ sx: { width: '95%', maxWidth: '95%' } }}
+          sx={{ paddingTop: '20px' }}
         >
-          <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          <DialogTitle sx={{ m: 0, p: 2, paddingTop: '10px' }} id="customized-dialog-title">
             This function will overwrite the data in your local postgres database with the data from the master server
             in AWS.
           </DialogTitle>
           <div style={{ margin: '0 0 5px 30px' }}>
             Only in the very rare case where you need to restore your current data, it can be restored with a <i>psql -X</i> from a <i>pg_dump</i> that will be created in the
             project dir on your computer. See instructions in <i>FastLoad.jsx</i>
-          </div>
-
-          <div id="done" style={{ display: 'none' }}>
-            <Alert severity="success">
-              <AlertTitle>{tablesLoaded} Tables loaded</AlertTitle>
-              The account that you sign into your local weconnect-server has been overwritten.  In a terminal, run <b>node ./node_scripts/createDevUser Samuel Adams samuel@adams.com ale</b> to make a new admin user for yourself (any name or password is fine for this command).
-            </Alert>
           </div>
           <IconButton
             aria-label="close"
@@ -184,7 +188,36 @@ const FastLoad = () => {
                 />
               </>
             )}
-            <table style={{ paddingTop: '20px', display: `${showTable ? 'table' : 'none'}` }}>
+            <div id="done" style={{ display: 'none' }}>
+              <div style={{
+                backgroundColor: '#B2FF8F',
+                margin: '0px 10% 5px 10%',
+                padding: '10px',
+                maxWidth: '50%',
+              }}
+              >
+                <b>{tablesLoaded} Tables were loaded out of a potential {tablesMax}</b>
+                <span style={{ marginRight: '20px' }} />
+                Empty tables &quot;might&quot; be used someday, and can be ignored.<br />
+                <br />
+                The account that you used to sign into your local weconnect-server has been deleted, but
+                the login that you use for
+                <a href="https://team.wevote.org/" aria-label="link to master" style={{ padding: '0px 5px' }}>
+                  https://team.wevote.org/
+                </a>
+                has been copied over and can be used on your local server.<br />
+                Alternatively you can re-run
+                <span style={{ padding: '0px 10px', fontFamily: 'Courier New, Courier, monospace', fontWeight: '500' }}>
+                  &quot;node ./node_scripts/createDevUser&quot;
+                </span>
+                on your local server to recreate your test login.<br /><br />
+                <b>If a table fails to copy:</b>  The local database file schema (column definitions) must exactly match the schema of the master.<br />
+                Make sure that your local has the latest code from git, and that you have run `prisma generate`
+                and `prisma migrate dev --name init` to have your local schema match the master schema.
+              </div>
+            </div>
+
+            <table style={{ paddingTop: '150px', display: `${showTable ? 'table' : 'none'}` }}>
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: 'left', paddingRight: '200px' }}>Table</th>

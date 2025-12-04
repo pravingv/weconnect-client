@@ -1,8 +1,8 @@
-import { KeyboardArrowDown, KeyboardArrowUp, South } from '@mui/icons-material';
+import { Workspaces as WorkspacesIcon, Quiz as QuizIcon, AdminPanelSettings as AdminPanelSettingsIcon } from '@mui/icons-material';
 import { Button } from '@mui/material';
-import { withStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
@@ -12,20 +12,15 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
-import PermissionsAdministration from './PermissionsAdministration';
-import QuestionnaireListIndex from './QuestionnaireListIndex';
-import TaskGroupListIndex from './TaskGroupListIndex';
-
 
 const SystemSettings = () => {
   renderLog('SystemSettings');
+  const navigate = useNavigate();
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights, allPeopleCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
   const [personIdsList, setPersonIdsList] = useState([]);
-  const [showQuestionnaireList, setShowQuestionnaireList] = useState(false);
-  const [showTaskGroupList, setShowTaskGroupList] = useState(false);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -71,7 +66,7 @@ const SystemSettings = () => {
   }
 
   return (
-    <div>
+    <Wrapper>
       <Helmet>
         <title>
           System Settings -
@@ -80,65 +75,80 @@ const SystemSettings = () => {
         </title>
         <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/system-settings`} />
       </Helmet>
-      <PageContentContainer style={{ maxWidth: '1500px' }}>
-        <h1>
-          System Settings
-        </h1>
-        <Button sx={{ marginLeft: '100%' }} onClick={() => window.scrollTo(0, document.body.scrollHeight)}><South /></Button>
-        {/* ****  **** */}
-        <SettingsSubtitle>
-          <span onClick={() => setShowTaskGroupList(!showTaskGroupList)}>
-            {showTaskGroupList ? (
-              <KeyboardArrowUpStyled />
-            ) : (
-              <KeyboardArrowDownStyled />
-            )}
-          </span>
-          Groups of Tasks
-        </SettingsSubtitle>
-        <TaskGroupListIndex showTaskGroupList={showTaskGroupList} />
-        {/* ****  **** */}
-        <SettingsSubtitle>
-          <span onClick={() => setShowQuestionnaireList(!showQuestionnaireList)}>
-            {showQuestionnaireList ? (
-              <KeyboardArrowUpStyled />
-            ) : (
-              <KeyboardArrowDownStyled />
-            )}
-          </span>
-          Questionnaires
-        </SettingsSubtitle>
-        <QuestionnaireListIndex showQuestionnaireList={showQuestionnaireList} />
-        {/* ****  **** */}
-        <SettingsSubtitle>Permissions Administration</SettingsSubtitle>
-        <PermissionsAdministration />
-      </PageContentContainer>
-    </div>
+      <Content>
+        <Settings>
+          <Label>System Settings</Label>
+          <StyledButton
+            variant="contained"
+            startIcon={<WorkspacesIcon />}
+            onClick={() => navigate('/system-settings/groups-of-tasks')}
+          >
+            Groups of Tasks
+          </StyledButton>
+          <StyledButton
+            variant="contained"
+            startIcon={<QuizIcon />}
+            onClick={() => navigate('/system-settings/questionnaires')}
+          >
+            Questionnaires
+          </StyledButton>
+          <StyledButton
+            variant="contained"
+            startIcon={<AdminPanelSettingsIcon />}
+            onClick={() => navigate('/system-settings/permissions')}
+          >
+            Permissions Administration
+          </StyledButton>
+        </Settings>
+      </Content>
+    </Wrapper>
   );
 };
 SystemSettings.propTypes = {
 };
 
-const styles = (theme) => ({
-  ballotButtonIconRoot: {
-    marginRight: 8,
-  },
-  addQuestionnaireButtonRoot: {
-    width: 185,
-    [theme.breakpoints.down('md')]: {
-      width: '100%',
-    },
-  },
-});
-
-const KeyboardArrowDownStyled = styled(KeyboardArrowDown)`
+const Content = styled(PageContentContainer)`
+  text-align: center;
 `;
 
-const KeyboardArrowUpStyled = styled(KeyboardArrowUp)`
+const Label = styled('div')`
+  position: absolute;
+  top: -24px;
+  left: 30px;
+  background: #fff;
+  padding: 0 16px;
+  color: #1e6fb9;
+  font-size: 28px;
+  font-weight: 700;
 `;
 
-const SettingsSubtitle = styled('h2')`
-  margin-bottom: 0;
+const Settings = styled('div')`
+  position: relative;
+  border: 1px solid #1e6fb9;
+  border-radius: 14px;
+  padding: 60px 60px 50px;
+  max-width: 800px;
+  width: 90%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 `;
 
-export default withStyles(styles)(SystemSettings);
+
+const StyledButton = styled(Button)`
+  min-height: 60px;
+  font-size: 18px;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+`;
+
+const Wrapper = styled('div')`
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+`;
+
+export default SystemSettings;

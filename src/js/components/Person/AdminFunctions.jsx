@@ -16,10 +16,39 @@ import SlackSendMessage from '../../pages/SystemSettings/SlackSendMessage';
 const AdminFunctions = () => {
   renderLog('AdminFunctions');  // Set LOG_RENDER_EVENTS to log all renders
 
+  const stats = {};  // Will contain webpack.DefinePlugin() variables, set at compile time
+  /* eslint-disable no-undef */
+  stats.Node_version = WEBPACK_NODE_VERSION;
+  stats.NPM_version = WEBPACK_NPM_VERSION;
+  stats.Pull_request = WEBPACK_PULL_REQUEST;
+  stats.Git_date = WEBPACK_GIT_DATE;
+  stats.Git_hash = WEBPACK_GIT_HASH;
+  const keyValueArray = Object.entries(stats);
+  /* eslint-enable no-undef */
+
+  const hideLinesWithNone = false;
   return (
     <AdminFunctionsWrapper>
+      <div style={{ padding: '10px', marginTop: '20px', marginBottom: '20px', border: '1px solid black', width: 'fit-content' }}>
+        <table>
+          <tbody>
+            {keyValueArray.map((entry) => (
+              <tr style={entry[1] === 'none' && hideLinesWithNone ? { display: 'none' } : {}}>
+                <td style={{ width: 'fit-content', paddingRight: '20px' }}>
+                  {entry[0].replaceAll('_', ' ')}:
+                </td>
+                <td style={{ width: 'fit-content' }}>
+                  {entry[1]}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <ProfileComponentSubTitle>This page is only visible, and usable, by a staff member with &quot;isAdmin&quot; privileges</ProfileComponentSubTitle>
-      <div style={{ paddingTop: '2rem' }}>
+      <ButtonDividerLine />
+      <div style={{ paddingTop: '1rem' }}>
         <SectionTitle>Overwrite your Local Postgres WeConnectDB with the data from the Master Database in AWS:</SectionTitle>
         <FastLoad />
         {/* <SectionTitle>Upload a CSV file from Google Docs to import into the local database:</SectionTitle> */}
@@ -90,7 +119,7 @@ const AdminFunctionsWrapper = styled('div')`
 const SectionTitle = styled('div')`
   padding-top: 16px;
   padding-bottom: 4px;
-  font-weight: 500;  
+  font-weight: 500;
 `;
 
 export default AdminFunctions;
