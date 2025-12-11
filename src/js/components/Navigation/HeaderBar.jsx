@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import standardBoxShadow from '../../common/components/Style/standardBoxShadow';
 import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { normalizedHrefPage } from '../../common/utils/hrefUtils';
@@ -253,6 +252,30 @@ const HeaderBar = ({ hideTabs }) => {
     }
   };
 
+  const handleTabChangeClick = (newValue) => {
+    // console.log(`handleTabChangeClick newValue: ${newValue}`);
+    // setTabsValue(newValue);
+    if (newValue) {
+      switch (newValue) {
+        case HEADER_TAB_DASHBOARD:
+          navigate('/dashboard');
+          break;
+        case HEADER_TAB_TASKS:
+          navigate('/tasks');
+          break;
+        case HEADER_TAB_TEAMS:
+          navigate('/teams');
+          break;
+        case HEADER_TAB_SETTINGS:
+          navigate('/system-settings');
+          break;
+        default:
+          navigate('/tasks');
+          break;
+      }
+    }
+  };
+
   useEffect(() => {
     setShowTabs(!hideTabs);
   }, [hideTabs]);
@@ -296,11 +319,11 @@ const HeaderBar = ({ hideTabs }) => {
               onChange={handleTabChange}
               aria-label="Tabs selector"
             >
-              <Tab value={HEADER_TAB_DASHBOARD} label="Dashboard" component={Link} to="/dashboard" />
-              <Tab value={HEADER_TAB_TEAMS} label="Teams" component={Link} to="/teams" />
-              <Tab value={HEADER_TAB_TASKS} label="Tasks" component={Link} to="/tasks" />
+              <Tab value={HEADER_TAB_DASHBOARD} label="Dashboard" onClick={() => handleTabChangeClick(HEADER_TAB_DASHBOARD)} />
+              <Tab value={HEADER_TAB_TEAMS} label="Teams" onClick={() => handleTabChangeClick(HEADER_TAB_TEAMS)} />
+              <Tab value={HEADER_TAB_TASKS} label="Tasks" onClick={() => handleTabChangeClick(HEADER_TAB_TASKS)} />
               {viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights) && (
-                <Tab value={HEADER_TAB_SETTINGS} label="Settings" component={Link} to="/system-settings" />
+                <Tab value={HEADER_TAB_SETTINGS} label="Settings" onClick={() => handleTabChangeClick(HEADER_TAB_SETTINGS)} />
               )}
             </Tabs>
           )}
