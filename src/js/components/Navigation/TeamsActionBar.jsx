@@ -288,13 +288,13 @@ const TeamsActionBar = () => {
           {visiblePeopleCount === 1 ? 'person' : 'people'}
         </ViewingCount>
       </ActionBarSection>
-      {/*{viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) && (*/}
+      {viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) && (
         <ActionBarSection>
           <SpanWithLinkStyle onClick={handleDownloadCSV}>
             <DownloadStyled />
           </SpanWithLinkStyle>
         </ActionBarSection>
-      {/*)}*/}
+      )}
     </TeamsActionBarWrapper>
   );
 };
