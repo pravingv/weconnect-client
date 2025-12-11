@@ -6,6 +6,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import webAppConfig from '../../config';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
 /* global $ */
@@ -24,7 +25,7 @@ const FastLoad = () => {
 
   useEffect(() => {
     const { location: { hostname } } = window;
-    if (hostname.includes('wevote.org')) {
+    if (hostname.includes('wevote.org') || webAppConfig.SERVER_IS_SOURCE_OF_TRUTH == true) {
       setFeatureDisabled(true);
     }
   }, []);

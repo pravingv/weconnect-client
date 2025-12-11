@@ -10,19 +10,20 @@ module.exports = {
   IMAGE_PATH_FOR_CORDOVA: 'https://wevote.us',   // If you are not working with Cordova, you don't need to change this
   SECURE_CERTIFICATE_INSTALLED: false,
   WECONNECT_URL_FOR_SEO: 'https://wevoteconnect.org',
+  SERVER_IS_SOURCE_OF_TRUTH: false,
 
   ///////////////////////////////////////////////
   // Keep all three configuration blocks below, but only uncomment one of them at a time.
   //// Connecting to local WeConnect "weconnect-server" APIs ////
-  STAFF_API_SERVER_ROOT_URL: 'http://localhost:4500/',
-  STAFF_API_SERVER_ADMIN_ROOT_URL: 'http://localhost:4500/admin/',
-  STAFF_API_SERVER_API_ROOT_URL: 'http://localhost:4500/apis/v1/',
-  STAFF_API_SERVER_API_CDN_ROOT_URL: 'http://localhost:4500/apis/v1/',
+  // STAFF_API_SERVER_ROOT_URL: 'http://localhost:4500/',
+  // STAFF_API_SERVER_ADMIN_ROOT_URL: 'http://localhost:4500/admin/',
+  // STAFF_API_SERVER_API_ROOT_URL: 'http://localhost:4500/apis/v1/',
+  // STAFF_API_SERVER_API_CDN_ROOT_URL: 'http://localhost:4500/apis/v1/',
   //// weconnect-server local server running SSL/TLS HTTPS
-  // STAFF_API_SERVER_ROOT_URL: 'https://wevotedeveloper.com:4500/',
-  // STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://wevotedeveloper.com:4500/admin/',
-  // STAFF_API_SERVER_API_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
-  // STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
+  STAFF_API_SERVER_ROOT_URL: 'https://wevotedeveloper.com:4500/',
+  STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://wevotedeveloper.com:4500/admin/',
+  STAFF_API_SERVER_API_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
+  STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
   //// Connecting to live WeConnect APIs ////
   // STAFF_API_SERVER_ROOT_URL: 'https://weconnectserver.org/',
   // STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://weconnectserver.org/admin/',
