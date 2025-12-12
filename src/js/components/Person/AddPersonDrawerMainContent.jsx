@@ -7,7 +7,12 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { useAddPersonToTeamMutation } from '../../react-query/mutations';
-import { alphabetizePeoplesObject, orderListByFurthestFutureStartDate } from '../../utils/utilities';
+import {
+  alphabetizePeoplesObject,
+  filterNamesWithDEPRICATEKey,
+  orderListByFurthestFutureStartDate,
+  sortByNoTeamFirst,
+} from '../../utils/utilities';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { MatchingPerson, SearchBarWrapper } from '../Style/sharedStyles';
 import AddPersonForm from './AddPersonForm';
@@ -18,7 +23,7 @@ const LIMIT_NUMBER_SHOWN = 20;
 const AddPersonDrawerMainContent = () => {
   renderLog('AddPersonDrawerMainContent');
   const { apiDataCache, getAppContextValue } = useConnectAppContext();
-  const { allPeopleCache, allTeamsCache } = apiDataCache;
+  const { allPeopleCache, allTeamsCache, allPeopleTeamIdLists } = apiDataCache;
   const { mutate: addPersonToTeam } = useAddPersonToTeamMutation();
 
   // const params  = useParams();
@@ -71,7 +76,10 @@ const AddPersonDrawerMainContent = () => {
 
   useEffect(() => {
     let addToTeamListTemp = searchResultsList || remainingPeopleToAdd || [];
-    addToTeamListTemp = orderListByFurthestFutureStartDate(addToTeamListTemp).slice(0, LIMIT_NUMBER_SHOWN);
+    addToTeamListTemp = sortByNoTeamFirst(addToTeamListTemp, allPeopleTeamIdLists);
+    addToTeamListTemp = orderListByFurthestFutureStartDate(addToTeamListTemp);
+    addToTeamListTemp = filterNamesWithDEPRICATEKey(addToTeamListTemp);
+    addToTeamListTemp = addToTeamListTemp.filter((person) => (person.statusActive !== false) && (person.statusResigned !== true)).slice(0, LIMIT_NUMBER_SHOWN);
     addToTeamListTemp = alphabetizePeoplesObject(addToTeamListTemp, true);
     setAddToTeamList(addToTeamListTemp);
   }, [searchResultsList, remainingPeopleToAdd]);
