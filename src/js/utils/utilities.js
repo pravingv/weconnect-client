@@ -38,8 +38,7 @@ export const orderListByFurthestFutureStartDate = (incomingObjectList) => {
 
 export const sortByNoTeamFirst = (incomingObjectList, allPeopleTeamIdLists = {}) => {
   if (!incomingObjectList) return [];
-  const safeAllPeopleTeamIdLists = allPeopleTeamIdLists || {};
-  const personIdsInTeams = new Set(Object.keys(safeAllPeopleTeamIdLists));
+  const personIdsInTeams = new Set(Object.keys(allPeopleTeamIdLists));
   console.log(Object.keys(allPeopleTeamIdLists).includes('67'));
 
   const arrayOfObjects =  [...incomingObjectList].sort((a, b) => {
