@@ -45,7 +45,7 @@ export const sortByNoTeamFirst = (incomingObjectList, allPeopleTeamIdLists = {})
     // console.log('sortByNoTeamFirst', a.id, b.id);
     const aNotInTeam = personIdsInTeams.has(String(a.id)) ? 1 : 0; // 0 = no team, comes first
     const bNotInTeam = personIdsInTeams.has(String(b.id)) ? 1 : 0;
-    console.log(aNotInTeam, bNotInTeam, a.id, b.id, aNotInTeam - bNotInTeam);
+    // console.log(aNotInTeam, bNotInTeam, a.id, b.id, aNotInTeam - bNotInTeam);
     return aNotInTeam - bNotInTeam;
   });
   // console.log('first id should be 67 =>', arrayOfObjects[0]?.id);
