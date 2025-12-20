@@ -10,6 +10,7 @@ module.exports = {
   IMAGE_PATH_FOR_CORDOVA: 'https://wevote.us',   // If you are not working with Cordova, you don't need to change this
   SECURE_CERTIFICATE_INSTALLED: false,
   WECONNECT_URL_FOR_SEO: 'https://wevoteconnect.org',
+  SERVER_IS_SOURCE_OF_TRUTH: false,
 
   ///////////////////////////////////////////////
   // Keep all three configuration blocks below, but only uncomment one of them at a time.
