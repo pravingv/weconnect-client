@@ -36,18 +36,18 @@ export const orderListByFurthestFutureStartDate = (incomingObjectList) => {
   return arrayOfObjects;
 };
 
-export const sortByNoTeamFirst = (incomingObjectList, allPeopleTeamIdLists) => {
+export const sortByNoTeamFirst = (incomingObjectList, allPeopleTeamIdLists = {}) => {
   if (!incomingObjectList) return [];
   const personIdsInTeams = new Set(Object.keys(allPeopleTeamIdLists));
-  console.log(Object.keys(allPeopleTeamIdLists).includes('67'));
+  // console.log(Object.keys(allPeopleTeamIdLists).includes('67'));
 
   const arrayOfObjects =  [...incomingObjectList].sort((a, b) => {
     // console.log('sortByNoTeamFirst', a.id, b.id);
     const aNotInTeam = personIdsInTeams.has(String(a.id)) ? 1 : 0; // 0 = no team, comes first
     const bNotInTeam = personIdsInTeams.has(String(b.id)) ? 1 : 0;
-    console.log(aNotInTeam, bNotInTeam, a.id, b.id, aNotInTeam - bNotInTeam);
+    // console.log(aNotInTeam, bNotInTeam, a.id, b.id, aNotInTeam - bNotInTeam);
     return aNotInTeam - bNotInTeam;
   });
-  console.log('first id should be 67 =>', arrayOfObjects[0]?.id);
+  // console.log('first id should be 67 =>', arrayOfObjects[0]?.id);
   return arrayOfObjects;
 };
