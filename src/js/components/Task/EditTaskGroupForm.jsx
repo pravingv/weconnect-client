@@ -470,15 +470,17 @@ const EditTaskGroupForm = ({ classes }) => {
             ))}
           </Select>
         </FormControl>
-        <Button
-          classes={{ root: classes.saveTaskGroupButton }}
-          color="primary"
-          disabled={!saveButtonActive}
-          variant="contained"
-          onClick={saveTaskGroupForm}
-        >
-          Save Task Grouping
-        </Button>
+        <ButtonWrapper>
+          <Button
+            classes={{ root: classes.saveTaskGroupButton }}
+            color="primary"
+            disabled={!saveButtonActive}
+            variant="contained"
+            onClick={saveTaskGroupForm}
+          >
+            Save Task Grouping
+          </Button>
+        </ButtonWrapper>
       </FormControl>
     </EditTaskGroupFormWrapper>
   );
@@ -521,6 +523,16 @@ const styles = (theme) => ({
 const AssignTasksToPersonHeader = styled('div')`
   margin-top: 24px;
   font-weight: bold;
+`;
+
+const ButtonWrapper = styled('div')`
+  background-color: #fff;
+  bottom: 0;
+  padding: 8px 0;
+  position: sticky;
+  width: 100%;
+  margin-bottom: 24px;
+  z-index: 1;
 `;
 
 const CheckboxLabel = styled(FormControlLabel)`
