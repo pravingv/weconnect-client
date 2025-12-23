@@ -16,6 +16,7 @@ import {
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { MatchingPerson, SearchBarWrapper } from '../Style/sharedStyles';
 import AddPersonForm from './AddPersonForm';
+import CrossIcon from '../../../img/global/svg-icons/cross.svg';
 
 const LIMIT_NUMBER_SHOWN = 20;
 
@@ -38,7 +39,7 @@ const AddPersonDrawerMainContent = () => {
   const [teamMemberPersonIdList] = useState([]);
   const [matchingCountText, setMatchingCountText] = useState('');
 
-  const searchStringInputRef = useRef('');
+  const searchStringInputRef = useRef(null);
 
   const updateRemainingPeopleToAdd = () => {
     // console.log('initializeTheRemainingPeopleToAddListList in AddPersonDrawerMainContent');
@@ -103,7 +104,7 @@ const AddPersonDrawerMainContent = () => {
       setSearchResultsList(undefined);
     } else {
       const isMatch = (element) => (element.lastName.toLowerCase().includes(currentValue.toLowerCase()) ||
-          element.firstName.toLowerCase().includes(currentValue.toLowerCase()));
+          element.firstName.toLowerCase().includes(currentValue.toLowerCase()) || element.firstNamePreferred?.toLowerCase().includes(currentValue.toLowerCase()));
       const matchingElements = remainingPeopleToAdd ? remainingPeopleToAdd.filter((element) => isMatch(element)) : {};
       if (matchingElements && matchingElements.length) {
         setSearchResultsList(matchingElements);
@@ -113,6 +114,12 @@ const AddPersonDrawerMainContent = () => {
         setMatchingCountText('');
       }
     }
+  };
+
+  const clearSearch = () => {
+    searchStringInputRef.current.value = '';
+    setSearchResultsList(undefined);
+    setMatchingCountText('');
   };
 
   const addClicked = (incomingPerson) => {
@@ -153,6 +160,16 @@ const AddPersonDrawerMainContent = () => {
             placeholder="Search by name"
             defaultValue=""
             sx={{ minWidth: '250px' }}
+            InputProps={{
+              endAdornment: searchStringInputRef.current?.value ? (
+                <span
+                  onClick={clearSearch}
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  <img src={CrossIcon} alt="Clear search" style={{ width: 14, height: 14 }} />
+                </span>
+              ) : null,
+            }}
           />
           <MatchingPerson>{matchingCountText}</MatchingPerson>
         </SearchBarWrapper>
