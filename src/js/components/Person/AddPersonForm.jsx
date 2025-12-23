@@ -205,15 +205,17 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
           )}
           label="Has signed offer letter"
         />
-        <Button
-          classes={{ root: classes.saveNewPersonButton }}
-          color="primary"
-          disabled={!saveButtonActive}
-          variant="contained"
-          onClick={saveNewPerson}
-        >
-          Save New Person
-        </Button>
+        <ButtonWrapper>
+          <Button
+            classes={{ root: classes.saveNewPersonButton }}
+            color="primary"
+            disabled={!saveButtonActive}
+            variant="contained"
+            onClick={saveNewPerson}
+          >
+            Save New Person
+          </Button>
+        </ButtonWrapper>
       </FormControl>
     </AddPersonFormWrapper>
   );
@@ -240,6 +242,16 @@ const styles = (theme) => ({
 });
 
 const AddPersonFormWrapper = styled('div')`
+`;
+
+const ButtonWrapper = styled('div')`
+  background-color: #fff;
+  bottom: 0;
+  padding: 8px 0;
+  position: sticky;
+  width: 100%;
+  margin-bottom: 24px;
+  z-index: 1;
 `;
 
 const CheckboxLabel = styled(FormControlLabel)`
