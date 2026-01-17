@@ -472,15 +472,17 @@ const EditTaskDefinitionForm = ({ classes }) => {
             ))}
           </TokenRow>
         ))}
-        <Button
-          classes={{ root: classes.saveTaskDefinitionButton }}
-          color="primary"
-          disabled={!saveButtonActive}
-          onClick={saveTaskDefinition}
-          variant="contained"
-        >
-          Save Task
-        </Button>
+        <ButtonWrapper>
+          <Button
+            classes={{ root: classes.saveTaskDefinitionButton }}
+            color="primary"
+            disabled={!saveButtonActive}
+            onClick={saveTaskDefinition}
+            variant="contained"
+          >
+            Save Task
+          </Button>
+        </ButtonWrapper>
       </FormControl>
     </EditTaskDefinitionFormWrapper>
   );
@@ -515,6 +517,16 @@ const styles = (theme) => ({
     },
   },
 });
+
+const ButtonWrapper = styled('div')`
+  background-color: #fff;
+  bottom: 0;
+  padding: 8px 0;
+  position: sticky;
+  width: 100%;
+  margin-bottom: 24px;
+  z-index: 1;
+`;
 
 const CheckboxLabel = styled(FormControlLabel)`
   margin-bottom: 0 !important;
