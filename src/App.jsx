@@ -35,6 +35,7 @@ const TaskGroup = React.lazy(() => import(/* webpackChunkName: 'TaskGroup' */ '.
 const Tasks = React.lazy(() => import(/* webpackChunkName: 'Tasks' */ './js/pages/Tasks'));
 // const TeamMembers = React.lazy(() => import(/* webpackChunkName: 'TeamMembers' */ './js/pages/TeamHome'));
 const Teams = React.lazy(() => import(/* webpackChunkName: 'Teams' */ './js/pages/Teams'));
+const ReportsPage = React.lazy(() => import('./js/pages/SystemSettings/ReportsPage'));
 
 
 function App () {
@@ -95,6 +96,7 @@ function App () {
                       <Route path="/system-settings/groups-of-tasks" element={<GroupsOfTasksPage />} />
                       <Route path="/system-settings/permissions" element={<PermissionsPage />} />
                       <Route path="/system-settings/questionnaires" element={<QuestionnairesPage />} />
+                      <Route path="/system-settings/reports" element={<ReportsPage />} />
                       <Route path="/tasks" element={<Tasks />} />
                       <Route path="/task-group/:taskGroupId" element={<TaskGroup />} />
                       <Route path="/teams" element={<Teams />} />

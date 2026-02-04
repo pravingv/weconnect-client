@@ -1,8 +1,8 @@
-import { Button, FormControl, TextField } from '@mui/material';
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
@@ -11,35 +11,50 @@ import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 
 const AddTeamForm = ({ classes }) => {
   renderLog('AddTeamForm');
-  const { getAppContextValue, setAppContextValue } = useConnectAppContext();
+  try {
+    const { getAppContextValue, setAppContextValue } = useConnectAppContext();
 
-  const teamNameInputRef = useRef('');
-  const queryClient = useQueryClient();
-  const [team] = useState(getAppContextValue('teamForAddTeamDrawer'));
-  const [teamNameCached, setTeamNameCached] = useState(team && team.teamName);
-  const [errorText, setErrorText] = useState('');
+    const teamNameInputRef = useRef('');
+    const queryClient = useQueryClient();
+    const team = getAppContextValue('teamForAddTeamDrawer');
+    const [teamNameCached, setTeamNameCached] = useState('');
+    const [isC3Nonprofit, setIsC3Nonprofit] = useState(false);
+    const [isC4Nonprofit, setIsC4Nonprofit] = useState(false);
+    const [errorText, setErrorText] = useState('');
+
+  useEffect(() => {
+    if (team && team.teamName) {
+      setTeamNameCached(team.teamName);
+      setIsC3Nonprofit(team.isC3Nonprofit || false);
+      setIsC4Nonprofit(team.isC4Nonprofit || false);
+    } else {
+      setTeamNameCached('');
+      setIsC3Nonprofit(false);
+      setIsC4Nonprofit(false);
+    }
+  }, [team?.id]);
 
   const saveTeamMutation = useMutation({
-    mutationFn: () => weConnectQueryFn(['team-save'], {
+    mutationFn: () => weConnectQueryFn('team-save', {
       teamName: teamNameCached,
       teamNameChanged: true,
-      teamId: team ? team.id : '-1',
+      isC3Nonprofit,
+      isC4Nonprofit,
+      teamId: team && team.id ? team.id : '-1',
     }, METHOD.GET),
     onSuccess: () => {
       // console.log('--------- saveTeamMutation addTeamForm mutated ---------');
-      queryClient.invalidateQueries(['team-list-retrieve']).then(() => {});
+      queryClient.invalidateQueries({ queryKey: ['team-list-retrieve'] }).then(() => {});
     },
   });
 
   const saveNewTeam = () => {
-    const teamName = teamNameInputRef.current.value;
-    if (teamName.length === 0) {
+    if (teamNameCached.length === 0) {
       setErrorText('Enter a valid team name');
       return;
     }
     setErrorText('');
-    setTeamNameCached(teamName);
-    // console.log('saveNewTeam data:', teamName);
+    // console.log('saveNewTeam data:', teamNameCached);
     saveTeamMutation.mutate();
     setAppContextValue('addTeamDrawerOpen', false);
     setAppContextValue('addTeamDrawerLabel', '');
@@ -51,7 +66,8 @@ const AddTeamForm = ({ classes }) => {
       <FormControl classes={{ root: classes.formControl }}>
         <TextField
           autoFocus
-          defaultValue={teamNameCached}
+          value={teamNameCached}
+          onChange={(e) => setTeamNameCached(e.target.value)}
           id="teamNameToBeSaved"
           inputRef={teamNameInputRef}
           label="Team Name"
@@ -60,6 +76,28 @@ const AddTeamForm = ({ classes }) => {
           placeholder="Team Name"
           variant="outlined"
         />
+        <CheckboxesWrapper>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isC3Nonprofit}
+                onChange={(e) => setIsC3Nonprofit(e.target.checked)}
+                name="isC3Nonprofit"
+              />
+            }
+            label="C3 Nonprofit"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isC4Nonprofit}
+                onChange={(e) => setIsC4Nonprofit(e.target.checked)}
+                name="isC4Nonprofit"
+              />
+            }
+            label="C4 Nonprofit"
+          />
+        </CheckboxesWrapper>
         <Button
           classes={{ root: classes.saveNewTeamButton }}
           color="primary"
@@ -71,6 +109,14 @@ const AddTeamForm = ({ classes }) => {
       </FormControl>
     </AddTeamFormWrapper>
   );
+  } catch (error) {
+    console.error('Error in AddTeamForm:', error);
+    return (
+      <AddTeamFormWrapper>
+        <ErrorTeamLine>Error loading form: {error.message}</ErrorTeamLine>
+      </AddTeamFormWrapper>
+    );
+  }
 };
 AddTeamForm.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -92,6 +138,13 @@ const ErrorTeamLine = styled('div')`
   fontWeight: 800;
   paddingBottom: '10px';
   color: coral;
+`;
+
+const CheckboxesWrapper = styled('div')`
+  display: flex;
+  gap: 20px;
+  margin: 15px 0;
+  flex-wrap: wrap;
 `;
 
 const AddTeamFormWrapper = styled('div')`
