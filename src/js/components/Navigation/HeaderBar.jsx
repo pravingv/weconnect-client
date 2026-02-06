@@ -1,8 +1,9 @@
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
+import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -37,19 +38,12 @@ const HeaderBar = ({ hideTabs }) => {
   const { allPeopleCache, allQuestionnairesCache, apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const dispatch = useConnectDispatch();
 
+  const queryClient = useQueryClient();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scrolledDown] = useState(false);
   const [showTabs, setShowTabs] = useState(true);
   const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
-  const [personIdsList, setPersonIdsList] = useState([]);
-  const [seconds, setSeconds] = useState(0);
-  const [shouldExecutePersonListRetrieve, setShouldExecutePersonListRetrieve] = useState(false);
-  const [shouldExecuteTeamListRetrieve, setShouldExecuteTeamListRetrieve] = useState(false);
-  const [shouldExecuteTaskListRetrieve, setShouldExecuteTaskListRetrieve] = useState(false);
-  const [shouldExecuteTaskGroupListRetrieve, setShouldExecuteTaskGroupListRetrieve] = useState(false);
-  const [shouldExecuteQuestionnaireListRetrieve, setShouldExecuteQuestionnaireListRetrieve] = useState(false);
-  const [displayResetButton, setDisplayResetButton] = useState(false);
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
@@ -73,108 +67,91 @@ const HeaderBar = ({ hideTabs }) => {
     switch (normalizedHrefPage()) {
       case 'dashboard':
         setTabsValue(HEADER_TAB_DASHBOARD);
-        setDisplayResetButton(false);
         break;
       case 'tasks':
         setTabsValue(HEADER_TAB_TASKS);
-        setDisplayResetButton(true);
         break;
       case 'team-home':
       case 'teams':
         setTabsValue(HEADER_TAB_TEAMS);
-        setDisplayResetButton(true);
         break;
       case 'questionnaire':
         // Yuck, no tab position makes sense here
-        setDisplayResetButton(true);
         break;
       case 'system-settings':
         setTabsValue(HEADER_TAB_SETTINGS);
-        setDisplayResetButton(true);
         break;
       case 'task-group':
         if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
           setTabsValue(HEADER_TAB_SETTINGS);
-          setDisplayResetButton(true);
         }
         break;
       default:
-        setDisplayResetButton(false);
         setTabsValue(HEADER_TAB_DASHBOARD);
         break;
     }
   };
 
   const goodAllPeopleCache =  allPeopleCache !== undefined;
-  let allCachedPeopleList = [];
-  if (goodAllPeopleCache) {
-    allCachedPeopleList = Object.values(allPeopleCache);
-    setPersonIdsList(allCachedPeopleList.map((person) => person.personId));
-  }
+  const personIdsList = useMemo(() => {
+    if (!allPeopleCache) return [];
+    return Object.values(allPeopleCache).map((p) => p.personId);
+  }, [allPeopleCache]);
 
-  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.GET, shouldExecuteTaskListRetrieve && goodAllPeopleCache);
+  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.GET, personIdsList.length > 0 && goodAllPeopleCache,
+    { refetchInterval: 30000, refetchIntervalInBackground: false });
   useEffect(() => {
     if (taskStatusListRetrieveResults) {
       captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch);
     }
   }, [personIdsList, taskStatusListRetrieveResults]);
 
-  const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET, shouldExecuteQuestionnaireListRetrieve);
+  const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET, true,
+    { refetchInterval: 120000,  refetchIntervalInBackground: false });
   useEffect(() => {
     if (questionnaireListRetrieveResults) {
       captureQuestionnaireListRetrieveData(questionnaireListRetrieveResults, apiDataCache, dispatch);
-      setShouldExecuteQuestionnaireListRetrieve(false);
+      // setShouldExecuteQuestionnaireListRetrieve(false);
     }
   }, [questionnaireListRetrieveResults, allQuestionnairesCache, apiDataCache, dispatch]);
 
-  const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET, shouldExecuteTeamListRetrieve);
+  const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET, true,
+    { refetchInterval: 60000, refetchIntervalInBackground: false });
   useEffect(() => {
     if (teamListRetrieveResults) {
       captureTeamListRetrieveData(teamListRetrieveResults, apiDataCache, dispatch);
-      setShouldExecuteTeamListRetrieve(false);
+      // setShouldExecuteTeamListRetrieve(false);
     }
   }, [teamListRetrieveResults]);
 
-  const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET, shouldExecutePersonListRetrieve);
+  const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET, true,
+    { refetchInterval: 120000, refetchIntervalInBackground: false });
   useEffect(() => {
     if (personListRetrieveResults) {
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
-      setShouldExecutePersonListRetrieve(false);
+      // setShouldExecutePersonListRetrieve(false);
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
-  const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET, shouldExecuteTaskGroupListRetrieve);
+  const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET, true,
+    { refetchInterval: 30000, refetchIntervalInBackground: false });
   useEffect(() => {
     if (taskGroupListRetrieveResults) {
       captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
-      setShouldExecuteTaskGroupListRetrieve(false);
+      // setShouldExecuteTaskGroupListRetrieve(false);
     }
   }, [apiDataCache, dispatch, taskGroupListRetrieveResults]);
 
 
-  const doTheRefresh = () => {
-    switch (normalizedHrefPage()) {
-      case 'tasks':
-        setShouldExecuteTaskListRetrieve(true);
-        break;
-      case 'team-home':
-      case 'teams':
-        setShouldExecuteTeamListRetrieve(true);
-        break;
-      case 'questionnaire':
-        setShouldExecuteQuestionnaireListRetrieve(true);
-        break;
-      case 'system-settings':
-        setShouldExecutePersonListRetrieve(true);
-        break;
-      case 'task-group':
-        if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
-          setShouldExecuteTaskGroupListRetrieve(true);
-        }
-        break;
-      default:
-        break;
-    }
+  const doTheRefresh = async () => {
+    await Promise.allSettled([
+      taskStatusListRetrieveResults.refetch(),
+      questionnaireListRetrieveResults.refetch(),
+      teamListRetrieveResults.refetch(),
+      personListRetrieveResults.refetch(),
+      taskGroupListRetrieveResults.refetch(),
+      queryClient.invalidateQueries({ queryKey: ['questionnaire-responses-list-retrieve']}),
+    ]);
   };
 
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
@@ -182,51 +159,6 @@ const HeaderBar = ({ hideTabs }) => {
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
   }, [authenticatedPerson]);
-
-  const initializeSeconds = () => {
-    switch (normalizedHrefPage()) {
-      case 'tasks':
-        setSeconds(30);     // task-status-list-retrieve 30 seconds (.5 minutes)
-        return 30;
-      case 'team-home':
-      case 'teams':
-        setSeconds(60);     // team-list-retrieve 60 seconds (1 minute)
-        return 60;
-      case 'questionnaire':
-        setSeconds(120);    // questionnaire-responses-list-retrieve  120 seconds (2 minutes)
-        return 120;
-      case 'system-settings':
-        setSeconds(120);    // person-list-retrieve 120 seconds (2 minutes)
-        return 120;
-      case 'task-group':
-        if (viewerCanSeeOrDo(['canViewSystemSettings'], viewerAccessRights)) {
-          setSeconds(120);     // task-status-list-retrieve 30 seconds (.5 minutes)
-          return 120;
-        }
-        return 0;
-      default:
-        return 0;
-    }
-  };
-
-  useEffect(() => {
-    initializeSeconds();
-
-    const interval = setInterval(() => {
-      setSeconds((prevSecs) => {
-        // console.log('seconds', prevSecs);
-        if (prevSecs === 1) {
-          const retSecs = initializeSeconds();
-          doTheRefresh();
-          return retSecs;
-        } else {
-          return prevSecs - 1;
-        }
-      });
-    }, 1000); // Update every 1 second
-
-    return () => clearInterval(interval); // Cleanup function
-  }, []); // Empty dependency array means this effect runs once on mount and cleans up on unmount
 
   const handleTabChange = (event, newValue) => {
     // setTabsValue(newValue);
@@ -314,17 +246,15 @@ const HeaderBar = ({ hideTabs }) => {
           >
             {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
           </Button>
-          {displayResetButton && (
-            <Button
-              variant="outlined"
-              size="small"
-              sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', margin: '13px 0 0 8px', minWidth: '110px' }}
-              id="refreshButton"
-              onClick={() => setSeconds(1)}
-            >
-              {`Refresh in ${seconds}`}
-            </Button>
-          )}
+          <Button
+            variant="outlined"
+            size="small"
+            sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', margin: '13px 0 0 8px', minWidth: '110px' }}
+            id="refreshButton"
+            onClick={() => doTheRefresh()}
+          >
+            Refresh
+          </Button>
         </TopRowOneRightContainer>
         <TopRowTwoLeftContainer>
           {(normalizedHrefPage() === 'teams') ? (

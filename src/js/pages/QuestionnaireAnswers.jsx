@@ -48,7 +48,8 @@ const QuestionnaireAnswers = ({ classes }) => {
   }, [questionListRetrieveResults, allQuestionsCache]);
 
   const requestParams = `personIdList[]=${personId}`;
-  const answersListRetrieveResults = useFetchData(['questionnaire-responses-list-retrieve'], requestParams, METHOD.GET);
+  const answersListRetrieveResults = useFetchData(['questionnaire-responses-list-retrieve'], requestParams, METHOD.GET, true,
+    { refetchInterval: 120000, refetchIntervalInBackground: false });
   useEffect(() => {
     if (answersListRetrieveResults) {
       captureQuestionnaireListRetrieveData(answersListRetrieveResults, apiDataCache, dispatch);
