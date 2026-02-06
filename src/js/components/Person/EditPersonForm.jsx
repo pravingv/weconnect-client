@@ -14,7 +14,7 @@ import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
-import { ActionOption, ActionOptionContainerLeft8,ActionOptionContainerOverflow, ActionOptionList,} from '../Style/actionOptionStyles';
+import { ActionOption, ActionOptionContainerLeft8, ActionOptionContainerOverflow, ActionOptionList } from '../Style/actionOptionStyles';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
