@@ -9,17 +9,22 @@ import utc from 'dayjs/plugin/utc';
 import PropTypes from 'prop-types';
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import { ActionOption, ActionOptionContainerLeft8,ActionOptionContainerOverflow, ActionOptionList,} from '../Style/actionOptionStyles';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import generateRandomString from '../../common/utils/generateRandomString';
 
-dayjs.extend(utc)
+
+dayjs.extend(utc);
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
@@ -45,6 +50,10 @@ const EditPersonForm = ({ classes }) => {
   const [emailOfficialLocal, setEmailOfficialLocal] = useState(emailOfficialInitial);
   const [emailOfficialVerified, setEmailOfficialVerified] = useState(emailOfficialVerifiedInitial);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
+
+  const [newPasswordNotification, setNewPasswordNotification] = useState('');
+  const [newPasswordNotificationCopied, setNewPasswordNotificationCopied] = useState(false);
+  const [showNewPasswordNotification, setShowNewPasswordNotification] = useState(false);
 
   const getDateDefaultValue = (dateString) => {
     if (!dateString) return null;
@@ -175,6 +184,31 @@ const EditPersonForm = ({ classes }) => {
 
   const emailOfficialCanBeEdited = !(emailOfficialInitial) || isEmailOfficialEditModeOn;
   // console.log('activePerson:', activePerson);
+
+
+  const wevoteUserClick = async () => {
+    const primaryEmail = activePerson.emailOfficial;
+    const newPassword = generateRandomString(12);
+    // console.log(`deletewevoteuserpassword ${primaryEmail} ${newPassword}`);
+    const data = await weConnectQueryFn('google-reset-user-password', {
+      primaryEmail,
+      newPassword,
+    }, METHOD.POST);
+    // console.log('reset wevote password', data);
+    if (data.success) {
+      setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${primaryEmail} \n pass: ${newPassword}`);
+      setShowNewPasswordNotification(true);
+    } else {
+      console.error('Failed to reset password:', data);
+    }
+  };
+
+  const newPasswordNotificationOnCopy = () => {
+    setNewPasswordNotificationCopied(true);
+    setTimeout(() => {
+      setNewPasswordNotificationCopied(false);
+    }, 1500);
+  };
 
   return (
     <EditPersonFormWrapper>
@@ -531,6 +565,45 @@ const EditPersonForm = ({ classes }) => {
           value={emailOfficialLocal}
           variant="outlined"
         />
+        <QuickLink>
+          <SpanWithLinkStyle onClick={wevoteUserClick}>
+            Reset WeVote email password
+          </SpanWithLinkStyle>
+        </QuickLink>
+        {showNewPasswordNotification && (
+          <>
+            <ActionOptionContainerOverflow>
+              <ActionOptionContainerLeft8>
+                <ActionOptionList>
+                  <ActionOption>
+                    {newPasswordNotificationCopied ? 'Copied!' : (
+                      <CopyToClipboard text={newPasswordNotification} onCopy={() => newPasswordNotificationOnCopy(true)}>
+                        <SpanWithLinkStyle>
+                          Copy to Clipboard
+                        </SpanWithLinkStyle>
+                      </CopyToClipboard>
+                    )}
+                  </ActionOption>
+                  <ActionOption>
+                    Please send to volunteer via Slack.
+                  </ActionOption>
+                </ActionOptionList>
+              </ActionOptionContainerLeft8>
+            </ActionOptionContainerOverflow>
+            <div>
+              <TextField
+                multiline
+                rows={5}
+                value={newPasswordNotification}
+                // onChange={(e) => setEmailText(e.target.value)}
+                placeholder="Enter text to be copied..."
+                fullWidth
+                variant="outlined"
+                margin="normal"
+              />
+            </div>
+          </>
+        )}
         <TextUnderInputField>
           <EmailOfficialManager
             emailOfficialEdited={emailOfficialEdited}
