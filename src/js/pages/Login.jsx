@@ -1,4 +1,5 @@
-import { Button, TextField } from '@mui/material';
+import { Button, TextField, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
@@ -47,6 +48,7 @@ const Login = ({ classes }) => {
   const [successLine, setSuccessLine] = useState('');
   const [warningLine, setWarningLine] = useState('');
   const [loginCount, setLoginCount] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { data: dataAuth, isSuccess: isSuccessAuth, isFetching: isFetchingAuth } = useFetchData(['get-auth'], {}, METHOD.POST);
   useEffect(() => {
@@ -301,6 +303,12 @@ const Login = ({ classes }) => {
     setAppContextValue('openVerifySecretCodeModalDialog', true);
   };
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
   // console.log(getAppContextData());
   const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
   const isAuthSafe = getAppContextValue('isAuthenticated') || false;
@@ -399,19 +407,47 @@ const Login = ({ classes }) => {
               <TextField id="password"
                          label="Password"
                          variant="outlined"
-                         // type="password"
+                         type={showPassword ? 'text' : 'password'}
                          autoComplete="current-password"
                          inputRef={passwordFldRef}
                          // defaultValue="12345678"
                          sx={{ display: 'block', paddingBottom: '15px' }}
+                         InputProps={{
+                           endAdornment: (
+                             <InputAdornment position="end">
+                               <IconButton
+                                 aria-label="toggle password visibility"
+                                 onClick={handleClickShowPassword}
+                                 onMouseDown={handleMouseDownPassword}
+                                 edge="end"
+                               >
+                                 {showPassword ? <VisibilityOff /> : <Visibility />}
+                               </IconButton>
+                             </InputAdornment>
+                           ),
+                         }}
               />
               <TextField id="confirmPassword"
                          label="Confirm Password"
                          variant="outlined"
-                         // type="password"
+                         type={showPassword ? 'text' : 'password'}
                          inputRef={confirmPasswordFldRef}
                          // defaultValue="12345678"
                          sx={{ padding: '0 0 15px 10px', display: showCreateStuff ? 'block' : 'none'  }}
+                         InputProps={{
+                           endAdornment: (
+                             <InputAdornment position="end">
+                               <IconButton
+                                 aria-label="toggle password visibility"
+                                 onClick={handleClickShowPassword}
+                                 onMouseDown={handleMouseDownPassword}
+                                 edge="end"
+                               >
+                                 {showPassword ? <VisibilityOff /> : <Visibility />}
+                               </IconButton>
+                             </InputAdornment>
+                           ),
+                         }}
               />
             </span>
             <span style={{ display: 'flex' }}>
