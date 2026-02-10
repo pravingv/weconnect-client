@@ -253,6 +253,7 @@ const Login = ({ classes }) => {
 
   const closeResetYourPassword = () => {
     clearSignedInGlobals(setAppContextValue, getAppContextData);
+    setOpenResetPasswordDialog(false);
     // console.log('closeResetYourPassword in Login before logoutApiInLogin()');
     logoutApiInLogin().then(() => removeSessionCookie());
   };

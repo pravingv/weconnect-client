@@ -46,14 +46,15 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
   return response?.data;
 };
 
-const useFetchData = (queryKey, fetchParams, isGet, shouldExecute = true) => {
+const useFetchData = (queryKey, fetchParams, isGet, shouldExecute = true, queryOptions = {}) => {
   if (shouldExecute) {
     reactQueryLog('useFetchData queryKey, fetchParams before fetch: ', queryKey, '  fetchParams: ', fetchParams);
   }
   const { data, isSuccess, isFetching, isStale, refetch, error } = useQuery({
     queryKey,
     queryFn: () => weConnectQueryFn(queryKey, fetchParams, isGet),
-    shouldExecute,
+    enabled: shouldExecute,
+    ...queryOptions,
   });
   if (error) {
     console.log(`An error occurred with ${queryKey}: ${error.message}`);
