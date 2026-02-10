@@ -38,6 +38,8 @@ const AddTeamForm = ({ classes }) => {
     mutationFn: () => weConnectQueryFn('team-save', {
       teamName: teamNameCached,
       teamNameChanged: true,
+      isC3NonprofitChanged: true,
+      isC4NonprofitChanged: true,
       isC3Nonprofit,
       isC4Nonprofit,
       teamId: team && team.id ? team.id : '-1',
