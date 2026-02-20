@@ -1,4 +1,4 @@
-import { Workspaces as WorkspacesIcon, Quiz as QuizIcon, AdminPanelSettings as AdminPanelSettingsIcon } from '@mui/icons-material';
+import { Workspaces as WorkspacesIcon, Quiz as QuizIcon, AdminPanelSettings as AdminPanelSettingsIcon, BarChart as BarChartIcon } from '@mui/icons-material';
 import { Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -98,6 +98,13 @@ const SystemSettings = () => {
             onClick={() => navigate('/system-settings/permissions')}
           >
             Permissions Administration
+          </StyledButton>
+          <StyledButton
+            variant="contained"
+            startIcon={<BarChartIcon />}
+            onClick={() => navigate('/system-settings/reports')}
+          >
+            Reports
           </StyledButton>
         </Settings>
       </Content>

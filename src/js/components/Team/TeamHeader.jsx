@@ -74,7 +74,7 @@ const TeamHeader = (
   const editTeamClick = () => {
     // console.log('editTeamClick: ', teamLocal);
     setAppContextValue('addTeamDrawerOpen', true);
-    setAppContextValue('AddTeamDrawerLabel', 'Edit Team Name');
+    setAppContextValue('AddTeamDrawerLabel', 'Edit Team');
     setAppContextValue('teamForAddTeamDrawer', teamLocal);
   };
 
@@ -250,9 +250,11 @@ const TeamHeader = (
             {showIcons && !(showStatusOfferDecisionNeeded || showNotOnTeam) && (
               <>
                 {viewerCanSeeOrDo(['canEditTeamAnyTeam'], viewerAccessRights) && (
-                  <TeamHeaderCell $cellwidth={20} onClick={editTeamClick} $titleCell>
-                    <EditStyled />
-                  </TeamHeaderCell>
+                  <ActionBarItem>
+                    <EditIconWrapper onClick={editTeamClick}>
+                      <EditStyled />
+                    </EditIconWrapper>
+                  </ActionBarItem>
                 )}
               </>
             )}
@@ -421,8 +423,10 @@ const TeamHeaderPersonColumnTitles = styled('div')`
 
 const TeamHeaderCell = styled('div')`
   align-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   // border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
-  ${(props) => (props.$rightAlign ? 'display: flex;' : '')};
   ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};
   //height: 22px;
@@ -431,6 +435,7 @@ const TeamHeaderCell = styled('div')`
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   overflow: hidden;
   white-space: nowrap;
+  cursor: pointer;
 `;
 
 const TeamLead = styled('div')`
@@ -441,6 +446,13 @@ const TeamLead = styled('div')`
 const TeamMemberCount = styled('div')`
   color: ${DesignTokenColors.neutralUI400};
   // font-size: .8em;
+`;
+
+const EditIconWrapper = styled('div')`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 `;
 
 export default withStyles(styles)(TeamHeader);
