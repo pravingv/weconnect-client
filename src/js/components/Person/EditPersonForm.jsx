@@ -1,27 +1,28 @@
+import { ErrorOutline, Launch } from '@mui/icons-material';
+import { Alert } from '@mui/lab';
 import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
-import { Launch } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import PropTypes from 'prop-types';
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import styled from 'styled-components';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+import generateRandomString from '../../common/utils/generateRandomString';
 import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
-import { ActionOption, ActionOptionContainerLeft8, ActionOptionContainerOverflow, ActionOptionList } from '../Style/actionOptionStyles';
 import makeRequestParams from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
+import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { ActionOption, ActionOptionContainerLeft8, ActionOptionContainerOverflow, ActionOptionList } from '../Style/actionOptionStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
-import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
-import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
-import generateRandomString from '../../common/utils/generateRandomString';
 
 
 dayjs.extend(utc);
@@ -40,6 +41,7 @@ const EditPersonForm = ({ classes }) => {
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const [showCompletedOnboardingCheckboxes, setShowCompletedOnboardingCheckboxes] = useState(false);
   const [initialPerson] = useState(getAppContextValue('profileDrawerPerson'));
   // const [initialPerson] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
@@ -186,20 +188,31 @@ const EditPersonForm = ({ classes }) => {
   // console.log('activePerson:', activePerson);
 
 
-  const wevoteUserClick = async () => {
-    const primaryEmail = activePerson.emailOfficial;
+  const resetWeVoteEducationClick = async () => {
+    setEmailError('');
+    const { emailOfficial, emailPersonal, firstName } = activePerson;
+    if (!emailOfficial.includes('wevoteeducation.org') && !emailPersonal.includes('wevoteeducation.org')) {
+      setEmailError(`"${firstName}" does not have a wevoteeducation.org email as either their official (${emailOfficial}) or private (${emailOfficial}) address`);
+      return;
+    }
+    const emailToChange = emailOfficial.includes('wevoteeducation.org') ? emailOfficial : emailPersonal;
     const newPassword = generateRandomString(12);
-    // console.log(`deletewevoteuserpassword ${primaryEmail} ${newPassword}`);
+    // console.log(`deletewevoteuserpassword ${emailToChange} ${newPassword}`);
     const data = await weConnectQueryFn('google-reset-user-password', {
-      primaryEmail,
+      emailToChange,
       newPassword,
     }, METHOD.POST);
     // console.log('reset wevote password', data);
     if (data.success) {
-      setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${primaryEmail} \n pass: ${newPassword}`);
+      setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${emailToChange} \n pass: ${newPassword}`);
       setShowNewPasswordNotification(true);
     } else {
       console.error('Failed to reset password:', data);
+      if (data.error.startsWith('Missing required')) {
+        setEmailError(`'${emailToChange}' is not an existing valid @wevoteeducation.org email address.`);
+      } else {
+        setEmailError(`${data.error}, google api server code: ${data.errorCode}`);
+      }
     }
   };
 
@@ -552,7 +565,7 @@ const EditPersonForm = ({ classes }) => {
           classes={viewerIsOnHrTeam ? { root: classes.showThisField } : { root: classes.hideThisField }}
           disabled={!emailOfficialCanBeEdited}
           id="emailOfficialToBeSaved"
-          label={`Email Address, ${webAppConfig.ORGANIZATION_NAME} Official`}
+          label={<span style={{ paddingRight: '8px' }}>Email Address, {webAppConfig.ORGANIZATION_NAME} Official ({webAppConfig.ORGANIZATION_NAME === 'WeVote' ? '@wevoteeducation.org' : ''})</span>}
           margin="dense"
           name="emailOfficial"
           onChange={(event) => {
@@ -565,9 +578,14 @@ const EditPersonForm = ({ classes }) => {
           value={emailOfficialLocal}
           variant="outlined"
         />
+        {emailError.length > 0 && (
+          <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
+            {emailError}
+          </Alert>
+        )}
         <QuickLink>
-          <SpanWithLinkStyle onClick={wevoteUserClick}>
-            Reset WeVote email password
+          <SpanWithLinkStyle onClick={resetWeVoteEducationClick}>
+            Reset Official ({webAppConfig.ORGANIZATION_NAME === 'WeVote' ? '@wevoteeducation.org' : ''}) email password
           </SpanWithLinkStyle>
         </QuickLink>
         {showNewPasswordNotification && (

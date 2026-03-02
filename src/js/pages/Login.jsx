@@ -110,7 +110,7 @@ const Login = ({ classes }) => {
       setAppContextValue('authenticatedPerson', data.person);
       queryClient.invalidateQueries('get-auth');
       if (data.emailVerified) {
-        passwordFldRef.current.value = '';   // Blank the email field after signing in
+        passwordFldRef.current = '';   // Blank the email field after signing in
         setWarningLine('');
         setAppContextValue('secretCodeVerified', true);
         setAppContextValue('openVerifySecretCodeModalDialog', false);
@@ -148,8 +148,10 @@ const Login = ({ classes }) => {
       setOpenResetPasswordDialog(false);
       setShowCreateStuff(false);
       const per = authPerson.current ? authPerson.current : getAppContextValue('authenticatedPerson');
-      setSuccessLine(`${getFullNamePreferredPerson(per)}, you are signed in!`);
-      passwordFldRef.current.value = '';   // Blank the email field after signing in
+      setWarningLine('');
+      const name = getFullNamePreferredPerson(per);
+      setSuccessLine(name.length ? `${name}, you are signed in!` : 'You are signed in!');
+      passwordFldRef.current = '';   // Blank the email field after signing in
     }
   };
 
@@ -229,7 +231,7 @@ const Login = ({ classes }) => {
 
   const signOutButtonPressed = async () => {
     if (passwordFldRef.current) {
-      passwordFldRef.current.value = '';   // Blank the email field after signing out
+      passwordFldRef.current = '';   // Blank the email field after signing out
     }
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     setOpenResetPasswordDialog(false);
@@ -266,7 +268,7 @@ const Login = ({ classes }) => {
     } else {
       setWarningLine('');
       let errStr = '';
-      const firstName =  firstNameFldRef.current.value;
+      const firstName =  firstNameFldRef?.current?.value;
       const lastName =  lastNameFldRef.current.value;
       const location =  locationFldRef.current.value;
       const emailPersonal =  emailPersonalFldRef.current.value;
@@ -303,7 +305,7 @@ const Login = ({ classes }) => {
 
   // console.log(getAppContextData());
   const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
-  const isAuthSafe = getAppContextValue('isAuthenticated') || false;
+  // const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   let isAuthenticated = false;
   let authenticatedPerson = {};
   if (dataAuth) {
