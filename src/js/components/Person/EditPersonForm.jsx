@@ -1,6 +1,5 @@
 import { ErrorOutline, Launch } from '@mui/icons-material';
-import { Alert } from '@mui/lab';
-import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
+import { Alert, Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -199,7 +198,7 @@ const EditPersonForm = ({ classes }) => {
     const newPassword = generateRandomString(12);
     // console.log(`deletewevoteuserpassword ${emailToChange} ${newPassword}`);
     const data = await weConnectQueryFn('google-reset-user-password', {
-      emailToChange,
+      primaryEmail: emailToChange,
       newPassword,
     }, METHOD.POST);
     // console.log('reset wevote password', data);
@@ -207,7 +206,8 @@ const EditPersonForm = ({ classes }) => {
       setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${emailToChange} \n pass: ${newPassword}`);
       setShowNewPasswordNotification(true);
     } else {
-      console.error('Failed to reset password:', data);
+      // console.error('Failed to reset password:', data);
+      console.log(`Reset password API error: ${data.error}`);
       if (data.error.startsWith('Missing required')) {
         setEmailError(`'${emailToChange}' is not an existing valid @wevoteeducation.org email address.`);
       } else {
