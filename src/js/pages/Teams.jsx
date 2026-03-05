@@ -13,6 +13,7 @@ import { captureTeamListRetrieveData, getTeamMemberPersonListByTeamId } from '..
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 import { showPersonInMemberList } from '../utils/showPerson';
 import { showCohortTeam, showTeam } from '../utils/showTeam';
+import { DEPARTMENTS, DEPARTMENT_LIST } from '../constants/DepartmentConstants';
 
 
 const Teams = () => {
@@ -23,6 +24,7 @@ const Teams = () => {
 
   const [mostRecentOnlyPeopleFilterChosen, setMostRecentOnlyPeopleFilterChosen] = useState('');
   const [searchText, setSearchText] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('All teams');
   const [showAllTeamMembers, setShowAllTeamMembers] = useState(true);
   const [statusNotOnTeamCohortMemberList, setStatusNotOnTeamCohortMemberList] = useState([]);
   const [statusOfferDecisionNeededCohortMemberList, setStatusOfferDecisionNeededCohortMemberList] = useState([]);
@@ -154,6 +156,9 @@ const Teams = () => {
     setAppContextValue('teamsActionBarShowAllTeamMembers', true);
   }, []);
 
+  const showCohortsForSelectedDepartment =
+    selectedDepartment === DEPARTMENTS.ALL_TEAMS || selectedDepartment === DEPARTMENTS.OTHER;
+
   return (
     <div>
       <Helmet>
@@ -164,15 +169,30 @@ const Teams = () => {
         </title>
         {/* Don't think we can do this anymore ... <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/team-home`} /> */}
       </Helmet>
+      <DepartmentFilterHeader>
+        {DEPARTMENT_LIST.map((dept) => (
+          <DepartmentFilterButton
+            key={dept}
+            active={selectedDepartment === dept}
+            onClick={() => setSelectedDepartment(dept)}
+          >
+            {dept}
+          </DepartmentFilterButton>
+        ))}
+      </DepartmentFilterHeader>
       <PageContentContainer>
         <ActionBarWrapperSpacer />
         {/* NOTE: we continue working on refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the TeamMember data of team members */}
         {/* We have partially implemented this change by introducing teamMemberInfoList */}
         {teamList.map((team) => {
-          if (showTeam(team, searchText, getAppContextValue)) {
+          const teamIdentifier = team?.teamId || team?.id;
+          const teamMatchesDepartmentFilter = selectedDepartment === 'All teams' || 
+            (team.departments && team.departments.includes(selectedDepartment));
+          
+          if (showTeam(team, searchText, getAppContextValue) && teamMatchesDepartmentFilter) {
             return (
-              <OneTeamWrapper key={`team-${team.id}`}>
+              <OneTeamWrapper key={`team-${teamIdentifier}`}>
                 <TeamHeader
                   searchText={searchText}
                   showAllTeamMembersFromParent={showAllTeamMembers}
@@ -184,7 +204,7 @@ const Teams = () => {
             return null;
           }
         })}
-        {showCohortTeam(searchText, statusOfferDecisionNeededCohortMemberList, false, true) && (
+        {showCohortsForSelectedDepartment && showCohortTeam(searchText, statusOfferDecisionNeededCohortMemberList, false, true) && (
           <OneTeamWrapper key="team-offerDecisionNeeded">
             <TeamHeader
               hideTeamMemberCount
@@ -194,7 +214,7 @@ const Teams = () => {
             />
           </OneTeamWrapper>
         )}
-        {showCohortTeam(searchText, statusNotOnTeamCohortMemberList, true, false) && (
+        {showCohortsForSelectedDepartment && showCohortTeam(searchText, statusNotOnTeamCohortMemberList, true, false) && (
           <OneTeamWrapper key="team-notOnTeam">
             <TeamHeader
               hideTeamMemberCount
@@ -218,7 +238,45 @@ const OneTeamWrapper = styled('div')`
 `;
 
 const ActionBarWrapperSpacer = styled('div')`
-  margin-top: 60px;
+  margin-top: 170px;
+`;
+
+const DepartmentFilterHeader = styled('div')`
+  position: fixed;
+  top: 110px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  border-bottom: 2px solid #e5e5e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  flex-wrap: wrap;
+`;
+
+const DepartmentFilterButton = styled('button')`
+  border: 1px solid ${props => props.active ? '#1e6fb9' : '#d0d0d0'};
+  background: ${props => props.active ? '#1e6fb9' : 'white'};
+  color: ${props => props.active ? 'white' : '#333'};
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: ${props => props.active ? '600' : '500'};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: ${props => props.active ? '#1a5a94' : '#f5f5f5'};
+    border-color: ${props => props.active ? '#1a5a94' : '#b0b0b0'};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 export default withStyles(styles)(Teams);

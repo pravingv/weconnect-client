@@ -9,6 +9,27 @@ const METHOD = {
   POST: false,
 };
 
+const buildSearchParams = (params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined || value === null) return;
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (item !== undefined && item !== null) {
+          searchParams.append(key, item);
+        }
+      });
+      return;
+    }
+
+    searchParams.append(key, value);
+  });
+
+  return searchParams;
+};
+
 
 // https://refine.dev/blog/react-query-guide/#performing-basic-data-fetching
 // Define a default query function that will receive the query key
@@ -24,7 +45,7 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
     forceMaster ? 'https://teamapi.wevote.org/apis/v1/' : webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
   // console.log(queryKey, params, isGet);
   if (isGet) {
-    url.search = new URLSearchParams(params);
+    url.search = buildSearchParams(params).toString();
   }
   reactQueryLog(`weConnectQueryFn ${isGet ? 'GET' : 'POST'} url.href: ${url.href}`);
 
