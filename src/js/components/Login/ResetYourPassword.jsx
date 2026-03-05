@@ -1,4 +1,5 @@
-import { Modal } from '@mui/material';
+import { Modal, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -30,6 +31,8 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
   const [warningLine, setWarningLine] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [personId, setPersonId] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword1, setShowPassword1] = useState(false);
 
   const emailRef = useRef('');
   const emailPersonalRef = useRef('');
@@ -151,6 +154,13 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
     );
   }
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleClickShowPassword1 = () => setShowPassword1((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
   return (
     <>
       <Modal
@@ -190,24 +200,52 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                   id="field1"
                   inputRef={password1Ref}
                   label="Password"
-                  // type="password"
+                  type={showPassword ? 'text' : 'password'}
                   margin="dense"
                   name="password1"
                   required
                   variant="outlined"
                   // sx={{ '-webkit-text-security': 'disc' }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
                 <TextField
                   fullWidth
                   id="field2"
                   inputRef={password2Ref}
                   label="Verify Password"
-                  // type="password"
+                  type={showPassword1 ? 'text' : 'password'}
                   margin="dense"
                   name="password2"
                   required
                   variant="outlined"
                   // sx={{ '-webkit-text-security': 'disc' }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword1}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword1 ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </>
             )}

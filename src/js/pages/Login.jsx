@@ -1,4 +1,5 @@
-import { Button, TextField } from '@mui/material';
+import { Button, TextField, InputAdornment, IconButton } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
@@ -47,6 +48,7 @@ const Login = ({ classes }) => {
   const [successLine, setSuccessLine] = useState('');
   const [warningLine, setWarningLine] = useState('');
   const [loginCount, setLoginCount] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { data: dataAuth, isSuccess: isSuccessAuth, isFetching: isFetchingAuth } = useFetchData(['get-auth'], {}, METHOD.POST);
   useEffect(() => {
@@ -110,7 +112,7 @@ const Login = ({ classes }) => {
       setAppContextValue('authenticatedPerson', data.person);
       queryClient.invalidateQueries('get-auth');
       if (data.emailVerified) {
-        passwordFldRef.current.value = '';   // Blank the email field after signing in
+        passwordFldRef.current = '';   // Blank the email field after signing in
         setWarningLine('');
         setAppContextValue('secretCodeVerified', true);
         setAppContextValue('openVerifySecretCodeModalDialog', false);
@@ -148,8 +150,10 @@ const Login = ({ classes }) => {
       setOpenResetPasswordDialog(false);
       setShowCreateStuff(false);
       const per = authPerson.current ? authPerson.current : getAppContextValue('authenticatedPerson');
-      setSuccessLine(`${getFullNamePreferredPerson(per)}, you are signed in!`);
-      passwordFldRef.current.value = '';   // Blank the email field after signing in
+      setWarningLine('');
+      const name = getFullNamePreferredPerson(per);
+      setSuccessLine(name.length ? `${name}, you are signed in!` : 'You are signed in!');
+      passwordFldRef.current = '';   // Blank the email field after signing in
     }
   };
 
@@ -229,7 +233,7 @@ const Login = ({ classes }) => {
 
   const signOutButtonPressed = async () => {
     if (passwordFldRef.current) {
-      passwordFldRef.current.value = '';   // Blank the email field after signing out
+      passwordFldRef.current = '';   // Blank the email field after signing out
     }
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     setOpenResetPasswordDialog(false);
@@ -266,7 +270,7 @@ const Login = ({ classes }) => {
     } else {
       setWarningLine('');
       let errStr = '';
-      const firstName =  firstNameFldRef.current.value;
+      const firstName =  firstNameFldRef?.current?.value;
       const lastName =  lastNameFldRef.current.value;
       const location =  locationFldRef.current.value;
       const emailPersonal =  emailPersonalFldRef.current.value;
@@ -301,9 +305,15 @@ const Login = ({ classes }) => {
     setAppContextValue('openVerifySecretCodeModalDialog', true);
   };
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
   // console.log(getAppContextData());
   const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
-  const isAuthSafe = getAppContextValue('isAuthenticated') || false;
+  // const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   let isAuthenticated = false;
   let authenticatedPerson = {};
   if (dataAuth) {
@@ -399,19 +409,47 @@ const Login = ({ classes }) => {
               <TextField id="password"
                          label="Password"
                          variant="outlined"
-                         // type="password"
+                         type={showPassword ? 'text' : 'password'}
                          autoComplete="current-password"
                          inputRef={passwordFldRef}
                          // defaultValue="12345678"
                          sx={{ display: 'block', paddingBottom: '15px' }}
+                         InputProps={{
+                           endAdornment: (
+                             <InputAdornment position="end">
+                               <IconButton
+                                 aria-label="toggle password visibility"
+                                 onClick={handleClickShowPassword}
+                                 onMouseDown={handleMouseDownPassword}
+                                 edge="end"
+                               >
+                                 {showPassword ? <VisibilityOff /> : <Visibility />}
+                               </IconButton>
+                             </InputAdornment>
+                           ),
+                         }}
               />
               <TextField id="confirmPassword"
                          label="Confirm Password"
                          variant="outlined"
-                         // type="password"
+                         type={showPassword ? 'text' : 'password'}
                          inputRef={confirmPasswordFldRef}
                          // defaultValue="12345678"
                          sx={{ padding: '0 0 15px 10px', display: showCreateStuff ? 'block' : 'none'  }}
+                         InputProps={{
+                           endAdornment: (
+                             <InputAdornment position="end">
+                               <IconButton
+                                 aria-label="toggle password visibility"
+                                 onClick={handleClickShowPassword}
+                                 onMouseDown={handleMouseDownPassword}
+                                 edge="end"
+                               >
+                                 {showPassword ? <VisibilityOff /> : <Visibility />}
+                               </IconButton>
+                             </InputAdornment>
+                           ),
+                         }}
               />
             </span>
             <span style={{ display: 'flex' }}>
