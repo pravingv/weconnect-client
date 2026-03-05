@@ -25,7 +25,7 @@ const FastLoad = () => {
 
   useEffect(() => {
     const { location: { hostname } } = window;
-    if (hostname.includes('wevote.org') || webAppConfig.SERVER_IS_SOURCE_OF_TRUTH == true) {
+    if (hostname.includes('wevote.org') || webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === true) {
       setFeatureDisabled(true);
     }
   }, []);
