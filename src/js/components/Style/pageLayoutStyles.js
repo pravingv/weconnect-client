@@ -92,6 +92,7 @@ export const DualHeaderContainer = styled('div', {
 
 export const HeadroomWrapper = styled('div')`
   position: fixed;
+  top: 0;
   left: 0;
   width: 100%;
   background: white;

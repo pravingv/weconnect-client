@@ -96,6 +96,7 @@ export function captureTeamListRetrieveData (
     data.teamList.forEach((team) => {
       if (team && team.teamId && team.teamId >= 0) {
         teamTrimmed = { ...team };
+        teamTrimmed.id = teamTrimmed.teamId;
         delete teamTrimmed.teamMemberInfoList;
         delete teamTrimmed.teamMemberList;
         if (!allTeamsCacheNew[teamTrimmed.teamId]) {

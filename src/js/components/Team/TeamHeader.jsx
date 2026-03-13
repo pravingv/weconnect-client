@@ -45,10 +45,8 @@ const TeamHeader = (
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
   const [teamLeads, setTeamLeads] = useState('');
   const [teamLeadsCount, setTeamLeadsCount] = useState(0);
-  let teamLocal = team;
-  if (!teamLocal || !teamLocal.teamName) {
-    teamLocal = getAppContextValue('teamForAddTeamDrawer');
-  }
+  const teamLocal = team;
+  const teamIdentifier = team?.teamId || team?.id;
 
   const addTeamMemberClick = () => {
     // console.log('TeamHome addTeamMemberClick, teamId:', teamId);
@@ -90,8 +88,8 @@ const TeamHeader = (
     let teamLeadsCountTemp = 0;
     let teamLeadsTemp = '';
     let updatedTeamMemberList = [];
-    if (team && team.id && apiDataCache) {
-      updatedTeamMemberList = getTeamMemberListByTeamId(team.id, apiDataCache);
+    if (team && teamIdentifier && apiDataCache) {
+      updatedTeamMemberList = getTeamMemberListByTeamId(teamIdentifier, apiDataCache);
     }
     updatedTeamMemberList.forEach((teamMember) => {
       if (teamMember && teamMember.personId && teamMember.personId >= 0) {
@@ -118,8 +116,8 @@ const TeamHeader = (
     let officialEmails = '';
     let personalEmails = '';
     let updatedTeamMemberPersonList = [];
-    if (team && team.id && apiDataCache) {
-      updatedTeamMemberPersonList = getTeamMemberPersonListByTeamId(team.id, apiDataCache);
+    if (team && teamIdentifier && apiDataCache) {
+      updatedTeamMemberPersonList = getTeamMemberPersonListByTeamId(teamIdentifier, apiDataCache);
     }
 
     updatedTeamMemberPersonList.forEach((person) => {
@@ -158,9 +156,9 @@ const TeamHeader = (
               <KeyboardArrowDownStyled />
             )}
           </TeamHeaderCell>
-          <TeamHeaderCell $cellwidth={335} $largefont $titlecell>
+          <TeamHeaderCell $cellwidth={335} $largefont $titlecell $leftAlign>
             {teamLocal ? (
-              <Link className={classes.teamLocalNameLink} to={`/team-home/${teamLocal.id}`}>
+              <Link className={classes.teamLocalNameLink} to={`/team-home/${teamLocal?.teamId || teamLocal?.id}`}>
                 {teamLocal.teamName}
               </Link>
             ) : (
@@ -281,7 +279,7 @@ const TeamHeader = (
           </TeamHeaderPersonColumnTitles>
         )}
       </OneTeamHeaderOuterWrapper>
-      {(showAllTeamMembers && team && team.id) && (
+      {(showAllTeamMembers && team && teamIdentifier) && (
         <>
           {/* DO NOT REMOVE PASSED IN team */}
           <TeamMemberList
@@ -289,7 +287,7 @@ const TeamHeader = (
             hideInactive={hideInactive}
             searchText={searchText}
             team={team}
-            teamId={team.id}
+            teamId={teamIdentifier}
           />
         </>
       )}
@@ -323,15 +321,20 @@ TeamHeader.propTypes = {
 const styles = () => ({
   teamLocalNameLink: {
     color: `${DesignTokenColors.neutral800}`,
+    display: 'block',
     fontWeight: 600,
+    textAlign: 'left',
     textDecoration: 'none',
+    width: '100%',
   },
 });
 
 const CohortTitle = styled('div')`
   color: ${DesignTokenColors.neutral800};
+  text-align: left;
   font-weight: 600;
   text-decoration: none;
+  width: 100%;
 `;
 
 const ContentCopyStyled = styled(ContentCopy)`
@@ -425,7 +428,7 @@ const TeamHeaderCell = styled('div')`
   align-content: center;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: ${(props) => (props.$leftAlign ? 'flex-start' : 'center')};
   // border-bottom: ${(props) => (props?.$titleCell ? ';' : '1px solid #ccc;')}
   ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (props?.$largefont ? '1.1em;' : '.8em;')};

@@ -7,6 +7,27 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import { DEPARTMENT_LIST } from '../../constants/DepartmentConstants';
+
+const normalizeDepartments = (departments) => {
+  if (Array.isArray(departments)) {
+    return departments;
+  }
+
+  if (typeof departments === 'string') {
+    return departments
+      .split(',')
+      .map((department) => department.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+const getTeamId = (team) => {
+  if (!team) return -1;
+  return team.teamId || team.id || -1;
+};
 
 
 const AddTeamForm = ({ classes }) => {
@@ -20,6 +41,7 @@ const AddTeamForm = ({ classes }) => {
     const [teamNameCached, setTeamNameCached] = useState('');
     const [isC3Nonprofit, setIsC3Nonprofit] = useState(false);
     const [isC4Nonprofit, setIsC4Nonprofit] = useState(false);
+    const [selectedDepartments, setSelectedDepartments] = useState([]);
     const [errorText, setErrorText] = useState('');
 
   useEffect(() => {
@@ -27,12 +49,14 @@ const AddTeamForm = ({ classes }) => {
       setTeamNameCached(team.teamName);
       setIsC3Nonprofit(team.isC3Nonprofit || false);
       setIsC4Nonprofit(team.isC4Nonprofit || false);
+      setSelectedDepartments(normalizeDepartments(team.departments));
     } else {
       setTeamNameCached('');
       setIsC3Nonprofit(false);
       setIsC4Nonprofit(false);
+      setSelectedDepartments([]);
     }
-  }, [team?.id]);
+  }, [team?.teamId, team?.id]);
 
   const saveTeamMutation = useMutation({
     mutationFn: () => weConnectQueryFn('team-save', {
@@ -42,7 +66,9 @@ const AddTeamForm = ({ classes }) => {
       isC4NonprofitChanged: true,
       isC3Nonprofit,
       isC4Nonprofit,
-      teamId: team && team.id ? team.id : '-1',
+      departments: normalizeDepartments(selectedDepartments),
+      departmentsChanged: true,
+      teamId: getTeamId(team),
     }, METHOD.GET),
     onSuccess: () => {
       // console.log('--------- saveTeamMutation addTeamForm mutated ---------');
@@ -100,6 +126,30 @@ const AddTeamForm = ({ classes }) => {
             label="C4 Nonprofit"
           />
         </CheckboxesWrapper>
+        <DepartmentSection>
+          <DepartmentLabel>Departments</DepartmentLabel>
+          <CheckboxesWrapper>
+            {DEPARTMENT_LIST.filter(dept => dept !== 'All teams').map((dept) => (
+              <FormControlLabel
+                key={dept}
+                control={
+                  <Checkbox
+                    checked={selectedDepartments.includes(dept)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedDepartments([...selectedDepartments, dept]);
+                      } else {
+                        setSelectedDepartments(selectedDepartments.filter(d => d !== dept));
+                      }
+                    }}
+                    name={dept}
+                  />
+                }
+                label={dept}
+              />
+            ))}
+          </CheckboxesWrapper>
+        </DepartmentSection>
         <Button
           classes={{ root: classes.saveNewTeamButton }}
           color="primary"
@@ -147,6 +197,21 @@ const CheckboxesWrapper = styled('div')`
   gap: 20px;
   margin: 15px 0;
   flex-wrap: wrap;
+`;
+
+const DepartmentSection = styled('div')`
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f9f9f9;
+`;
+
+const DepartmentLabel = styled('div')`
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1e6fb9;
 `;
 
 const AddTeamFormWrapper = styled('div')`
