@@ -58,7 +58,7 @@ const Tasks = () => {
     }
   }, [apiDataCache, dispatch, taskGroupListRetrieveResults]);
 
-  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.GET);
+  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.POST);
   useEffect(() => {
     if (taskStatusListRetrieveResults) {
       captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch);

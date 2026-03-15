@@ -1,22 +1,16 @@
 import { TextField } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import CrossIcon from '../../../img/global/svg-icons/cross.svg';
 import arrayContains from '../../common/utils/arrayContains';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
-import makeRequestParams from '../../react-query/makeRequestParams';
 import { useAddPersonToTeamMutation } from '../../react-query/mutations';
-import {
-  alphabetizePeoplesObject,
-  filterNamesWithDEPRICATEKey,
-  orderListByFurthestFutureStartDate,
-  sortByNoTeamFirst,
-} from '../../utils/utilities';
+import { alphabetizePeoplesObject, filterNamesWithDEPRICATEKey, orderListByFurthestFutureStartDate, sortByNoTeamFirst } from '../../utils/utilities';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { MatchingPerson, SearchBarWrapper } from '../Style/sharedStyles';
 import AddPersonForm from './AddPersonForm';
-import CrossIcon from '../../../img/global/svg-icons/cross.svg';
 
 const LIMIT_NUMBER_SHOWN = 20;
 
@@ -80,7 +74,7 @@ const AddPersonDrawerMainContent = () => {
     addToTeamListTemp = sortByNoTeamFirst(addToTeamListTemp, allPeopleTeamIdLists);
     addToTeamListTemp = orderListByFurthestFutureStartDate(addToTeamListTemp);
     addToTeamListTemp = filterNamesWithDEPRICATEKey(addToTeamListTemp);
-    addToTeamListTemp = addToTeamListTemp.filter((person) => (person.statusActive !== false) && (person.statusResigned !== true)).slice(0, LIMIT_NUMBER_SHOWN);
+    addToTeamListTemp = addToTeamListTemp.filter((person) => (person.statusActive === true) && (person.statusResigned !== true) && (person.statusOfferWillNotBeMade !== true)).slice(0, LIMIT_NUMBER_SHOWN);
     addToTeamListTemp = alphabetizePeoplesObject(addToTeamListTemp, true);
     setAddToTeamList(addToTeamListTemp);
   }, [searchResultsList, remainingPeopleToAdd]);
@@ -126,17 +120,16 @@ const AddPersonDrawerMainContent = () => {
     const personId = incomingPerson ? incomingPerson.personId : -1;
     const teamId = team ? team.teamId : -1;
     const teamName = team ? team.teamName : '';
-    const plainParams = {
+    const params = {
       personId,
       teamId,
-    };
-    addPersonToTeam(makeRequestParams(plainParams, {
       teamMemberFirstName: incomingPerson.firstName,
       teamMemberLastName: incomingPerson.lastName,
       teamName,
-    }));
-    // Remove this person from the All People less Adds list (since they were added to the team)
+    };
+    addPersonToTeam(params);
 
+    // Remove this person from the All People less Adds list (since they were added to the team)
     const updatedRemainingPeopleToAdd = remainingPeopleToAdd.filter((person) => person.personId !== incomingPerson.personId);
     setRemainingPeopleToAdd(updatedRemainingPeopleToAdd);
     if (searchResultsList && searchResultsList.length >= 0) {

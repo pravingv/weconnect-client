@@ -16,7 +16,7 @@ import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ActionOption, ActionOptionContainerLeft8, ActionOptionContainerOverflow, ActionOptionList } from '../Style/actionOptionStyles';
@@ -157,14 +157,11 @@ const EditPersonForm = ({ classes }) => {
     const plainParams = {
       personId: activePerson.id,
     };
-
-    personSave(makeRequestParams(plainParams, data));
+    personSave(makeRequestParamsDictionary(plainParams, data));
     setSaveButtonActive(false);
-    // setTimeout(() => {
     setAppContextValue('headerProfileDrawerOpen', false);
     setAppContextValue('profileDrawerPerson', undefined);
     setAppContextValue('profileDrawerPersonId', -1);
-    // }, 500);
   };
 
   const setEmailOfficialFromChild = (emailOfficial) => {

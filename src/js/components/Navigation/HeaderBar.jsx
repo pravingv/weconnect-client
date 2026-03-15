@@ -97,7 +97,7 @@ const HeaderBar = ({ hideTabs }) => {
     return Object.values(allPeopleCache).map((p) => p.personId);
   }, [allPeopleCache]);
 
-  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.GET, personIdsList.length > 0 && goodAllPeopleCache,
+  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.POST, personIdsList.length > 0 && goodAllPeopleCache,
     { refetchInterval: 30000, refetchIntervalInBackground: false });
   useEffect(() => {
     if (taskStatusListRetrieveResults) {

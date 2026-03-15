@@ -126,7 +126,8 @@ const Teams = () => {
       const teamMemberPersonIdsSet = new Set(
         Object.values(allTeamMembersCache)
           .flat()
-          .map((teamMember) => teamMember.personId));
+          .map((teamMember) => teamMember.personId),
+      );
       const teamMemberPersonIds = Array.from(teamMemberPersonIdsSet);
       // console.log('teams useEffect, teamMemberPersonIds: ', teamMemberPersonIds);
       // Filter allPeople to get those not in any team
@@ -173,7 +174,7 @@ const Teams = () => {
         {DEPARTMENT_LIST.map((dept) => (
           <DepartmentFilterButton
             key={dept}
-            active={selectedDepartment === dept}
+            $active={selectedDepartment === dept}
             onClick={() => setSelectedDepartment(dept)}
           >
             {dept}
@@ -187,9 +188,9 @@ const Teams = () => {
         {/* We have partially implemented this change by introducing teamMemberInfoList */}
         {teamList.map((team) => {
           const teamIdentifier = team?.teamId || team?.id;
-          const teamMatchesDepartmentFilter = selectedDepartment === 'All teams' || 
+          const teamMatchesDepartmentFilter = selectedDepartment === 'All teams' ||
             (team.departments && team.departments.includes(selectedDepartment));
-          
+
           if (showTeam(team, searchText, getAppContextValue) && teamMatchesDepartmentFilter) {
             return (
               <OneTeamWrapper key={`team-${teamIdentifier}`}>
@@ -258,20 +259,20 @@ const DepartmentFilterHeader = styled('div')`
 `;
 
 const DepartmentFilterButton = styled('button')`
-  border: 1px solid ${props => props.active ? '#1e6fb9' : '#d0d0d0'};
-  background: ${props => props.active ? '#1e6fb9' : 'white'};
-  color: ${props => props.active ? 'white' : '#333'};
+  border: 1px solid ${(props) => (props.active ? '#1e6fb9' : '#d0d0d0')};
+  background: ${(props) => (props.active ? '#1e6fb9' : 'white')};
+  color: ${(props) => (props.active ? 'white' : '#333')};
   padding: 8px 20px;
   border-radius: 20px;
   font-size: 14px;
-  font-weight: ${props => props.active ? '600' : '500'};
+  font-weight: ${(props) => (props.active ? '600' : '500')};
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
 
   &:hover {
-    background: ${props => props.active ? '#1a5a94' : '#f5f5f5'};
-    border-color: ${props => props.active ? '#1a5a94' : '#b0b0b0'};
+    background: ${(props) => (props.active ? '#1a5a94' : '#f5f5f5')};
+    border-color: ${(props) => (props.active ? '#1a5a94' : '#b0b0b0')};
   }
 
   &:active {
