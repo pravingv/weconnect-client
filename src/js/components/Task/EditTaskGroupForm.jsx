@@ -168,7 +168,6 @@ const EditTaskGroupForm = ({ classes }) => {
     taskGroupTeamLinkSave(requestParams);
   };
 
-
   const saveTaskGroupForm = () => {
     saveTaskGroup();
     saveTaskGroupTeamLink();

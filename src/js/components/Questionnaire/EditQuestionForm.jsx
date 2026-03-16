@@ -112,7 +112,6 @@ const EditQuestionForm = ({ classes }) => {
       statusActive: (statusActiveInputRef.current.checked),
     };
     const requestParams = makeRequestParamsDictionary(plainParams, params);
-
     mutateQuestionSave(requestParams);
     // console.log('saveQuestionnaire requestParams:', requestParams);
     setSaveButtonActive(false);
