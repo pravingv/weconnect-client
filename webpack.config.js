@@ -47,6 +47,7 @@ async function getStatusValues () {
     const hashURL = `https://github.com/wevote/weconnect-server/commit/${hash}`;
     const response = await fetch(hashURL);
     const text = await response.text();
+    console.log(`git_commit_hash: '${text}'`);
     const pr = text.match(/"Merge pull request (.*?)wevote/);
     stats.Pull_request = pr[1].slice(0, -2);
     const dateStringResults = text.match(/"committedDate":"(.*?)"/);
