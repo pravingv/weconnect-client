@@ -40,7 +40,7 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
   });
 
 
-  httpLog('HTTP weConnectQueryFn : ', JSON.stringify(res || {}));
+  httpLog(`HTTP weConnectQueryFn ${queryKey} (${isGet ? 'GET' : 'POST'}): ${JSON.stringify(res || {})}`);
   const url = new URL(`${queryKey}/`,
     forceMaster ? 'https://teamapi.wevote.org/apis/v1/' : webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
   // console.log(queryKey, params, isGet);
