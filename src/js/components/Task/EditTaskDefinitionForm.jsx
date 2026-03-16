@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControl, FormControlLabel, TextField, } from '@mui/material';
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';

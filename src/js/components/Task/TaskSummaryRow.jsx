@@ -58,7 +58,6 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
     });
     saveTask(requestParams);
   };
-
   if (!task) {
     return null;
   }

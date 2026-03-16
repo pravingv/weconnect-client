@@ -66,6 +66,7 @@ const TaskListForPersonManager = ({ personId }) => {
         savePromises.push(saveTask(requestParams));
       }
     });
+
     try {
       await Promise.all(savePromises);
       console.log('All tasks marked as done successfully');

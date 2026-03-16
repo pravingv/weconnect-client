@@ -8,6 +8,7 @@ export const DEPARTMENTS = {
   OTHER: 'Other team',
 };
 
+
 export const DEPARTMENT_LIST = [
   DEPARTMENTS.ALL_TEAMS,
   DEPARTMENTS.ANALYTICS,
