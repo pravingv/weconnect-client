@@ -5,16 +5,16 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
-import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { formatDateToMonthDay, formatDateToMonthDayYear } from '../../common/utils/dateFormat';
 import { renderLog } from '../../common/utils/logging';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import { useGetFirstNamePreferred, useGetFullNamePreferred } from '../../models/PersonModel';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useSaveTaskMutation } from '../../react-query/mutations';
 import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsActiveJSX';
-import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { useGetFirstNamePreferred, useGetFullNamePreferred } from '../../models/PersonModel';
-import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import GoogleDriveShareManager from '../Person/GoogleDriveShareManager';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 
 
 const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitleLine, showPersonName, taskDefinition, task }) => {
@@ -49,7 +49,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
   }, [authenticatedPerson, getAppContextValue]);
 
   const updateTaskFieldInstant = (isDone) => {
-    const requestParams = makeRequestParams({
+    const requestParams = makeRequestParamsDictionary({
       personId,
       taskDefinitionId: task.taskDefinitionId,
     }, {
