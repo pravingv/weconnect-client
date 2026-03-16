@@ -161,7 +161,7 @@ const HeaderBar = ({ hideTabs }) => {
 
   const handleTabChange = (event, newValue) => {
     // setTabsValue(newValue);
-    console.log('----------', newValue);
+    console.log('handleTabChange ----------', newValue);
     if (newValue) {
       switch (newValue) {
         case HEADER_TAB_DASHBOARD:
