@@ -307,3 +307,15 @@ selecting 'Inspect' at the bottom of the right-click menu.
 
 When you navigate in Chrome to `http://localhost:4000/` you will see the client login page.
 
+Sometime in 2025, Chrome stopped loading locally defined websites, even if they have valid public SSL certificates, 
+so if you use chrome, you will have to use http.
+
+
+### View the app in the Safari browser
+
+When you navigate in Safari to `https://wevotedeveloper.com:4000/` you will see the client login page.
+
+Safari has a devtools like feature called "WebInspector" that is highly equivalent to devtools in Chrome.
+
+If you are running Chrome pointed to localhost, and you find some feature that doesn't work, give Safari a try.
+
