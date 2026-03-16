@@ -1,16 +1,11 @@
-import {
-  Button, Checkbox,
-  FormControl,
-  FormControlLabel,
-  TextField,
-} from '@mui/material';
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useTaskDefinitionSaveMutation } from '../../react-query/mutations';
 
 const EditTaskDefinitionForm = ({ classes }) => {
@@ -109,7 +104,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
 
   const saveTaskDefinition = () => {
     // console.log('Saving task definition statusOfferDecisionNeededSetFalse:', statusOfferDecisionNeededSetFalse);
-    const requestParams = makeRequestParams({
+    const requestParams = makeRequestParamsDictionary({
       taskDefinitionId: taskDefinition ? taskDefinition.id : '-1',
       taskGroupId: taskGroup.taskGroupId,
     }, {

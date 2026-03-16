@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useQuestionSaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 
@@ -111,7 +111,7 @@ const EditQuestionForm = ({ classes }) => {
       requireAnswer: (requireAnswerInputRef.current.checked),
       statusActive: (statusActiveInputRef.current.checked),
     };
-    const requestParams = makeRequestParams(plainParams, params);
+    const requestParams = makeRequestParamsDictionary(plainParams, params);
     mutateQuestionSave(requestParams);
     // console.log('saveQuestionnaire requestParams:', requestParams);
     setSaveButtonActive(false);

@@ -35,8 +35,9 @@ export const showPersonInMemberList = (person, searchTextLocal, getAppContextVal
   } else if (pigsCanFly) {
     // Used for testing while developing
     return true;
-  } else if (!person.statusActive) {
+  } else if (person.statusActive === false) {   // Mar 2026, Allow people with null statusActive through
     // Only show people marked with statusActive = false when searching
+    // Mar 2026: Hopefully we won't find null statusActive going forward, but treat these as true
     // Eventually weave in the ability to show as a "show" filter option
     return false;
   } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR') {
