@@ -57,8 +57,8 @@ async function getStatusValues () {
       stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
       stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
     } else {
-      stats.Pull_request = 'Not Found';
-      stats.Git_committed_date = 'Not Found';
+      stats.Pull_request = 'none';
+      stats.Git_committed_date = 'none';
       stats.Git_commit_hash = 'Not Found';
     }
   } catch (error) {
