@@ -42,9 +42,12 @@ async function getStatusValues () {
     console.log('ERROR in getGitValues node/npm: ', error);
   }
   try {
+    console.log('Working Directory: ', __dirname);
     let hash = fs.readFileSync('./git_commit_hash', 'utf8');
+    console.log('Hash: ', hash);
     hash = hash.trim();
-    const hashURL = `https://github.com/wevote/weconnect-server/commit/${hash}`;
+    const hashURL = `https://github.com/wevote/weconnect-client/commit/${hash}`;
+    console.log('hashURL: ', hashURL);
     const response = await fetch(hashURL);
     const text = await response.text();
     console.log(`git_commit_hash: '${text}'`);
