@@ -52,7 +52,7 @@ const useQuestionSaveMutation = () => {
 const useAnswerListSaveMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (params) => weConnectQueryFn('answer-list-save', params, METHOD.GET),
+    mutationFn: (params) => weConnectQueryFn('answer-list-save', params, METHOD.POST),
     onError: (error) => console.log('error in useAnswerListSaveMutation: ', error),
     onSuccess: () => {
       console.log('useAnswerListSaveMutation onSuccess true');

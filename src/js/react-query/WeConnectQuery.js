@@ -35,6 +35,7 @@ const buildSearchParams = (params = {}) => {
 // Define a default query function that will receive the query key
 const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) => {
   const res = { queryKey, isGet, forceMaster };
+  // console.log('weConnectQueryFn queryKey: ', queryKey, ', params: ', params);
   Object.keys(params).forEach((key) => {
     res[key] = params[key];
   });

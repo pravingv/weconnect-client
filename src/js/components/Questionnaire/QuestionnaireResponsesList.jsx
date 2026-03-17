@@ -24,7 +24,10 @@ const QuestionnaireResponsesList = ({ personId }) => {
   const [questionnaireList, setQuestionnaireList] = useState([]);
 
   // Although we are sending a list, there will only be one person id, if there were more, just append them with commas
-  const requestParams = `personIdList[]=${person.id}`;
+  // OLD: const requestParams = `personIdList[]=${person.id}`;
+  const requestParams = {
+    personIdList: [person.id],
+  };
 
   const questionnaireResponsesListRetrieveResults = useFetchData(['questionnaire-responses-list-retrieve'], requestParams, METHOD.GET);
   // const { data: dataQRL, isSuccess: isSuccessQRL, isFetching: isFetchingQRL } = responsesRetrieveResults;
