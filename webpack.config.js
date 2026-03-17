@@ -48,13 +48,19 @@ async function getStatusValues () {
     const response = await fetch(hashURL);
     const text = await response.text();
     console.log(`git_commit_hash: '${text}'`);
-    const pr = text.match(/"Merge pull request (.*?)wevote/);
-    stats.Pull_request = pr[1].slice(0, -2);
-    const dateStringResults = text.match(/"committedDate":"(.*?)"/);
-    console.log(dateStringResults[1]);
-    const date = new DateTime(dateStringResults[1]);
-    stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
-    stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+    if (text !== 'Not Found') {
+      const pr = text.match(/"Merge pull request (.*?)wevote/);
+      stats.Pull_request = pr[1].slice(0, -2);
+      const dateStringResults = text.match(/"committedDate":"(.*?)"/);
+      console.log(dateStringResults[1]);
+      const date = new DateTime(dateStringResults[1]);
+      stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
+      stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+    } else {
+      stats.Pull_request = 'Not Found';
+      stats.Git_committed_date = 'Not Found';
+      stats.Git_commit_hash = 'Not Found';
+    }
   } catch (error) {
     console.log('Error in getStatusValues git: ', error);
   }
@@ -224,12 +230,7 @@ module.exports = async (env, argv) => {
       } : {}),
       client: {
         overlay: {
-          runtimeErrors: (error) => {
-            if (error.message.includes('ResizeObserver loop')) {
-              return false;
-            }
-            return true;
-          },
+          runtimeErrors: (error) => !error.message.includes('ResizeObserver loop'),
         },
       },
     },
