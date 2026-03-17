@@ -67,7 +67,11 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     }
   }, [questionListRetrieveResults, allQuestionsCache]);
 
-  const requestParams = `personIdList[]=${personId}&questionnaireId=${questionnaireId}`;
+  // OLD: const requestParams = `personIdList[]=${personId}&questionnaireId=${questionnaireId}`;
+  const requestParams = {
+    personIdList: [personId],
+    questionnaireId,
+  };
   const answerListRetrieveResults = useFetchData(['questionnaire-responses-list-retrieve'], requestParams, METHOD.GET);
   useEffect(() => {
     if (answerListRetrieveResults) {
