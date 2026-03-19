@@ -102,7 +102,7 @@ const EditPersonForm = ({ classes }) => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
-  const savePerson = () => {
+  const savePerson = (emailVerifiedOverride= null) => {
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
     activePerson.emailPreferred = emailPreferredInputRef.current.value;
     activePerson.firstName = firstNameInputRef.current.value;
@@ -123,7 +123,7 @@ const EditPersonForm = ({ classes }) => {
       // console.log('dateStartDate:', dateStartDateInputRef.current.value, ', dateEndDate:', dateEndDateInputRef.current.value);
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
-      activePerson.emailOfficialVerified = emailOfficialVerified;
+      activePerson.emailOfficialVerified = emailVerifiedOverride !== null ? emailVerifiedOverride : emailOfficialVerified;
       if (emailOfficialVerified === true) {
         activePerson.statusEmailCreated = true;
       }
@@ -158,10 +158,13 @@ const EditPersonForm = ({ classes }) => {
       personId: activePerson.id,
     };
     personSave(makeRequestParamsDictionary(plainParams, data));
-    setSaveButtonActive(false);
-    setAppContextValue('headerProfileDrawerOpen', false);
-    setAppContextValue('profileDrawerPerson', undefined);
-    setAppContextValue('profileDrawerPersonId', -1);
+    setAppContextValue('profileDrawerPerson', activePerson);
+    if (emailVerifiedOverride === null || emailVerifiedOverride === undefined) {
+      setSaveButtonActive(false);
+      setAppContextValue('headerProfileDrawerOpen', false);
+      setAppContextValue('profileDrawerPerson', undefined);
+      setAppContextValue('profileDrawerPersonId', -1);
+    }
   };
 
   const setEmailOfficialFromChild = (emailOfficial) => {
@@ -626,6 +629,7 @@ const EditPersonForm = ({ classes }) => {
             setIsEmailOfficialEditModeInParent={setEmailOfficialEditedFromChild}
             setEmailOfficialInParent={setEmailOfficialFromChild}
             setEmailOfficialVerifiedInParent={setEmailOfficialVerifiedFromChild}
+            savePerson={savePerson}
           />
         </TextUnderInputField>
         <TextField
@@ -876,7 +880,7 @@ const EditPersonForm = ({ classes }) => {
             classes={{ root: classes.savePersonButton }}
             color="primary"
             disabled={!saveButtonActive}
-            onClick={savePerson}
+            onClick={() => savePerson()}
             variant="contained"
           >
             Save Person
