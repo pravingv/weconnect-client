@@ -1,17 +1,11 @@
-import {
-  Button,
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  TextField,
-} from '@mui/material';
+import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useQuestionnaireSaveMutation } from '../../react-query/mutations';
 
 
@@ -59,7 +53,7 @@ const EditQuestionnaireForm = ({ classes }) => {
     const plainParams = {
       questionnaireId: questionnaire ? questionnaire.id : '-1',
     };
-    mutateQuestionnaireSave(makeRequestParams(plainParams, params));
+    mutateQuestionnaireSave(makeRequestParamsDictionary(plainParams, params));
     setSaveButtonActive(false);
     setAppContextValue('editQuestionnaireDrawerOpen', false);
     setAppContextValue('selectedQuestionnaire', undefined);

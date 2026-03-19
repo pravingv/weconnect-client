@@ -2,17 +2,17 @@ import { Lock } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
-import TaskListForPerson from './TaskListForPerson';
+import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { useGetPersonById } from '../../models/PersonModel';
-import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
-import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { captureTaskDefinitionListRetrieveData } from '../../models/TaskModel';
-import { SpanWithLinkStyle } from '../Style/linkStyles';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useSaveTaskMutation } from '../../react-query/mutations';
-import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
+import TaskListForPerson from './TaskListForPerson';
 
 
 const TaskListForPersonManager = ({ personId }) => {
@@ -56,7 +56,7 @@ const TaskListForPersonManager = ({ personId }) => {
 
     taskListForThisPerson.forEach((task) => {
       if (!task.statusDone) {  // Only mark undone tasks as done
-        const requestParams = makeRequestParams({
+        const requestParams = makeRequestParamsDictionary({
           personId,
           taskDefinitionId: task.taskDefinitionId,
         }, {
@@ -66,6 +66,7 @@ const TaskListForPersonManager = ({ personId }) => {
         savePromises.push(saveTask(requestParams));
       }
     });
+
     try {
       await Promise.all(savePromises);
       console.log('All tasks marked as done successfully');

@@ -139,7 +139,7 @@ export function captureTaskGroupListRetrieveData (
 }
 
 // This is called after making this fetchData request:
-// const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList });
+// const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.POST);
 // TODO: Dale still thinking about this. Please leave this commented out code until April 2025
 export function captureTaskStatusListRetrieveData (
   incomingRetrieveResults = {},
@@ -213,12 +213,10 @@ export function captureTaskStatusListRetrieveData (
           // Task doesn't exist, so add it
           allTasksByDefinitionIdCacheNew[task.taskDefinitionId].push(task);
           newTaskListByDefinitionIdDataReceived = true;
-        } else {
+        } else if (!isEqual(allTasksByDefinitionIdCacheNew[task.taskDefinitionId][existingTaskIndex], task)) {
           // Task exists, update it if it's different
-          if (!isEqual(allTasksByDefinitionIdCacheNew[task.taskDefinitionId][existingTaskIndex], task)) {
-            allTasksByDefinitionIdCacheNew[task.taskDefinitionId][existingTaskIndex] = task;
-            newTaskListByDefinitionIdDataReceived = true;
-          }
+          allTasksByDefinitionIdCacheNew[task.taskDefinitionId][existingTaskIndex] = task;
+          newTaskListByDefinitionIdDataReceived = true;
         }
       }
     });

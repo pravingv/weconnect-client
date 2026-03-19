@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
-import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import makeRequestParams from '../../react-query/makeRequestParams';
-import { usePersonSaveMutation } from '../../react-query/mutations';
-import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import webAppConfig from '../../config';
+import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { viewerCanSeeOrDo } from '../../models/AuthModel';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
+import { usePersonSaveMutation } from '../../react-query/mutations';
 import { isValidUSStateCode } from '../../utils/stateUtils';
 
 const AddPersonForm = ({ classes }) => {  //  classes, teamId
@@ -70,7 +70,7 @@ const AddPersonForm = ({ classes }) => {  //  classes, teamId
       teamId,
       teamName,
     };
-    personSave(makeRequestParams(plainParams, data));
+    personSave(makeRequestParamsDictionary(plainParams, data));
     setAppContextValue('addPersonDrawerOpen', false);
     setAppContextValue('addPersonDrawerLabel', '');
     setAppContextValue('addPersonDrawerTeam', undefined);

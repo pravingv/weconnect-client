@@ -135,7 +135,7 @@ const PermissionsAdministration = ({ classes }) => {
       person.isHiringManager === false && filterState.current.hiring === true &&
       person.isTeamLead === false && filterState.current.lead === true &&
       person.isIntern === false && filterState.current.intern === true &&
-      person.statusActive === false && filterState.current.active === true &&
+      (person.statusActive === false || person.statusActive === null) && filterState.current.active === true &&
       person.statusOnLeave === false && filterState.current.leave === true &&
       person.statusResigned === false && filterState.current.resigned === true &&
       person.statusAvailableForSpecialProjects === false && filterState.current.special === true;
@@ -470,7 +470,7 @@ const PermissionsAdministration = ({ classes }) => {
               </Td>
               <Td>
                 <Checkbox
-                  checked={person.statusActive}
+                  checked={person.statusActive === true}
                   className={classes.checkboxDoneRoot}
                   color="primary"
                   id={`checkbox-active-${person.id}`}

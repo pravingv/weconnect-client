@@ -35,12 +35,13 @@ const buildSearchParams = (params = {}) => {
 // Define a default query function that will receive the query key
 const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) => {
   const res = { queryKey, isGet, forceMaster };
+  // console.log('weConnectQueryFn queryKey: ', queryKey, ', params: ', params);
   Object.keys(params).forEach((key) => {
     res[key] = params[key];
   });
 
 
-  httpLog('HTTP weConnectQueryFn : ', JSON.stringify(res || {}));
+  httpLog(`HTTP weConnectQueryFn ${queryKey} (${isGet ? 'GET' : 'POST'}): ${JSON.stringify(res || {})}`);
   const url = new URL(`${queryKey}/`,
     forceMaster ? 'https://teamapi.wevote.org/apis/v1/' : webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
   // console.log(queryKey, params, isGet);
@@ -60,8 +61,9 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
       // TODO Consider showing this API error in the interface to the viewer
       console.error(`displayErrorMessage ${queryKey} status: ${response.data.status}`);
     }
-  } catch (e) {
-    console.error('Axios ', (isGet ? 'axios.get' : 'axios.post'), ' error: ', e);
+  } catch (err) {
+    const errorMsg = typeof err !== 'undefined' ? err : '';
+    console.error('Axios ', (isGet ? 'axios.get' : 'axios.post'), ' error: ', errorMsg);
   }
 
   return response?.data;
@@ -71,15 +73,21 @@ const useFetchData = (queryKey, fetchParams, isGet, shouldExecute = true, queryO
   if (shouldExecute) {
     reactQueryLog('useFetchData queryKey, fetchParams before fetch: ', queryKey, '  fetchParams: ', fetchParams);
   }
+
   const { data, isSuccess, isFetching, isStale, refetch, error } = useQuery({
     queryKey,
     queryFn: () => weConnectQueryFn(queryKey, fetchParams, isGet),
     enabled: shouldExecute,
     ...queryOptions,
+    // staleTime: shouldExecute ? 0 : '',
   });
   if (error) {
     console.log(`An error occurred with ${queryKey}: ${error.message}`);
   }
+  // if (queryKey === 'task-status-list-retrieve')   {
+  //   console.log(`-----${queryKey} isSuccess: ${isSuccess}, isStale: ${isStale}, refetch: ${refetch}`);
+  //   console.log(`+++++${queryKey} data: ${JSON.stringify(data)}`);
+  // }
   return { data, isSuccess, isFetching, isStale, refetch };
 };
 
