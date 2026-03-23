@@ -1,35 +1,28 @@
+import { AccountCircle, CalendarMonth, ContentCopy, Launch, ManageAccounts, Menu, People, Quiz, TaskAlt } from '@mui/icons-material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button } from '@mui/material';
-import {
-  AccountCircle,
-  CalendarMonth,
-  ContentCopy, Launch,
-  ManageAccounts,
-  Menu,
-  People,
-  Quiz,
-  TaskAlt,
-} from '@mui/icons-material';
 import React, { Suspense, useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
-import AdminFunctions from '../Person/AdminFunctions';
-import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
-import { clearSignedInGlobals } from '../../contexts/contextFunctions';
+import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { clearSignedInGlobals } from '../../contexts/contextFunctions';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson, useGetPersonById } from '../../models/PersonModel';
-import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
-import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { useLogoutMutation } from '../../react-query/mutations';
-import EditPersonTasksDrawerMainContent from '../Person/EditPersonTasksDrawerMainContent';
-import ViewQuestionnairesForPerson from '../Questionnaire/ViewQuestionnairesForPerson';
-import ViewTeamsForPerson from '../Team/ViewTeamsForPerson';
-import VisibleProfile from '../Person/VisibleProfile';
+import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
+import AdminFunctions from '../Person/AdminFunctions';
 import EditPersonAwayForm from '../Person/EditPersonAwayForm';
-import webAppConfig from '../../config';
+import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
+import EditPersonTasksDrawerMainContent from '../Person/EditPersonTasksDrawerMainContent';
+import VisibleProfile from '../Person/VisibleProfile';
+import ViewQuestionnairesForPerson from '../Questionnaire/ViewQuestionnairesForPerson';
+import { CirclePicture } from '../Style/pageLayoutStyles';
+import ViewTeamsForPerson from '../Team/ViewTeamsForPerson';
+import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
@@ -46,12 +39,20 @@ const HeaderProfileDrawer = () => {
   const [showLinksToProfilePages, setShowLinksToProfilePages] = useState(true);
   const [viewerIsThisAuthenticatedPerson, setViewerIsThisAuthenticatedPerson] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [slackImage, setSlackImage] = useState('');
 
   const { mutate: mutateLogout } = useLogoutMutation();
   const navigate = useNavigate();
   const personViewedInDrawer = useGetPersonById(getAppContextValue('profileDrawerPersonId'));
   const personViewedInDrawerFullName = getFullNamePreferredPerson(personViewedInDrawer);
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
+
+  const PersonIcon = () => {
+    if (slackImage) {
+      return <CirclePicture id="myImage" src={slackImage} />;
+    }
+    return <AccountCircleIcon />;
+  };
 
   const copyOfficialEmail = () => {
     setOfficialEmailCopied(true);
@@ -80,8 +81,21 @@ const HeaderProfileDrawer = () => {
     setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('profileDrawerPersonId') === authenticatedPerson.personId);
   }, [getAppContextValue, authenticatedPerson]);
 
+  useEffect(() => {
+    setSlackImage(personViewedInDrawer.slackImage48);
+  }, [personViewedInDrawer]);
+
+  useEffect(() => {
+    const tsi = getAppContextValue('temporarySlackImage');
+    // setSlackImage(personViewedInDrawer.slackImage48);
+    if (tsi && tsi.length > 0) {
+      console.log(`HeaderProfileDrawer setSlackImage ${tsi}`);
+      setSlackImage(tsi);
+    }
+  }, [getAppContextData()]);
+
   const profileNavOptions = [
-    { icon: <AccountCircle />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
+    { icon: <PersonIcon />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
   ];
   if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights)) {
     profileNavOptions.push(

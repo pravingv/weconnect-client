@@ -18,7 +18,7 @@ import { captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } f
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
-import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
+import { CirclePicture, TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
 import TasksActionBar from './TasksActionBar';
 import TeamsActionBar from './TeamsActionBar';
@@ -43,6 +43,7 @@ const HeaderBar = ({ hideTabs }) => {
   const [showTabs, setShowTabs] = useState(true);
   const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
+  const [slackImageLink, setSlackImageLink] = useState();
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
@@ -157,6 +158,7 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
+    setSlackImageLink(authenticatedPerson?.slackImage48);
   }, [authenticatedPerson]);
 
   const handleTabChange = (event, newValue) => {
@@ -203,6 +205,17 @@ const HeaderBar = ({ hideTabs }) => {
 
   // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
 
+  const PersonAvatar = () => {
+    if (isAuthenticated) {
+      if (slackImageLink) {
+        return <CirclePicture id="myImage" src={slackImageLink} />;
+      } else {
+        return <AccountCircleIcon />;
+      }
+    }
+    return 'Sign In';
+  };
+
   const headerProfileClick = () => {
     setAppContextValue('headerProfileDrawerOpen', true);
     setAppContextValue('headerProfileSection', 'nameAndPhoto');
@@ -243,7 +256,7 @@ const HeaderBar = ({ hideTabs }) => {
             id="signInButton"
             onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
           >
-            {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
+            <PersonAvatar />
           </Button>
           <Button
             variant="outlined"
@@ -311,6 +324,5 @@ const HeaderBarWrapper = styled('div', {
   box-shadow: ${(!scrolledDown || !hasSubmenu)  ? '' : standardBoxShadow('wide')};
   border-bottom: ${(!scrolledDown || !hasSubmenu) ? '' : '1px solid #aaa'};
 `));
-
 
 export default withStyles(styles)(HeaderBar);

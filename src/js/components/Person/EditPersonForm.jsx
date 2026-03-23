@@ -51,6 +51,8 @@ const EditPersonForm = ({ classes }) => {
   const [emailOfficialLocal, setEmailOfficialLocal] = useState(emailOfficialInitial);
   const [emailOfficialVerified, setEmailOfficialVerified] = useState(emailOfficialVerifiedInitial);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
+  const [showAddSlackPhoto, setShowAddSlackPhoto] = useState(true);
+  const [slackError, setSlackError] = useState('');
 
   const [newPasswordNotification, setNewPasswordNotification] = useState('');
   const [newPasswordNotificationCopied, setNewPasswordNotificationCopied] = useState(false);
@@ -96,6 +98,7 @@ const EditPersonForm = ({ classes }) => {
   useEffect(() => {
     // statusOfferDecisionNeeded reversed on purpose
     setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || !activePerson.statusOfferDecisionNeeded || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned || activePerson.statusOfferWillNotBeMade));
+    setShowAddSlackPhoto(!(activePerson.slackHandle && activePerson.slackHandle.length > 0));
   }, [activePerson]);
 
   useEffect(() => {
@@ -167,6 +170,25 @@ const EditPersonForm = ({ classes }) => {
   const setEmailOfficialFromChild = (emailOfficial) => {
     setEmailOfficialLocal(emailOfficial);
     setIsEmailOfficialEditModeOn(false);
+  };
+
+  const addPhotoFromSlack = async () => {
+    const id = activePerson.id;
+    const data = await weConnectQueryFn('slack-add-person-images', { personId: id }, METHOD.POST);
+    // console.log('SlackAddPersonImages', data);
+    const slackImage48 = data?.singlePersonUpdated[0].slackImage48;
+    setShowAddSlackPhoto(false);
+    if (slackImage48) {
+      activePerson.slackImage48 = slackImage48;
+      setAppContextValue('temporarySlackImage', slackImage48);
+      setSlackError('');
+    } else {
+      setSlackError('Slack did not return a member who matches this staff member\'s personal or offical email address.');
+      console.log('SlackAddPersonImages error');
+      setTimeout(() => {
+        setSlackError('');
+      }, 5000);
+    }
   };
 
   const setEmailOfficialVerifiedFromChild = (emailOfficialVerifiedIncoming) => {
@@ -289,6 +311,16 @@ const EditPersonForm = ({ classes }) => {
             </SpanWithLinkStyle>
           )}
         </TextUnderInputField>
+        <TextUnderInputField>
+          <SpanWithLinkStyle style={showAddSlackPhoto ? { opacity: '1' } : { opacity: '0.5' }} onClick={showAddSlackPhoto ? addPhotoFromSlack : () => {}}>
+            Add Photo From Slack
+          </SpanWithLinkStyle>
+        </TextUnderInputField>
+        {slackError.length > 0 && (
+          <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
+            {slackError}
+          </Alert>
+        )}
         <TextField
           defaultValue={activePerson.emailPreferred || ''}
           id="emailPreferredToBeSaved"
@@ -980,6 +1012,7 @@ const QuickLinkList = styled('div')`
 
 const TextUnderInputField = styled('div')`
   margin-left: 15px;
+  padding: 4px 0;
 `;
 
 export default withStyles(styles)(EditPersonForm);

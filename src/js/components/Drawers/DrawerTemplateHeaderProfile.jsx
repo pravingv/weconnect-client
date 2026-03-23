@@ -4,12 +4,13 @@ import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { hasIPhoneNotch } from '../../common/utils/cordovaUtils';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { cordovaDrawerTopMargin } from '../../utils/cordovaOffsets';
 import { DrawerHeaderAnimateDownInnerContainer, DrawerHeaderAnimateDownOuterContainer, DrawerHeaderWrapper, DrawerTitle } from '../Style/drawerLayoutStyles';
-import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+import { CloseDrawerIconWrapper } from '../Style/pageLayoutStyles';
 
 const DrawerTemplateHeaderProfile = (props) => {
   const { classes, drawerId, drawerOpenGlobalVariableName, headerFixedJsx, headerTitleJsx, mainContentJsx, onDrawerClose } = props;
@@ -217,11 +218,6 @@ const styles = () => ({
 const DrawerTemplateHeaderProfileWrapper = styled('div')`
   margin: 0 15px;
   min-width: 300px;
-`;
-
-const CloseDrawerIconWrapper = styled('div')`
-  display: flex;
-  justify-content: flex-end;
 `;
 
 export default withStyles(styles)(DrawerTemplateHeaderProfile);
