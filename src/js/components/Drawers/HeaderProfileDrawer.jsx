@@ -91,6 +91,7 @@ const HeaderProfileDrawer = () => {
     if (tsi && tsi.length > 0) {
       console.log(`HeaderProfileDrawer setSlackImage ${tsi}`);
       setSlackImage(tsi);
+      setAppContextValue('temporarySlackImage', '');
     }
   }, [getAppContextData()]);
 
@@ -218,6 +219,7 @@ const HeaderProfileDrawer = () => {
     setAppContextValue('headerProfileSection', 'nameAndPhoto');
     setHeaderProfileSectionSetFromAppContext('unset');
     setShowLinksToProfilePages(true);
+    setAppContextValue('temporarySlackImage', '');
   };
 
   const onNavLinkClick = (linkName) => {

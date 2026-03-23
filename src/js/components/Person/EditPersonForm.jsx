@@ -176,7 +176,7 @@ const EditPersonForm = ({ classes }) => {
     const id = activePerson.id;
     const data = await weConnectQueryFn('slack-add-person-images', { personId: id }, METHOD.POST);
     // console.log('SlackAddPersonImages', data);
-    const slackImage48 = data?.singlePersonUpdated[0].slackImage48;
+    const slackImage48 = data?.singlePersonUpdated[0]?.slackImage48;
     setShowAddSlackPhoto(false);
     if (slackImage48) {
       activePerson.slackImage48 = slackImage48;
