@@ -5,18 +5,19 @@ import React, { useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
-import { renderLog } from '../../common/utils/logging';
-import PersonDetailsQuickLinks from './PersonDetailsQuickLinks';
-import PersonDetailsEmailsAndStartDate from './PersonDetailsEmailsAndStartDate';
-import PersonSummaryRowTripleDot from './PersonSummaryRowTripleDot';
-import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import { getFullNamePreferredPerson } from '../../models/PersonModel';
-import { SpanWithLinkStyle, ButtonWithLinkStyle } from '../Style/linkStyles';
-import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
-import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
 import { formatDateMMMDo, timeFromDate } from '../../common/utils/dateFormat';
+import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
+import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
+import { getFullNamePreferredPerson } from '../../models/PersonModel';
+import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
+import { ButtonWithLinkStyle, SpanWithLinkStyle } from '../Style/linkStyles';
 import TaskListForPersonManager from '../Task/TaskListForPersonManager';
+import PersonAvatar from './PersonAvatar';
+import PersonDetailsEmailsAndStartDate from './PersonDetailsEmailsAndStartDate';
+import PersonDetailsQuickLinks from './PersonDetailsQuickLinks';
+import PersonSummaryRowTripleDot from './PersonSummaryRowTripleDot';
 
 
 const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, teamId, classes }) => {
@@ -129,6 +130,11 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
             <KeyboardArrowDownStyled />
           )}
         </PersonCell>
+        <PersonAvatar
+          isAuthenticated
+          slackImage={person.slackImage48}
+          styles={{ paddingRight: '4px', maxWidth: '100%', maxHeight: '100%' }}
+        />
         <PersonCell
           id={`fullNamePreferred-personId-${person.personId}`}
           $cellwidth={180}

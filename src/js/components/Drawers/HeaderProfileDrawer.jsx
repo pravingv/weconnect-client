@@ -1,5 +1,4 @@
 import { AccountCircle, CalendarMonth, ContentCopy, Launch, ManageAccounts, Menu, People, Quiz, TaskAlt } from '@mui/icons-material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LockOutlineIcon from '@mui/icons-material/LockOutlined';
 import { Button } from '@mui/material';
 import React, { Suspense, useEffect, useState } from 'react';
@@ -18,9 +17,9 @@ import AdminFunctions from '../Person/AdminFunctions';
 import EditPersonAwayForm from '../Person/EditPersonAwayForm';
 import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
 import EditPersonTasksDrawerMainContent from '../Person/EditPersonTasksDrawerMainContent';
+import PersonAvatar from '../Person/PersonAvatar';
 import VisibleProfile from '../Person/VisibleProfile';
 import ViewQuestionnairesForPerson from '../Questionnaire/ViewQuestionnairesForPerson';
-import { CirclePicture } from '../Style/pageLayoutStyles';
 import ViewTeamsForPerson from '../Team/ViewTeamsForPerson';
 import DrawerTemplateHeaderProfile from './DrawerTemplateHeaderProfile';
 
@@ -46,13 +45,6 @@ const HeaderProfileDrawer = () => {
   const personViewedInDrawer = useGetPersonById(getAppContextValue('profileDrawerPersonId'));
   const personViewedInDrawerFullName = getFullNamePreferredPerson(personViewedInDrawer);
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
-
-  const PersonIcon = () => {
-    if (slackImage) {
-      return <CirclePicture id="myImage" src={slackImage} />;
-    }
-    return <AccountCircleIcon />;
-  };
 
   const copyOfficialEmail = () => {
     setOfficialEmailCopied(true);
@@ -96,7 +88,7 @@ const HeaderProfileDrawer = () => {
   }, [getAppContextData()]);
 
   const profileNavOptions = [
-    { icon: <PersonIcon />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
+    { icon: <PersonAvatar isAuthenticated slackImage={slackImage} />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
   ];
   if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights)) {
     profileNavOptions.push(

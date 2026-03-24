@@ -1,4 +1,3 @@
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,7 +17,8 @@ import { captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } f
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
-import { CirclePicture, TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
+import PersonAvatar from '../Person/PersonAvatar';
+import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
 import TasksActionBar from './TasksActionBar';
 import TeamsActionBar from './TeamsActionBar';
@@ -205,17 +205,6 @@ const HeaderBar = ({ hideTabs }) => {
 
   // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
 
-  const PersonAvatar = () => {
-    if (isAuthenticated) {
-      if (slackImageLink) {
-        return <CirclePicture id="myImage" src={slackImageLink} />;
-      } else {
-        return <AccountCircleIcon />;
-      }
-    }
-    return 'Sign In';
-  };
-
   const headerProfileClick = () => {
     setAppContextValue('headerProfileDrawerOpen', true);
     setAppContextValue('headerProfileSection', 'nameAndPhoto');
@@ -256,7 +245,7 @@ const HeaderBar = ({ hideTabs }) => {
             id="signInButton"
             onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
           >
-            <PersonAvatar />
+            <PersonAvatar isAuthenticated={isAuthenticated} slackImage={slackImageLink} />
           </Button>
           <Button
             variant="outlined"
