@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import CreateNewGoogleUser from '../../pages/SystemSettings/CreateNewGoogleUser';
@@ -13,6 +13,8 @@ import SlackGetPresence from '../../pages/SystemSettings/SlackGetPresence';
 import SlackListUsers from '../../pages/SystemSettings/SlackListMembers';
 import SlackSendMessage from '../../pages/SystemSettings/SlackSendMessage';
 
+/* global $ */
+
 const AdminFunctions = () => {
   renderLog('AdminFunctions');  // Set LOG_RENDER_EVENTS to log all renders
 
@@ -25,6 +27,11 @@ const AdminFunctions = () => {
   stats.Git_hash = WEBPACK_GIT_HASH;
   const keyValueArray = Object.entries(stats);
   /* eslint-enable no-undef */
+
+  useEffect(() => {
+    const theTd = $('td:contains("weconnect-client")');
+    theTd.replaceWith(theTd.text());
+  }, []);
 
   const hideLinesWithNone = false;
   return (
