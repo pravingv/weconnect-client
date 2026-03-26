@@ -19,14 +19,14 @@ const EMAIL_DOMAINS_FOR_VERIFICATION = ['@wevoteeducation.org', '@wevote.org', '
 const EmailOfficialManager = (
   {
     emailOfficialEdited, savedEmailOfficial, setEmailOfficialInParent,
-    setIsEmailOfficialEditModeInParent, setEmailOfficialVerifiedInParent,
+    setIsEmailOfficialEditModeInParent, setEmailOfficialVerifiedInParent, savePerson,
   },
 ) => {
   renderLog('EmailOfficialManager');
   const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
 
-  const [activePerson] = useState(getAppContextValue('profileDrawerPerson'));
+  const [activePerson, setActivePerson] = useState(getAppContextValue('profileDrawerPerson'));
   const [emailOfficialNotValidDomain, setEmailOfficialNotValidDomain] = useState(false);
   const [emailOfficialVerifiedLocally, setEmailOfficialVerifiedLocally] = useState(false);
   const [emailOfficialVerifiedToNotExist, setEmailOfficialVerifiedToNotExist] = useState(false);
@@ -140,6 +140,10 @@ Please note that we prefer that you keep your Slack account connected to your pe
       } else {
         verifiedJustNow = !!(verificationData.creationTime);
         verifiedToNotExistJustNow = !(verificationData.creationTime);
+        setActivePerson(prev => ({
+          ...prev,
+          emailOfficialVerified: true,
+        }));
       }
       if (verifiedJustNow) {
         if (setEmailOfficialVerifiedInParent) {
@@ -184,6 +188,15 @@ Please note that we prefer that you keep your Slack account connected to your pe
     if (requiredVariableMissing) {
       requiredVariablesMissingMessageTemp = `Add before create: ${requiredVariablesMissingMessageTemp}`;
       setRequiredVariablesMissingMessage(requiredVariablesMissingMessageTemp);
+    }
+    if (verifiedJustNow && !requiredVariableMissing) {
+      try {
+        if (savePerson) {
+          await savePerson(true);
+        }
+      } catch (error) {
+        console.error('Error saving person after verification', error);
+      }
     }
     // if (suggestedVariableMissing) {
     //   suggestedVariablesMissingMessageTemp = `Suggest updating before create: ${suggestedVariablesMissingMessageTemp}`;
@@ -346,6 +359,7 @@ EmailOfficialManager.propTypes = {
   setEmailOfficialVerifiedInParent: PropTypes.func,
   setIsEmailOfficialEditModeInParent: PropTypes.func,
   setEmailOfficialInParent: PropTypes.func,
+  savePerson: PropTypes.func,
 };
 
 const styles = () => ({
