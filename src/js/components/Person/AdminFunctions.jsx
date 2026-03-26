@@ -7,6 +7,7 @@ import GetOneGoogleUser from '../../pages/SystemSettings/GetOneGoogleUser';
 import JazzHrAccess from '../../pages/SystemSettings/JazzHrAccess';
 import ResetGoogleUserPassword from '../../pages/SystemSettings/ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from '../../pages/SystemSettings/ShareGoogleDriveAccess';
+import SlackAddPersonImages from '../../pages/SystemSettings/SlackAddPersonImages';
 import SlackChannelInvite from '../../pages/SystemSettings/SlackChannelInvite';
 import SlackChannelMembers from '../../pages/SystemSettings/SlackChannelMembers';
 import SlackGetPresence from '../../pages/SystemSettings/SlackGetPresence';
@@ -40,7 +41,7 @@ const AdminFunctions = () => {
         <table>
           <tbody>
             {keyValueArray.map((entry) => (
-              <tr style={entry[1] === 'none' && hideLinesWithNone ? { display: 'none' } : {}}>
+              <tr key={entry[0]} style={entry[1] === 'none' && hideLinesWithNone ? { display: 'none' } : {}}>
                 <td style={{ width: 'fit-content', paddingRight: '20px' }}>
                   {entry[0].replaceAll('_', ' ')}:
                 </td>
@@ -83,6 +84,7 @@ const AdminFunctions = () => {
           <SlackSendMessage />
           <SlackListUsers />
           <SlackGetPresence />
+          <SlackAddPersonImages />
         </ButtonRow>
         <SectionTitle>Slack Channel Operations:</SectionTitle>
         <ButtonRow>

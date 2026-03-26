@@ -1,4 +1,3 @@
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,6 +17,7 @@ import { captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } f
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
+import PersonAvatar from '../Person/PersonAvatar';
 import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
 import TasksActionBar from './TasksActionBar';
@@ -43,6 +43,7 @@ const HeaderBar = ({ hideTabs }) => {
   const [showTabs, setShowTabs] = useState(true);
   const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
+  const [slackImageLink, setSlackImageLink] = useState();
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
@@ -157,6 +158,7 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
+    setSlackImageLink(authenticatedPerson?.slackImage48);
   }, [authenticatedPerson]);
 
   const handleTabChange = (event, newValue) => {
@@ -243,7 +245,7 @@ const HeaderBar = ({ hideTabs }) => {
             id="signInButton"
             onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
           >
-            {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
+            <PersonAvatar isAuthenticated={isAuthenticated} slackImage={slackImageLink} />
           </Button>
           <Button
             variant="outlined"
@@ -311,6 +313,5 @@ const HeaderBarWrapper = styled('div', {
   box-shadow: ${(!scrolledDown || !hasSubmenu)  ? '' : standardBoxShadow('wide')};
   border-bottom: ${(!scrolledDown || !hasSubmenu) ? '' : '1px solid #aaa'};
 `));
-
 
 export default withStyles(styles)(HeaderBar);
