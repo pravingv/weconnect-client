@@ -51,6 +51,8 @@ const EditPersonForm = ({ classes }) => {
   const [emailOfficialLocal, setEmailOfficialLocal] = useState(emailOfficialInitial);
   const [emailOfficialVerified, setEmailOfficialVerified] = useState(emailOfficialVerifiedInitial);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
+  const [showAddSlackPhoto, setShowAddSlackPhoto] = useState(true);
+  const [slackError, setSlackError] = useState('');
 
   const [newPasswordNotification, setNewPasswordNotification] = useState('');
   const [newPasswordNotificationCopied, setNewPasswordNotificationCopied] = useState(false);
@@ -96,13 +98,14 @@ const EditPersonForm = ({ classes }) => {
   useEffect(() => {
     // statusOfferDecisionNeeded reversed on purpose
     setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || !activePerson.statusOfferDecisionNeeded || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned || activePerson.statusOfferWillNotBeMade));
+    setShowAddSlackPhoto(!(activePerson.slackHandle && activePerson.slackHandle.length > 0));
   }, [activePerson]);
 
   useEffect(() => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
-  const savePerson = () => {
+  const savePerson = (emailVerifiedOverride= null) => {
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
     activePerson.emailPreferred = emailPreferredInputRef.current.value;
     activePerson.firstName = firstNameInputRef.current.value;
@@ -123,7 +126,7 @@ const EditPersonForm = ({ classes }) => {
       // console.log('dateStartDate:', dateStartDateInputRef.current.value, ', dateEndDate:', dateEndDateInputRef.current.value);
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
-      activePerson.emailOfficialVerified = emailOfficialVerified;
+      activePerson.emailOfficialVerified = emailVerifiedOverride !== null ? emailVerifiedOverride : emailOfficialVerified;
       if (emailOfficialVerified === true) {
         activePerson.statusEmailCreated = true;
       }
@@ -158,15 +161,37 @@ const EditPersonForm = ({ classes }) => {
       personId: activePerson.id,
     };
     personSave(makeRequestParamsDictionary(plainParams, data));
-    setSaveButtonActive(false);
-    setAppContextValue('headerProfileDrawerOpen', false);
-    setAppContextValue('profileDrawerPerson', undefined);
-    setAppContextValue('profileDrawerPersonId', -1);
+    setAppContextValue('profileDrawerPerson', activePerson);
+    if (emailVerifiedOverride === null || emailVerifiedOverride === undefined) {
+      setSaveButtonActive(false);
+      setAppContextValue('headerProfileDrawerOpen', false);
+      setAppContextValue('profileDrawerPerson', undefined);
+      setAppContextValue('profileDrawerPersonId', -1);
+    }
   };
 
   const setEmailOfficialFromChild = (emailOfficial) => {
     setEmailOfficialLocal(emailOfficial);
     setIsEmailOfficialEditModeOn(false);
+  };
+
+  const addPhotoFromSlack = async () => {
+    const id = activePerson.id;
+    const data = await weConnectQueryFn('slack-add-person-images', { personId: id }, METHOD.POST);
+    // console.log('SlackAddPersonImages', data);
+    const slackImage48 = data?.singlePersonUpdated[0]?.slackImage48;
+    setShowAddSlackPhoto(false);
+    if (slackImage48) {
+      activePerson.slackImage48 = slackImage48;
+      setAppContextValue('temporarySlackImage', slackImage48);
+      setSlackError('');
+    } else {
+      setSlackError('Slack did not return a member who matches this staff member\'s personal or offical email address.');
+      console.log('SlackAddPersonImages error');
+      setTimeout(() => {
+        setSlackError('');
+      }, 5000);
+    }
   };
 
   const setEmailOfficialVerifiedFromChild = (emailOfficialVerifiedIncoming) => {
@@ -289,6 +314,16 @@ const EditPersonForm = ({ classes }) => {
             </SpanWithLinkStyle>
           )}
         </TextUnderInputField>
+        <TextUnderInputField>
+          <SpanWithLinkStyle style={showAddSlackPhoto ? { opacity: '1' } : { opacity: '0.5' }} onClick={showAddSlackPhoto ? addPhotoFromSlack : () => {}}>
+            Add Photo From Slack
+          </SpanWithLinkStyle>
+        </TextUnderInputField>
+        {slackError.length > 0 && (
+          <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
+            {slackError}
+          </Alert>
+        )}
         <TextField
           defaultValue={activePerson.emailPreferred || ''}
           id="emailPreferredToBeSaved"
@@ -626,6 +661,7 @@ const EditPersonForm = ({ classes }) => {
             setIsEmailOfficialEditModeInParent={setEmailOfficialEditedFromChild}
             setEmailOfficialInParent={setEmailOfficialFromChild}
             setEmailOfficialVerifiedInParent={setEmailOfficialVerifiedFromChild}
+            savePerson={savePerson}
           />
         </TextUnderInputField>
         <TextField
@@ -876,7 +912,7 @@ const EditPersonForm = ({ classes }) => {
             classes={{ root: classes.savePersonButton }}
             color="primary"
             disabled={!saveButtonActive}
-            onClick={savePerson}
+            onClick={() => savePerson()}
             variant="contained"
           >
             Save Person
@@ -980,6 +1016,7 @@ const QuickLinkList = styled('div')`
 
 const TextUnderInputField = styled('div')`
   margin-left: 15px;
+  padding: 4px 0;
 `;
 
 export default withStyles(styles)(EditPersonForm);

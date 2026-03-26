@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import CreateNewGoogleUser from '../../pages/SystemSettings/CreateNewGoogleUser';
@@ -7,11 +7,14 @@ import GetOneGoogleUser from '../../pages/SystemSettings/GetOneGoogleUser';
 import JazzHrAccess from '../../pages/SystemSettings/JazzHrAccess';
 import ResetGoogleUserPassword from '../../pages/SystemSettings/ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from '../../pages/SystemSettings/ShareGoogleDriveAccess';
+import SlackAddPersonImages from '../../pages/SystemSettings/SlackAddPersonImages';
 import SlackChannelInvite from '../../pages/SystemSettings/SlackChannelInvite';
 import SlackChannelMembers from '../../pages/SystemSettings/SlackChannelMembers';
 import SlackGetPresence from '../../pages/SystemSettings/SlackGetPresence';
 import SlackListUsers from '../../pages/SystemSettings/SlackListMembers';
 import SlackSendMessage from '../../pages/SystemSettings/SlackSendMessage';
+
+/* global $ */
 
 const AdminFunctions = () => {
   renderLog('AdminFunctions');  // Set LOG_RENDER_EVENTS to log all renders
@@ -26,6 +29,11 @@ const AdminFunctions = () => {
   const keyValueArray = Object.entries(stats);
   /* eslint-enable no-undef */
 
+  useEffect(() => {
+    const theTd = $('td:contains("weconnect-client")');
+    theTd.replaceWith(theTd.text());
+  }, []);
+
   const hideLinesWithNone = false;
   return (
     <AdminFunctionsWrapper>
@@ -33,7 +41,7 @@ const AdminFunctions = () => {
         <table>
           <tbody>
             {keyValueArray.map((entry) => (
-              <tr style={entry[1] === 'none' && hideLinesWithNone ? { display: 'none' } : {}}>
+              <tr key={entry[0]} style={entry[1] === 'none' && hideLinesWithNone ? { display: 'none' } : {}}>
                 <td style={{ width: 'fit-content', paddingRight: '20px' }}>
                   {entry[0].replaceAll('_', ' ')}:
                 </td>
@@ -76,6 +84,7 @@ const AdminFunctions = () => {
           <SlackSendMessage />
           <SlackListUsers />
           <SlackGetPresence />
+          <SlackAddPersonImages />
         </ButtonRow>
         <SectionTitle>Slack Channel Operations:</SectionTitle>
         <ButtonRow>

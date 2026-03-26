@@ -34,6 +34,7 @@ export const ConnectAppContextProvider = ({ children }) => {
     apiDataCacheReducer,
     initialApiDataCache(),
   );
+
   const setAppContextValue = (key, value) => {
     // console.log('------------ setAppContextValue ', key, ' : ',  value);
     setData((prevStore) => ({ ...prevStore, [key]: value }));
