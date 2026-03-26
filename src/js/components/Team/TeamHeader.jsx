@@ -263,17 +263,18 @@ const TeamHeader = (
             {/* Please leave cellwidth values as-is unless you are also modifying PersonSummaryRow */}
             <TeamHeaderCell $cellwidth={20} />
             <TeamHeaderCell $cellwidth={25} />
-            <TeamHeaderCell $cellwidth={180}>
+            <TeamHeaderCell $cellwidth={32} />
+            <TeamHeaderCell $cellwidth={180} $leftAlign>
               Name
             </TeamHeaderCell>
-            <TeamHeaderCell $cellwidth={150}>
+            <TeamHeaderCell $cellwidth={150} $leftAlign>
               Location
             </TeamHeaderCell>
-            <TeamHeaderCell $cellwidth={250}>
+            <TeamHeaderCell $cellwidth={250} $leftAlign>
               Title
             </TeamHeaderCell>
             <TeamHeaderCell $cellwidth={150} />
-            <TeamHeaderCell $cellwidth={150} $rightAlign>
+            <TeamHeaderCell $cellwidth={140} $rightAlign>
               Volunteer for
             </TeamHeaderCell>
           </TeamHeaderPersonColumnTitles>

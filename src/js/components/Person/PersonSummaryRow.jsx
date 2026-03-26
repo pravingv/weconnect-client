@@ -1,4 +1,4 @@
-import { ContentCopy, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
+import { ContentCopy, EditOutlined, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { formatDateMMMDo, timeFromDate } from '../../common/utils/dateFormat';
 import { renderLog } from '../../common/utils/logging';
-import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
@@ -131,9 +130,11 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
           )}
         </PersonCell>
         <PersonAvatar
+          id={`personRowImage-${person.personId}-${teamId}`}
           isAuthenticated
+          onClick={() => viewPersonClick(canEditPerson)}
           slackImage={person.slackImage48}
-          styles={{ paddingRight: '4px', maxWidth: '100%', maxHeight: '100%' }}
+          styles={{ cursor: 'pointer', paddingRight: '2px', maxWidth: '28px', maxHeight: '28px' }}
         />
         <PersonCell
           id={`fullNamePreferred-personId-${person.personId}`}
@@ -164,7 +165,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         <PersonCell
           id={`location-personId-${person.personId}`}
           $cellwidth={150}
-          $smallfont
+          $smallestfont
         >
           {person.location}
         </PersonCell>
@@ -183,7 +184,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         </PersonCell>
         <HideOnHover>
           <PersonCell
-            $cellwidth={300}
+            $cellwidth={290}
             $rightAlign
             $smallestfont
           >
@@ -221,7 +222,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
         <ShowOnHover>
           {person.emailOfficial ? (
             <PersonCell
-              $cellwidth={111}
+              $cellwidth={70}
               $smallestfont
             >
               <CopyToClipboard text={person.emailOfficial} onCopy={() => copyOfficialEmail()}>
@@ -229,7 +230,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
                   <ContentCopyStyled />
                   <ContentCopyText>
                     <SpanWithLinkStyle>
-                      {officialEmailCopied ? 'Copied!' : `${webAppConfig.ORGANIZATION_NAME || 'Official'} email`}
+                      {officialEmailCopied ? 'Copied!' : 'Email'}
                     </SpanWithLinkStyle>
                   </ContentCopyText>
                 </CopyToClipboardContainer>
@@ -237,7 +238,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
             </PersonCell>
           ) : (
             <PersonCell
-              $cellwidth={111}
+              $cellwidth={70}
               $smallestfont
             >
               &nbsp;
@@ -276,11 +277,8 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
               id={`editPerson-personId-${person.personId}`}
               onClick={() => viewPersonClick(canEditPerson)}
               $cellwidth={30}
-              $smallestfont
             >
-              <ButtonWithLinkStyle>
-                Edit
-              </ButtonWithLinkStyle>
+              <EditOutlinedStyled sx={{ marginLeft: '4px' }} />
             </PersonCell>
           )}
           <PersonSummaryRowTripleDot person={person} teamId={teamId} />
@@ -329,15 +327,14 @@ const styles = (theme) => ({
   teamMemberName: {
     fontWeight: 600,
     textDecoration: 'none',
-    color: `${DesignTokenColors.neutral800}`,
+    color: `${DesignTokenColors.neutralUI700}`,
   },
 });
 
 const ContentCopyNameStyled = styled(ContentCopy)`
   color: ${DesignTokenColors.primary500};
   height: 16px;
-  margin: 0;
-  margin-bottom: -2px;
+  margin: 0 0 -2px 0;
   width: 16px;
 `;
 
@@ -375,6 +372,13 @@ const CopyToClipboardContainer = styled('div')`
   height: 18px;
   justify-content: flex-start;
   padding-right: 8px;
+`;
+
+const EditOutlinedStyled = styled(EditOutlined)`
+  color: ${DesignTokenColors.primary500};
+  cursor: pointer;
+  height: 18px;
+  width: 18px;
 `;
 
 const KeyboardArrowDownStyled = styled(KeyboardArrowDown)`
@@ -436,7 +440,7 @@ const PersonTasksRow = styled('div')`
 const PersonMainRow = styled('div')`
   align-items: center;
   display: flex;
-  height: 22px;
+  height: 30px;
   justify-content: flex-start;
   border-bottom: 1px solid ${DesignTokenColors.neutralUI300};
 
@@ -464,7 +468,7 @@ const PersonCell = styled.div`
   ${(props) => (props.$rightAlign ? 'display: flex;' : '')};
   ${(props) => (props.$rightAlign ? 'justify-content: flex-end;' : '')};
   font-size: ${(props) => (fontSz(props?.$smallfont, props?.$smallestfont))}
-  height: 22px;
+  height: 30px;
   min-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
   max-width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';;')};
   width: ${(props) => (props.$cellwidth ? `${props.$cellwidth}px;` : ';')};
