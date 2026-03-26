@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useGetPersonById } from '../../models/PersonModel';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
+import PersonAvatar from './PersonAvatar';
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../../common/components/Widgets/OpenExternalWebSite'));
 
@@ -25,6 +26,14 @@ const VisibleProfile = ({ personId }) => {
 
   return (
     <VisibleProfileWrapper>
+      {person.slackImage48 && (
+        <PersonAvatar
+          id="personProfileImage"
+          isAuthenticated
+          slackImage={person.slackImage48}
+          styles={{ height: '96px', marginBottom: '10px', maxWidth: '96px', maxHeight: '96px', width: '96px' }}
+        />
+      )}
       <div>personId: {personId}</div>
       <OneRow>
         <FieldName>

@@ -17,7 +17,7 @@ import AdminFunctions from '../Person/AdminFunctions';
 import EditPersonAwayForm from '../Person/EditPersonAwayForm';
 import EditPersonDrawerMainContent from '../Person/EditPersonDrawerMainContent';
 import EditPersonTasksDrawerMainContent from '../Person/EditPersonTasksDrawerMainContent';
-import PersonAvatar from '../Person/PersonAvatar';
+// import PersonAvatar from '../Person/PersonAvatar';
 import VisibleProfile from '../Person/VisibleProfile';
 import ViewQuestionnairesForPerson from '../Questionnaire/ViewQuestionnairesForPerson';
 import ViewTeamsForPerson from '../Team/ViewTeamsForPerson';
@@ -38,7 +38,7 @@ const HeaderProfileDrawer = () => {
   const [showLinksToProfilePages, setShowLinksToProfilePages] = useState(true);
   const [viewerIsThisAuthenticatedPerson, setViewerIsThisAuthenticatedPerson] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [slackImage, setSlackImage] = useState('');
+  // const [slackImage, setSlackImage] = useState('');
 
   const { mutate: mutateLogout } = useLogoutMutation();
   const navigate = useNavigate();
@@ -73,22 +73,23 @@ const HeaderProfileDrawer = () => {
     setViewerIsThisAuthenticatedPerson(authenticatedPerson && getAppContextValue('profileDrawerPersonId') === authenticatedPerson.personId);
   }, [getAppContextValue, authenticatedPerson]);
 
-  useEffect(() => {
-    setSlackImage(personViewedInDrawer.slackImage48);
-  }, [personViewedInDrawer]);
+  // useEffect(() => {
+  //   setSlackImage(personViewedInDrawer.slackImage48);
+  // }, [personViewedInDrawer]);
 
   useEffect(() => {
     const tsi = getAppContextValue('temporarySlackImage');
     // setSlackImage(personViewedInDrawer.slackImage48);
     if (tsi && tsi.length > 0) {
       console.log(`HeaderProfileDrawer setSlackImage ${tsi}`);
-      setSlackImage(tsi);
+      // setSlackImage(tsi);
       setAppContextValue('temporarySlackImage', '');
     }
   }, [getAppContextData()]);
 
   const profileNavOptions = [
-    { icon: <PersonAvatar isAuthenticated slackImage={slackImage} />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
+    // { icon: <PersonAvatar isAuthenticated slackImage={slackImage} />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
+    { icon: <AccountCircle />, linkName: 'visibleProfile', linkTextJsx: <>Visible Profile</> },
   ];
   if (viewerIsThisAuthenticatedPerson || viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights)) {
     profileNavOptions.push(

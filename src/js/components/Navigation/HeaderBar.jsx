@@ -241,20 +241,25 @@ const HeaderBar = ({ hideTabs }) => {
         <TopRowOneRightContainer className="u-cursor--pointer">
           <Button
             variant="outlined"
-            sx={{ border: 'none' }}
-            id="signInButton"
-            onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
-          >
-            <PersonAvatar isAuthenticated={isAuthenticated} slackImage={slackImageLink} />
-          </Button>
-          <Button
-            variant="outlined"
             size="small"
             sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', margin: '13px 0 0 8px', minWidth: '110px' }}
             id="refreshButton"
             onClick={() => doTheRefresh()}
           >
             Refresh
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{ border: 'none' }}
+            id="signInButton"
+            onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
+          >
+            <PersonAvatar
+              id="personProfileImage"
+              isAuthenticated={isAuthenticated}
+              slackImage={slackImageLink}
+              styles={{ cursor: 'pointer', maxWidth: '32px', maxHeight: '32px' }}
+            />
           </Button>
         </TopRowOneRightContainer>
         <TopRowTwoLeftContainer>

@@ -8,10 +8,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import PropTypes from 'prop-types';
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
-import generateRandomString from '../../common/utils/generateRandomString';
 import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
@@ -19,9 +17,9 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
-import { ActionOption, ActionOptionContainerLeft8, ActionOptionContainerOverflow, ActionOptionList } from '../Style/actionOptionStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
+import PersonAvatar from './PersonAvatar';
 
 
 dayjs.extend(utc);
@@ -40,7 +38,6 @@ const EditPersonForm = ({ classes }) => {
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
-  const [emailError, setEmailError] = useState('');
   const [showCompletedOnboardingCheckboxes, setShowCompletedOnboardingCheckboxes] = useState(false);
   const [initialPerson] = useState(getAppContextValue('profileDrawerPerson'));
   // const [initialPerson] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
@@ -53,10 +50,6 @@ const EditPersonForm = ({ classes }) => {
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
   const [showAddSlackPhoto, setShowAddSlackPhoto] = useState(true);
   const [slackError, setSlackError] = useState('');
-
-  const [newPasswordNotification, setNewPasswordNotification] = useState('');
-  const [newPasswordNotificationCopied, setNewPasswordNotificationCopied] = useState(false);
-  const [showNewPasswordNotification, setShowNewPasswordNotification] = useState(false);
 
   const getDateDefaultValue = (dateString) => {
     if (!dateString) return null;
@@ -82,6 +75,7 @@ const EditPersonForm = ({ classes }) => {
   const lastNameInputRef = useRef('');
   const linkedInUrlInputRef = useRef('');
   const locationInputRef = useRef('');
+  // const [slackImageLink, setSlackImageLink] = useState();
   const stateCodeInputRef = useRef('');
   const statusActiveInputRef = useRef(false);
   const statusAvailableForSpecialProjectsInputRef = useRef(false);
@@ -105,7 +99,7 @@ const EditPersonForm = ({ classes }) => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
-  const savePerson = (emailVerifiedOverride= null) => {
+  const savePerson = (emailVerifiedOverride = null) => {
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
     activePerson.emailPreferred = emailPreferredInputRef.current.value;
     activePerson.firstName = firstNameInputRef.current.value;
@@ -176,7 +170,7 @@ const EditPersonForm = ({ classes }) => {
   };
 
   const addPhotoFromSlack = async () => {
-    const id = activePerson.id;
+    const { id } = activePerson;
     const data = await weConnectQueryFn('slack-add-person-images', { personId: id }, METHOD.POST);
     // console.log('SlackAddPersonImages', data);
     const slackImage48 = data?.singlePersonUpdated[0]?.slackImage48;
@@ -208,45 +202,16 @@ const EditPersonForm = ({ classes }) => {
   const emailOfficialCanBeEdited = !(emailOfficialInitial) || isEmailOfficialEditModeOn;
   // console.log('activePerson:', activePerson);
 
-
-  const resetWeVoteEducationClick = async () => {
-    setEmailError('');
-    const { emailOfficial, emailPersonal, firstName } = activePerson;
-    if (!emailOfficial.includes('wevoteeducation.org') && !emailPersonal.includes('wevoteeducation.org')) {
-      setEmailError(`"${firstName}" does not have a wevoteeducation.org email as either their official (${emailOfficial}) or private (${emailOfficial}) address`);
-      return;
-    }
-    const emailToChange = emailOfficial.includes('wevoteeducation.org') ? emailOfficial : emailPersonal;
-    const newPassword = generateRandomString(12);
-    // console.log(`deletewevoteuserpassword ${emailToChange} ${newPassword}`);
-    const data = await weConnectQueryFn('google-reset-user-password', {
-      primaryEmail: emailToChange,
-      newPassword,
-    }, METHOD.POST);
-    // console.log('reset wevote password', data);
-    if (data.success) {
-      setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${emailToChange} \n pass: ${newPassword}`);
-      setShowNewPasswordNotification(true);
-    } else {
-      // console.error('Failed to reset password:', data);
-      console.log(`Reset password API error: ${data.error}`);
-      if (data.error.startsWith('Missing required')) {
-        setEmailError(`'${emailToChange}' is not an existing valid @wevoteeducation.org email address.`);
-      } else {
-        setEmailError(`${data.error}, google api server code: ${data.errorCode}`);
-      }
-    }
-  };
-
-  const newPasswordNotificationOnCopy = () => {
-    setNewPasswordNotificationCopied(true);
-    setTimeout(() => {
-      setNewPasswordNotificationCopied(false);
-    }, 1500);
-  };
-
   return (
     <EditPersonFormWrapper>
+      {activePerson.slackImage48 && (
+        <PersonAvatar
+          id="personProfileImage"
+          isAuthenticated
+          slackImage={activePerson.slackImage48}
+          styles={{ height: '96px', marginBottom: '10px', marginTop: '-16px', maxWidth: '96px', maxHeight: '96px', width: '96px' }}
+        />
+      )}
       <FormControl classes={{ root: classes.formControl }}>
         <TextField
           autoFocus
@@ -610,50 +575,6 @@ const EditPersonForm = ({ classes }) => {
           value={emailOfficialLocal}
           variant="outlined"
         />
-        {emailError.length > 0 && (
-          <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
-            {emailError}
-          </Alert>
-        )}
-        <QuickLink>
-          <SpanWithLinkStyle onClick={resetWeVoteEducationClick}>
-            Reset Official ({webAppConfig.ORGANIZATION_NAME === 'WeVote' ? '@wevoteeducation.org' : ''}) email password
-          </SpanWithLinkStyle>
-        </QuickLink>
-        {showNewPasswordNotification && (
-          <>
-            <ActionOptionContainerOverflow>
-              <ActionOptionContainerLeft8>
-                <ActionOptionList>
-                  <ActionOption>
-                    {newPasswordNotificationCopied ? 'Copied!' : (
-                      <CopyToClipboard text={newPasswordNotification} onCopy={() => newPasswordNotificationOnCopy(true)}>
-                        <SpanWithLinkStyle>
-                          Copy to Clipboard
-                        </SpanWithLinkStyle>
-                      </CopyToClipboard>
-                    )}
-                  </ActionOption>
-                  <ActionOption>
-                    Please send to volunteer via Slack.
-                  </ActionOption>
-                </ActionOptionList>
-              </ActionOptionContainerLeft8>
-            </ActionOptionContainerOverflow>
-            <div>
-              <TextField
-                multiline
-                rows={5}
-                value={newPasswordNotification}
-                // onChange={(e) => setEmailText(e.target.value)}
-                placeholder="Enter text to be copied..."
-                fullWidth
-                variant="outlined"
-                margin="normal"
-              />
-            </div>
-          </>
-        )}
         <TextUnderInputField>
           <EmailOfficialManager
             emailOfficialEdited={emailOfficialEdited}
