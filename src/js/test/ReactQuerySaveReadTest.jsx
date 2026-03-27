@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { renderLog } from '../common/utils/logging';
-import makeRequestParams from '../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../react-query/mutations';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 
@@ -23,7 +23,7 @@ const ReactQuerySaveReadTest = (personId) => {
     }
     personMutable.firstNamePreferred = (parseInt(person?.firstNamePreferred) + 1).toString();
     setPersonSentToMutation(structuredClone(personMutable));  // Save off the sent value
-    mutate(makeRequestParams({ personId: personMutable.id }, { firstNamePreferred: personMutable.firstNamePreferred }));
+    mutate(makeRequestParamsDictionary({ personId: personMutable.id }, { firstNamePreferred: personMutable.firstNamePreferred }));
   };
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
@@ -58,7 +58,7 @@ const ReactQuerySaveReadTest = (personId) => {
 
   const onClickTest = () => {
     setStartTest(true);
-    mutate(makeRequestParams({ personId: 1 }, { firstNamePreferred: 0 }));
+    mutate(makeRequestParamsDictionary({ personId: 1 }, { firstNamePreferred: 0 }));
   };
 
   return (

@@ -8,7 +8,7 @@ import { SpanWithLinkStyle } from '../../components/Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { alphabetizePeoplesObject } from '../../utils/utilities';
 
@@ -197,7 +197,7 @@ const PermissionsAdministration = ({ classes }) => {
       personId: activePerson.id,
     };
 
-    mutate(makeRequestParams(plainParams, data));
+    mutate(makeRequestParamsDictionary(plainParams, data));
     console.log('Saved person: ', activePerson.id);
     setTimeout(() => {
       setButtonState(SET.DISABLE, personId);
