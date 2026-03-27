@@ -10,7 +10,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { getPersonAwayParamsToSave, getPersonAwayLabel, getPersonAwayReason } from '../../controllers/PersonController';
 import { PERSON_AWAY_REASONS, PERSON_AWAY_REASONS_WITH_HR } from '../../models/PersonModel';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { usePersonAwaySaveMutation } from '../../react-query/mutations';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 
@@ -64,7 +64,7 @@ const EditPersonAwayForm = ({ classes, personId }) => {
       dateStartDate: dateStartDate.format('YYYY-MM-DD'),
     };
     console.log('savePersonAway params:', params);
-    const requestParams = makeRequestParams(plainParams, params);
+    const requestParams = makeRequestParamsDictionary(plainParams, params);
     personAwaySave(requestParams);
     // console.log('saveQuestionnaire requestParams:', requestParams);
     setSaveButtonActive(false);

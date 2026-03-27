@@ -100,6 +100,7 @@ const EditPersonForm = ({ classes }) => {
   }, [viewerAccessRights]);
 
   const savePerson = (emailVerifiedOverride = null) => {
+    // console.log('Saving person:', activePerson, ', emailVerifiedOverride: ', emailVerifiedOverride);
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
     activePerson.emailPreferred = emailPreferredInputRef.current.value;
     activePerson.firstName = firstNameInputRef.current.value;
@@ -111,17 +112,17 @@ const EditPersonForm = ({ classes }) => {
     if (viewerIsOnHrTeam) {
       // The fields that you need to be in HR to update
       activePerson.birthdayMonthAndDay = birthdayMonthAndDayInputRef.current.value;
-      console.log('Saving dates:', {
-        dateStartDate: dateStartDate ? dateStartDate.format('YYYY-MM-DD') : null,
-        dateEndDate: dateEndDate ? dateEndDate.format('YYYY-MM-DD') : null,
-      });
+      // console.log('Saving dates:', {
+      //   dateStartDate: dateStartDate ? dateStartDate.format('YYYY-MM-DD') : null,
+      //   dateEndDate: dateEndDate ? dateEndDate.format('YYYY-MM-DD') : null,
+      // });
       activePerson.dateEndDate = dateEndDate ? dateEndDate.utc().format('YYYY-MM-DD') : '';
       activePerson.dateStartDate = dateStartDate ? dateStartDate.utc().format('YYYY-MM-DD') : '';
       // console.log('dateStartDate:', dateStartDateInputRef.current.value, ', dateEndDate:', dateEndDateInputRef.current.value);
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
       activePerson.emailOfficialVerified = emailVerifiedOverride !== null ? emailVerifiedOverride : emailOfficialVerified;
-      if (emailOfficialVerified === true) {
+      if (emailOfficialVerified === true || emailVerifiedOverride === true) {
         activePerson.statusEmailCreated = true;
       }
       activePerson.isHiringManager = isHiringManagerInputRef.current.checked;
@@ -154,6 +155,7 @@ const EditPersonForm = ({ classes }) => {
     const plainParams = {
       personId: activePerson.id,
     };
+    // console.log('personSave plainParams:', plainParams);
     personSave(makeRequestParamsDictionary(plainParams, data));
     setAppContextValue('profileDrawerPerson', activePerson);
     if (emailVerifiedOverride === null || emailVerifiedOverride === undefined) {
@@ -233,6 +235,7 @@ const EditPersonForm = ({ classes }) => {
           )}
         </TextUnderInputField>
         <TextField
+          classes={showFirstNamePreferred ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.firstNamePreferred || ''}
           id="firstNamePreferredToBeSaved"
           inputRef={firstNamePreferredInputRef}
@@ -241,13 +244,6 @@ const EditPersonForm = ({ classes }) => {
           name="firstNamePreferred"
           onChange={() => setSaveButtonActive(true)}
           placeholder="First Name to use in meetings"
-          sx={!showFirstNamePreferred && {
-            position: 'absolute',
-            left: '-9999px',
-            width: '1px',
-            height: '1px',
-            overflow: 'hidden',
-          }}
           variant="outlined"
         />
         <TextField
@@ -290,6 +286,7 @@ const EditPersonForm = ({ classes }) => {
           </Alert>
         )}
         <TextField
+          classes={showEmailPreferred ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.emailPreferred || ''}
           id="emailPreferredToBeSaved"
           inputRef={emailPreferredInputRef}
@@ -298,13 +295,6 @@ const EditPersonForm = ({ classes }) => {
           name="emailPreferred"
           onChange={() => setSaveButtonActive(true)}
           placeholder="Preferred Email Address"
-          sx={!showEmailPreferred && {
-            position: 'absolute',
-            left: '-9999px',
-            width: '1px',
-            height: '1px',
-            overflow: 'hidden',
-          }}
           variant="outlined"
         />
         <TextField

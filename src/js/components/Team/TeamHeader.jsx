@@ -196,7 +196,7 @@ const TeamHeader = (
               <ActionBarSection>
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={editTeamClick}>
-                    Next meeting
+                    Edit&nbsp;team
                   </SpanWithLinkStyle>
                 </ActionBarItem>
                 {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
@@ -228,7 +228,7 @@ const TeamHeader = (
                   <CopyToClipboard text={officialEmailsToCopy} onCopy={() => copyOfficialEmails()}>
                     <CopyToClipboardContainer>
                       <ContentCopyStyled />
-                      <ContentCopyText>{officialEmailsCopied ? 'Copied!' : 'Official emails'}</ContentCopyText>
+                      <ContentCopyText>{officialEmailsCopied ? 'Copied!' : <>Official&nbsp;emails</>}</ContentCopyText>
                     </CopyToClipboardContainer>
                   </CopyToClipboard>
                 </ActionBarItem>
@@ -238,7 +238,7 @@ const TeamHeader = (
                   <CopyToClipboard text={personalEmailsToCopy} onCopy={() => copyPersonalEmails()}>
                     <CopyToClipboardContainer>
                       <ContentCopyStyled />
-                      <ContentCopyText>{personalEmailsCopied ? 'Copied!' : 'Personal emails'}</ContentCopyText>
+                      <ContentCopyText>{personalEmailsCopied ? 'Copied!' : <>Personal emails</>}</ContentCopyText>
                     </CopyToClipboardContainer>
                   </CopyToClipboard>
                 </ActionBarItem>

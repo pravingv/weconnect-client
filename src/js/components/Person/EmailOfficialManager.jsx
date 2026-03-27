@@ -19,8 +19,8 @@ const EMAIL_DOMAINS_FOR_VERIFICATION = ['@wevoteeducation.org', '@wevote.org', '
 
 const EmailOfficialManager = (
   {
-    emailOfficialEdited, savedEmailOfficial, setEmailOfficialInParent,
-    setIsEmailOfficialEditModeInParent, setEmailOfficialVerifiedInParent, savePerson,
+    emailOfficialEdited, savedEmailOfficial, savePerson, setEmailOfficialInParent,
+    setIsEmailOfficialEditModeInParent, setEmailOfficialVerifiedInParent,
   },
 ) => {
   renderLog('EmailOfficialManager');
@@ -103,6 +103,10 @@ const EmailOfficialManager = (
       if (setEmailOfficialVerifiedInParent) {
         setEmailOfficialVerifiedInParent(true);
       }
+      setActivePerson((prev) => ({
+        ...prev,
+        emailOfficialVerified: true,
+      }));
       setResultsText(`Staff member '${createUserResults.primaryEmail}' has been created`);
       const firstNameToDisplay = firstNamePreferred || firstName;
       setNewAccountNotification(
@@ -112,6 +116,16 @@ Password (expires in 48 hours): ${password}
 Please note that we prefer that you keep your Slack account connected to your personal email address (as opposed to switching Slack to your new WeVote email address.)`,
       );
       setShowNewAccountNotification(true);
+      try {
+        if (savePerson) {
+          // console.log('createGoogleUser, saving person');
+          await savePerson(true);
+        } else {
+          console.error('Error saving person after createGoogleUser');
+        }
+      } catch (error) {
+        console.error('Error saving person after verification', error);
+      }
     } else {
       setResultsText(`ERROR: '${createUserResults.error}' A staff member was not created`);
     }
@@ -165,6 +179,7 @@ Please note that we prefer that you keep your Slack account connected to your pe
       setEmailOfficialNotValidDomain(true);
     } else {
       const verificationData = await weConnectQueryFn('google-get-user-info', { primaryEmail: savedEmailOfficial }, METHOD.POST);
+      // console.log('EmailOfficialManager verifyEmail:', verificationData);
       if (!verificationData || !verificationData.isMailboxSetup) {
         displayRawData = true;
         if (setEmailOfficialVerifiedInParent) {
@@ -226,6 +241,7 @@ Please note that we prefer that you keep your Slack account connected to your pe
       requiredVariablesMissingMessageTemp = `Add before create: ${requiredVariablesMissingMessageTemp}`;
       setRequiredVariablesMissingMessage(requiredVariablesMissingMessageTemp);
     }
+    // console.log('EmailOfficialManager verifyEmail verifiedJustNow:', verifiedJustNow, ', requiredVariablesMissing:', requiredVariableMissing);
     if (verifiedJustNow && !requiredVariableMissing) {
       try {
         if (savePerson) {

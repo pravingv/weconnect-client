@@ -9,7 +9,7 @@ import DesignTokenColors from '../common/components/Style/DesignTokenColors';
 import { renderLog } from '../common/utils/logging';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import webAppConfig from '../config';
-import makeRequestParams from '../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../react-query/makeRequestParams';
 import { useAnswerListSaveMutation } from '../react-query/mutations';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 import capturePersonListRetrieveData from '../models/capturePersonListRetrieveData';
@@ -188,7 +188,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
       setErrorMessage(undefined);
     }
 
-    const saveParams = makeRequestParams({
+    const saveParams = makeRequestParamsDictionary({
       questionnaireId,
       personId,
       ...inputValues,

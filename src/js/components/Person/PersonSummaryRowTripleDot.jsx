@@ -9,7 +9,7 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { useAddPersonToTeamMutation, useRemoveTeamMemberMutation } from '../../react-query/mutations';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { getTeamMemberEntryByPersonIdAndTeamId } from '../../models/TeamModel';
 
 
@@ -32,7 +32,7 @@ const PersonSummaryRowTripleDot = ({ person, teamId }) => {
       personId: person.personId,
       teamId,
     };
-    addPersonToTeam(makeRequestParams(plainParams, {
+    addPersonToTeam(makeRequestParamsDictionary(plainParams, {
       isTeamLead: true,
     }));
   };
@@ -43,7 +43,7 @@ const PersonSummaryRowTripleDot = ({ person, teamId }) => {
       personId: person.personId,
       teamId,
     };
-    addPersonToTeam(makeRequestParams(plainParams, {
+    addPersonToTeam(makeRequestParamsDictionary(plainParams, {
       isTeamLead: false,
     }));
   };

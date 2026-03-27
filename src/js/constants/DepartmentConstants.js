@@ -1,11 +1,12 @@
 // DepartmentConstants.js
 export const DEPARTMENTS = {
   ALL_TEAMS: 'All teams',
-  ANALYTICS: 'Analytics Team',
-  DONATIONS: 'Donations Team',
-  ENGINEERING: 'Engineering Team',
+  ANALYTICS: 'Analytics Dept',
+  DONATIONS: 'Donations Dept',
+  ENGINEERING: 'Engineering Dept',
+  MARKETING: 'Marketing BusDev',
   POLITICAL_DATA: 'Political Data',
-  OTHER: 'Other team',
+  OTHER: 'Other teams',
 };
 
 export const DEPARTMENT_LIST = [
@@ -13,6 +14,7 @@ export const DEPARTMENT_LIST = [
   DEPARTMENTS.ANALYTICS,
   DEPARTMENTS.DONATIONS,
   DEPARTMENTS.ENGINEERING,
+  DEPARTMENTS.MARKETING,
   DEPARTMENTS.POLITICAL_DATA,
   DEPARTMENTS.OTHER,
 ];
