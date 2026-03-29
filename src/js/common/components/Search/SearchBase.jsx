@@ -32,7 +32,7 @@ class SearchBase extends React.Component {
         this.props.onFocus(event);
       }
     });
-  }
+  };
 
   handleClear = () => {
     this.setState({ searchText: '' }, () => {
@@ -40,7 +40,7 @@ class SearchBase extends React.Component {
         this.props.onClear();
       }
     });
-  }
+  };
 
   render () {
     return (

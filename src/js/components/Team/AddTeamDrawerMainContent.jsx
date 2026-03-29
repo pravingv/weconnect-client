@@ -59,7 +59,7 @@ const AddTeamDrawerMainContent = ({ classes }) => {  //  classes, teamId
           {teamSearchResultsList.map((team) => (
             <TeamItem key={`teamResult-${team.id}`}>
               {team.teamName}
-            </TeamItem>  // eslint-disable-line react/no-array-index-key
+            </TeamItem>
           ))}
         </>
       )}

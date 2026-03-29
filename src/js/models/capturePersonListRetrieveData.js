@@ -1,6 +1,6 @@
 import isEqual from 'lodash-es/isEqual';
 
-export default function capturePersonListRetrieveData (incomingResults = {}, apiDataCache = {}, dispatch) {
+export default function capturePersonListRetrieveData (incomingResults, apiDataCache, dispatch) {
   const { data, isSuccess } = incomingResults;
   const allPeopleCache = apiDataCache.allPeopleCache || {};
   let changeResults = {

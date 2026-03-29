@@ -80,7 +80,6 @@ const EditQuestionForm = ({ classes }) => {
     }
   }, [question]);
 
-  // eslint-disable-next-line no-unused-vars
   const copyFieldMappingRule = (fieldMappingRuleIncoming) => {
     // openSnackbar({ message: 'Copied!' });
     setFieldMappingRuleCopied(fieldMappingRuleIncoming);

@@ -1,4 +1,5 @@
-import { Button, Tab, Tabs } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
+import { Alert, Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
@@ -120,7 +121,6 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     if (teamListRetrieveResults) {
       captureTeamListRetrieveData(teamListRetrieveResults, apiDataCache, dispatch);
-      // setShouldExecuteTeamListRetrieve(false);
     }
   }, [teamListRetrieveResults]);
 
@@ -200,7 +200,6 @@ const HeaderBar = ({ hideTabs }) => {
     routingLog('HeaderBar useLocation detected a url change to: ', loc.pathname);
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loc]);
 
   // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
@@ -218,6 +217,19 @@ const HeaderBar = ({ hideTabs }) => {
       $scrolledDown={scrolledDown}
       $hasSubmenu={displayTopMenuShadow()}
     >
+      {window.networkError && (
+        <Alert icon={<ErrorOutline fontSize="inherit" />}
+               severity="error"
+               sx={{
+                 '.MuiAlert-message': {
+                   paddingLeft: '40%',
+                   paddingTop: '20px',
+                 },
+               }}
+        >
+          Network error, the API server is unreachable.
+        </Alert>
+      )}
       <TopOfPageHeader>
         <TopRowOneLeftContainer>
           <HeaderBarLogo linkOff={!showTabs} />

@@ -190,7 +190,7 @@ const TeamsActionBar = () => {
       const row = {
         ...extractPersonFields(person),
         teamIds,
-        ...Object.fromEntries(allTeamNames.map((t) => [t, '']))
+        ...Object.fromEntries(allTeamNames.map((t) => [t, ''])),
       };
 
       teamIds.forEach((teamId) => {

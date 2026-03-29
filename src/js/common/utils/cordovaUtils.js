@@ -11,7 +11,6 @@ let polyfillsLoaded;
 
 // Copy of this function also in ./appleSiliconUtils, but moved here to fix dependency cycle problem
 function dumpObjProps (name, obj) {
-  // eslint-disable-next-line guard-for-in
   Object.keys(obj).forEach((key) => console.log(`Dump Object ${name} ${key}: ${obj[key]}`));
 }
 
@@ -337,7 +336,6 @@ export function isIPad () {
         width: window.screen.width * ratio,
         height: window.screen.height * ratio,
       };
-      /* eslint-disable no-extra-parens */
       if ((screen.width === 768 && screen.height === 1024) ||  // iPad, 9.7" 2010 and Gen 2, 2011 and Mini 2012
           (screen.width === 1536 && screen.height === 2048) || // iPad, 9.7" Gen 3 2012, Gen 4 2013, 2018 iPad, iPad Pro 2016, iPad Air 2013, and Mini Retina 2013
           (screen.width === 1668 && screen.height === 2224) || // iPad Pro 10.5" Gen 2  2017
@@ -675,7 +673,6 @@ export function restoreStylesAfterCordovaKeyboard (callerString) {
       if (isIOS()) {
         window.Keyboard.disableScroll(false);
       }
-      // eslint-disable-next-line no-empty
     } catch (e) {
       console.log('error in restoreStylesAfterCordovaKeyboard', e);
     }

@@ -45,6 +45,8 @@ const TeamHeader = (
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
   const [teamLeads, setTeamLeads] = useState('');
   const [teamLeadsCount, setTeamLeadsCount] = useState(0);
+  const [donorsOnTeam, setDonorsOnTeam] = useState(0);
+
   const teamLocal = team;
   const teamIdentifier = team?.teamId || team?.id;
 
@@ -101,6 +103,9 @@ const TeamHeader = (
               teamLeadsCountTemp += 1;
             }
           }
+          if (person.isMonthlyDonor) {
+            setDonorsOnTeam(donorsOnTeam + 1);
+          }
         }
       }
     });
@@ -141,6 +146,22 @@ const TeamHeader = (
     setPersonalEmailsToCopy(personalEmails);
   }, [apiDataCache, team, searchText, hideInactive, getAppContextValue]);
 
+  const DonorPercentage = () => {
+    if (numberOfTeamMembers === 0) {
+      return '';
+    }
+    try {
+      const donorPercent = Math.round((donorsOnTeam / numberOfTeamMembers) * 100);
+      if (Number.isNaN(donorPercent)) {
+        return '';
+      }
+      return <span style={{ color: '#9A9A9A' }}>{donorPercent}% donors</span>;
+    } catch (e) {
+      console.log('DonorPercentage threw error :', e);
+      return '';
+    }
+  };
+
   return (
     <OneTeamOuterWrapper>
       <OneTeamHeaderOuterWrapper>
@@ -177,19 +198,24 @@ const TeamHeader = (
           </TeamHeaderCell>
           <HideOnHover>
             {teamLeadsCount > 0 && (
-              <ActionBarSection>
+              <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
                   <TeamLead>{teamLeadsCount === 1 ? 'Lead: ' : 'Leads: '}{teamLeads}</TeamLead>
                 </ActionBarItem>
               </ActionBarSection>
             )}
-            {!hideTeamMemberCount && (
-              <ActionBarSection $borderRightOff>
+            {!hideTeamMemberCount && numberOfTeamMembers && (
+              <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
                   <TeamMemberCount>{numberOfTeamMembers} {numberOfTeamMembers === 1 ? 'person' : 'people'}</TeamMemberCount>
                 </ActionBarItem>
               </ActionBarSection>
             )}
+            <ActionBarSection $borderRightOff>
+              <ActionBarItem>
+                <DonorPercentage />
+              </ActionBarItem>
+            </ActionBarSection>
           </HideOnHover>
           <ShowOnHover>
             {!(showStatusOfferDecisionNeeded || showNotOnTeam) && (

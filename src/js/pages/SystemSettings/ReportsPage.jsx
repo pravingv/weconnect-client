@@ -51,7 +51,7 @@ const StatValue = styled.span`
   font-size: 18px;
 `;
 
-export default function ReportsPage() {
+export default function ReportsPage () {
   const { apiDataCache } = useConnectAppContext();
   const { allTeamsCache = {}, allTeamMembersCache = {}, allPeopleCache = {} } = apiDataCache;
   const dispatch = useConnectDispatch();
@@ -89,13 +89,13 @@ export default function ReportsPage() {
     const c3Members = new Set(
       (allTeamMembersCache[c3TeamId] || [])
         .map((member) => member.personId)
-        .filter((id) => id !== undefined && id !== null)
+        .filter((id) => id !== undefined && id !== null),
     );
 
     const c4Members = new Set(
       (allTeamMembersCache[c4TeamId] || [])
         .map((member) => member.personId)
-        .filter((id) => id !== undefined && id !== null)
+        .filter((id) => id !== undefined && id !== null),
     );
 
     let onBothTeamsCount = 0;
@@ -158,4 +158,4 @@ export default function ReportsPage() {
       </div>
     </>
   );
-};
+}

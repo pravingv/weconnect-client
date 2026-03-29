@@ -5,15 +5,11 @@ import { normalizedHref } from '../../common/utils/hrefUtils';
 import { isWebApp } from '../../common/utils/isCordovaOrWebApp';
 import { renderLog } from '../../common/utils/logging';
 import { handleResize } from '../../common/utils/isMobileScreenSize';
-import AppObservableStore, { messageService } from '../../stores/AppObservableStore';
 import { getApplicationViewBooleans } from '../../utils/applicationUtils';
 // importRemoveCordovaListenersToken2  -- Do not remove this line!
 
 
 const DelayedLoad = React.lazy(() => import(/* webpackChunkName: 'DelayedLoad' */ '../../common/components/Widgets/DelayedLoad'));
-// const FooterBar = React.lazy(() => import(/* webpackChunkName: 'FooterBar' */ './FooterBar'));
-// const FooterMain = React.lazy(() => import(/* webpackChunkName: 'FooterMain' */ './FooterMain'));
-// const ShareButtonFooter = React.lazy(() => import(/* webpackChunkName: 'ShareButtonFooter' */ '../Share/ShareButtonFooter'));
 
 // Wrapper component for all footers
 class Footer extends Component {
@@ -30,8 +26,6 @@ class Footer extends Component {
 
   componentDidMount () {
     // console.log('Footer componentDidMount');
-    this.onAppObservableStoreChange();
-    this.appStateSubscription = messageService.getMessage().subscribe((msg) => this.onAppObservableStoreChange(msg));
     window.addEventListener('scroll', this.handleWindowScroll);
     window.addEventListener('resize', this.handleResizeLocal);
     this.updateCachedSiteVars();
@@ -51,12 +45,12 @@ class Footer extends Component {
 
   handleWindowScroll = (evt) => {
     const { scrollTop } = evt.target.scrollingElement;
-    if (scrollTop > 60 && !AppObservableStore.getScrolledDown()) {
-      AppObservableStore.setScrolled(true);
-    }
-    if (scrollTop < 60 && AppObservableStore.getScrolledDown()) {
-      AppObservableStore.setScrolled(false);
-    }
+    // if (scrollTop > 60 && !AppObservableStore.getScrolledDown()) {
+    //   AppObservableStore.setScrolled(true);
+    // }
+    // if (scrollTop < 60 && AppObservableStore.getScrolledDown()) {
+    //   AppObservableStore.setScrolled(false);
+    // }
   };
 
   handleResizeLocal () {
@@ -66,48 +60,47 @@ class Footer extends Component {
     }
   }
 
-  onAppObservableStoreChange () {
-    // console.log('Footer onAppObservableStoreChange');
-    const siteVars = getApplicationViewBooleans(normalizedHref());
-    // console.log('Footer onAppObservableStoreChange siteVars:', siteVars);
-    const {
-      showFooterBar,
-      showFooterMain,
-      showShareButtonFooter,
-    } = siteVars;
-    const pathname = normalizedHref();
-    const {
-      previousPathname,
-      showFooterBar: previousShowFooterBar,
-      showFooterMain: previousShowFooterMain,
-      showShareButtonFooter: previousShowShareButtonFooter,
-    } = this.state;
-    // console.log('Footer onAppObservableStoreChange state after update: ', this.state);
-    if (previousPathname !== pathname) {
-      this.setState({
-        previousPathname: pathname,
-        showFooterBar,
-        showFooterMain,
-        showShareButtonFooter,
-      });
-    } else {
-      if (previousShowFooterBar !== showFooterBar) {
-        this.setState({
-          showFooterBar,
-        });
-      }
-      if (previousShowFooterMain !== showFooterMain) {
-        this.setState({
-          showFooterMain,
-        });
-      }
-      if (previousShowShareButtonFooter !== showShareButtonFooter) {
-        this.setState({
-          showShareButtonFooter,
-        });
-      }
-    }
-  }
+  // onAppObservableStoreChange () {
+  //   // console.log('Footer onAppObservableStoreChange');
+  //   const siteVars = getApplicationViewBooleans(normalizedHref());
+  //   // console.log('Footer onAppObservableStoreChange siteVars:', siteVars);
+  //   const {
+  //     showFooterBar,
+  //     showFooterMain,
+  //     showShareButtonFooter,
+  //   } = siteVars;
+  //   const pathname = normalizedHref();
+  //   const {
+  //     previousPathname,
+  //     showFooterBar: previousShowFooterBar,
+  //     showFooterMain: previousShowFooterMain,
+  //     showShareButtonFooter: previousShowShareButtonFooter,
+  //   } = this.state;
+  //   if (previousPathname !== pathname) {
+  //     this.setState({
+  //       previousPathname: pathname,
+  //       showFooterBar,
+  //       showFooterMain,
+  //       showShareButtonFooter,
+  //     });
+  //   } else {
+  //     if (previousShowFooterBar !== showFooterBar) {
+  //       this.setState({
+  //         showFooterBar,
+  //       });
+  //     }
+  //     if (previousShowFooterMain !== showFooterMain) {
+  //       this.setState({
+  //         showFooterMain,
+  //       });
+  //     }
+  //     if (previousShowShareButtonFooter !== showShareButtonFooter) {
+  //       this.setState({
+  //         showShareButtonFooter,
+  //       });
+  //     }
+  //   }
+  // }
 
   updateCachedSiteVars () {
     const siteVars = getApplicationViewBooleans(normalizedHref());

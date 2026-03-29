@@ -3,7 +3,6 @@
   "parserOptions": {
     "sourceType": "module"
   },
-
   "env": {
     "browser": true,
     "node": true,
@@ -16,6 +15,8 @@
     "array-bracket-spacing": [1, "never"],
     "camelcase": [1],
     "class-methods-use-this": 0,                  // We want to allow helper functions that dont use ~this~ in classes
+    "default-param-last": 1,
+    "function-paren-newline": 0,
     "jsx-a11y/alt-text": 0,
     "jsx-a11y/anchor-has-content": 1,
     "jsx-a11y/anchor-is-valid": 1,
@@ -37,6 +38,7 @@
     "no-multiple-empty-lines": [0],               // allow indented comments (like this one)
     "no-plusplus": [0],
     "no-underscore-dangle": [0],
+    "no-unused-vars": [1],
     "object-curly-newline": 0,
     "object-curly-spacing": [1,
       "always", {
@@ -52,6 +54,7 @@
     "react-hooks/exhaustive-deps": "warn",         // Checks effect dependencies
     "react-hooks/rules-of-hooks": "error",         // Checks rules of Hooks
     "react/button-has-type": 1,
+    "react/jsx-no-useless-fragment": 0,
     "react/jsx-one-expression-per-line": 0,
     "react/destructuring-assignment": 0,          // Dec 2018: We should do this!  But right now we have 3990 warnings/errors if enabled.
     "react/forbid-prop-types": 0,                 // Dec 2018: Should consider someday

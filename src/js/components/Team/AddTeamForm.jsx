@@ -106,13 +106,13 @@ const AddTeamForm = ({ classes }) => {
         />
         <CheckboxesWrapper>
           <FormControlLabel
-            control={
+            control={(
               <Checkbox
                 checked={isC3Nonprofit}
                 onChange={(e) => setIsC3Nonprofit(e.target.checked)}
                 name="isC3Nonprofit"
               />
-            }
+            )}
             label="C3 Nonprofit"
           />
           <FormControlLabel

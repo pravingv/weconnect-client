@@ -29,16 +29,16 @@ class PageNotFound extends Component {
           <Wrapper>
             <Card>
               <EmptyBallotMessageContainer>
-                <EmptyBallotText>Page not found.</EmptyBallotText>
-                <Button
-                  classes={{ root: classes.ballotButtonRoot }}
-                  color="primary"
-                  variant="contained"
-                  onClick={() => historyPush('/ballot')}
-                >
-                  <Ballot classes={{ root: classes.ballotButtonIconRoot }} location={window.location} />
-                  Go to Ballot
-                </Button>
+                <EmptyPageNotFoundText>Page not found.</EmptyPageNotFoundText>
+                {/*<Button*/}
+                {/*  classes={{ root: classes.ballotButtonRoot }}*/}
+                {/*  color="primary"*/}
+                {/*  variant="contained"*/}
+                {/*  onClick={() => historyPush('/ballot')}*/}
+                {/*>*/}
+                {/*  <Ballot classes={{ root: classes.ballotButtonIconRoot }} location={window.location} />*/}
+                {/*  Go to Ballot*/}
+                {/*</Button>*/}
               </EmptyBallotMessageContainer>
             </Card>
           </Wrapper>
@@ -76,7 +76,7 @@ const EmptyBallotMessageContainer = styled('div')`
   align-items: center;
 `;
 
-const EmptyBallotText = styled('p')(({ theme }) => (`
+const EmptyPageNotFoundText = styled('p')(({ theme }) => (`
   font-size: 24px;
   text-align: center;
   margin: 1em 2em 3em;

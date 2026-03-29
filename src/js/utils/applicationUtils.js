@@ -23,7 +23,7 @@ export function getApplicationViewBooleans (pathname) {
   // console.log('getApplicationViewBooleans, pathnameLowerCase:', pathnameLowerCase);
   let readyMode = false;
   let settingsMode = false;
-  let sharedItemLandingPage = false;
+  // let sharedItemLandingPage = false;
   let twitterSignInMode = false;
   let voteMode = false;
   const valuesMode = false; // Was let
@@ -92,8 +92,10 @@ export function getApplicationViewBooleans (pathname) {
     // Don't even load Stripe, Google Analytics, Google Maps, and Zen, they make startup very slow and are not needed for the Chrome Extension
     window.leanLoadForChromeExtension = true;
     console.log('applicationUtils for Chrome Extension window.leanLoadForChromeExtension set to true');
-  } else if (pathnameLowerCase.startsWith('/-')) {
-    sharedItemLandingPage = true;
+    // Mar 27, 2026: The following condition could not work, since the same condtion is checked at about line 32
+    // also the parameter sharedItemLandingPage is not used in this app
+  // } else if (pathnameLowerCase.startsWith('/-')) {
+  //   sharedItemLandingPage = true;
   } else if (pathnameLowerCase.startsWith('/twitter_sign_in')) {
     twitterSignInMode = true;
   } else if (stringContains('/vg/', pathnameLowerCase)) {    // TODO: Check voter guide mode STEVE ---------------------------------------------------------------
@@ -272,7 +274,7 @@ export function getApplicationViewBooleans (pathname) {
     friendsMode,
     readyMode,
     settingsMode,
-    sharedItemLandingPage,
+    // sharedItemLandingPage,
     showBackToFriends,
     showBackToBallotHeader,
     showBackToSettingsDesktop,

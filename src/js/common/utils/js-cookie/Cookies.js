@@ -5,14 +5,12 @@
 /* eslint-disable func-names */
 /* eslint-disable indent */
 /* eslint-disable no-continue */
-/* eslint-disable no-empty */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-return-assign */
 /* eslint-disable no-shadow */
 /* eslint-disable object-shorthand */
 /* eslint-disable prefer-template */
-/* eslint-disable semi */
 /* eslint-disable semi */
 /* eslint-disable vars-on-top */
 
@@ -103,7 +101,10 @@ function init (converter, defaultAttributes) {
         if (name === found) {
           break
         }
-      } catch (e) {}
+        // eslint-disable-next-line no-unused-vars
+      } catch (err) {
+        continue;
+      }
     }
 
     return name ? jar[name] : jar
