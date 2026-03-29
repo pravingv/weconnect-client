@@ -53,12 +53,14 @@ async function getStatusValues () {
     // console.log(`git_commit_hash: '${text}'`);
     if (text !== 'Not Found') {
       const pr = text.match(/"Merge pull request (.*?)wevote/);
-      stats.Pull_request = pr[1].slice(0, -2);
-      const dateStringResults = text.match(/"committedDate":"(.*?)"/);
-      console.log(dateStringResults[1]);
-      const date = new DateTime(dateStringResults[1]);
-      stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
-      stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+      if (pr) {
+        stats.Pull_request = pr[1].slice(0, -2);
+        const dateStringResults = text.match(/"committedDate":"(.*?)"/);
+        console.log(dateStringResults[1]);
+        const date = new DateTime(dateStringResults[1]);
+        stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
+        stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+      }
     } else {
       stats.Pull_request = 'none';
       stats.Git_committed_date = 'none';
