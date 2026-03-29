@@ -118,7 +118,7 @@ export default defineConfig([globalIgnores([
     'react/prop-types': 1,
     'react/require-default-props': 0,
     'react/sort-comp': 1,
-
+    'spaced-comment': 'warn',
     'space-before-function-paren': [1, {
       anonymous: 'always',
       named: 'always',
