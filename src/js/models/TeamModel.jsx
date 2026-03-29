@@ -44,7 +44,8 @@ export const getTeamMemberPersonListByTeamId = (teamId, apiDataCache) => {
   const teamMemberPersonIdsSet = new Set(
     Object.values(allTeamMembersCache[teamId])
       .flat()
-      .map((teamMember) => teamMember.personId));
+      .map((teamMember) => teamMember.personId),
+  );
   // const personIds = allTeamMembersCache[teamId];
   const teamMemberPersonIds = Array.from(teamMemberPersonIdsSet);
   const teamMemberPersonList = teamMemberPersonIds.map((personId) => allPeopleCache[personId] || null).filter(Boolean);

@@ -1,11 +1,9 @@
-import { Ballot } from '@mui/icons-material';
-import { Button, Card } from '@mui/material';
+import { Card } from '@mui/material';
 import withStyles from '@mui/styles/withStyles';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
-import historyPush from '../common/utils/historyPush';
 import { isCordova } from '../common/utils/isCordovaOrWebApp';
 import { renderLog } from '../common/utils/logging';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
@@ -21,7 +19,7 @@ class PageNotFound extends Component {
     if (isCordova()) {
       console.log(`PageNotFound window.location.href: ${window.location.href}`);
     }
-    const { classes } = this.props;
+    // const { classes } = this.props;
     return (
       <PageContentContainer>
         <div className="container-fluid">
@@ -30,15 +28,15 @@ class PageNotFound extends Component {
             <Card>
               <EmptyBallotMessageContainer>
                 <EmptyPageNotFoundText>Page not found.</EmptyPageNotFoundText>
-                {/*<Button*/}
-                {/*  classes={{ root: classes.ballotButtonRoot }}*/}
-                {/*  color="primary"*/}
-                {/*  variant="contained"*/}
-                {/*  onClick={() => historyPush('/ballot')}*/}
-                {/*>*/}
-                {/*  <Ballot classes={{ root: classes.ballotButtonIconRoot }} location={window.location} />*/}
-                {/*  Go to Ballot*/}
-                {/*</Button>*/}
+                {/* <Button */}
+                {/*  classes={{ root: classes.ballotButtonRoot }} */}
+                {/*  color="primary" */}
+                {/*  variant="contained" */}
+                {/*  onClick={() => historyPush('/ballot')} */}
+                {/* > */}
+                {/*  <Ballot classes={{ root: classes.ballotButtonIconRoot }} location={window.location} /> */}
+                {/*  Go to Ballot */}
+                {/* </Button> */}
               </EmptyBallotMessageContainer>
             </Card>
           </Wrapper>

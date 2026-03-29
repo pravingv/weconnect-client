@@ -44,55 +44,55 @@ const AddTeamForm = ({ classes }) => {
     const [selectedDepartments, setSelectedDepartments] = useState([]);
     const [errorText, setErrorText] = useState('');
 
-  useEffect(() => {
-    if (team && team.teamName) {
-      setTeamNameCached(team.teamName);
-      setIsC3Nonprofit(team.isC3Nonprofit || false);
-      setIsC4Nonprofit(team.isC4Nonprofit || false);
-      setSelectedDepartments(normalizeDepartments(team.departments));
-    } else {
-      setTeamNameCached('');
-      setIsC3Nonprofit(false);
-      setIsC4Nonprofit(false);
-      setSelectedDepartments([]);
-    }
-  }, [team?.teamId, team?.id]);
+    useEffect(() => {
+      if (team && team.teamName) {
+        setTeamNameCached(team.teamName);
+        setIsC3Nonprofit(team.isC3Nonprofit || false);
+        setIsC4Nonprofit(team.isC4Nonprofit || false);
+        setSelectedDepartments(normalizeDepartments(team.departments));
+      } else {
+        setTeamNameCached('');
+        setIsC3Nonprofit(false);
+        setIsC4Nonprofit(false);
+        setSelectedDepartments([]);
+      }
+    }, [team?.teamId, team?.id]);
 
-  const saveTeamMutation = useMutation({
-    mutationFn: () => weConnectQueryFn('team-save', {
-      teamName: teamNameCached,
-      teamNameChanged: true,
-      isC3NonprofitChanged: true,
-      isC4NonprofitChanged: true,
-      isC3Nonprofit,
-      isC4Nonprofit,
-      departments: normalizeDepartments(selectedDepartments),
-      departmentsChanged: true,
-      teamId: getTeamId(team),
-    }, METHOD.GET),
-    onSuccess: () => {
+    const saveTeamMutation = useMutation({
+      mutationFn: () => weConnectQueryFn('team-save', {
+        teamName: teamNameCached,
+        teamNameChanged: true,
+        isC3NonprofitChanged: true,
+        isC4NonprofitChanged: true,
+        isC3Nonprofit,
+        isC4Nonprofit,
+        departments: normalizeDepartments(selectedDepartments),
+        departmentsChanged: true,
+        teamId: getTeamId(team),
+      }, METHOD.GET),
+      onSuccess: () => {
       // console.log('--------- saveTeamMutation addTeamForm mutated ---------');
-      queryClient.invalidateQueries({ queryKey: ['team-list-retrieve'] }).then(() => {});
-    },
-  });
+        queryClient.invalidateQueries({ queryKey: ['team-list-retrieve']}).then(() => {});
+      },
+    });
 
-  const saveNewTeam = () => {
-    if (teamNameCached.length === 0) {
-      setErrorText('Enter a valid team name');
-      return;
-    }
-    setErrorText('');
-    // console.log('saveNewTeam data:', teamNameCached);
-    saveTeamMutation.mutate();
-    setAppContextValue('addTeamDrawerOpen', false);
-    setAppContextValue('addTeamDrawerLabel', '');
-  };
+    const saveNewTeam = () => {
+      if (teamNameCached.length === 0) {
+        setErrorText('Enter a valid team name');
+        return;
+      }
+      setErrorText('');
+      // console.log('saveNewTeam data:', teamNameCached);
+      saveTeamMutation.mutate();
+      setAppContextValue('addTeamDrawerOpen', false);
+      setAppContextValue('addTeamDrawerLabel', '');
+    };
 
-  return (
-    <AddTeamFormWrapper>
-      <ErrorTeamLine>{errorText}</ErrorTeamLine>
-      <FormControl classes={{ root: classes.formControl }}>
-        <TextField
+    return (
+      <AddTeamFormWrapper>
+        <ErrorTeamLine>{errorText}</ErrorTeamLine>
+        <FormControl classes={{ root: classes.formControl }}>
+          <TextField
           autoFocus
           value={teamNameCached}
           onChange={(e) => setTeamNameCached(e.target.value)}
@@ -103,9 +103,9 @@ const AddTeamForm = ({ classes }) => {
           margin="dense"
           placeholder="Team Name"
           variant="outlined"
-        />
-        <CheckboxesWrapper>
-          <FormControlLabel
+          />
+          <CheckboxesWrapper>
+            <FormControlLabel
             control={(
               <Checkbox
                 checked={isC3Nonprofit}
@@ -114,53 +114,53 @@ const AddTeamForm = ({ classes }) => {
               />
             )}
             label="C3 Nonprofit"
-          />
-          <FormControlLabel
-            control={
+            />
+            <FormControlLabel
+            control={(
               <Checkbox
                 checked={isC4Nonprofit}
                 onChange={(e) => setIsC4Nonprofit(e.target.checked)}
                 name="isC4Nonprofit"
               />
-            }
+            )}
             label="C4 Nonprofit"
-          />
-        </CheckboxesWrapper>
-        <DepartmentSection>
-          <DepartmentLabel>Departments</DepartmentLabel>
-          <CheckboxesWrapper>
-            {DEPARTMENT_LIST.filter(dept => dept !== 'All teams').map((dept) => (
-              <FormControlLabel
+            />
+          </CheckboxesWrapper>
+          <DepartmentSection>
+            <DepartmentLabel>Departments</DepartmentLabel>
+            <CheckboxesWrapper>
+              {DEPARTMENT_LIST.filter((dept) => dept !== 'All teams').map((dept) => (
+                <FormControlLabel
                 key={dept}
-                control={
+                control={(
                   <Checkbox
                     checked={selectedDepartments.includes(dept)}
                     onChange={(e) => {
                       if (e.target.checked) {
                         setSelectedDepartments([...selectedDepartments, dept]);
                       } else {
-                        setSelectedDepartments(selectedDepartments.filter(d => d !== dept));
+                        setSelectedDepartments(selectedDepartments.filter((d) => d !== dept));
                       }
                     }}
                     name={dept}
                   />
-                }
+                )}
                 label={dept}
-              />
-            ))}
-          </CheckboxesWrapper>
-        </DepartmentSection>
-        <Button
+                />
+              ))}
+            </CheckboxesWrapper>
+          </DepartmentSection>
+          <Button
           classes={{ root: classes.saveNewTeamButton }}
           color="primary"
           onClick={saveNewTeam}
           variant="contained"
-        >
-          {team ? 'Save Team' : 'Save New Team'}
-        </Button>
-      </FormControl>
-    </AddTeamFormWrapper>
-  );
+          >
+            {team ? 'Save Team' : 'Save New Team'}
+          </Button>
+        </FormControl>
+      </AddTeamFormWrapper>
+    );
   } catch (error) {
     console.error('Error in AddTeamForm:', error);
     return (

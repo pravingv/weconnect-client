@@ -43,8 +43,8 @@ class Footer extends Component {
     // removeCordovaListenersToken -- Do not remove this line!
   }
 
-  handleWindowScroll = (evt) => {
-    const { scrollTop } = evt.target.scrollingElement;
+  handleWindowScroll = (/* evt */) => {
+    // const { scrollTop } = evt.target.scrollingElement;
     // if (scrollTop > 60 && !AppObservableStore.getScrolledDown()) {
     //   AppObservableStore.setScrolled(true);
     // }

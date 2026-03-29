@@ -3,7 +3,6 @@
   "parserOptions": {
     "sourceType": "module"
   },
-
   "env": {
     "browser": true,
     "node": true,
@@ -14,11 +13,8 @@
 
   "rules": {
     "array-bracket-spacing": [1, "never"],
-    "arrow-parens": "warn",
     "camelcase": [1],
     "class-methods-use-this": 0,                  // We want to allow helper functions that dont use ~this~ in classes
-    "function-paren-newline": "warn",
-    "indent": "warn",
     "jsx-a11y/alt-text": 0,
     "jsx-a11y/anchor-has-content": 1,
     "jsx-a11y/anchor-is-valid": 1,
@@ -40,7 +36,6 @@
     "no-multiple-empty-lines": [0],               // allow indented comments (like this one)
     "no-plusplus": [0],
     "no-underscore-dangle": [0],
-    "no-unused-vars": "warn",
     "object-curly-newline": 0,
     "object-curly-spacing": [1,
       "always", {
@@ -54,10 +49,8 @@
     "quotes": [1, "single", "avoid-escape"],
     "radix": 0,                                   // Dec 2018: We always use base 10, so specifying it each time seems excessive
     "react-hooks/exhaustive-deps": "warn",         // Checks effect dependencies
-    "react-hooks/rules-of-hooks": "warn",         // Checks rules of Hooks
     "react/button-has-type": 1,
     "react/jsx-one-expression-per-line": 0,
-    "react/jsx-wrap-multilines": "warn",
     "react/destructuring-assignment": 0,          // Dec 2018: We should do this!  But right now we have 3990 warnings/errors if enabled.
     "react/forbid-prop-types": 0,                 // Dec 2018: Should consider someday
     "react/indent-prop": 0,
@@ -80,7 +73,6 @@
     "react/sort-comp": 1,
     "space-before-function-paren": [1, {"anonymous": "always", "named": "always"}],
     "space-in-parens": [1],
-    "spaced-comment": "warn",
     "template-curly-spacing": ["warn", "never"],
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
   },
