@@ -11,7 +11,7 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
-function SlackAddPersonImages() {
+function SlackAddPersonImages () {
   renderLog('ImportDonationReport');
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;

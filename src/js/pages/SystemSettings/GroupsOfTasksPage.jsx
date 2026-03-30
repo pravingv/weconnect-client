@@ -5,7 +5,7 @@ import { Button } from '@mui/material';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
 import TaskGroupListIndex from './TaskGroupListIndex';
 
-export default function GroupsOfTasksPage() {
+export default function GroupsOfTasksPage () {
   const navigate = useNavigate();
   return (
     <>
