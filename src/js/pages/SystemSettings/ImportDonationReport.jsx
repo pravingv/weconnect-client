@@ -5,18 +5,19 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { DropzoneArea } from 'mui-file-dropzone';
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
-function SlackAddPersonImages () {
+function ImportDonationReport () {
   renderLog('ImportDonationReport');
   const { apiDataCache } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const [open, setOpen] = useState(false);
-  const [resultsText, setResultsText] = useState('');
+  const [results, setResults] = useState(null);
   const [done, setDone] = useState(false);
 
   const [isAdmin] = useState(viewerCanSeeOrDo(['canDoAnythingIsAdmin'], viewerAccessRights));
@@ -24,7 +25,7 @@ function SlackAddPersonImages () {
   const handleClose = () => {
     setOpen(false);
     setDone(false);
-    setResultsText('');
+    setResults(null);
   };
 
   const handleOpen = () => {
@@ -49,14 +50,19 @@ function SlackAddPersonImages () {
         jsonObj.push(obj);
       }
       const resp = await weConnectQueryFn('donations-add-status', { jsonObj }, METHOD.POST);
-      let text = JSON.stringify(resp, null, 2);
-      text = text.replace('"donorsMarkedAsActive":', '"Donors marked as active due to entries in the DonorBox csv report":')
-        .replace('"donorsNotMatched":', '"Donors who most likely used a different email for their donation than they use for their WeVote relationship":')
-        .replace('"donorsMarkedAsInactive":', '"Donors who were marked as active in the database, but who are not in the report -- displays actual rows from the database":')
-        .replace('"donorsReceivedAsCancelled":', '"Donors in the report who were flagged as having cancelled their subscriptions -- displays actual rows from the csv report":');
-      setResultsText(text);
+      setResults(resp);
       setDone(true);
     }
+  };
+
+  const simplifyPriorDonor = (prior) => {
+    const regEx = /.*?(id:\d*).*?(emailOfficial:.[^,]*),.*?(emailPersonal:.[^,]*),.*?(firstName:.[^,]*),.*?lastName:(.[^,]*)/gm;
+    const res = regEx.exec(prior);
+    if (res) {
+      res.shift();
+      return res.join(',  ').replace('firstName', 'name');
+    }
+    return 'error';
   };
 
   return (
@@ -82,8 +88,8 @@ function SlackAddPersonImages () {
             <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
               Import the DonorBox donation report
               <div style={{ fontSize: '.8rem', padding: '5px 0 0 0px' }}>
-                For the staff with &quot;Monthly&quot; donations, make sure that they are
-                marked as current donors, and unmark any staff who are no longer donors.
+                Ingest the uploaded DonorBox report, and for the staff with &quot;Monthly&quot; donations, make sure that they are
+                marked as current donors, and also unmark any staff who are no longer donors.
                 <br />
                 This feature can be run multiple times with the same csv file, with no ill effects.
                 <br />
@@ -103,15 +109,50 @@ function SlackAddPersonImages () {
             </IconButton>
             <DialogContent dividers>
               {!done && (
-                <div style={{ width: '25%' }}>
-                  <span style={{ opacity: 0.9, fontSize: '1.5rem)', fontWeight: 500, paddingBottom: '6px' }}>Drop (or click to select) the &quot;we-vote_plans_....csv&quot; file here:</span>
+                <div style={{ width: '30%' }}>
+                  <div style={{ opacity: 0.9, fontSize: '1.5rem)', fontWeight: 600, paddingBottom: '16px' }}>Drop (or click to select) the &quot;we-vote_plans_....csv&quot; file here:</div>
                   <div style={{ margin: '10px 0 0 60px' }}>
                     <DropzoneArea onChange={dropped} acceptedFiles={['text/csv']} />
                   </div>
                 </div>
               )}
-              <h3>{done && ('Results:')}</h3>
-              <pre style={{ marginTop: '11px', fontWeight: '700' }}>{resultsText}</pre>
+              {done && (
+                <>
+                  <h3>Results:</h3>
+                  <LeafTitleText>Current donors who were marked as active due to this report:</LeafTitleText>
+                  <ul>
+                    {results && results.donorsMarkedAsActive.map((active) => (
+                      <li key={active.substring(0, 12)}>
+                        <div style={{ paddingLeft: '10px' }}>{active}</div>
+                      </li>
+                    ))}
+                  </ul>
+                  <LeafTitleText>Current donors who could not be matched by name or email:</LeafTitleText>
+                  <ul>
+                    {results && results.donorsNotMatched.map((notMatched) => (
+                      <li key={notMatched.substring(0, 12)}>
+                        <div style={{ paddingLeft: '10px' }}>{notMatched.replaceAll(/[{}]/g, '').replaceAll(',', ',  ')}</div>
+                      </li>
+                    ))}
+                  </ul>
+                  <LeafTitleText>Prior donors who dropped out since the prior report:</LeafTitleText>
+                  <ul>
+                    {results && results.donorsMarkedAsInactive.map((inactive) => (
+                      <li key={inactive.substring(0, 12)}>
+                        <div style={{ paddingLeft: '10px' }}>{simplifyPriorDonor(inactive)}</div>
+                      </li>
+                    ))}
+                  </ul>
+                  <LeafTitleText>Prior donors who were flagged as cancelled in this report:</LeafTitleText>
+                  <ul>
+                    {results && results.donorsReceivedAsCancelled.map((cancelled) => (
+                      <li key={cancelled.substring(0, 12)}>
+                        <div style={{ paddingLeft: '10px' }}>{cancelled.replaceAll(/[{}]/g, '').replaceAll(',', ',  ')}</div>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </DialogContent>
           </Dialog>
         </ButtonPanel>
@@ -120,4 +161,11 @@ function SlackAddPersonImages () {
   );
 }
 
-export default SlackAddPersonImages;
+const LeafTitleText  = styled('div')`
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin: 10px 0;
+`;
+
+
+export default ImportDonationReport;
