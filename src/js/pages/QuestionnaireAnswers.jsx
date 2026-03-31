@@ -60,9 +60,7 @@ const QuestionnaireAnswers = ({ classes }) => {
     }
   }, [answersListRetrieveResults, apiDataCache, dispatch]);
 
-  const sortQuestionsByOrder = (questions) => {
-    return [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
-  };
+  const sortQuestionsByOrder = (questions) => [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
 
   useEffect(() => {
     // console.log('useEffect in QuestionnaireAnswers questionnaireId:', questionnaireId);

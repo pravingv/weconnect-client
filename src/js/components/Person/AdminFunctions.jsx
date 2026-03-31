@@ -4,6 +4,7 @@ import { renderLog } from '../../common/utils/logging';
 import CreateNewGoogleUser from '../../pages/SystemSettings/CreateNewGoogleUser';
 import FastLoad from '../../pages/SystemSettings/FastLoad';
 import GetOneGoogleUser from '../../pages/SystemSettings/GetOneGoogleUser';
+import ImportDonationReport from '../../pages/SystemSettings/ImportDonationReport';
 import JazzHrAccess from '../../pages/SystemSettings/JazzHrAccess';
 import ResetGoogleUserPassword from '../../pages/SystemSettings/ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from '../../pages/SystemSettings/ShareGoogleDriveAccess';
@@ -55,6 +56,10 @@ const AdminFunctions = () => {
       </div>
 
       <ProfileComponentSubTitle>This page is only visible, and usable, by a staff member with &quot;isAdmin&quot; privileges</ProfileComponentSubTitle>
+      <ButtonDividerLine />
+      <SectionTitle>Import the Donorbox csv donation report:</SectionTitle>
+      <ImportDonationReport />
+
       <ButtonDividerLine />
       <div style={{ paddingTop: '1rem' }}>
         <SectionTitle>Overwrite your Local Postgres WeConnectDB with the data from the Master Database in AWS:</SectionTitle>

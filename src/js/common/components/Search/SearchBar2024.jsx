@@ -5,7 +5,6 @@ import { blurTextFieldAndroid, focusTextFieldAndroid } from '../../utils/cordova
 import { renderLog } from '../../utils/logging';
 import SearchBase from './SearchBase';
 
-/* eslint-disable jsx-a11y/control-has-associated-label  */
 class SearchBar2024 extends Component {
   constructor (props) {
     super(props);

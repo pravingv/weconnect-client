@@ -11,7 +11,7 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
 import { DetailsRowItem, DetailsRowSection } from '../Style/actionBarStyles';
-import { ButtonWithLinkStyle, SpanWithLinkStyle } from '../Style/linkStyles';
+import { SpanWithLinkStyle } from '../Style/linkStyles';
 import TaskListForPersonManager from '../Task/TaskListForPersonManager';
 import PersonAvatar from './PersonAvatar';
 import PersonDetailsEmailsAndStartDate from './PersonDetailsEmailsAndStartDate';

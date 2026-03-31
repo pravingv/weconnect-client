@@ -215,8 +215,8 @@ export const getAnswerValueToQuestion = (questionId, personId, allAnswersCache) 
     case 'INTEGER':
       answerValue = answer.answerInteger || '';
       break;
-    default:
     case 'STRING':
+    default:
       answerValue = answer.answerString || '';
       break;
   }

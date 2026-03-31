@@ -20,7 +20,6 @@ glob('./build/main.*.js', (err, files) => {
     // fs.renameSync(file0, destName);
     // console.log(`WebPackPostBuild:  ${file0} has been renamed to ${destName}`);
     // next rename the <script defer="defer" src="/main.9871eda3cd9fbb2d224e.js"> in the generated index.html file
-    // eslint-disable-next-line consistent-return
     //     const indexFile = './build/index.html';
     //     fs.readFile(indexFile, 'utf8', (err2, data) => {
     //       if (err2) return console.log('read error: ', err);

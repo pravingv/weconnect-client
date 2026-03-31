@@ -12,7 +12,7 @@ import webAppConfig from '../config';
 
 const OpenExternalWebSite = React.lazy(() => import(/* webpackChunkName: 'OpenExternalWebSite' */ '../common/components/Widgets/OpenExternalWebSite'));
 
-const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
+function DisplayWhatToDoTextAsActiveJSX ({ taskDefinition, personId }) {
   const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache } = apiDataCache;
 
@@ -281,7 +281,7 @@ const DisplayWhatToDoTextAsActiveJSX = ({ taskDefinition, personId }) => {
       })}
     </span>
   );
-};
+}
 DisplayWhatToDoTextAsActiveJSX.propTypes = {
   personId: PropTypes.number.isRequired,
   taskDefinition: PropTypes.object.isRequired,

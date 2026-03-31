@@ -202,7 +202,7 @@ const Login = ({ classes }) => {
       reactQueryLog(`/signup response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
       let errStr = '';
       for (let i = 0; i < data.errors.length; i++) {
-        errStr += data.errors[i]?.msg;
+        errStr += data.errors[i]?.msg || '';
       }
       setWarningLine(errStr);
       if (data.personCreated) {

@@ -207,7 +207,8 @@ export function captureTaskStatusListRetrieveData (
           allTasksByDefinitionIdCacheNew[task.taskDefinitionId] = [];
         }
         const existingTaskIndex = allTasksByDefinitionIdCacheNew[task.taskDefinitionId].findIndex(
-          (existingTask) => existingTask.personId === task.personId && existingTask.taskDefinitionId === task.taskDefinitionId);
+          (existingTask) => existingTask.personId === task.personId && existingTask.taskDefinitionId === task.taskDefinitionId,
+        );
 
         if (existingTaskIndex === -1) {
           // Task doesn't exist, so add it

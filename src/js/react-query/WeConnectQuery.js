@@ -57,12 +57,18 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
       await axios.post(url.href, params, { withCredentials: true });
     // if needed:  httpLog('weConnectQueryFn  response.data: ', JSON.stringify(response.data));
     // console.log('weConnectQueryFn response.status: ', response.status, ', response.data: ', JSON.stringify(response.data) || 'No data');
+    window.networkError = false;
     if (response.data.displayErrorMessage) {
-      // TODO Consider showing this API error in the interface to the viewer
       console.error(`displayErrorMessage ${queryKey} status: ${response.data.status}`);
+      if (!response.data.errorMessage.message.includes('403')) {
+        window.networkError = true;
+      }
     }
   } catch (err) {
     const errorMsg = typeof err !== 'undefined' ? err : '';
+    if (!errorMsg?.message.includes('403')) {
+      window.networkError = true;
+    }
     console.error('Axios ', (isGet ? 'axios.get' : 'axios.post'), ' error: ', errorMsg);
   }
 

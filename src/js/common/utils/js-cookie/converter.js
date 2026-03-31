@@ -1,7 +1,6 @@
 /* eslint-disable comma-dangle */
 /* eslint-disable func-names */
 /* eslint-disable no-param-reassign */
-/* eslint-disable no-var */
 /* eslint-disable object-shorthand */
 /* eslint-disable semi */
 
@@ -19,4 +18,4 @@ export default {
     );
   }
 }
-/* eslint-enable no-var */
+
