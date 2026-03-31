@@ -87,6 +87,7 @@ const TeamHeader = (
 
   useEffect(() => {
     // These are the TeamMember dictionaries (as opposed to person dictionaries)
+    let donorsOnTeamTemp = 0;
     let teamLeadsCountTemp = 0;
     let teamLeadsTemp = '';
     let updatedTeamMemberList = [];
@@ -103,12 +104,15 @@ const TeamHeader = (
               teamLeadsCountTemp += 1;
             }
           }
-          if (person.isMonthlyDonor) {
-            setDonorsOnTeam(donorsOnTeam + 1);
+          if (isPersonActive(person)) {
+            if (person.isMonthlyDonor) {
+              donorsOnTeamTemp += 1;
+            }
           }
         }
       }
     });
+    setDonorsOnTeam(donorsOnTeamTemp);
     // Remove trailing comma and space
     teamLeadsTemp = teamLeadsTemp.replace(/, $/, '');
 
