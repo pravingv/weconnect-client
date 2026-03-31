@@ -21,6 +21,8 @@
     "buildCordovaAndLinks": "node node/buildDateFile.js && node node/buildSrcCordova && CORDOVA=1 && webpack --mode development && node node/buildSymLinksRemote.js && bash ./node/unSymLinkIOS.sh && node node/logCompileDate.js",
     "lint": "eslint --format stylish --ext .jsx --ext .js src/js",
     "lintCordova": "eslint --format stylish --ext .jsx --ext .js srcCordova/js",
+    "prebuild": "test -f git_commit_hash || git rev-parse HEAD > git_commit_hash",
+    "prestart": "test -f git_commit_hash || git rev-parse HEAD > git_commit_hash",
     "prod": "npm run build",
     "run-prod-local": "node server-prod-local.js",
     "start": "node node/buildDateFile.js && PROTOCOL=HTTP webpack serve --mode development",
