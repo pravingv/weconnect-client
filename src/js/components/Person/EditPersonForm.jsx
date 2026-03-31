@@ -68,6 +68,7 @@ const EditPersonForm = ({ classes }) => {
   const hoursPerWeekEstimateInputRef = useRef('');
   const isHiringManagerInputRef = useRef(false);
   const isInternInputRef = useRef(false);
+  const isMonthlyDonorInputRef = useRef(false);
   const isTeamLeadInputRef = useRef(false);
   const phoneNumberInputRef = useRef('');
   const jazzHrUrlInputRef = useRef('');
@@ -127,6 +128,7 @@ const EditPersonForm = ({ classes }) => {
       }
       activePerson.isHiringManager = isHiringManagerInputRef.current.checked;
       activePerson.isIntern = isInternInputRef.current.checked;
+      activePerson.isMonthlyDonor = isMonthlyDonorInputRef.current.checked;
       activePerson.isTeamLead = isTeamLeadInputRef.current.checked;
       activePerson.phoneNumber = phoneNumberInputRef.current.value;
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
@@ -817,6 +819,27 @@ const EditPersonForm = ({ classes }) => {
             />
           )}
           label={`${activePerson.firstNamePreferred || activePerson.firstName} is available for special projects`}
+        />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.isMonthlyDonor || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isMonthlyDonor"
+              inputRef={isMonthlyDonorInputRef}
+              name="isMonthlyDonor"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  isMonthlyDonor: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is a monthly donor`}
         />
         <ButtonWrapper>
           <Button
