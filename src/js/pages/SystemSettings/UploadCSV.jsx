@@ -11,6 +11,7 @@ import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
+import webAppConfig from '../../config';
 
 
 /*
@@ -26,8 +27,10 @@ const UploadCSV = (classes) => {
   const [featureDisabled, setFeatureDisabled] = useState(false);
 
   useEffect(() => {
+    const isOnSourceOfTruthServer = (webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === true) || (webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === 'true');
     const { location: { hostname } } = window;
-    if (hostname.includes('wevote.org')) {
+    const isOnWeVoteMasterURL = hostname.toLowerCase().includes('wevote.org') || hostname.toLowerCase().includes('wevote.us');
+    if (isOnWeVoteMasterURL || isOnSourceOfTruthServer) {
       setFeatureDisabled(true);
     }
   }, []);
