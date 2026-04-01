@@ -24,8 +24,10 @@ const FastLoad = () => {
   const passwordInputRef = useRef('');
 
   useEffect(() => {
+    const isOnSourceOfTruthServer = (webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === true) || (webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === 'true');
     const { location: { hostname } } = window;
-    if (hostname.includes('wevote.org') || webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === true) {
+    const isOnWeVoteMasterURL = hostname.toLowerCase().includes('wevote.org') || hostname.toLowerCase().includes('wevote.us');
+    if (isOnWeVoteMasterURL || isOnSourceOfTruthServer) {
       setFeatureDisabled(true);
     }
   }, []);
