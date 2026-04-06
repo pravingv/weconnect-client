@@ -98,15 +98,15 @@ const TeamHeader = (
       if (teamMember && teamMember.personId && teamMember.personId >= 0) {
         const person = allPeopleCache[teamMember.personId];
         if (person && person.id) {
-          if (isPersonActive(person) || !hideInactive) {
+          if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
             if (teamMember.isTeamLead) {
               teamLeadsTemp += `${person.firstNamePreferred || person.firstName}, `;
               teamLeadsCountTemp += 1;
             }
-          }
-          if (isPersonActive(person)) {
-            if (person.isMonthlyDonor) {
-              donorsOnTeamTemp += 1;
+            if (isPersonActive(person)) {
+              if (person.isMonthlyDonor) {
+                donorsOnTeamTemp += 1;
+              }
             }
           }
         }
@@ -118,7 +118,7 @@ const TeamHeader = (
 
     setTeamLeads(teamLeadsTemp);
     setTeamLeadsCount(teamLeadsCountTemp);
-  }, [apiDataCache, team]);
+  }, [apiDataCache, team, searchText, hideInactive, getAppContextValue]);
 
   useEffect(() => {
     let numberOfTeamMembersTemp = 0;
