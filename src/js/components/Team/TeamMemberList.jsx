@@ -28,7 +28,7 @@ const TeamMemberList = ({ expandAllTeamMembers, hideInactive, searchText, teamId
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
-  const { data: dataTLR, isSuccess: isSuccessTLR, isFetching: isFetchingTLR } = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
+  const { data: dataTLR, isSuccess: isSuccessTLR } = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
   // console.log('useFetchData in TeamMemberList:', dataTLR, isSuccessTLR, isFetchingTLR);
   useEffect(() => {
     // console.log('effect of useFetchData in TeamMemberList useEffect:', dataTLR, isSuccessTLR, isFetchingTLR);

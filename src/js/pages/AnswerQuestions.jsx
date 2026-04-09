@@ -9,7 +9,7 @@ import DesignTokenColors from '../common/components/Style/DesignTokenColors';
 import { renderLog } from '../common/utils/logging';
 import { PageContentContainer } from '../components/Style/pageLayoutStyles';
 import webAppConfig from '../config';
-import makeRequestParams from '../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../react-query/makeRequestParams';
 import { useAnswerListSaveMutation } from '../react-query/mutations';
 import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 import capturePersonListRetrieveData from '../models/capturePersonListRetrieveData';
@@ -147,7 +147,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
         inError = !dateRegex.test(newValue);
         setInputValuesInError({ ...inputValuesInError, [questionId]: inError });
         // Store the raw value if valid, otherwise store empty string
-        inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: inError ? '' : newValue};
+        inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: inError ? '' : newValue };
         setInputValues(inputValuesRevised);
       } else {
         inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: newValue };
@@ -188,7 +188,7 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
       setErrorMessage(undefined);
     }
 
-    const saveParams = makeRequestParams({
+    const saveParams = makeRequestParamsDictionary({
       questionnaireId,
       personId,
       ...inputValues,
@@ -224,12 +224,12 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
       case 'INTEGER':
         helperText = 'Please enter one number.';
         break;
-      default:
       case 'STRING':
-        helperText = '';
-        break;
       case 'DATE':
         helperText = 'Please enter the date in the format of YYYY-MM-DD (e.g., 2025-01-01).';
+        break;
+      default:
+        helperText = '';
         break;
     }
     // console.log('helperTextIfQuestionIdInError helperText:', helperText);

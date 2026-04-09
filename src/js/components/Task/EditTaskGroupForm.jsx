@@ -12,7 +12,7 @@ import styled from 'styled-components';
 import convertToInteger from '../../common/utils/convertToInteger';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
-import makeRequestParams, { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useTaskGroupTeamLinkDeleteMutation, useTaskGroupTeamLinkSaveMutation, useTaskGroupSaveMutation } from '../../react-query/mutations';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
@@ -131,7 +131,7 @@ const EditTaskGroupForm = ({ classes }) => {
   }, [allTaskGroupTeamLinksCache, taskGroup, teamDictByTeamId]);
 
   const deleteTaskGroupTeamLink = (teamIdTemp) => {
-    const requestParams = makeRequestParams({
+    const requestParams = makeRequestParamsDictionary({
       taskGroupId: taskGroup ? taskGroup.id : '-1',
       teamId: teamIdTemp,
     }, {});

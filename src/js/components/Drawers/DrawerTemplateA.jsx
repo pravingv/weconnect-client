@@ -9,6 +9,7 @@ import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { cordovaDrawerTopMargin } from '../../utils/cordovaOffsets';
 import { DrawerHeaderAnimateDownInnerContainer, DrawerHeaderAnimateDownOuterContainer, DrawerHeaderWrapper, DrawerTitle } from '../Style/drawerLayoutStyles';
+import { CloseDrawerIconWrapper } from '../Style/pageLayoutStyles';
 
 
 const DrawerTemplateA = (props) => {
@@ -198,11 +199,6 @@ const styles = () => ({
 const DrawerTemplateAWrapper = styled('div')`
   margin: 0 15px;
   min-width: 300px;
-`;
-
-const CloseDrawerIconWrapper = styled('div')`
-  display: flex;
-  justify-content: flex-end;
 `;
 
 export default withStyles(styles)(DrawerTemplateA);

@@ -8,7 +8,7 @@ import { SpanWithLinkStyle } from '../../components/Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import { alphabetizePeoplesObject } from '../../utils/utilities';
 
@@ -197,7 +197,7 @@ const PermissionsAdministration = ({ classes }) => {
       personId: activePerson.id,
     };
 
-    mutate(makeRequestParams(plainParams, data));
+    mutate(makeRequestParamsDictionary(plainParams, data));
     console.log('Saved person: ', activePerson.id);
     setTimeout(() => {
       setButtonState(SET.DISABLE, personId);
@@ -207,7 +207,6 @@ const PermissionsAdministration = ({ classes }) => {
 
   const onClickCheckbox = (event) => {
     // console.log(event);
-    // eslint-disable-next-line no-unused-vars
     if (canEditPermissionsAnyone) {
       const pieces = event.target.id.split('-');
       const personId = parseInt(pieces[2]);
@@ -290,6 +289,9 @@ const PermissionsAdministration = ({ classes }) => {
     }
   };
 
+  // TODO March 2026: Fix this instead of suppressing it!
+  //   293:29  error    Do not define components during render. React will see a new component type on every render and destroy the entire subtree’s DOM nodes and state (https://reactjs.org/docs/reconciliation.html#elements-of-different-types). Instead, move this component definition out of the parent component “PermissionsAdministration” and pass data as props  react/no-unstable-nested-components
+  /* eslint-disable react/no-unstable-nested-components */
   const TableHeaderButton = (params) => {
     const { id, text } = params;
     const filterStateKey = id.replace('Filter', '');

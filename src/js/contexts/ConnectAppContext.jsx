@@ -26,7 +26,6 @@ function apiDataCacheReducer (apiDataCache, action) {
 }
 
 // Create the provider component
-// eslint-disable-next-line no-unused-vars
 export const ConnectAppContextProvider = ({ children }) => {
   // console.log('initialization of ConnectAppContextProvider ===============');
   const [data, setData] = useState({});
@@ -34,6 +33,7 @@ export const ConnectAppContextProvider = ({ children }) => {
     apiDataCacheReducer,
     initialApiDataCache(),
   );
+
   const setAppContextValue = (key, value) => {
     // console.log('------------ setAppContextValue ', key, ' : ',  value);
     setData((prevStore) => ({ ...prevStore, [key]: value }));

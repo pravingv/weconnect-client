@@ -1,4 +1,5 @@
-import { TextField } from '@mui/material';
+import { Alert, TextField } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ const EMAIL_DOMAINS_FOR_VERIFICATION = ['@wevoteeducation.org', '@wevote.org', '
 
 const EmailOfficialManager = (
   {
-    emailOfficialEdited, savedEmailOfficial, setEmailOfficialInParent,
+    emailOfficialEdited, savedEmailOfficial, savePerson, setEmailOfficialInParent,
     setIsEmailOfficialEditModeInParent, setEmailOfficialVerifiedInParent,
   },
 ) => {
@@ -26,13 +27,17 @@ const EmailOfficialManager = (
   const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
 
-  const [activePerson] = useState(getAppContextValue('profileDrawerPerson'));
+  const [activePerson, setActivePerson] = useState(getAppContextValue('profileDrawerPerson'));
+  const [emailError, setEmailError] = useState('');
   const [emailOfficialNotValidDomain, setEmailOfficialNotValidDomain] = useState(false);
   const [emailOfficialVerifiedLocally, setEmailOfficialVerifiedLocally] = useState(false);
   const [emailOfficialVerifiedToNotExist, setEmailOfficialVerifiedToNotExist] = useState(false);
   const [isEmailOfficialEditModeOn, setIsEmailOfficialEditModeOn] = useState(false);
   const [newAccountNotification, setNewAccountNotification] = useState('');
   const [newAccountNotificationCopied, setNewAccountNotificationCopied] = useState(false);
+  const [newPasswordNotification, setNewPasswordNotification] = useState('');
+  const [newPasswordNotificationCopied, setNewPasswordNotificationCopied] = useState(false);
+  const [showNewPasswordNotification, setShowNewPasswordNotification] = useState(false);
   const [requiredVariablesMissingMessage, setRequiredVariablesMissingMessage] = useState('');
   const [resultsText, setResultsText] = useState('');
   const [showNewAccountNotification, setShowNewAccountNotification] = useState(false);
@@ -57,6 +62,13 @@ const EmailOfficialManager = (
       setEmailOfficialInParent(savedEmailOfficial);
     }
     setIsEmailOfficialEditModeOn(false);
+  };
+
+  const newPasswordNotificationOnCopy = () => {
+    setNewPasswordNotificationCopied(true);
+    setTimeout(() => {
+      setNewPasswordNotificationCopied(false);
+    }, 1500);
   };
 
   const reformatPhoneNumberToGooglePattern = (phoneNumber) => {
@@ -91,6 +103,10 @@ const EmailOfficialManager = (
       if (setEmailOfficialVerifiedInParent) {
         setEmailOfficialVerifiedInParent(true);
       }
+      setActivePerson((prev) => ({
+        ...prev,
+        emailOfficialVerified: true,
+      }));
       setResultsText(`Staff member '${createUserResults.primaryEmail}' has been created`);
       const firstNameToDisplay = firstNamePreferred || firstName;
       setNewAccountNotification(
@@ -100,6 +116,16 @@ Password (expires in 48 hours): ${password}
 Please note that we prefer that you keep your Slack account connected to your personal email address (as opposed to switching Slack to your new WeVote email address.)`,
       );
       setShowNewAccountNotification(true);
+      try {
+        if (savePerson) {
+          // console.log('createGoogleUser, saving person');
+          await savePerson(true);
+        } else {
+          console.error('Error saving person after createGoogleUser');
+        }
+      } catch (error) {
+        console.error('Error saving person after verification', error);
+      }
     } else {
       setResultsText(`ERROR: '${createUserResults.error}' A staff member was not created`);
     }
@@ -114,7 +140,32 @@ Please note that we prefer that you keep your Slack account connected to your pe
   };
 
   const resetPassword = async () => {
-    //
+    setEmailError('');
+    const { emailOfficial, emailPersonal, firstName } = activePerson;
+    if (!emailOfficial.includes('wevoteeducation.org') && !emailPersonal.includes('wevoteeducation.org')) {
+      setEmailError(`"${firstName}" does not have a wevoteeducation.org email as either their official (${emailOfficial}) or private (${emailOfficial}) address`);
+      return;
+    }
+    const emailToChange = emailOfficial.includes('wevoteeducation.org') ? emailOfficial : emailPersonal;
+    const newPassword = generateRandomString(12);
+    // console.log(`deletewevoteuserpassword ${emailToChange} ${newPassword}`);
+    const data = await weConnectQueryFn('google-reset-user-password', {
+      primaryEmail: emailToChange,
+      newPassword,
+    }, METHOD.POST);
+    // console.log('reset wevote password', data);
+    if (data.success) {
+      setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${emailToChange} \n pass: ${newPassword}`);
+      setShowNewPasswordNotification(true);
+    } else {
+      // console.error('Failed to reset password:', data);
+      console.log(`Reset password API error: ${data.error}`);
+      if (data.error.startsWith('Missing required')) {
+        setEmailError(`'${emailToChange}' is not an existing valid @wevoteeducation.org email address.`);
+      } else {
+        setEmailError(`${data.error}, google api server code: ${data.errorCode}`);
+      }
+    }
   };
 
   const verifyEmail = async () => {
@@ -128,6 +179,7 @@ Please note that we prefer that you keep your Slack account connected to your pe
       setEmailOfficialNotValidDomain(true);
     } else {
       const verificationData = await weConnectQueryFn('google-get-user-info', { primaryEmail: savedEmailOfficial }, METHOD.POST);
+      // console.log('EmailOfficialManager verifyEmail:', verificationData);
       if (!verificationData || !verificationData.isMailboxSetup) {
         displayRawData = true;
         if (setEmailOfficialVerifiedInParent) {
@@ -140,6 +192,10 @@ Please note that we prefer that you keep your Slack account connected to your pe
       } else {
         verifiedJustNow = !!(verificationData.creationTime);
         verifiedToNotExistJustNow = !(verificationData.creationTime);
+        setActivePerson((prev) => ({
+          ...prev,
+          emailOfficialVerified: true,
+        }));
       }
       if (verifiedJustNow) {
         if (setEmailOfficialVerifiedInParent) {
@@ -185,6 +241,16 @@ Please note that we prefer that you keep your Slack account connected to your pe
       requiredVariablesMissingMessageTemp = `Add before create: ${requiredVariablesMissingMessageTemp}`;
       setRequiredVariablesMissingMessage(requiredVariablesMissingMessageTemp);
     }
+    // console.log('EmailOfficialManager verifyEmail verifiedJustNow:', verifiedJustNow, ', requiredVariablesMissing:', requiredVariableMissing);
+    if (verifiedJustNow && !requiredVariableMissing) {
+      try {
+        if (savePerson) {
+          await savePerson(true);
+        }
+      } catch (error) {
+        console.error('Error saving person after verification', error);
+      }
+    }
     // if (suggestedVariableMissing) {
     //   suggestedVariablesMissingMessageTemp = `Suggest updating before create: ${suggestedVariablesMissingMessageTemp}`;
     //   setSuggestedVariablesMissingMessage(suggestedVariablesMissingMessageTemp);
@@ -202,7 +268,7 @@ Please note that we prefer that you keep your Slack account connected to your pe
   const showEditEmailLink = emailOfficialExistsInDbAndUnchanged && !isEmailOfficialEditModeOn;
   const showEmailVerified = emailOfficialExistsInDbAndUnchanged && (!activePerson.emailOfficialVerified && emailOfficialVerifiedLocally);
   const showSavedEmailOfficialVerified = emailOfficialExistsInDbAndUnchanged && (activePerson.emailOfficialVerified);
-  const showResetPassword = emailOfficialExistsInDbAndUnchanged && (isEmailOfficialEditModeOn && (activePerson.emailOfficialVerified || emailOfficialVerifiedLocally));
+  const showResetPassword = emailOfficialExistsInDbAndUnchanged && (activePerson.emailOfficialVerified || emailOfficialVerifiedLocally);
   const showVerifyEmailLink = emailOfficialExistsInDbAndUnchanged && ((isEmailOfficialEditModeOn && !emailOfficialVerifiedToNotExist) || emailOfficialNotVerifiedInDbOrLocally);
 
   return (
@@ -248,13 +314,6 @@ Please note that we prefer that you keep your Slack account connected to your pe
                   </SpanWithLinkStyle>
                 </ActionOption>
               )}
-              {showResetPassword && (
-                <ActionOption>
-                  <SpanWithLinkStyle onClick={() => resetPassword()}>
-                    Reset password
-                  </SpanWithLinkStyle>
-                </ActionOption>
-              )}
               {showEditEmailLink && (
                 <ActionOption>
                   <SpanWithLinkStyle onClick={() => setIsEmailOfficialEditModeOnLocal(true)}>
@@ -280,6 +339,13 @@ Please note that we prefer that you keep your Slack account connected to your pe
                     </SpanWithLinkStyle>
                   </ActionOption>
                 </>
+              )}
+              {showResetPassword && (
+                <ActionOption>
+                  <SpanWithLinkStyle onClick={() => resetPassword()}>
+                    Reset password
+                  </SpanWithLinkStyle>
+                </ActionOption>
               )}
             </ActionOptionList>
           </ActionOptionContainerLeft8>
@@ -334,6 +400,45 @@ Please note that we prefer that you keep your Slack account connected to your pe
           </div>
         </>
       )}
+      {showNewPasswordNotification && (
+        <>
+          <ActionOptionContainerOverflow>
+            <ActionOptionContainerLeft8>
+              <ActionOptionList>
+                <ActionOption>
+                  {newPasswordNotificationCopied ? 'Copied!' : (
+                    <CopyToClipboard text={newPasswordNotification} onCopy={() => newPasswordNotificationOnCopy(true)}>
+                      <SpanWithLinkStyle>
+                        Copy to Clipboard
+                      </SpanWithLinkStyle>
+                    </CopyToClipboard>
+                  )}
+                </ActionOption>
+                <ActionOption>
+                  Please send to volunteer via Slack.
+                </ActionOption>
+              </ActionOptionList>
+            </ActionOptionContainerLeft8>
+          </ActionOptionContainerOverflow>
+          <div>
+            <TextField
+              multiline
+              rows={5}
+              value={newPasswordNotification}
+              // onChange={(e) => setEmailText(e.target.value)}
+              placeholder="Enter text to be copied..."
+              fullWidth
+              variant="outlined"
+              margin="normal"
+            />
+          </div>
+        </>
+      )}
+      {emailError.length > 0 && (
+        <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
+          {emailError}
+        </Alert>
+      )}
       <div>
         <pre id="jsonResults" style={{ marginTop: '11px', fontWeight: '700' }} />
       </div>
@@ -346,6 +451,7 @@ EmailOfficialManager.propTypes = {
   setEmailOfficialVerifiedInParent: PropTypes.func,
   setIsEmailOfficialEditModeInParent: PropTypes.func,
   setEmailOfficialInParent: PropTypes.func,
+  savePerson: PropTypes.func,
 };
 
 const styles = () => ({

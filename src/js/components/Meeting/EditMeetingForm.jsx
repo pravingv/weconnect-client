@@ -16,7 +16,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useMeetingSaveMutation } from '../../react-query/mutations';
 
 
@@ -83,7 +83,7 @@ const EditMeetingForm = ({ classes }) => {
         meetingDate,
       };
     }
-    mutateMeetingSave(makeRequestParams(plainParams, params));
+    mutateMeetingSave(makeRequestParamsDictionary(plainParams, params));
     setSaveButtonActive(false);
     setAppContextValue('editMeetingDrawerOpen', false);
     setAppContextValue('editMeetingDrawerMeetingId', undefined);

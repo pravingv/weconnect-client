@@ -135,3 +135,14 @@ export const TopRowTwoLeftContainer = styled('div')`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
+
+export const CirclePicture = styled('img')`
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+export const CloseDrawerIconWrapper = styled('div')`
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;     // For when the pane becomes scrollable, so the x stays in the pane
+`;

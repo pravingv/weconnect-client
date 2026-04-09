@@ -1,5 +1,5 @@
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Button, Tab, Tabs } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
+import { Alert, Button, Tab, Tabs } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import { useQueryClient } from '@tanstack/react-query';
 import PropTypes from 'prop-types';
@@ -18,6 +18,7 @@ import { captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } f
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { displayTopMenuShadow } from '../../utils/applicationUtils';
+import PersonAvatar from '../Person/PersonAvatar';
 import { TopOfPageHeader, TopRowOneLeftContainer, TopRowOneMiddleContainer, TopRowOneRightContainer, TopRowTwoLeftContainer } from '../Style/pageLayoutStyles';
 import HeaderBarLogo from './HeaderBarLogo';
 import TasksActionBar from './TasksActionBar';
@@ -43,6 +44,7 @@ const HeaderBar = ({ hideTabs }) => {
   const [showTabs, setShowTabs] = useState(true);
   const [tabsValue, setTabsValue] = useState(HEADER_TAB_DASHBOARD);
   const [viewerAccessRights, setViewerAccessRights] = useState(apiDataCache.viewerAccessRights);
+  const [slackImageLink, setSlackImageLink] = useState();
 
   const isAuth = getAppContextValue('isAuthenticated');
   useEffect(() => {
@@ -119,7 +121,6 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     if (teamListRetrieveResults) {
       captureTeamListRetrieveData(teamListRetrieveResults, apiDataCache, dispatch);
-      // setShouldExecuteTeamListRetrieve(false);
     }
   }, [teamListRetrieveResults]);
 
@@ -157,6 +158,7 @@ const HeaderBar = ({ hideTabs }) => {
   useEffect(() => {
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
+    setSlackImageLink(authenticatedPerson?.slackImage48);
   }, [authenticatedPerson]);
 
   const handleTabChange = (event, newValue) => {
@@ -198,7 +200,6 @@ const HeaderBar = ({ hideTabs }) => {
     routingLog('HeaderBar useLocation detected a url change to: ', loc.pathname);
     setViewerAccessRights(apiDataCache.viewerAccessRights);
     initializeTabValue();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loc]);
 
   // console.log('HeaderBar viewerCanSeeOrDo(canViewSystemSettings, viewerAccessRights): ', viewerCanSeeOrDo('canViewSystemSettings', viewerAccessRights));
@@ -216,6 +217,19 @@ const HeaderBar = ({ hideTabs }) => {
       $scrolledDown={scrolledDown}
       $hasSubmenu={displayTopMenuShadow()}
     >
+      {window.networkError && (
+        <Alert icon={<ErrorOutline fontSize="inherit" />}
+               severity="error"
+               sx={{
+                 '.MuiAlert-message': {
+                   paddingLeft: '40%',
+                   paddingTop: '20px',
+                 },
+               }}
+        >
+          Network error, the API server is unreachable.
+        </Alert>
+      )}
       <TopOfPageHeader>
         <TopRowOneLeftContainer>
           <HeaderBarLogo linkOff={!showTabs} />
@@ -239,20 +253,25 @@ const HeaderBar = ({ hideTabs }) => {
         <TopRowOneRightContainer className="u-cursor--pointer">
           <Button
             variant="outlined"
-            sx={{ border: 'none' }}
-            id="signInButton"
-            onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
-          >
-            {isAuthenticated ? <AccountCircleIcon /> : 'Sign In'}
-          </Button>
-          <Button
-            variant="outlined"
             size="small"
             sx={{ fontSize: '13px', fontWeight: 'unset', height: '30px', margin: '13px 0 0 8px', minWidth: '110px' }}
             id="refreshButton"
             onClick={() => doTheRefresh()}
           >
             Refresh
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{ border: 'none' }}
+            id="signInButton"
+            onClick={() => (isAuthenticated ? headerProfileClick() : navigate('/login'))}
+          >
+            <PersonAvatar
+              id="personProfileImage"
+              isAuthenticated={isAuthenticated}
+              slackImage={slackImageLink}
+              styles={{ cursor: 'pointer', maxWidth: '32px', maxHeight: '32px' }}
+            />
           </Button>
         </TopRowOneRightContainer>
         <TopRowTwoLeftContainer>
@@ -311,6 +330,5 @@ const HeaderBarWrapper = styled('div', {
   box-shadow: ${(!scrolledDown || !hasSubmenu)  ? '' : standardBoxShadow('wide')};
   border-bottom: ${(!scrolledDown || !hasSubmenu) ? '' : '1px solid #aaa'};
 `));
-
 
 export default withStyles(styles)(HeaderBar);

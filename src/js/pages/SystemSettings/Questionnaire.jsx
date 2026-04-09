@@ -19,7 +19,7 @@ import { useConnectAppContext, useConnectDispatch } from '../../contexts/Connect
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { captureQuestionListRetrieveData, captureQuestionnaireListRetrieveData, getQuestionsForQuestionnaire } from '../../models/QuestionnaireModel';
 import { useQuestionListSaveMutation } from '../../react-query/mutations';
-import makeRequestParams from '../../react-query/makeRequestParams';
+import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 
 
 const Questionnaire = ({ classes }) => {
@@ -53,9 +53,7 @@ const Questionnaire = ({ classes }) => {
     }),
   );
 
-  const sortQuestionsByOrder = (questions) => {
-    return [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
-  };
+  const sortQuestionsByOrder = (questions) => [...questions].sort((a, b) => a.questionOrder - b.questionOrder);
 
   const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
@@ -136,7 +134,7 @@ const Questionnaire = ({ classes }) => {
         const question = updatedQuestionList[i];
         inputValues = { ...inputValues, [`questionOrder-${question.id}`]: question.questionOrder };
       }
-      const requestParams = makeRequestParams({
+      const requestParams = makeRequestParamsDictionary({
         questionnaireId: questionnaire.id,
         ...inputValues,
       }, {});
@@ -151,6 +149,9 @@ const Questionnaire = ({ classes }) => {
     setActiveId(event.active.id);
   };
 
+  // TODO March 2026: Fix this instead of suppressing it!
+  //   152:29  error    Do not define components during render. React will see a new component type on every render and destroy the entire subtree’s DOM nodes and state (https://reactjs.org/docs/reconciliation.html#elements-of-different-types). Instead, move this component definition out of the parent component “Questionnaire” and pass data as props  react/no-unstable-nested-components
+  /* eslint-disable react/no-unstable-nested-components */
   const ReturnQuestionJSX = ({ question }) => {
     const {
       attributes,
@@ -173,7 +174,7 @@ const Questionnaire = ({ classes }) => {
         {...listeners}
         key={`questionnaire-${question.id}`}
         id={question.id}
-        activeId={activeId}
+        $activeId={activeId}
       >
         <OneQuestionnaireRow1>
           {question.questionOrder + 1}
@@ -204,6 +205,9 @@ const Questionnaire = ({ classes }) => {
         </OneQuestionnaireRow2>
       </OneQuestionnaireWrapper>
     );
+  };
+  ReturnQuestionJSX.propTypes = {
+    question: PropTypes.object.isRequired,
   };
 
   return (

@@ -24,13 +24,17 @@ const FastLoad = () => {
   const passwordInputRef = useRef('');
 
   useEffect(() => {
+    const isOnSourceOfTruthServer = (webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === true) || (webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === 'true');
     const { location: { hostname } } = window;
-    if (hostname.includes('wevote.org') || webAppConfig.SERVER_IS_SOURCE_OF_TRUTH === true) {
+    const isOnWeVoteMasterURL = hostname.toLowerCase().includes('wevote.org') || hostname.toLowerCase().includes('wevote.us');
+    if (isOnWeVoteMasterURL || isOnSourceOfTruthServer) {
       setFeatureDisabled(true);
     }
   }, []);
 
   const doFastLoad = async () => {
+    const email = emailInputRef.current?.value || '';
+    const password = passwordInputRef.current?.value || '';
     setShowUnanonButton(false);
     setShowUnanonOptions(false);
     setButtonsDisabled(true);
@@ -49,28 +53,29 @@ const FastLoad = () => {
     $tb.append(insertableHtml);
 
     let loaded = 0;
-    const doNotAnonymize = !(emailInputRef.current?.value && emailInputRef.current.value.length > 0 && passwordInputRef.current?.value && passwordInputRef.current.value.length > 0);
-    console.log(`doFastLoad doNotAnonymize: ${doNotAnonymize}`);
+    const doNotAnonymize = email.length > 0 && password.length > 0;
+    console.log(`doFastLoad: doNotAnonymize: ${doNotAnonymize}`);
     /* eslint-disable no-await-in-loop */
     for (let i = 0; i < allowableTables.length; i++) {
       const table = allowableTables[i];
+      console.log(`doFastLoad: fast-load-table-retrieve: table: ${table}, doNotAnonymize: ${doNotAnonymize}, email: '${email}'`);
       const tablePacket = await weConnectQueryFn('fast-load-table-retrieve', {
         tableName: table,
         doNotAnonymize,
-        email: emailInputRef?.current?.value,
-        password: passwordInputRef?.current?.value,
+        email,
+        password,
       }, METHOD.POST, forceMaster);
-      console.log('response for ', table);
-      // console.log('response for tablePacket', JSON.stringify(tablePacket));
+      console.log('doFastLoad: response for ', table);
+      // console.log('doFastLoad: response for tablePacket', JSON.stringify(tablePacket));
       if (tablePacket) {
         const { tableJSON } = tablePacket;
-        if (table === 'TaskDefinition') {
-          console.log('November 16, 2025:  Need to manually insert a boolean field into the TaskDefinition table in order for that table to fast load, the field (which is only on the production sever, and not in the code) is "statusOfferDecisionNeededSetFalse"');
-        }
+        // if (table === 'TaskDefinition') {
+        //   console.log('doFastLoad: November 16, 2025:  Need to manually insert a boolean field into the TaskDefinition table in order for that table to fast load, the field (which is only on the production sever, and not in the code) is "statusOfferDecisionNeededSetFalse"');
+        // }
         const replaceResponse = await weConnectQueryFn('fast-load-local-table-replace', { tablePacket }, METHOD.POST);
         const count = tableJSON?.length || 0;
         if (replaceResponse?.error) {
-          console.log(`replaceResonse sent an error ${replaceResponse.error}`);
+          console.log(`doFastLoad: replaceResonse for table ${table} -- sent an error ${replaceResponse.error}`);
           $(`#${table}_id`).html(`<td style="color: red">${replaceResponse.error}</td>`);
         } else if (count === 0) {
           $(`#${table}_id`).html('<td style="color: red">no rows replaced by local server</td>');
@@ -79,11 +84,13 @@ const FastLoad = () => {
           loaded += 1;
         }
       } else {
-        console.error('fast-load-table-retrieve failed');
+        console.error('doFastLoad: fast-load-table-retrieve failed');
         $(`#${table}_id`).html('<td style="background-color: #FFFF00">Received zero rows from master</td>');
       }
     }
     setTablesLoaded(loaded);
+    setButtonsDisabled(false);
+
     if (loaded) {
       $('#done').css('display', 'contents');
     }
@@ -173,7 +180,7 @@ const FastLoad = () => {
                 </div>
                 <TextField
                   id="search_input"
-                  label="Master Server Login Email"
+                  label="Master Server Login Email (your login to team.wevote.org)"
                   inputRef={emailInputRef}
                   name="firstName"
                   defaultValue=""

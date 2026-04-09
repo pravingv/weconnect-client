@@ -1,4 +1,3 @@
-// eslint-disable-next-line  arrow-body-style
 // export const getTeamList = (teamListData) => {
 //   // const teamListRaw = teamListData.teamList;
 //

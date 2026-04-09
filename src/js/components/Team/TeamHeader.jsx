@@ -45,6 +45,8 @@ const TeamHeader = (
   const [showAllTeamMembersFromParentAlreadySet, setShowAllTeamMembersFromParentAlreadySet] = useState(showAllTeamMembersFromParent);
   const [teamLeads, setTeamLeads] = useState('');
   const [teamLeadsCount, setTeamLeadsCount] = useState(0);
+  const [donorsOnTeam, setDonorsOnTeam] = useState(0);
+
   const teamLocal = team;
   const teamIdentifier = team?.teamId || team?.id;
 
@@ -85,6 +87,7 @@ const TeamHeader = (
 
   useEffect(() => {
     // These are the TeamMember dictionaries (as opposed to person dictionaries)
+    let donorsOnTeamTemp = 0;
     let teamLeadsCountTemp = 0;
     let teamLeadsTemp = '';
     let updatedTeamMemberList = [];
@@ -101,9 +104,15 @@ const TeamHeader = (
               teamLeadsCountTemp += 1;
             }
           }
+          if (isPersonActive(person)) {
+            if (person.isMonthlyDonor) {
+              donorsOnTeamTemp += 1;
+            }
+          }
         }
       }
     });
+    setDonorsOnTeam(donorsOnTeamTemp);
     // Remove trailing comma and space
     teamLeadsTemp = teamLeadsTemp.replace(/, $/, '');
 
@@ -141,6 +150,22 @@ const TeamHeader = (
     setPersonalEmailsToCopy(personalEmails);
   }, [apiDataCache, team, searchText, hideInactive, getAppContextValue]);
 
+  const DonorPercentage = () => {
+    if (numberOfTeamMembers === 0) {
+      return '';
+    }
+    try {
+      const donorPercent = Math.round((donorsOnTeam / numberOfTeamMembers) * 100);
+      if (Number.isNaN(donorPercent)) {
+        return '';
+      }
+      return <span style={{ color: '#9A9A9A' }}>{donorPercent}% donors</span>;
+    } catch (e) {
+      console.log('DonorPercentage threw error :', e);
+      return '';
+    }
+  };
+
   return (
     <OneTeamOuterWrapper>
       <OneTeamHeaderOuterWrapper>
@@ -177,26 +202,31 @@ const TeamHeader = (
           </TeamHeaderCell>
           <HideOnHover>
             {teamLeadsCount > 0 && (
-              <ActionBarSection>
+              <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
                   <TeamLead>{teamLeadsCount === 1 ? 'Lead: ' : 'Leads: '}{teamLeads}</TeamLead>
                 </ActionBarItem>
               </ActionBarSection>
             )}
-            {!hideTeamMemberCount && (
-              <ActionBarSection $borderRightOff>
+            {!hideTeamMemberCount && numberOfTeamMembers && (
+              <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
                   <TeamMemberCount>{numberOfTeamMembers} {numberOfTeamMembers === 1 ? 'person' : 'people'}</TeamMemberCount>
                 </ActionBarItem>
               </ActionBarSection>
             )}
+            <ActionBarSection $borderRightOff>
+              <ActionBarItem>
+                <DonorPercentage />
+              </ActionBarItem>
+            </ActionBarSection>
           </HideOnHover>
           <ShowOnHover>
             {!(showStatusOfferDecisionNeeded || showNotOnTeam) && (
               <ActionBarSection>
                 <ActionBarItem>
                   <SpanWithLinkStyle onClick={editTeamClick}>
-                    Next meeting
+                    Edit&nbsp;team
                   </SpanWithLinkStyle>
                 </ActionBarItem>
                 {viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights) && (
@@ -228,7 +258,7 @@ const TeamHeader = (
                   <CopyToClipboard text={officialEmailsToCopy} onCopy={() => copyOfficialEmails()}>
                     <CopyToClipboardContainer>
                       <ContentCopyStyled />
-                      <ContentCopyText>{officialEmailsCopied ? 'Copied!' : 'Official emails'}</ContentCopyText>
+                      <ContentCopyText>{officialEmailsCopied ? 'Copied!' : <>Official&nbsp;emails</>}</ContentCopyText>
                     </CopyToClipboardContainer>
                   </CopyToClipboard>
                 </ActionBarItem>
@@ -238,7 +268,7 @@ const TeamHeader = (
                   <CopyToClipboard text={personalEmailsToCopy} onCopy={() => copyPersonalEmails()}>
                     <CopyToClipboardContainer>
                       <ContentCopyStyled />
-                      <ContentCopyText>{personalEmailsCopied ? 'Copied!' : 'Personal emails'}</ContentCopyText>
+                      <ContentCopyText>{personalEmailsCopied ? 'Copied!' : <>Personal emails</>}</ContentCopyText>
                     </CopyToClipboardContainer>
                   </CopyToClipboard>
                 </ActionBarItem>
@@ -263,17 +293,18 @@ const TeamHeader = (
             {/* Please leave cellwidth values as-is unless you are also modifying PersonSummaryRow */}
             <TeamHeaderCell $cellwidth={20} />
             <TeamHeaderCell $cellwidth={25} />
-            <TeamHeaderCell $cellwidth={180}>
+            <TeamHeaderCell $cellwidth={32} />
+            <TeamHeaderCell $cellwidth={180} $leftAlign>
               Name
             </TeamHeaderCell>
-            <TeamHeaderCell $cellwidth={150}>
+            <TeamHeaderCell $cellwidth={150} $leftAlign>
               Location
             </TeamHeaderCell>
-            <TeamHeaderCell $cellwidth={250}>
+            <TeamHeaderCell $cellwidth={250} $leftAlign>
               Title
             </TeamHeaderCell>
             <TeamHeaderCell $cellwidth={150} />
-            <TeamHeaderCell $cellwidth={150} $rightAlign>
+            <TeamHeaderCell $cellwidth={140} $rightAlign>
               Volunteer for
             </TeamHeaderCell>
           </TeamHeaderPersonColumnTitles>

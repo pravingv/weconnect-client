@@ -5,7 +5,7 @@ import { Button } from '@mui/material';
 import { PageContentContainer } from '../../components/Style/pageLayoutStyles';
 import PermissionsAdministration from './PermissionsAdministration';
 
-export default function PermissionsPage() {
+export default function PermissionsPage () {
   const navigate = useNavigate();
   return (
     <>

@@ -44,21 +44,41 @@ async function getStatusValues () {
   try {
     console.log('Working Directory: ', __dirname);
     let hash = fs.readFileSync('./git_commit_hash', 'utf8');
-    console.log('Hash: ', hash);
     hash = hash.trim();
+    console.log('Hash: ', hash);
     const hashURL = `https://github.com/wevote/weconnect-client/commit/${hash}`;
     console.log('hashURL: ', hashURL);
-    const response = await fetch(hashURL);
-    const text = await response.text();
-    console.log(`git_commit_hash: '${text}'`);
-    if (text !== 'Not Found') {
-      const pr = text.match(/"Merge pull request (.*?)wevote/);
-      stats.Pull_request = pr[1].slice(0, -2);
-      const dateStringResults = text.match(/"committedDate":"(.*?)"/);
-      console.log(dateStringResults[1]);
-      const date = new DateTime(dateStringResults[1]);
-      stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
-      stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+
+    // Use the GitHub REST API instead of scraping HTML — works for all commit types
+    const apiHeaders = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'weconnect-client-build' };
+
+    // Get commit details (date)
+    const commitResponse = await fetch(`https://api.github.com/repos/wevote/weconnect-client/commits/${hash}`, { headers: apiHeaders });
+    if (!commitResponse.ok) {
+      throw new Error(`GitHub API returned ${commitResponse.status} for commit ${hash}`);
+    }
+    const commitData = await commitResponse.json();
+    let committedDate;
+    try {
+      committedDate = commitData.commit.committer.date || commitData.commit.author.date;
+    } catch (error) {
+      committedDate = commitData.commit.author.date;
+    }
+    console.log('committedDate: ', committedDate);
+    const date = new DateTime(committedDate);
+    stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
+    stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+
+    // Get associated pull request number
+    const prsResponse = await fetch(`https://api.github.com/repos/wevote/weconnect-client/commits/${hash}/pulls`, { headers: apiHeaders });
+    if (prsResponse.ok) {
+      const prs = await prsResponse.json();
+      if (prs.length > 0) {
+        stats.Pull_request = `#${prs[0].number}`;
+        console.log('Pull_request: ', stats.Pull_request);
+      } else {
+        stats.Pull_request = 'none';
+      }
     } else {
       stats.Pull_request = 'none';
       stats.Git_committed_date = 'none';
@@ -66,6 +86,9 @@ async function getStatusValues () {
     }
   } catch (error) {
     console.log('Error in getStatusValues git: ', error);
+    stats.Pull_request = 'none';
+    stats.Git_committed_date = 'none';
+    stats.Git_commit_hash = 'none';
   }
 
   return stats;

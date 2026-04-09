@@ -8,10 +8,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import PropTypes from 'prop-types';
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
-import generateRandomString from '../../common/utils/generateRandomString';
 import { renderLog } from '../../common/utils/logging';
 import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
@@ -19,9 +17,9 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { usePersonSaveMutation } from '../../react-query/mutations';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
-import { ActionOption, ActionOptionContainerLeft8, ActionOptionContainerOverflow, ActionOptionList } from '../Style/actionOptionStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
+import PersonAvatar from './PersonAvatar';
 
 
 dayjs.extend(utc);
@@ -40,7 +38,6 @@ const EditPersonForm = ({ classes }) => {
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [showEmailPreferred, setShowEmailPreferred] = useState(false);
   const [showFirstNamePreferred, setShowFirstNamePreferred] = useState(false);
-  const [emailError, setEmailError] = useState('');
   const [showCompletedOnboardingCheckboxes, setShowCompletedOnboardingCheckboxes] = useState(false);
   const [initialPerson] = useState(getAppContextValue('profileDrawerPerson'));
   // const [initialPerson] = useState(useGetPersonById(getAppContextValue('profileDrawerPersonId')));
@@ -51,10 +48,8 @@ const EditPersonForm = ({ classes }) => {
   const [emailOfficialLocal, setEmailOfficialLocal] = useState(emailOfficialInitial);
   const [emailOfficialVerified, setEmailOfficialVerified] = useState(emailOfficialVerifiedInitial);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
-
-  const [newPasswordNotification, setNewPasswordNotification] = useState('');
-  const [newPasswordNotificationCopied, setNewPasswordNotificationCopied] = useState(false);
-  const [showNewPasswordNotification, setShowNewPasswordNotification] = useState(false);
+  const [showAddSlackPhoto, setShowAddSlackPhoto] = useState(true);
+  const [slackError, setSlackError] = useState('');
 
   const getDateDefaultValue = (dateString) => {
     if (!dateString) return null;
@@ -73,6 +68,7 @@ const EditPersonForm = ({ classes }) => {
   const hoursPerWeekEstimateInputRef = useRef('');
   const isHiringManagerInputRef = useRef(false);
   const isInternInputRef = useRef(false);
+  const isMonthlyDonorInputRef = useRef(false);
   const isTeamLeadInputRef = useRef(false);
   const phoneNumberInputRef = useRef('');
   const jazzHrUrlInputRef = useRef('');
@@ -80,6 +76,7 @@ const EditPersonForm = ({ classes }) => {
   const lastNameInputRef = useRef('');
   const linkedInUrlInputRef = useRef('');
   const locationInputRef = useRef('');
+  // const [slackImageLink, setSlackImageLink] = useState();
   const stateCodeInputRef = useRef('');
   const statusActiveInputRef = useRef(false);
   const statusAvailableForSpecialProjectsInputRef = useRef(false);
@@ -96,13 +93,15 @@ const EditPersonForm = ({ classes }) => {
   useEffect(() => {
     // statusOfferDecisionNeeded reversed on purpose
     setAllOnboardingCheckboxesChecked(!(activePerson.statusActive || !activePerson.statusOfferDecisionNeeded || activePerson.statusOfferApproved || activePerson.statusOfferQuestionnaireSent || activePerson.statusOfferQuestionnaireAnswered || activePerson.statusOfferLetterSigned || activePerson.statusOfferWillNotBeMade));
+    setShowAddSlackPhoto(!(activePerson.slackHandle && activePerson.slackHandle.length > 0));
   }, [activePerson]);
 
   useEffect(() => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
 
-  const savePerson = () => {
+  const savePerson = (emailVerifiedOverride = null) => {
+    // console.log('Saving person:', activePerson, ', emailVerifiedOverride: ', emailVerifiedOverride);
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
     activePerson.emailPreferred = emailPreferredInputRef.current.value;
     activePerson.firstName = firstNameInputRef.current.value;
@@ -114,21 +113,22 @@ const EditPersonForm = ({ classes }) => {
     if (viewerIsOnHrTeam) {
       // The fields that you need to be in HR to update
       activePerson.birthdayMonthAndDay = birthdayMonthAndDayInputRef.current.value;
-      console.log('Saving dates:', {
-        dateStartDate: dateStartDate ? dateStartDate.format('YYYY-MM-DD') : null,
-        dateEndDate: dateEndDate ? dateEndDate.format('YYYY-MM-DD') : null,
-      });
+      // console.log('Saving dates:', {
+      //   dateStartDate: dateStartDate ? dateStartDate.format('YYYY-MM-DD') : null,
+      //   dateEndDate: dateEndDate ? dateEndDate.format('YYYY-MM-DD') : null,
+      // });
       activePerson.dateEndDate = dateEndDate ? dateEndDate.utc().format('YYYY-MM-DD') : '';
       activePerson.dateStartDate = dateStartDate ? dateStartDate.utc().format('YYYY-MM-DD') : '';
       // console.log('dateStartDate:', dateStartDateInputRef.current.value, ', dateEndDate:', dateEndDateInputRef.current.value);
       activePerson.emailOfficial = emailOfficialLocal;
       activePerson.hoursPerWeekEstimate = hoursPerWeekEstimateInputRef.current.value;
-      activePerson.emailOfficialVerified = emailOfficialVerified;
-      if (emailOfficialVerified === true) {
+      activePerson.emailOfficialVerified = emailVerifiedOverride !== null ? emailVerifiedOverride : emailOfficialVerified;
+      if (emailOfficialVerified === true || emailVerifiedOverride === true) {
         activePerson.statusEmailCreated = true;
       }
       activePerson.isHiringManager = isHiringManagerInputRef.current.checked;
       activePerson.isIntern = isInternInputRef.current.checked;
+      activePerson.isMonthlyDonor = isMonthlyDonorInputRef.current.checked;
       activePerson.isTeamLead = isTeamLeadInputRef.current.checked;
       activePerson.phoneNumber = phoneNumberInputRef.current.value;
       activePerson.jazzHrUrl = jazzHrUrlInputRef.current.value;
@@ -157,16 +157,39 @@ const EditPersonForm = ({ classes }) => {
     const plainParams = {
       personId: activePerson.id,
     };
+    // console.log('personSave plainParams:', plainParams);
     personSave(makeRequestParamsDictionary(plainParams, data));
-    setSaveButtonActive(false);
-    setAppContextValue('headerProfileDrawerOpen', false);
-    setAppContextValue('profileDrawerPerson', undefined);
-    setAppContextValue('profileDrawerPersonId', -1);
+    setAppContextValue('profileDrawerPerson', activePerson);
+    if (emailVerifiedOverride === null || emailVerifiedOverride === undefined) {
+      setSaveButtonActive(false);
+      setAppContextValue('headerProfileDrawerOpen', false);
+      setAppContextValue('profileDrawerPerson', undefined);
+      setAppContextValue('profileDrawerPersonId', -1);
+    }
   };
 
   const setEmailOfficialFromChild = (emailOfficial) => {
     setEmailOfficialLocal(emailOfficial);
     setIsEmailOfficialEditModeOn(false);
+  };
+
+  const addPhotoFromSlack = async () => {
+    const { id } = activePerson;
+    const data = await weConnectQueryFn('slack-add-person-images', { personId: id }, METHOD.POST);
+    // console.log('SlackAddPersonImages', data);
+    const slackImage48 = data?.singlePersonUpdated[0]?.slackImage48;
+    setShowAddSlackPhoto(false);
+    if (slackImage48) {
+      activePerson.slackImage48 = slackImage48;
+      setAppContextValue('temporarySlackImage', slackImage48);
+      setSlackError('');
+    } else {
+      setSlackError('Slack did not return a member who matches this staff member\'s personal or offical email address.');
+      console.log('SlackAddPersonImages error');
+      setTimeout(() => {
+        setSlackError('');
+      }, 5000);
+    }
   };
 
   const setEmailOfficialVerifiedFromChild = (emailOfficialVerifiedIncoming) => {
@@ -183,45 +206,16 @@ const EditPersonForm = ({ classes }) => {
   const emailOfficialCanBeEdited = !(emailOfficialInitial) || isEmailOfficialEditModeOn;
   // console.log('activePerson:', activePerson);
 
-
-  const resetWeVoteEducationClick = async () => {
-    setEmailError('');
-    const { emailOfficial, emailPersonal, firstName } = activePerson;
-    if (!emailOfficial.includes('wevoteeducation.org') && !emailPersonal.includes('wevoteeducation.org')) {
-      setEmailError(`"${firstName}" does not have a wevoteeducation.org email as either their official (${emailOfficial}) or private (${emailOfficial}) address`);
-      return;
-    }
-    const emailToChange = emailOfficial.includes('wevoteeducation.org') ? emailOfficial : emailPersonal;
-    const newPassword = generateRandomString(12);
-    // console.log(`deletewevoteuserpassword ${emailToChange} ${newPassword}`);
-    const data = await weConnectQueryFn('google-reset-user-password', {
-      primaryEmail: emailToChange,
-      newPassword,
-    }, METHOD.POST);
-    // console.log('reset wevote password', data);
-    if (data.success) {
-      setNewPasswordNotification(`Thank you for requesting that your password be reset. These are your new sign in credentials: \n https://team.wevote.org \n user: ${emailToChange} \n pass: ${newPassword}`);
-      setShowNewPasswordNotification(true);
-    } else {
-      // console.error('Failed to reset password:', data);
-      console.log(`Reset password API error: ${data.error}`);
-      if (data.error.startsWith('Missing required')) {
-        setEmailError(`'${emailToChange}' is not an existing valid @wevoteeducation.org email address.`);
-      } else {
-        setEmailError(`${data.error}, google api server code: ${data.errorCode}`);
-      }
-    }
-  };
-
-  const newPasswordNotificationOnCopy = () => {
-    setNewPasswordNotificationCopied(true);
-    setTimeout(() => {
-      setNewPasswordNotificationCopied(false);
-    }, 1500);
-  };
-
   return (
     <EditPersonFormWrapper>
+      {activePerson.slackImage48 && (
+        <PersonAvatar
+          id="personProfileImage"
+          isAuthenticated
+          slackImage={activePerson.slackImage48}
+          styles={{ height: '96px', marginBottom: '10px', marginTop: '-16px', maxWidth: '96px', maxHeight: '96px', width: '96px' }}
+        />
+      )}
       <FormControl classes={{ root: classes.formControl }}>
         <TextField
           autoFocus
@@ -243,6 +237,7 @@ const EditPersonForm = ({ classes }) => {
           )}
         </TextUnderInputField>
         <TextField
+          classes={showFirstNamePreferred ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.firstNamePreferred || ''}
           id="firstNamePreferredToBeSaved"
           inputRef={firstNamePreferredInputRef}
@@ -251,13 +246,6 @@ const EditPersonForm = ({ classes }) => {
           name="firstNamePreferred"
           onChange={() => setSaveButtonActive(true)}
           placeholder="First Name to use in meetings"
-          sx={!showFirstNamePreferred && {
-            position: 'absolute',
-            left: '-9999px',
-            width: '1px',
-            height: '1px',
-            overflow: 'hidden',
-          }}
           variant="outlined"
         />
         <TextField
@@ -289,7 +277,18 @@ const EditPersonForm = ({ classes }) => {
             </SpanWithLinkStyle>
           )}
         </TextUnderInputField>
+        <TextUnderInputField>
+          <SpanWithLinkStyle style={showAddSlackPhoto ? { opacity: '1' } : { opacity: '0.5' }} onClick={showAddSlackPhoto ? addPhotoFromSlack : () => {}}>
+            Add Photo From Slack
+          </SpanWithLinkStyle>
+        </TextUnderInputField>
+        {slackError.length > 0 && (
+          <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
+            {slackError}
+          </Alert>
+        )}
         <TextField
+          classes={showEmailPreferred ? { root: classes.showThisField } : { root: classes.hideThisField }}
           defaultValue={activePerson.emailPreferred || ''}
           id="emailPreferredToBeSaved"
           inputRef={emailPreferredInputRef}
@@ -298,13 +297,6 @@ const EditPersonForm = ({ classes }) => {
           name="emailPreferred"
           onChange={() => setSaveButtonActive(true)}
           placeholder="Preferred Email Address"
-          sx={!showEmailPreferred && {
-            position: 'absolute',
-            left: '-9999px',
-            width: '1px',
-            height: '1px',
-            overflow: 'hidden',
-          }}
           variant="outlined"
         />
         <TextField
@@ -575,50 +567,6 @@ const EditPersonForm = ({ classes }) => {
           value={emailOfficialLocal}
           variant="outlined"
         />
-        {emailError.length > 0 && (
-          <Alert icon={<ErrorOutline fontSize="inherit" />} severity="error">
-            {emailError}
-          </Alert>
-        )}
-        <QuickLink>
-          <SpanWithLinkStyle onClick={resetWeVoteEducationClick}>
-            Reset Official ({webAppConfig.ORGANIZATION_NAME === 'WeVote' ? '@wevoteeducation.org' : ''}) email password
-          </SpanWithLinkStyle>
-        </QuickLink>
-        {showNewPasswordNotification && (
-          <>
-            <ActionOptionContainerOverflow>
-              <ActionOptionContainerLeft8>
-                <ActionOptionList>
-                  <ActionOption>
-                    {newPasswordNotificationCopied ? 'Copied!' : (
-                      <CopyToClipboard text={newPasswordNotification} onCopy={() => newPasswordNotificationOnCopy(true)}>
-                        <SpanWithLinkStyle>
-                          Copy to Clipboard
-                        </SpanWithLinkStyle>
-                      </CopyToClipboard>
-                    )}
-                  </ActionOption>
-                  <ActionOption>
-                    Please send to volunteer via Slack.
-                  </ActionOption>
-                </ActionOptionList>
-              </ActionOptionContainerLeft8>
-            </ActionOptionContainerOverflow>
-            <div>
-              <TextField
-                multiline
-                rows={5}
-                value={newPasswordNotification}
-                // onChange={(e) => setEmailText(e.target.value)}
-                placeholder="Enter text to be copied..."
-                fullWidth
-                variant="outlined"
-                margin="normal"
-              />
-            </div>
-          </>
-        )}
         <TextUnderInputField>
           <EmailOfficialManager
             emailOfficialEdited={emailOfficialEdited}
@@ -626,6 +574,7 @@ const EditPersonForm = ({ classes }) => {
             setIsEmailOfficialEditModeInParent={setEmailOfficialEditedFromChild}
             setEmailOfficialInParent={setEmailOfficialFromChild}
             setEmailOfficialVerifiedInParent={setEmailOfficialVerifiedFromChild}
+            savePerson={savePerson}
           />
         </TextUnderInputField>
         <TextField
@@ -871,12 +820,33 @@ const EditPersonForm = ({ classes }) => {
           )}
           label={`${activePerson.firstNamePreferred || activePerson.firstName} is available for special projects`}
         />
+        <CheckboxLabel
+          classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+          control={(
+            <Checkbox
+              checked={activePerson.isMonthlyDonor || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isMonthlyDonor"
+              inputRef={isMonthlyDonorInputRef}
+              name="isMonthlyDonor"
+              onChange={(event) => {
+                setActivePerson((prev) => ({
+                  ...prev,
+                  isMonthlyDonor: event.target.checked,
+                }));
+                setSaveButtonActive(true);
+              }}
+            />
+          )}
+          label={`${activePerson.firstNamePreferred || activePerson.firstName} is a monthly donor`}
+        />
         <ButtonWrapper>
           <Button
             classes={{ root: classes.savePersonButton }}
             color="primary"
             disabled={!saveButtonActive}
-            onClick={savePerson}
+            onClick={() => savePerson()}
             variant="contained"
           >
             Save Person
@@ -980,6 +950,7 @@ const QuickLinkList = styled('div')`
 
 const TextUnderInputField = styled('div')`
   margin-left: 15px;
+  padding: 4px 0;
 `;
 
 export default withStyles(styles)(EditPersonForm);

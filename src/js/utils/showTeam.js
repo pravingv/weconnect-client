@@ -3,7 +3,6 @@
 import { isSearchTextFoundInCohortTeam, isSearchTextFoundInTeam } from '../controllers/TeamController';
 import { showPersonInCohortMemberList } from './showPerson';
 
-// eslint-disable-next-line import/prefer-default-export
 export const showTeam = (team, searchText, getAppContextValue) => {
   if (!team || team.teamId < 0) return false; // Invalid person or personId
   const onlyFiltersSelected = getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH';
