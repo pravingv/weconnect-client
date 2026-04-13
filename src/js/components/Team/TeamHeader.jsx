@@ -130,7 +130,6 @@ const TeamHeader = (
     }
 
     updatedTeamMemberPersonList.forEach((person) => {
-
       if (showPersonInMemberList(person, null, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
         numberOfTeamMembersTemp += 1;
       }
