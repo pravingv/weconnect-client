@@ -142,9 +142,7 @@ const TeamHeader = (
         if (person.emailPersonal) {
           personalEmails += `${person.emailPersonal}, `;
         }
-
       }
-
     });
 
     // Remove trailing comma and space
@@ -162,7 +160,6 @@ const TeamHeader = (
     }
     try {
       const donorPercent = Math.round((donorsOnTeam / numberOfTeamMembers) * 100);
-      console.log("team member count with team name and donors on team with %:",donorPercent,donorsOnTeam,numberOfTeamMembers,team)
       if (Number.isNaN(donorPercent)) {
         return '';
       }
