@@ -98,15 +98,15 @@ const TeamHeader = (
       if (teamMember && teamMember.personId && teamMember.personId >= 0) {
         const person = allPeopleCache[teamMember.personId];
         if (person && person.id) {
-          if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
+          if (isPersonActive(person) || !hideInactive) {
             if (teamMember.isTeamLead) {
               teamLeadsTemp += `${person.firstNamePreferred || person.firstName}, `;
               teamLeadsCountTemp += 1;
             }
-            if (isPersonActive(person)) {
-              if (person.isMonthlyDonor) {
-                donorsOnTeamTemp += 1;
-              }
+          }
+          if (isPersonActive(person)) {
+            if (person.isMonthlyDonor) {
+              donorsOnTeamTemp += 1;
             }
           }
         }
@@ -118,7 +118,7 @@ const TeamHeader = (
 
     setTeamLeads(teamLeadsTemp);
     setTeamLeadsCount(teamLeadsCountTemp);
-  }, [apiDataCache, team, searchText, hideInactive, getAppContextValue]);
+  }, [apiDataCache, team]);
 
   useEffect(() => {
     let numberOfTeamMembersTemp = 0;
@@ -130,6 +130,11 @@ const TeamHeader = (
     }
 
     updatedTeamMemberPersonList.forEach((person) => {
+
+      if (showPersonInMemberList(person, null, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
+        numberOfTeamMembersTemp += 1;
+      }
+
       if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
         if (person.emailOfficial) {
           officialEmails += `${person.emailOfficial}, `;
@@ -137,8 +142,9 @@ const TeamHeader = (
         if (person.emailPersonal) {
           personalEmails += `${person.emailPersonal}, `;
         }
-        numberOfTeamMembersTemp += 1;
+
       }
+
     });
 
     // Remove trailing comma and space
@@ -156,6 +162,7 @@ const TeamHeader = (
     }
     try {
       const donorPercent = Math.round((donorsOnTeam / numberOfTeamMembers) * 100);
+      console.log("team member count with team name and donors on team with %:",donorPercent,donorsOnTeam,numberOfTeamMembers,team)
       if (Number.isNaN(donorPercent)) {
         return '';
       }
