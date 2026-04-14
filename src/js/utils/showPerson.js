@@ -57,7 +57,6 @@ export const showPersonInTaskList = (person, searchTextLocal, showCompletedTasks
   let modifiedTaskList = [];
   if (searchTextLocal) {
     const personResults = isSearchTextFoundInPerson(searchTextLocal, person);
-    const allSearchWordsWereFoundInPerson = false; // personResults.allSearchWordsWereFound;
     const searchWordsFoundInPersonList = personResults.searchWordsFoundList;
     // console.log('=== searchWordsFoundInPersonList:', searchWordsFoundInPersonList);
 
@@ -77,7 +76,7 @@ export const showPersonInTaskList = (person, searchTextLocal, showCompletedTasks
         }
       }
     });
-    const allSearchWordsWereFound = allSearchWordsWereFoundInPerson || modifiedTaskList.length > 0;
+    const allSearchWordsWereFound = personResults.allSearchWordsWereFound || modifiedTaskList.length > 0;
     // if (allSearchWordsWereFound) {
     //   console.log('=== allSearchWordsWereFound:', person.firstName, person.lastName);
     // }
