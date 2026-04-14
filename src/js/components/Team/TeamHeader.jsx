@@ -130,6 +130,10 @@ const TeamHeader = (
     }
 
     updatedTeamMemberPersonList.forEach((person) => {
+      if (showPersonInMemberList(person, null, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
+        numberOfTeamMembersTemp += 1;
+      }
+
       if (showPersonInMemberList(person, searchText, getAppContextValue) && (isPersonActive(person) || !hideInactive)) {
         if (person.emailOfficial) {
           officialEmails += `${person.emailOfficial}, `;
@@ -137,7 +141,6 @@ const TeamHeader = (
         if (person.emailPersonal) {
           personalEmails += `${person.emailPersonal}, `;
         }
-        numberOfTeamMembersTemp += 1;
       }
     });
 
