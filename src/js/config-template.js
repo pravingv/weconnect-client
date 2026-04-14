@@ -25,10 +25,10 @@ module.exports = {
   // STAFF_API_SERVER_API_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
   // STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://wevotedeveloper.com:4500/apis/v1/',
   //// Connecting to live WeConnect APIs ////
-  // STAFF_API_SERVER_ROOT_URL: 'https://weconnectserver.org/',
-  // STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://weconnectserver.org/admin/',
-  // STAFF_API_SERVER_API_ROOT_URL: 'https://weconnectserver.org/apis/v1/',
-  // STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://cdn.weconnectserver.org/apis/v1/',
+  // STAFF_API_SERVER_ROOT_URL: 'https://teamapi.wevote.org/',
+  // STAFF_API_SERVER_ADMIN_ROOT_URL: 'https://teamapi.wevote.org/admin/',
+  // STAFF_API_SERVER_API_ROOT_URL: 'https://teamapi.wevote.org/apis/v1/',
+  // STAFF_API_SERVER_API_CDN_ROOT_URL: 'https://cdn.teamapi.wevote.org/apis/v1/',
 
   // For when we need to connect to the WeVote WebApp front end
   VOTER_FRONT_END_APP_URL_PROTOCOL: 'http://', // 'http://' for local dev (if not using SSL), or 'https://' for live server
