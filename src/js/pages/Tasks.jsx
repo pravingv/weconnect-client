@@ -20,6 +20,7 @@ import { alphabetizePeoplesObject } from '../utils/utilities';
 import { showTaskDefinition } from '../utils/showTask';
 import TaskSummaryRow from '../components/Task/TaskSummaryRow';
 import convertToInteger from '../common/utils/convertToInteger';
+import { TASK_TYPE_LIST, TASK_TYPES } from '../constants/TaskTypeConstants';
 
 
 const Tasks = () => {
@@ -31,6 +32,7 @@ const Tasks = () => {
   const [personIdsList, setPersonIdsList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPersonList, setSelectedPersonList] = useState([]);
+  const [selectedTaskType, setSelectedTaskType] = useState(TASK_TYPES.ALL_TASKS);
   const [hideAllTasks, setHideAllTasks] = useState(getAppContextValue('tasksActionBarHideAllTasks'));
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showTasksByTask, setShowTasksByTask] = useState(false);
@@ -117,6 +119,10 @@ const Tasks = () => {
     }
   }, [getAppContextValue]);
 
+  const filteredTaskDefinitionList = selectedTaskType === TASK_TYPES.ALL_TASKS
+    ? taskDefinitionList
+    : taskDefinitionList.filter((td) => td.taskType === selectedTaskType);
+
   const teamId = 0;  // hack 1/15/25
   // console.log('allTasksByDefinitionIdCache:', allTasksByDefinitionIdCache);
   return (
@@ -131,6 +137,17 @@ const Tasks = () => {
         {/* Latest Helmet wont take a link or Link, <Link to="/team-home">Home</Link> */}
         {/* browser.js:38 Uncaught Invariant Violation: Only elements types base, body, head, html, link, meta, noscript, script, style, title, Symbol(react.fragment) are allowed. Helmet does not support rendering <[object Object]> elements. Refer to our API for more information. */}
       </Helmet>
+      <TaskTypeFilterHeader>
+        {TASK_TYPE_LIST.map((taskType) => (
+          <TaskTypeFilterButton
+            key={taskType}
+            $active={selectedTaskType === taskType}
+            onClick={() => setSelectedTaskType(taskType)}
+          >
+            {taskType}
+          </TaskTypeFilterButton>
+        ))}
+      </TaskTypeFilterHeader>
       <PageContentContainer>
         <ActionBarWrapperSpacer />
         <div>
@@ -140,9 +157,10 @@ const Tasks = () => {
               {allTasksByDefinitionIdCache && Object.entries(allTasksByDefinitionIdCache).map(([taskDefinitionId, tasks]) => {
                 // console.log('=== taskDefinitionId:', taskDefinitionId);
                 // const showTaskDefinition = tasks.length > 0; // Also set to false if all tasks are marked as completed
-                const taskDefinition = taskDefinitionList[taskDefinitionId];
+                const taskDefinition = filteredTaskDefinitionList.find((td) => String(td.taskDefinitionId) === String(taskDefinitionId)) || taskDefinitionList[taskDefinitionId];
                 const taskName = taskDefinition ? taskDefinition.taskName ||  'taskName Missing' : 'Task Name Missing';
-                const showTaskTemp =  showTaskDefinition(searchText, taskDefinition);
+                const taskTypeMatches = selectedTaskType === TASK_TYPES.ALL_TASKS || (taskDefinition && taskDefinition.taskType === selectedTaskType);
+                const showTaskTemp = taskTypeMatches && showTaskDefinition(searchText, taskDefinition);
                 // console.log('*** showTaskTemp:', showTaskTemp);
                 if (showTaskTemp) {
                   return (
@@ -188,7 +206,7 @@ const Tasks = () => {
                 <PersonSummaryHeader />
               </PersonSummaryHeaderWrapper>
               {taskListByPersonId && selectedPersonList.map((person) => {
-                const showPersonResults = showPersonInTaskList(person, searchText, showCompletedTasks, taskDefinitionList, taskListByPersonId);
+                const showPersonResults = showPersonInTaskList(person, searchText, showCompletedTasks, filteredTaskDefinitionList, taskListByPersonId);
                 // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
                 if ((showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive) {
                   return (
@@ -198,7 +216,7 @@ const Tasks = () => {
                         <TaskListForPerson
                           searchText={showPersonResults.searchTextMinusWordsFoundInPersonList}
                           showCompletedTasks={showCompletedTasks}
-                          taskDefinitionList={taskDefinitionList}
+                          taskDefinitionList={filteredTaskDefinitionList}
                           taskListForPersonId={taskListByPersonId[person.personId] || []}
                         />
                       )}
@@ -226,7 +244,45 @@ const styles = (theme) => ({
 });
 
 const ActionBarWrapperSpacer = styled('div')`
-  margin-top: 60px;
+  margin-top: 110px;
+`;
+
+const TaskTypeFilterHeader = styled('div')`
+  position: fixed;
+  top: 110px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: white;
+  border-bottom: 2px solid #e5e5e5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px;
+  flex-wrap: wrap;
+`;
+
+const TaskTypeFilterButton = styled('button')`
+  border: 1px solid ${(props) => (props.$active ? '#1e6fb9' : '#d0d0d0')};
+  background: ${(props) => (props.$active ? '#1e6fb9' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : '#333')};
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: ${(props) => (props.$active ? '600' : '500')};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: ${(props) => (props.$active ? '#1a5a94' : '#f5f5f5')};
+    border-color: ${(props) => (props.$active ? '#1a5a94' : '#b0b0b0')};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 const OnePersonWrapper = styled('div')`

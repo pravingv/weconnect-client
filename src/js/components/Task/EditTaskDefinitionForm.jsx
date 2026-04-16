@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControl, FormControlLabel, TextField } from '@mui/material';
+import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
+import { TASK_TYPE_LIST, TASK_TYPES } from '../../constants/TaskTypeConstants';
 import { useTaskDefinitionSaveMutation } from '../../react-query/mutations';
 
 const EditTaskDefinitionForm = ({ classes }) => {
@@ -36,6 +37,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
   const [statusOfferQuestionnaireSent, setStatusOfferQuestionnaireSent] = useState(false);
   const [statusOfferWillNotBeMade, setStatusOfferWillNotBeMade] = useState(false);
+  const [taskType, setTaskType] = useState('');
   const [taskGroup] = useState(getAppContextValue('editTaskDefinitionDrawerTaskGroup'));
   const [taskGroupId, setTaskGroupId] = useState(-1);
   const [taskDefinition] = useState(getAppContextValue('editTaskDefinitionDrawerTaskDefinition'));
@@ -67,6 +69,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setStatusOfferWillNotBeMade(taskDefinition.statusOfferWillNotBeMade);
       setTaskActionUrl(taskDefinition.taskActionUrl);
       setTaskGroupId(taskDefinition.taskGroupId);
+      setTaskType(taskDefinition.taskType || '');
       setTaskName(taskDefinition.taskName);
       setTaskNameCompleted(taskDefinition.taskNameCompleted);
       setTaskWhatToDo(taskDefinition.taskWhatToDo);
@@ -86,6 +89,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setStatusOfferWillNotBeMade(false);
       setTaskActionUrl('');
       setTaskGroupId(-1);
+      setTaskType('');
       setTaskName('');
       setTaskNameCompleted('');
       setTaskWhatToDo('');
@@ -121,6 +125,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
       statusOfferQuestionnaireSent,
       statusOfferWillNotBeMade,
       taskGroupId,
+      taskType,
       taskActionUrl: taskActionUrlInputRef.current.value,
       taskName: taskNameInputRef.current.value,
       taskNameCompleted: taskNameCompletedInputRef.current.value,
@@ -163,6 +168,24 @@ const EditTaskDefinitionForm = ({ classes }) => {
           )}
           label="This task is ON"
         />
+        <FormControl margin="dense" variant="outlined">
+          <InputLabel id="taskType-label">Task Type</InputLabel>
+          <Select
+            id="taskTypeToBeSaved"
+            label="Task Type"
+            labelId="taskType-label"
+            onChange={(event) => {
+              setTaskType(event.target.value);
+              updateSaveButton();
+            }}
+            value={taskType}
+          >
+            <MenuItem value=""><em>None</em></MenuItem>
+            {TASK_TYPE_LIST.filter((t) => t !== TASK_TYPES.ALL_TASKS).map((t) => (
+              <MenuItem key={t} value={t}>{t}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           autoFocus
           defaultValue={taskName}
