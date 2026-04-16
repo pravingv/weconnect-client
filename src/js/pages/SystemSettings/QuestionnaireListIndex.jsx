@@ -63,7 +63,7 @@ const QuestionnaireListIndex = ({ classes, showQuestionnaireList }) => {
   const goToQuestionnairePageClick = (questionnaire) => {
     setAppContextValue('selectedQuestionnaire', questionnaire);
 
-    queryClient.invalidateQueries(['question-list-retrieve']).then(() => {});
+    queryClient.invalidateQueries({ queryKey: ['question-list-retrieve'] }).then(() => {});
     // console.log('goToQuestionnairePageClick = (questionnaire)', questionnaire.questionnaireId);
 
     navigate(`/questionnaire/${questionnaire.questionnaireId}`);

@@ -12,6 +12,8 @@ import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import capturePersonListRetrieveData from '../../models/capturePersonListRetrieveData';
 import { captureTaskDefinitionListRetrieveData, captureTaskGroupListRetrieveData, captureTaskStatusListRetrieveData } from '../../models/TaskModel';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
+import useRedirectToLoginIfLoggedOut from '../../utils/useRedirectToLoginIfLoggedOut';
+
 
 const SystemSettings = () => {
   renderLog('SystemSettings');
@@ -23,6 +25,9 @@ const SystemSettings = () => {
   const [personIdsList, setPersonIdsList] = useState([]);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
+  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 30;
+  useRedirectToLoginIfLoggedOut(personListRetrieveResults, API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD); //or maybe taskDefinitionListRetrieveResults or taskGroupListRetrieveResults or taskStatusListRetrieveResults?
+
   useEffect(() => {
     if (personListRetrieveResults) {
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);

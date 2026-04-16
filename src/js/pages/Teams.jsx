@@ -1,5 +1,5 @@
 import { withStyles } from '@mui/styles';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
 import arrayContains from '../common/utils/arrayContains';
@@ -14,6 +14,8 @@ import { METHOD, useFetchData } from '../react-query/WeConnectQuery';
 import { showPersonInMemberList } from '../utils/showPerson';
 import { showCohortTeam, showTeam } from '../utils/showTeam';
 import { DEPARTMENTS, DEPARTMENT_LIST } from '../constants/DepartmentConstants';
+import { SettingsApplications } from '@mui/icons-material';
+import useRedirectToLoginIfLoggedOut from '../utils/useRedirectToLoginIfLoggedOut';
 
 
 const Teams = () => {
@@ -29,19 +31,25 @@ const Teams = () => {
   const [statusNotOnTeamCohortMemberList, setStatusNotOnTeamCohortMemberList] = useState([]);
   const [statusOfferDecisionNeededCohortMemberList, setStatusOfferDecisionNeededCohortMemberList] = useState([]);
   const [teamList, setTeamList] = useState([]);
+  const [apiRetrieveErrorsInARowCount, setApiRetrieveErrorsInARowCount] = useState(0);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
+
   useEffect(() => {
     // console.log('useFetchData person-list-retrieve in Teams useEffect:', personListRetrieveResults);
     if (personListRetrieveResults) {
-      // console.log('In useEffect apiDataCache:', apiDataCache);
+      console.log('In useEffect apiDataCache:', apiDataCache);
       // const changeResults =
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
-      // console.log('ConnectAppContext useEffect capturePersonListRetrieveData changeResults:', changeResults);
+      //console.log('ConnectAppContext useEffect capturePersonListRetrieveData changeResults:', changeResults);
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
   const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
+  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 50;
+  useRedirectToLoginIfLoggedOut(teamListRetrieveResults, API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD);
+
+
   // ////////////////////////////////////////////
   // Dale's approach to use organize incoming data and then use that data from apiDataCache
   // Allows us to organize incoming data independent of the specific API, potentially from multiple API or sources
