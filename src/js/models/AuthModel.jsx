@@ -8,7 +8,8 @@ export const viewerCanSeeOrDoOneAccessRight = (accessRightName, viewerAccessRigh
   if (!viewerAccessRights || !(accessRightName in viewerAccessRights)) {
     return false;
   }
-  return viewerAccessRights[accessRightName] || false;
+  let canSeeOrDoOneAccessRight = viewerAccessRights[accessRightName] || false;
+  return canSeeOrDoOneAccessRight;
 };
 
 export const viewerCanSeeOrDo = (accessRightNameList, viewerAccessRights) => {
