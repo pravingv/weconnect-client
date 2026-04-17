@@ -58,8 +58,8 @@ const PersonDetailsEmailsAndStartDate = ({ person, teamId }) => {
 
   const canEditPerson = viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights) || viewerCanSeeOrDoForThisTeam('canEditPersonThisTeam', teamId, viewerTeamAccessRights);
   const preferredEmail = person.emailPreferred || person.emailOfficial || '';
-  const formattedEndDate = person.dateEndDate ? new Date(person.dateEndDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
-  const formattedStartDate = person.dateStartDate ? new Date(person.dateStartDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+  const formattedEndDate = person.dateEndDate ? new Date(person.dateEndDate).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' }) : '';
+  const formattedStartDate = person.dateStartDate ? new Date(person.dateStartDate).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' }) : '';
   return (
     <PersonDetailsEmailsAndStartDateWrapper>
       {preferredEmail && (
