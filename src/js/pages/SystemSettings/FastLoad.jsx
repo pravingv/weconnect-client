@@ -5,8 +5,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { withStyles } from '@mui/styles';
 import React, { useEffect, useRef, useState } from 'react';
-import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import webAppConfig from '../../config';
+import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { ButtonPanel } from './systemSettingsCommonStyles';
 
 /* global $ */
@@ -138,6 +138,9 @@ const FastLoad = () => {
             This function will overwrite the data in your local postgres database with the data from the master server
             in AWS.
           </DialogTitle>
+          <div style={{ margin: '10px 0 15px 30px', fontWeight: 400 }}>
+            This data transfer takes a few minutes to complete.
+          </div>
           <div style={{ margin: '0 0 5px 30px' }}>
             Only in the very rare case where you need to restore your current data, it can be restored with a <i>psql -X</i> from a <i>pg_dump</i> that will be created in the
             project dir on your computer. See instructions in <i>FastLoad.jsx</i>
@@ -205,8 +208,8 @@ const FastLoad = () => {
               }}
               >
                 <b>{tablesLoaded} Tables were loaded out of a potential {tablesMax}</b>
-                <span style={{ marginRight: '20px' }} />
-                Empty tables &quot;might&quot; be used someday, and can be ignored.<br />
+                {/* <span style={{ marginRight: '20px' }} /> */}
+                {/* Empty tables &quot;might&quot; be used someday, and can be ignored.<br /> */}
                 <br />
                 The account that you used to sign into your local weconnect-server has been deleted, but
                 the login that you use for
