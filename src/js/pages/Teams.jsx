@@ -189,7 +189,7 @@ const Teams = () => {
           </DepartmentFilterButton>
         ))}
       </DepartmentFilterHeader>
-      <PageContentContainer>
+      <PageContentContainer style={{ paddingTop: 0 }}>
         <ActionBarWrapperSpacer />
         {/* NOTE: we continue working on refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the TeamMember data of team members */}

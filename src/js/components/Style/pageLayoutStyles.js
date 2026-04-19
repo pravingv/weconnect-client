@@ -107,6 +107,7 @@ export const TopOfPageHeader = styled('div')`
   grid-template-columns: auto auto auto;
   height: fit-content;
   margin: auto;
+  margin-bottom: 2px;
 `;
 
 export const TopRowOneLeftContainer = styled('div')`
