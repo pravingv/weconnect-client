@@ -179,6 +179,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
               updateSaveButton();
             }}
             value={taskType}
+            variant="outlined"
           >
             <MenuItem value=""><em>None</em></MenuItem>
             {TASK_TYPE_LIST.filter((t) => t !== TASK_TYPES.ALL_TASKS).map((t) => (
@@ -472,7 +473,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
           Click on token to copy so you can paste into the instructions above.
         </CustomizationTokensDescription>
         {[...Array(Math.ceil(customizationTokensList.length / 2))].map((_, rowIndex) => (
-          <TokenRow key={rowIndex}>
+          <TokenRow key={`token-row-${rowIndex}`}>
             {customizationTokensList.slice(rowIndex * 2, rowIndex * 2 + 2).map((token, index) => (
               <NarrowTextField
                 InputProps={{
@@ -482,7 +483,7 @@ const EditTaskDefinitionForm = ({ classes }) => {
                     transition: 'background-color 0.3s',
                   },
                 }}
-                key={index}
+                key={`text-field-${index}`}
                 onClick={() => copyToClipboard(token)}
                 value={token}
                 variant="outlined"
