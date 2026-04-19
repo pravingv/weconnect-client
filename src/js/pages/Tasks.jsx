@@ -33,7 +33,7 @@ const Tasks = () => {
   const [personIdsList, setPersonIdsList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPersonList, setSelectedPersonList] = useState([]);
-  const [selectedTaskType, setSelectedTaskType] = useState(TASK_TYPES.ALL_TASKS);
+  const [selectedTaskType, setSelectedTaskType] = useState(TASK_TYPES.HR_ONBOARDING);
   const [hideAllTasks, setHideAllTasks] = useState(getAppContextValue('tasksActionBarHideAllTasks'));
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showTasksByTask, setShowTasksByTask] = useState(false);
@@ -124,10 +124,6 @@ const Tasks = () => {
     }
   }, [getAppContextValue]);
 
-  const filteredTaskDefinitionList = selectedTaskType === TASK_TYPES.ALL_TASKS
-    ? taskDefinitionList
-    : taskDefinitionList.filter((td) => td.taskType === selectedTaskType);
-
   const teamId = 0;  // hack 1/15/25
   // console.log('allTasksByDefinitionIdCache:', allTasksByDefinitionIdCache);
   return (
@@ -162,9 +158,10 @@ const Tasks = () => {
               {allTasksByDefinitionIdCache && Object.entries(allTasksByDefinitionIdCache).map(([taskDefinitionId, tasks]) => {
                 // console.log('=== taskDefinitionId:', taskDefinitionId);
                 // const showTaskDefinition = tasks.length > 0; // Also set to false if all tasks are marked as completed
-                const taskDefinition = filteredTaskDefinitionList.find((td) => String(td.taskDefinitionId) === String(taskDefinitionId)) || taskDefinitionList[taskDefinitionId];
+                const taskDefinition = taskDefinitionList[taskDefinitionId];
                 const taskName = taskDefinition ? taskDefinition.taskName ||  'taskName Missing' : 'Task Name Missing';
                 const taskTypeMatches = selectedTaskType === TASK_TYPES.ALL_TASKS || (taskDefinition && taskDefinition.taskType === selectedTaskType);
+                // console.log('selectedTaskType:', selectedTaskType, 'taskTypeMatches:', taskTypeMatches, ', showTaskDefinition:', showTaskDefinition(searchText, taskDefinition));
                 const showTaskTemp = taskTypeMatches && showTaskDefinition(searchText, taskDefinition);
                 // console.log('*** showTaskTemp:', showTaskTemp);
                 if (showTaskTemp) {
@@ -211,7 +208,7 @@ const Tasks = () => {
                 <PersonSummaryHeader />
               </PersonSummaryHeaderWrapper>
               {taskListByPersonId && selectedPersonList.map((person) => {
-                const showPersonResults = showPersonInTaskList(person, searchText, showCompletedTasks, filteredTaskDefinitionList, taskListByPersonId);
+                const showPersonResults = showPersonInTaskList(person, searchText, showCompletedTasks, taskDefinitionList, taskListByPersonId);
                 // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
                 if ((showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive) {
                   return (
@@ -220,8 +217,9 @@ const Tasks = () => {
                       {!hideAllTasks && (
                         <TaskListForPerson
                           searchText={showPersonResults.searchTextMinusWordsFoundInPersonList}
+                          selectedTaskType={selectedTaskType}
                           showCompletedTasks={showCompletedTasks}
-                          taskDefinitionList={filteredTaskDefinitionList}
+                          taskDefinitionList={taskDefinitionList}
                           taskListForPersonId={taskListByPersonId[person.personId] || []}
                         />
                       )}
