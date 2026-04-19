@@ -59,6 +59,8 @@ const Login = ({ classes }) => {
       authPerson.current = authenticatedPerson;
       if (authenticatedPerson) {
         setAppContextValue('isAuthenticated', isAuthenticated);
+        // console.log("authPerson: " + JSON.stringify(authPerson));
+        // console.log("isAuthenticated: " + getAppContextData('isAuthenticated'));
       }
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
       if (!emailVerifiedFromAPI && personId > 0) {
@@ -110,7 +112,7 @@ const Login = ({ classes }) => {
         data.person.personId = data.person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
       }
       setAppContextValue('authenticatedPerson', data.person);
-      queryClient.invalidateQueries('get-auth');
+      queryClient.invalidateQueries({ queryKey: ['get-auth'] });
       if (data.emailVerified) {
         passwordFldRef.current = '';   // Blank the email field after signing in
         setWarningLine('');
@@ -181,7 +183,6 @@ const Login = ({ classes }) => {
     } else {
       setWarningLine('');
       setSuccessLine('You are signed out');
-      mutateLogout();
     }
   };
 
@@ -311,13 +312,17 @@ const Login = ({ classes }) => {
     event.preventDefault();
   };
 
-  // console.log(getAppContextData());
-  const isAdmin = viewerCanSeeOrDo(['canAddTeamMemberAnyTeam'], viewerAccessRights);
   // const isAuthSafe = getAppContextValue('isAuthenticated') || false;
   let isAuthenticated = false;
   let authenticatedPerson = {};
+  let isAdmin = false;
   if (dataAuth) {
     ({ isAuthenticated, person: authenticatedPerson } = dataAuth);
+    let apTemp = getAppContextValue('authenticatedPerson');
+    if (apTemp !== undefined && apTemp !== null && apTemp.isAdmin !== undefined && apTemp.isAdmin !== null) {
+      isAdmin = apTemp.isAdmin;
+    }
+
   }
   const displayVerify =
     !isForSomeOneElse &&
@@ -326,7 +331,7 @@ const Login = ({ classes }) => {
     getAppContextValue('secretCodeVerified') !== true &&
     (getAppContextValue('openVerifySecretCodeModalDialog') || false);
 
-  // console.log('login before return render, getAppContextData()', getAppContextData());
+  console.log('login before return render, getAppContextData()', getAppContextData());
   return (
     <div>
       <Helmet>

@@ -21,6 +21,7 @@ import { showTaskDefinition } from '../utils/showTask';
 import TaskSummaryRow from '../components/Task/TaskSummaryRow';
 import convertToInteger from '../common/utils/convertToInteger';
 import { TASK_TYPE_LIST, TASK_TYPES } from '../constants/TaskTypeConstants';
+import useRedirectToLoginIfLoggedOut from '../utils/useRedirectToLoginIfLoggedOut';
 
 
 const Tasks = () => {
@@ -40,6 +41,7 @@ const Tasks = () => {
   const [taskDefinitionList, setTaskDefinitionList] = useState([]);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
+
   useEffect(() => {
     if (personListRetrieveResults) {
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
@@ -73,6 +75,9 @@ const Tasks = () => {
       captureTeamListRetrieveData(teamListRetrieveResults, apiDataCache, dispatch);
     }
   }, [teamListRetrieveResults]);
+
+  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 30;
+  useRedirectToLoginIfLoggedOut(teamListRetrieveResults, API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD);
 
   useEffect(() => {
     // console.log('Tasks useEffect allPeopleCache:', allPeopleCache);

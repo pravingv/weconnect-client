@@ -80,22 +80,34 @@ export default function ReportsPage () {
   useEffect(() => {
     // Calculate statistics based on team membership and nonprofit status
     const teams = Object.values(allTeamsCache);
-    const c3Team = teams.find((team) => team.isC3Nonprofit === true);
-    const c4Team = teams.find((team) => team.isC4Nonprofit === true);
+    const c3Teams = teams.filter((team) => team.isC3Nonprofit === true);
+    const c4Teams = teams.filter((team) => team.isC4Nonprofit === true);
+    // Get all c3 teamIds
+    const c3TeamIds = c3Teams
+      .map((team) => team.teamId)
+      .filter((id) => id !== undefined && id !== null);
 
-    const c3TeamId = c3Team?.teamId;
-    const c4TeamId = c4Team?.teamId;
-
+    // Collect all members across all c3 teams
     const c3Members = new Set(
-      (allTeamMembersCache[c3TeamId] || [])
-        .map((member) => member.personId)
-        .filter((id) => id !== undefined && id !== null),
+      c3TeamIds.flatMap((teamId) => (
+        (allTeamMembersCache[teamId] ?? [])
+          .map((member) => member.personId)
+          .filter((id) => id !== undefined && id !== null)
+      )),
     );
 
+    // Get all c4 teamIds
+    const c4TeamIds = c4Teams
+      .map((team) => team.teamId)
+      .filter((id) => id !== undefined && id !== null);
+
+    // Collect all members across all c4 teams
     const c4Members = new Set(
-      (allTeamMembersCache[c4TeamId] || [])
-        .map((member) => member.personId)
-        .filter((id) => id !== undefined && id !== null),
+      c4TeamIds.flatMap((teamId) => (
+        (allTeamMembersCache[teamId] ?? [])
+          .map((member) => member.personId)
+          .filter((id) => id !== undefined && id !== null)
+      )),
     );
 
     let onBothTeamsCount = 0;
