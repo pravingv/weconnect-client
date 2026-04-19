@@ -1,4 +1,4 @@
-export function makeRequestParamsDictionary (plainParams, data) {
+const makeRequestParams = (plainParams, data) => {
   // plainParams could also be considered lookup params
   const expandedParams = {};
   Object.keys(plainParams).forEach((key) => {
@@ -8,16 +8,10 @@ export function makeRequestParamsDictionary (plainParams, data) {
     expandedParams[`${key}ToBeSaved`] = data[key];
     expandedParams[`${key}Changed`] = 'true';
   });
+
   return expandedParams;
-}
+};
 
-// Make request string
-export default function makeRequestParams (plainParams, data) {
-  const expandedParams = makeRequestParamsDictionary(plainParams, data);
+export const makeRequestParamsDictionary = makeRequestParams;
 
-  const queryString = Object.entries(expandedParams)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&');
-
-  return queryString;
-}
+export default makeRequestParams;
