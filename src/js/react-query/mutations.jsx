@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { reactQueryLog } from '../common/utils/logging';
+import { reactQueryLog, renderLog } from '../common/utils/logging';
 import { useConnectAppContext } from '../contexts/ConnectAppContext';
 import weConnectQueryFn, { METHOD } from './WeConnectQuery';
 
@@ -30,6 +30,18 @@ const useAddPersonToTeamMutation = () => {
     onSuccess: () => queryClient.invalidateQueries('team-list-retrieve'),
   });
 };
+
+const useProfileChangeLogRetrieveMutation = () => useMutation({
+  mutationFn: (params) => weConnectQueryFn('profile-change-log-retrieve', params, METHOD.GET),
+  onError: (error) => console.log('error in profileChangeLogRetrieve: ', error),
+  onSuccess: (data) => {
+    renderLog('useProfileChangeLogRetrieveMutation onSuccess');
+    // If the backend returns success: false, you might want to log it here
+    if (data && !data.success) {
+      console.log('Backend returned success:false for logs:', data.status);
+    }
+  },
+});
 
 const useQuestionListSaveMutation = () => {
   const queryClient = useQueryClient();
@@ -225,5 +237,6 @@ export {
   useTaskDefinitionSaveMutation,
   useTaskGroupSaveMutation,
   useTaskGroupTeamLinkDeleteMutation, useTaskGroupTeamLinkSaveMutation,
+  useProfileChangeLogRetrieveMutation,
 };
 
