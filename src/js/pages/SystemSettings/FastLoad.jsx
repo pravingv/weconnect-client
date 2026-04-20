@@ -1,5 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { Button, DialogActions, IconButton, TextField } from '@mui/material';
+import { Button, CircularProgress, DialogActions, IconButton, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -41,6 +41,7 @@ const FastLoad = () => {
 
     const $tb = $('#tableBody');
     $tb.empty();
+    $('#starting').css('display', 'contents');
     setShowTable(true);
     const forceMaster = true;  // Must be true, when checking in this file!  Override webAppConfig.STAFF_API_SERVER_API_ROOT_URL, since in this case we ALWAYS want to hit the master server
     const data = await weConnectQueryFn('fast-load-get-allowable-tables', {}, METHOD.POST, forceMaster);
@@ -93,6 +94,7 @@ const FastLoad = () => {
 
     if (loaded) {
       $('#done').css('display', 'contents');
+      $('#starting').css('display', 'none');
     }
   };
 
@@ -138,7 +140,7 @@ const FastLoad = () => {
             This function will overwrite the data in your local postgres database with the data from the master server
             in AWS.
           </DialogTitle>
-          <div style={{ margin: '10px 0 15px 30px', fontWeight: 400 }}>
+          <div style={{ margin: '10px 0 15px 30px', fontWeight: 600 }}>
             This data transfer takes a few minutes to complete.
           </div>
           <div style={{ margin: '0 0 5px 30px' }}>
@@ -199,6 +201,20 @@ const FastLoad = () => {
                 />
               </>
             )}
+            <div id="starting" style={{ display: 'none' }}>
+              <div style={{
+                backgroundColor: '#B2FF8F',
+                margin: '0px 10% 5px 10%',
+                padding: '10px',
+                width: '300px',
+              }}
+              >
+                <span style={{ transform: 'translateY(+25px)', paddingRight: '20px' }}>FastLoad has started</span>
+                <span style={{ height: '50px' }}>
+                  <CircularProgress />
+                </span>
+              </div>
+            </div>
             <div id="done" style={{ display: 'none' }}>
               <div style={{
                 backgroundColor: '#B2FF8F',
@@ -211,17 +227,16 @@ const FastLoad = () => {
                 {/* <span style={{ marginRight: '20px' }} /> */}
                 {/* Empty tables &quot;might&quot; be used someday, and can be ignored.<br /> */}
                 <br />
-                The account that you used to sign into your local weconnect-server has been deleted, but
-                the login that you use for
-                <a href="https://team.wevote.org/" aria-label="link to master" style={{ padding: '0px 5px' }}>
-                  https://team.wevote.org/
-                </a>
-                has been copied over and can be used on your local server.<br />
-                Alternatively you can re-run
+                The account that you used to sign into your local weconnect-server was overwritten with anonymous data,
+                so you need to create a new login with the createDevUser script.  The parameters can be anything you like
+                with first, last, email and password following the command.  An example follows:
+                <br /><br />
                 <span style={{ padding: '0px 10px', fontFamily: 'Courier New, Courier, monospace', fontWeight: '500' }}>
-                  &quot;node ./node_scripts/createDevUser&quot;
+                  node ./node_scripts/createDevUser Samuel Adams samuel@adams.com ale
                 </span>
-                on your local server to recreate your test login.<br /><br />
+                <br /><br />
+                (If you FastLoaded the non-anonymous data, your password is unchanged.)
+                <br /><br />
                 <b>If a table fails to copy:</b>  The local database file schema (column definitions) must exactly match the schema of the master.<br />
                 Make sure that your local has the latest code from git, and that you have run `prisma generate`
                 and `prisma migrate dev --name init` to have your local schema match the master schema.
