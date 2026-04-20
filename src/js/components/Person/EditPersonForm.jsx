@@ -143,13 +143,6 @@ const EditPersonForm = ({ classes }) => {
     return !endDateError;
   };
 
-  // Validate end date when start date changes (for date order check)
-  useEffect(() => {
-    if (dateEndDate) {
-      validateEndDate(dateEndDate, dateStartDate);
-    }
-  }, [dateStartDate]);
-
   const savePerson = (emailVerifiedOverride = null) => {
     // console.log('Saving person:', activePerson, ', emailVerifiedOverride: ', emailVerifiedOverride);
     activePerson.emailPersonal = emailPersonalInputRef.current.value;
