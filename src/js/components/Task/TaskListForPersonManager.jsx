@@ -8,6 +8,7 @@ import { useConnectAppContext, useConnectDispatch } from '../../contexts/Connect
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { useGetPersonById } from '../../models/PersonModel';
 import { captureTaskDefinitionListRetrieveData } from '../../models/TaskModel';
+import { TASK_TYPES } from '../../constants/TaskTypeConstants';
 import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
 import { useSaveTaskMutation } from '../../react-query/mutations';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
@@ -106,6 +107,7 @@ const TaskListForPersonManager = ({ personId }) => {
       <EditPersonTasksWrapper>
         {(person && person.personId && taskListByPersonId) && (
           <TaskListForPerson
+            selectedTaskType={TASK_TYPES.ALL_TASKS}
             showCompletedTasks={showCompletedTasks}
             taskDefinitionList={taskDefinitionList}
             taskListForPersonId={taskListByPersonId[person.personId] || []}
