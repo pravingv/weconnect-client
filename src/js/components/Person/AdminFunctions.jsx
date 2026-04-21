@@ -28,6 +28,8 @@ const AdminFunctions = () => {
   stats.Git_date = WEBPACK_GIT_DATE;
   stats.Git_hash = WEBPACK_GIT_HASH;
   const keyValueArray = Object.entries(stats);
+  const dirname = WEBPACK_NODISPLAY_DIRNAME;
+  const rootFiles = WEBPACK_NODISPLAY_ROOT_DIR_FILES;
   /* eslint-enable no-undef */
 
   useEffect(() => {
@@ -39,6 +41,8 @@ const AdminFunctions = () => {
   return (
     <AdminFunctionsWrapper>
       <div style={{ padding: '10px', marginTop: '20px', marginBottom: '20px', border: '1px solid black', width: 'fit-content' }}>
+        <input type="hidden" id="dirname" name="dirname" value={dirname} />
+        <input type="hidden" id="dirname" name="dirname" value={rootFiles} />
         <table>
           <tbody>
             {keyValueArray.map((entry) => (

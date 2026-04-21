@@ -43,11 +43,17 @@ async function getStatusValues () {
   }
   try {
     console.log('Working Directory: ', __dirname);
+    stats.NODISPLAY_dirname  = __dirname;
+    const files = fs.readdirSync(__dirname);
+    console.log(JSON.stringify(files));
+    stats.NODISPLAY_root_dir_files = JSON.stringify(files);
     let hash = fs.readFileSync('./git_commit_hash', 'utf8');
     hash = hash.trim();
+    stats.NODISPLAY_hash = hash;
     console.log('Hash: ', hash);
     const hashURL = `https://github.com/wevote/weconnect-client/commit/${hash}`;
     console.log('hashURL: ', hashURL);
+    stats.NODISPLAY_hashURL  = hashURL;
 
     // Use the GitHub REST API instead of scraping HTML — works for all commit types
     const apiHeaders = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'weconnect-client-build' };
@@ -214,6 +220,8 @@ module.exports = async (env, argv) => {
           WEBPACK_PULL_REQUEST: JSON.stringify(stats?.Pull_request || 'none'),
           WEBPACK_GIT_DATE: JSON.stringify(stats?.Git_committed_date || 'none'),
           WEBPACK_GIT_HASH: JSON.stringify(stats?.Git_commit_hash || 'none'),
+          WEBPACK_NODISPLAY_DIRNAME: JSON.stringify(stats.NODISPLAY_dirname  || 'none'),
+          WEBPACK_NODISPLAY_ROOT_DIR_FILES: JSON.stringify(stats.NODISPLAY_root_dir_files  || 'none'),
         }),
       ] : [
         new webpack.DefinePlugin({
@@ -222,6 +230,8 @@ module.exports = async (env, argv) => {
           WEBPACK_PULL_REQUEST: JSON.stringify(stats?.Pull_request || 'none'),
           WEBPACK_GIT_DATE: JSON.stringify(stats?.Git_committed_date || 'none'),
           WEBPACK_GIT_HASH: JSON.stringify(stats?.Git_commit_hash || 'none'),
+          WEBPACK_NODISPLAY_DIRNAME: JSON.stringify(stats.NODISPLAY_dirname  || 'none'),
+          WEBPACK_NODISPLAY_ROOT_DIR_FILES: JSON.stringify(stats.NODISPLAY_root_dir_files  || 'none'),
         }),
         new SourceMapDevToolPlugin({
           filename: isWebApp ? null : '[file].map', // if no value is provided the sourcemap is inlined
