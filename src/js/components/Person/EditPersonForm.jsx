@@ -50,6 +50,8 @@ const EditPersonForm = ({ classes }) => {
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
   const [showAddSlackPhoto, setShowAddSlackPhoto] = useState(true);
   const [slackError, setSlackError] = useState('');
+  const [dateStartError, setDateStartError] = useState('');
+  const [dateEndError, setDateEndError] = useState('');
 
   const getDateDefaultValue = (dateString) => {
     if (!dateString) return null;
@@ -99,6 +101,47 @@ const EditPersonForm = ({ classes }) => {
   useEffect(() => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
   }, [viewerAccessRights]);
+
+  // Date validation function
+  const isValidDateFormat = (date) => {
+    if (!date) return true; // Empty dates are valid
+    // Check if date is a valid dayjs object
+    return date && date.isValid();
+  };
+
+  const validateStartDate = (startDate) => {
+    let startDateError = '';
+
+    // Validate start date format
+    if (startDate && !isValidDateFormat(startDate)) {
+      startDateError = 'Invalid start date format. Use MM-DD-YYYY.';
+      console.error('Start Date Validation Error:', startDateError);
+    }
+
+    setDateStartError(startDateError);
+    return !startDateError;
+  };
+
+  const validateEndDate = (endDate, startDate) => {
+    let endDateError = '';
+
+    // Validate end date format
+    if (endDate && !isValidDateFormat(endDate)) {
+      endDateError = 'Invalid end date format. Use MM-DD-YYYY.';
+      console.error('End Date Validation Error:', endDateError);
+    }
+
+    // Validate date order: end date should not be less than start date
+    if (endDate && startDate && isValidDateFormat(endDate) && isValidDateFormat(startDate)) {
+      if (endDate.isBefore(startDate)) {
+        endDateError = 'End date cannot be before start date.';
+        console.error('End Date Validation Error:', endDateError);
+      }
+    }
+
+    setDateEndError(endDateError);
+    return !endDateError;
+  };
 
   const savePerson = (emailVerifiedOverride = null) => {
     // console.log('Saving person:', activePerson, ', emailVerifiedOverride: ', emailVerifiedOverride);
@@ -649,9 +692,20 @@ const EditPersonForm = ({ classes }) => {
                   setDateStartDate(newValue);
                   setSaveButtonActive(true);
                 }}
-                renderInput={() => (
-                  <TextField margin="dense" />
-                )}
+                slotProps={{
+                  textField: {
+                    margin: 'dense',
+                    error: !!dateStartError,
+                    helperText: dateStartError || ' ',
+                    onBlur: () => validateStartDate(dateStartDate),
+                    FormHelperTextProps: {
+                      style: {
+                        minHeight: '20px',
+                        margin: '4px 14px 0',
+                      },
+                    },
+                  },
+                }}
               />
             </DateWrapper>
             <DateWrapper>
@@ -662,9 +716,20 @@ const EditPersonForm = ({ classes }) => {
                   setDateEndDate(newValue);
                   setSaveButtonActive(true);
                 }}
-                renderInput={() => (
-                  <TextField margin="dense" />
-                )}
+                slotProps={{
+                  textField: {
+                    margin: 'dense',
+                    error: !!dateEndError,
+                    helperText: dateEndError || ' ',
+                    onBlur: () => validateEndDate(dateEndDate, dateStartDate),
+                    FormHelperTextProps: {
+                      style: {
+                        minHeight: '20px',
+                        margin: '4px 14px 0',
+                      },
+                    },
+                  },
+                }}
               />
             </DateWrapper>
           </DateOptionsWrapper>
@@ -845,7 +910,7 @@ const EditPersonForm = ({ classes }) => {
           <Button
             classes={{ root: classes.savePersonButton }}
             color="primary"
-            disabled={!saveButtonActive}
+            disabled={!saveButtonActive || !!dateStartError || !!dateEndError}
             onClick={() => savePerson()}
             variant="contained"
           >
