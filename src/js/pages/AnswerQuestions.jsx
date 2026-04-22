@@ -131,7 +131,6 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     // Also validate that it's a real date (e.g., not 2025-02-30)
     const [year, month, day] = date.split('-').map(Number);
     const dateObj = new Date(year, month - 1, day);
-    // Check if the date object has the same values (this catches invalid dates like Feb 30)
     return dateObj.getFullYear() === year &&
       dateObj.getMonth() === month - 1 &&
       dateObj.getDate() === day;
@@ -211,7 +210,6 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
             foundError = true;
           }
         }
-
       }
     });
     if (!foundError) {
