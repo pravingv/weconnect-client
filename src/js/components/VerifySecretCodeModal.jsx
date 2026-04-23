@@ -12,7 +12,7 @@ import { useConnectAppContext } from '../contexts/ConnectAppContext';
 import weConnectQueryFn, { METHOD } from '../react-query/WeConnectQuery';
 import { ErrorMessage } from './Style/sharedStyles';
 
-const VerifySecretCodeModal = ({ classes, person }) => {
+const VerifySecretCodeModal = ({ classes, person, email }) => {
   renderLog('VerifySecretCodeModal');
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
 
@@ -154,7 +154,7 @@ const VerifySecretCodeModal = ({ classes, person }) => {
           <TextContainer>
             <Title $condensed={condensed}>Code Verification</Title>
             <Subtitle>A 6-digit code has been sent to</Subtitle>
-            <EmailSubtitle>{person?.email}</EmailSubtitle>
+            <EmailSubtitle>{email}</EmailSubtitle>
 
             {(voterEmailAddress) ? (
               <Subtitle>If you haven&apos;t received the code in 30 seconds, please check your spam folder and mark the email as &apos;Not Spam&apos;.</Subtitle>
@@ -209,6 +209,7 @@ const VerifySecretCodeModal = ({ classes, person }) => {
 VerifySecretCodeModal.propTypes = {
   classes: PropTypes.object,
   person: PropTypes.object,
+  email: PropTypes.string,
 };
 
 const styles = (theme) => ({
