@@ -6,6 +6,7 @@ import FastLoad from '../../pages/SystemSettings/FastLoad';
 import GetOneGoogleUser from '../../pages/SystemSettings/GetOneGoogleUser';
 import ImportDonationReport from '../../pages/SystemSettings/ImportDonationReport';
 import JazzHrAccess from '../../pages/SystemSettings/JazzHrAccess';
+import PostgresRowCounts from '../../pages/SystemSettings/PostgresRowCounts';
 import ResetGoogleUserPassword from '../../pages/SystemSettings/ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from '../../pages/SystemSettings/ShareGoogleDriveAccess';
 import SlackAddPersonImages from '../../pages/SystemSettings/SlackAddPersonImages';
@@ -68,6 +69,7 @@ const AdminFunctions = () => {
       <div style={{ paddingTop: '1rem' }}>
         <SectionTitle>Overwrite your Local Postgres WeConnectDB with the data from the Master Database in AWS:</SectionTitle>
         <FastLoad />
+        <PostgresRowCounts />
         {/* <SectionTitle>Upload a CSV file from Google Docs to import into the local database:</SectionTitle> */}
         {/* <UploadCSV /> */}
         <ButtonDividerLine />
