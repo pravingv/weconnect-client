@@ -6,6 +6,7 @@ import FastLoad from '../../pages/SystemSettings/FastLoad';
 import GetOneGoogleUser from '../../pages/SystemSettings/GetOneGoogleUser';
 import ImportDonationReport from '../../pages/SystemSettings/ImportDonationReport';
 import JazzHrAccess from '../../pages/SystemSettings/JazzHrAccess';
+import PostgresRowCounts from '../../pages/SystemSettings/PostgresRowCounts';
 import ResetGoogleUserPassword from '../../pages/SystemSettings/ResetGoogleUserPassword';
 import GrantGoogleDriveAccess from '../../pages/SystemSettings/ShareGoogleDriveAccess';
 import SlackAddPersonImages from '../../pages/SystemSettings/SlackAddPersonImages';
@@ -28,6 +29,8 @@ const AdminFunctions = () => {
   stats.Git_date = WEBPACK_GIT_DATE;
   stats.Git_hash = WEBPACK_GIT_HASH;
   const keyValueArray = Object.entries(stats);
+  const dirname = WEBPACK_NODISPLAY_DIRNAME;
+  const rootFiles = WEBPACK_NODISPLAY_ROOT_DIR_FILES;
   /* eslint-enable no-undef */
 
   useEffect(() => {
@@ -39,6 +42,8 @@ const AdminFunctions = () => {
   return (
     <AdminFunctionsWrapper>
       <div style={{ padding: '10px', marginTop: '20px', marginBottom: '20px', border: '1px solid black', width: 'fit-content' }}>
+        <input type="hidden" id="dirname" name="dirname" value={dirname} />
+        <input type="hidden" id="dirname" name="dirname" value={rootFiles} />
         <table>
           <tbody>
             {keyValueArray.map((entry) => (
@@ -64,6 +69,7 @@ const AdminFunctions = () => {
       <div style={{ paddingTop: '1rem' }}>
         <SectionTitle>Overwrite your Local Postgres WeConnectDB with the data from the Master Database in AWS:</SectionTitle>
         <FastLoad />
+        <PostgresRowCounts />
         {/* <SectionTitle>Upload a CSV file from Google Docs to import into the local database:</SectionTitle> */}
         {/* <UploadCSV /> */}
         <ButtonDividerLine />
