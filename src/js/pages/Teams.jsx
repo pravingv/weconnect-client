@@ -38,10 +38,10 @@ const Teams = () => {
   useEffect(() => {
     // console.log('useFetchData person-list-retrieve in Teams useEffect:', personListRetrieveResults);
     if (personListRetrieveResults) {
-      console.log('In useEffect apiDataCache:', apiDataCache);
+      // console.log('In useEffect apiDataCache:', apiDataCache);
       // const changeResults =
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
-      //console.log('ConnectAppContext useEffect capturePersonListRetrieveData changeResults:', changeResults);
+      // console.log('ConnectAppContext useEffect capturePersonListRetrieveData changeResults:', changeResults);
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
