@@ -209,9 +209,9 @@ const Tasks = () => {
               </PersonSummaryHeaderWrapper>
               {taskListByPersonId && selectedPersonList.map((person) => {
                 const showPersonResults = showPersonInTaskList(person, searchText, selectedTaskType, showCompletedTasks, taskDefinitionList, taskListByPersonId);
-                // if (person.id === 575) {
-                //   console.log('***** showPersonResults:', showPersonResults);
-                // }
+                if (person.id === 583) {
+                  console.log('***** showPersonResults:', showPersonResults);
+                }
                 let showPerson = true;
                 if (searchText) {
                   // showPersonResults.allSearchWordsWereFound ||
