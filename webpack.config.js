@@ -19,19 +19,29 @@ const port = process.env.PORT || 4000;
 const isHTTPS = process.env.PROTOCOL && process.env.PROTOCOL === 'HTTPS';
 const isWebApp = !process.env.npm_lifecycle_script.includes('CORDOVA=1');
 const useRealCerts = process.env.npm_lifecycle_script.includes('USE_REAL_CERTS=1');
+const host = process.env.HOSTNAME || (useRealCerts ? 'wevotedeveloper.com' : 'localhost');
 // const isProduction = process.env.npm_lifecycle_script.includes('PRODUCTION=1');
 const source = isWebApp ? 'src' : 'srcCordova';
 const bundleAnalysis = process.env.ANALYSIS || false;  // enable the interactive bundle analyser and the Unused component analyzer
 const minimized = process.env.MINIMIZED === '1' || false;  // enable the Terser plugin that strips comments and shrinks long variable names
 const verBits = process.version.split('.');
 const major = parseInt(verBits[0].replace('v', ''));
+const sslKey = process.env.HTTPS_SSL_KEY || (useRealCerts ? `./${source}/cert/wevotedeveloper.com_key.txt` : `./${source}/cert/server.key`);
+const sslCert = process.env.HTTPS_SSL_CERT || (useRealCerts ? `./${source}/cert/wevotedeveloper.com.crt` : `./${source}/cert/server.crt`);
 if (major < 22) {
   console.error(`The minimum Node version is: v22.0.0, but you are running ${process.version}\n`);
 } else {
   console.log(`Node version is: ${process.version}`);
 }
-if (useRealCerts) console.log('useRealCerts in webpack.config.js ', useRealCerts);
-// console.log('key: ', fs.readFileSync(`./${source}/cert/wevotedeveloper.com.crt`).toString());
+const sslOptions = {};
+if (useRealCerts) {
+  console.log('useRealCerts in webpack.config.js ', useRealCerts);
+  // Override SSL options for testing with Cordova and real authoritative certs
+  //sslOptions.requestCert = true;
+  //sslOptions.passphrase = 'webpack-dev-server';
+}
+// console.log('key: ', fs.readFileSync(sslKey).toString());
+// console.log('cert: ', fs.readFileSync(sslCert).toString());
 
 async function getStatusValues () {
   const stats = {};
@@ -47,48 +57,54 @@ async function getStatusValues () {
     const files = fs.readdirSync(__dirname);
     console.log(JSON.stringify(files));
     stats.NODISPLAY_root_dir_files = JSON.stringify(files);
-    let hash = fs.readFileSync('./git_commit_hash', 'utf8');
-    hash = hash.trim();
-    stats.NODISPLAY_hash = hash;
-    console.log('Hash: ', hash);
-    const hashURL = `https://github.com/wevote/weconnect-client/commit/${hash}`;
-    console.log('hashURL: ', hashURL);
-    stats.NODISPLAY_hashURL  = hashURL;
-
-    // Use the GitHub REST API instead of scraping HTML — works for all commit types
-    const apiHeaders = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'weconnect-client-build' };
-
-    // Get commit details (date)
-    const commitResponse = await fetch(`https://api.github.com/repos/wevote/weconnect-client/commits/${hash}`, { headers: apiHeaders });
-    if (!commitResponse.ok) {
-      throw new Error(`GitHub API returned ${commitResponse.status} for commit ${hash}`);
-    }
-    const commitData = await commitResponse.json();
-    let committedDate;
+    // set default values
+    stats.Pull_request = 'none';
+    stats.Git_committed_date = 'none';
+    stats.Git_commit_hash = 'Not Found';
     try {
-      committedDate = commitData.commit.committer.date || commitData.commit.author.date;
-    } catch (error) {
-      committedDate = commitData.commit.author.date;
-    }
-    console.log('committedDate: ', committedDate);
-    const date = new DateTime(committedDate);
-    stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
-    stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+      let hash = fs.readFileSync('./git_commit_hash', 'utf8');
+      hash = hash.trim();
+      if (hash) {
+        stats.NODISPLAY_hash = hash;
+        console.log('Hash: ', hash);
+        const hashURL = `https://github.com/wevote/weconnect-client/commit/${hash}`;
+        console.log('hashURL: ', hashURL);
+        stats.NODISPLAY_hashURL  = hashURL;
 
-    // Get associated pull request number
-    const prsResponse = await fetch(`https://api.github.com/repos/wevote/weconnect-client/commits/${hash}/pulls`, { headers: apiHeaders });
-    if (prsResponse.ok) {
-      const prs = await prsResponse.json();
-      if (prs.length > 0) {
-        stats.Pull_request = `#${prs[0].number}`;
-        console.log('Pull_request: ', stats.Pull_request);
-      } else {
-        stats.Pull_request = 'none';
+        // Use the GitHub REST API instead of scraping HTML — works for all commit types
+        const apiHeaders = { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'weconnect-client-build' };
+
+        // Get commit details (date)
+        const commitResponse = await fetch(`https://api.github.com/repos/wevote/weconnect-client/commits/${hash}`, { headers: apiHeaders });
+        if (!commitResponse.ok) {
+          throw new Error(`GitHub API returned ${commitResponse.status} for commit ${hash}`);
+        }
+        const commitData = await commitResponse.json();
+        let committedDate;
+        try {
+          committedDate = commitData.commit.committer.date || commitData.commit.author.date;
+        } catch (error) {
+          committedDate = commitData.commit.author.date;
+        }
+        console.log('committedDate: ', committedDate);
+        const date = new DateTime(committedDate);
+        stats.Git_committed_date = date.toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
+        stats.Git_commit_hash = `<a href="${hashURL}">${hash}</a>`;
+
+        // Get associated pull request number
+        const prsResponse = await fetch(`https://api.github.com/repos/wevote/weconnect-client/commits/${hash}/pulls`, { headers: apiHeaders });
+        if (prsResponse.ok) {
+          const prs = await prsResponse.json();
+          if (prs.length > 0) {
+            stats.Pull_request = `#${prs[0].number}`;
+            console.log('Pull_request: ', stats.Pull_request);
+          } else {
+            stats.Pull_request = 'none';
+          }
+        }
       }
-    } else {
-      stats.Pull_request = 'none';
-      stats.Git_committed_date = 'none';
-      stats.Git_commit_hash = 'Not Found';
+    } catch (error) {
+      console.log('Error reading git_commit_hash file:', error);
     }
   } catch (error) {
     console.log('Error in getStatusValues git: ', error);
@@ -244,23 +260,16 @@ module.exports = async (env, argv) => {
       static: {
         directory: path.join(__dirname, './build/index.html'),
       },
-      host: (useRealCerts ? 'wevotedeveloper.com' : 'localhost'),
+      host,
       port,
       historyApiFallback: true,
       ...(isHTTPS ? {
         server: {
           type: 'https',
           options: {
-            ...(useRealCerts ? {
-              // For testing with Cordova and real authoritative certs
-              key: fs.readFileSync(`./${source}/cert/wevotedeveloper.com_key.txt`),
-              cert: fs.readFileSync(`./${source}/cert/wevotedeveloper.com.crt`),
-              // requestCert: true,
-              // passphrase: 'webpack-dev-server',
-            } : {
-              key: fs.readFileSync(`./${source}/cert/server.key`),
-              cert: fs.readFileSync(`./${source}/cert/server.crt`),
-            }),
+            ...sslOptions,
+            key: fs.readFileSync(sslKey),
+            cert: fs.readFileSync(sslCert)
           },
         },
       } : {}),
