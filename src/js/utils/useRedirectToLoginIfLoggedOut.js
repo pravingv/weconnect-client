@@ -6,10 +6,9 @@ import { useConnectAppContext } from '../contexts/ConnectAppContext';
 // a logged-out session by counting consecutive failures on endpoints that
 // require an active login. The threshold is intentionally high (50) because
 // occasional errors happen even when logged in; 15 was too trigger-happy.
-// const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 50;
-// Teams = 50, other pages make fewer requests and are set to 30, shouldn't be less than about 20.
-// Number might have to change in the future if/when the back-end requests etc are changed.
-// Now it's an argument rather than a constant.
+// API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD was originall 30-50, and that worked for desktop tests,
+// but was too trigger-happy on mobile, detecting subsequent errors of a logged in user as proof of being logged out
+// now it's 200 to be on the safe side
 
 const useRedirectToLoginIfLoggedOut = (retrieveResults, retrieveErrorsThreshold) => {
   const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = retrieveErrorsThreshold;
@@ -34,7 +33,7 @@ const useRedirectToLoginIfLoggedOut = (retrieveResults, retrieveErrorsThreshold)
       }
     } else if (retrieveResults.isSuccess === true && getAppContextValue('apiRetrieveErrorsInARowCount') !== 0) {
       setAppContextValue('apiRetrieveErrorsInARowCount', 0);
-      // console.log(`apiRetrieveErrorsInARowCount: ${getAppContextValue('apiRetrieveErrorsInARowCount')}`);
+      console.log(`apiRetrieveErrorsInARowCount: ${getAppContextValue('apiRetrieveErrorsInARowCount')}`);
     }
   }, [retrieveResults]); // eslint-disable-line react-hooks/exhaustive-deps
 };
