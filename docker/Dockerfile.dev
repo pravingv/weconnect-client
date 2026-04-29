@@ -1,0 +1,13 @@
+FROM public.ecr.aws/docker/library/node:22
+
+# install openssl and create SSL certificate
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+ARG HTTPS_SSL_HOST
+RUN openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/private/key.pem -out /etc/ssl/certs/cert.pem -sha256 -days 365 -nodes -subj "/CN=${HTTPS_SSL_HOST}"
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+EXPOSE 4000
+
+CMD ["npm", "run", "start-https"]
