@@ -1,4 +1,5 @@
 // showPerson.js
+import { TASK_TYPES } from '../constants/TaskTypeConstants';
 import {
   isSearchTextFoundInPerson, onlyShowPersonWithPeopleFiltersExactMatch,
   onlyShowPersonWithPeopleFiltersLogicalOrMatch,
@@ -51,7 +52,7 @@ export const showPersonInMemberList = (person, searchTextLocal, getAppContextVal
   }
 };
 
-export const showPersonInTaskList = (person, searchTextLocal, showCompletedTasks, taskDefinitionList, taskListByPersonId) => {
+export const showPersonInTaskList = (person, searchTextLocal, selectedTaskType, showCompletedTasks, taskDefinitionList, taskListByPersonId) => {
   if (!person || !person.personId < 0) return false; // Invalid person or personId
   const taskList = taskListByPersonId[person.personId] || [];
   let modifiedTaskList = [];
@@ -66,8 +67,14 @@ export const showPersonInTaskList = (person, searchTextLocal, showCompletedTasks
     // Join the remaining words back into a string
     const searchTextMinusWordsFoundInPersonList = searchWordsListMinusFoundInPersonList.join(' ');
     let taskResults = {};
+    const { allSearchWordsWereFound } = personResults;
     taskList.forEach((task) => {
-      if (showCompletedTasks || !task.statusDone) {
+      if (allSearchWordsWereFound) {
+        // If search words found in person, don't bother limiting tasks by the search words
+        if (showCompletedTasks || !task.statusDone) {
+          modifiedTaskList.push(task);
+        }
+      } else if (showCompletedTasks || !task.statusDone) {
         if (searchWordsListMinusFoundInPersonList && searchWordsListMinusFoundInPersonList.length > 0) {
           taskResults = isSearchTextFoundInTask(searchTextMinusWordsFoundInPersonList, task, taskDefinitionList);
           if (taskResults.allSearchWordsWereFound) {
@@ -76,7 +83,11 @@ export const showPersonInTaskList = (person, searchTextLocal, showCompletedTasks
         }
       }
     });
-    const allSearchWordsWereFound = personResults.allSearchWordsWereFound || modifiedTaskList.length > 0;
+    if (selectedTaskType !== TASK_TYPES.ALL_TASKS) {
+      // Remove tasks that do not match the current filter, so we only show a person if they have tasks under the current filter
+      modifiedTaskList = modifiedTaskList.filter((task) => task.taskType === selectedTaskType);
+      // console.log('Removing if not selectedTaskType: ', selectedTaskType);
+    }
     // if (allSearchWordsWereFound) {
     //   console.log('=== allSearchWordsWereFound:', person.firstName, person.lastName);
     // }
@@ -93,6 +104,14 @@ export const showPersonInTaskList = (person, searchTextLocal, showCompletedTasks
   } else {
     // Show all people since no search text provided
     modifiedTaskList = (showCompletedTasks) ? taskList : taskList.filter((task) => !task.statusDone);
+    // if (person.id === 575) {
+    //   console.log('*** 575: person: ', person, ', selectedTaskType:', selectedTaskType, ', modifiedTaskList:', modifiedTaskList);
+    // }
+    // Do not show the person in task list if there aren't any tasks under the current filter
+    if (selectedTaskType !== TASK_TYPES.ALL_TASKS) {
+      // Remove tasks that do not match the current filter, so we only show a person if they have tasks under the current filter
+      modifiedTaskList = modifiedTaskList.filter((task) => task.taskType === selectedTaskType);
+    }
     return {
       allSearchWordsWereFound: false,
       hideBecauseInactive: !person.statusActive,

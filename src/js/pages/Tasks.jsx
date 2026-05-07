@@ -208,9 +208,18 @@ const Tasks = () => {
                 <PersonSummaryHeader />
               </PersonSummaryHeaderWrapper>
               {taskListByPersonId && selectedPersonList.map((person) => {
-                const showPersonResults = showPersonInTaskList(person, searchText, showCompletedTasks, taskDefinitionList, taskListByPersonId);
-                // console.log('=== person:', person, ', showPersonResults:', showPersonResults);
-                if ((showPersonResults.allSearchWordsWereFound || showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive) {
+                const showPersonResults = showPersonInTaskList(person, searchText, selectedTaskType, showCompletedTasks, taskDefinitionList, taskListByPersonId);
+                if (person.id === 583) {
+                  console.log('***** showPersonResults:', showPersonResults);
+                }
+                let showPerson = true;
+                if (searchText) {
+                  // showPersonResults.allSearchWordsWereFound ||
+                  showPerson = (showPersonResults.tasksExistToShow) && !showPersonResults.hideBecauseInactive;
+                } else {
+                  showPerson = showPersonResults.tasksExistToShow && !showPersonResults.hideBecauseInactive;
+                }
+                if (showPerson) {
                   return (
                     <OnePersonWrapper key={`team-${person.personId}`}>
                       <PersonSummaryRow hideTasks person={person} teamId={teamId} />

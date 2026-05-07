@@ -121,7 +121,20 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
     });
     return !requiredValueMissing;
   };
-
+  const isValidDateFormat = (date) => {
+    if (!date) return true; // Empty dates are valid
+    // Validate YYYY-MM-DD format
+    const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+    if (!dateRegex.test(date)) {
+      return false; // Invalid format
+    }
+    // Also validate that it's a real date (e.g., not 2025-02-30)
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    return dateObj.getFullYear() === year &&
+      dateObj.getMonth() === month - 1 &&
+      dateObj.getDate() === day;
+  };
   const updateQuestionAnswer = (questionId) => {
     // eslint-disable-next-line no-restricted-globals
     const newValue = event.target.value;
@@ -142,12 +155,16 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
         inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: newValueAsInteger };
         setInputValues(inputValuesRevised);
       } else if (question.answerType === 'DATE') {
-        // Regex for YYYY-MM-DD
-        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-        inError = !dateRegex.test(newValue);
+        // Only validate when the full date format is entered (YYYY-MM-DD = 10 characters)
+        inError = !isValidDateFormat(newValue);
+        if (newValue && newValue.length === 10) {
+          if (inError) {
+            console.error(`Invalid date format entered for question "${question.questionText}": "${newValue}". Expected format: YYYY-MM-DD`);
+          }
+        }
         setInputValuesInError({ ...inputValuesInError, [questionId]: inError });
-        // Store the raw value if valid, otherwise store empty string
-        inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: inError ? '' : newValue };
+        // Store the raw value
+        inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: newValue };
         setInputValues(inputValuesRevised);
       } else {
         inputValuesRevised = { ...inputValuesRevised, [`questionAnswer-${questionId}`]: newValue };
@@ -182,6 +199,17 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
           setSaveButtonActive(false);
           foundError = true;
         }
+      } else if (question.answerType === 'DATE') {
+        const dateValue = inputValues[key];
+        // Only validate if a date value exists
+        if (dateValue && dateValue !== '') {
+          if (!isValidDateFormat(dateValue)) {
+            console.error(`Invalid date format for question "${question.questionText}": "${dateValue}". Expected format: YYYY-MM-DD`);
+            setErrorMessage(`"${question.questionText}" requires a date in the format of YYYY-MM-DD (e.g., 2025-01-01).`);
+            setSaveButtonActive(false);
+            foundError = true;
+          }
+        }
       }
     });
     if (!foundError) {
@@ -209,24 +237,25 @@ const AnswerQuestions = ({ classes, setShowHeaderFooter }) => {
   };
 
   const isQuestionIdInError = (questionId) => inputValuesInError[questionId] === true;
-
   const helperTextIfQuestionIdInError = (questionId) => {
-    const answer = getAnswerToQuestion(personId, questionId, allAnswersCache);
-    if (!answer || !answer.answerType) {
+    const question = getQuestionById(questionId, allQuestionsCache);
+    if (!question || !question.answerType) {
       return '';
     }
     // console.log(`helperTextIfQuestionIdInError for questionId: ${questionId}, answer:`, answer);
     let helperText = '';
-    switch (answer.answerType) {
+    switch (question.answerType) {
       case 'BOOLEAN':
-        helperText = 'Please enter "true" or "false",';
+        helperText = 'Please enter "true" or "false"';
         break;
       case 'INTEGER':
         helperText = 'Please enter one number.';
         break;
-      case 'STRING':
       case 'DATE':
-        helperText = 'Please enter the date in the format of YYYY-MM-DD (e.g., 2025-01-01).';
+        helperText = 'Please enter the date in the format YYYY-MM-DD (e.g., 2025-01-01)';
+        break;
+      case 'STRING':
+        helperText = 'Please enter a valid value.';
         break;
       default:
         helperText = '';
