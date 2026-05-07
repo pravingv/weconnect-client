@@ -255,7 +255,9 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
           </DialogContent>
         </Dialog>
       </Modal>
-      <VerifySecretCodeModal person={authPersonRef.current}  />
+      <VerifySecretCodeModal person={authPersonRef.current}
+                             email={emailRef.current?.value}
+      />
     </>
   );
 };

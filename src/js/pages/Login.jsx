@@ -63,18 +63,8 @@ const Login = ({ classes }) => {
         // console.log("isAuthenticated: " + getAppContextData('isAuthenticated'));
       }
       captureAccessRightsData(dataAuth, isSuccessAuth, apiDataCache, dispatch);
-      if (!emailVerifiedFromAPI && personId > 0) {
-        setWarningLine('');
-        setSuccessLine('A verification email has been sent to your address');
-        setAppContextValue('openVerifySecretCodeModalDialog', true);
-      } else if (isAuthenticated && authenticatedPerson) {
+      if (isAuthenticated && authenticatedPerson) {
         setSuccessLine(`Signed in as ${getFullNamePreferredPerson(authenticatedPerson)}`);
-        if (loginAttempted) {  // if we navigate to here directly, not as a result of a loginAPI
-          setTimeout(() => {
-            navigate('/tasks');
-            setAppContextValue('navigatedFromLogin', true);
-          }, 2000);
-        }
       } else if (!getAppContextValue('openVerifySecretCodeModalDialog')) {
         // console.log('======== appContextData in Login: Please sign in');
         setSuccessLine('Please sign in');
@@ -113,27 +103,15 @@ const Login = ({ classes }) => {
       }
       setAppContextValue('authenticatedPerson', data.person);
       queryClient.invalidateQueries({ queryKey: ['get-auth'] });
-      if (data.emailVerified) {
-        passwordFldRef.current = '';   // Blank the email field after signing in
-        setWarningLine('');
-        setAppContextValue('secretCodeVerified', true);
-        setAppContextValue('openVerifySecretCodeModalDialog', false);
-        setAppContextValue('secretCodeVerified', false);
-        setAppContextValue('secretCodeVerifiedForReset', false);
-        setAppContextValue('resetPassword', '');
-        setAppContextValue('isAuthenticated', true);
-        setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
-        // setTimeout(() => {
-        //   navigate('/tasks');
-        // }, 4000);
-      } else {
-        authPerson.current = {      // just enough data for VerifySecretCodeModal
-          personId: data.personId,
-          personEmail: email.trim(),
-        };
-        setAppContextValue('openVerifySecretCodeModalDialog', true);
-        setSuccessLine('A verification email has been sent to your address');
-      }
+      passwordFldRef.current = '';   // Blank the email field after signing in
+      setWarningLine('');
+      setAppContextValue('secretCodeVerified', true);
+      setAppContextValue('openVerifySecretCodeModalDialog', false);
+      setAppContextValue('secretCodeVerified', false);
+      setAppContextValue('secretCodeVerifiedForReset', false);
+      setAppContextValue('resetPassword', '');
+      setAppContextValue('isAuthenticated', true);
+      setSuccessLine(`${getFullNamePreferredPerson(data.person)}, you are signed in!`);
     } else {
       setWarningLine(data?.error?.msg || 'Unable to connect to the weconnect-server.');
       setSuccessLine('');
@@ -240,6 +218,7 @@ const Login = ({ classes }) => {
     setOpenResetPasswordDialog(false);
     // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
     await logoutApiInLogin().then(() => removeSessionCookie());
+    queryClient.invalidateQueries({ queryKey: ['get-auth'] });
   };
 
   const loginPressed = async () => {
