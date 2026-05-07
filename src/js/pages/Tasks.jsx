@@ -76,7 +76,7 @@ const Tasks = () => {
     }
   }, [teamListRetrieveResults]);
 
-  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 30;
+  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 200;
   useRedirectToLoginIfLoggedOut(teamListRetrieveResults, API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD);
 
   useEffect(() => {
