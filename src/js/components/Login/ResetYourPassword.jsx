@@ -21,7 +21,7 @@ import VerifySecretCodeModal from '../VerifySecretCodeModal';
 const ResetYourPassword = ({ openDialog, closeDialog }) => {
   renderLog('ResetYourPassword');
   const { mutate: mutateRetrievePersonByEmail } = usePersonRetrieveByEmailMutation();
-  const { mutate: mutatePasswordSave } = usePasswordSaveMutation();
+  const { mutateAsync: mutatePasswordSave } = usePasswordSaveMutation();
   const { mutate: mutateLogout } = useLogoutMutation();
   const { getAppContextValue, setAppContextValue } = useConnectAppContext();
   // console.log('ResetYourPassword ', getAppContextData());
@@ -67,7 +67,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
       weConnectQueryFn('send-email-code', { personId: authP.id }, METHOD.POST)
         .then((data) => {
           console.log('send-email-code', data);
-          if (data?.personFound === true) {
+          if (data?.personFound === true && !secretCodeVerified ) {
             setAppContextValue('openVerifySecretCodeModalDialog', true);
           } else {
             setAppContextValue('openVerifySecretCodeModalDialog', false);
@@ -82,6 +82,7 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
 
 
   const handleClose = () => {
+    setDisplayEmailAddress(true);
     setOpen(false);
     closeDialog(false);
   };
@@ -249,9 +250,13 @@ const ResetYourPassword = ({ openDialog, closeDialog }) => {
                 />
               </>
             )}
-            <Button sx={{ float: 'right' }} onClick={displayEmailAddress ? sendEmail : changePassword}>
+            <ResetButton id="resetButton"
+                    color="primary"
+                    variant="contained"
+                    onClick={displayEmailAddress ? sendEmail : changePassword}
+            >
               {displayEmailAddress ? 'Send reset email' : 'Save your new password'}
-            </Button>
+            </ResetButton>
           </DialogContent>
         </Dialog>
       </Modal>
@@ -276,5 +281,10 @@ const EmailDiv  = styled('div')`
   color: rgba(0, 0, 0, 0.6);
 `;
 
-
+const ResetButton = styled(Button)`
+  display: block;
+  text-align: center;
+  margin: 25px auto;
+  width: 200;
+`;
 export default ResetYourPassword;

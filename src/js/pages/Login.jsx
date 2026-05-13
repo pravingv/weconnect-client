@@ -103,11 +103,10 @@ const Login = ({ classes }) => {
       }
       setAppContextValue('authenticatedPerson', data.person);
       queryClient.invalidateQueries({ queryKey: ['get-auth'] });
-      passwordFldRef.current = '';   // Blank the email field after signing in
+      passwordFldRef.current.value = '';   // Blank the email field after signing in
       setWarningLine('');
       setAppContextValue('secretCodeVerified', true);
       setAppContextValue('openVerifySecretCodeModalDialog', false);
-      setAppContextValue('secretCodeVerified', false);
       setAppContextValue('secretCodeVerifiedForReset', false);
       setAppContextValue('resetPassword', '');
       setAppContextValue('isAuthenticated', true);
@@ -115,6 +114,7 @@ const Login = ({ classes }) => {
     } else {
       setWarningLine(data?.error?.msg || 'Unable to connect to the weconnect-server.');
       setSuccessLine('');
+      passwordFldRef.current.value = '';
     }
   };
 
@@ -129,28 +129,21 @@ const Login = ({ classes }) => {
       setAppContextValue('secretCodeVerifiedForReset', false);
       setOpenResetPasswordDialog(false);
       setShowCreateStuff(false);
-      const per = authPerson.current ? authPerson.current : getAppContextValue('authenticatedPerson');
       setWarningLine('');
-      const name = getFullNamePreferredPerson(per);
-      setSuccessLine(name.length ? `${name}, you are signed in!` : 'You are signed in!');
-      passwordFldRef.current = '';   // Blank the email field after signing in
+      setSuccessLine('');
+      passwordFldRef.current.value = '';   // Blank the email field after signing in
     }
   };
 
-  const secretCodeVerified = getAppContextValue('secretCodeVerified');
   const resetPassword = getAppContextValue('resetPassword') || '';
   useEffect(() => {
-    if (secretCodeVerified === true) {
-      loginApi(emailPersonalFldRef.current.value, passwordFldRef.current.value).then(() => {
-        clearOnCreate();
-      });
-    } else if (resetPassword && resetPassword.length) {
+    if (resetPassword && resetPassword.length) {
       loginApi(getAppContextValue('resetEmail'), getAppContextValue('resetPassword')).then(() => {
         clearOnCreate();
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secretCodeVerified, resetPassword]);
+  }, [resetPassword]);
 
   const logoutApiInLogin = async () => {
     const data = await weConnectQueryFn('logout', { credentials: 'same-origin' }, METHOD.POST);
@@ -212,7 +205,7 @@ const Login = ({ classes }) => {
 
   const signOutButtonPressed = async () => {
     if (passwordFldRef.current) {
-      passwordFldRef.current = '';   // Blank the email field after signing out
+      passwordFldRef.current.value = '';   // Blank the email field after signing out
     }
     clearSignedInGlobals(setAppContextValue, getAppContextData);
     setOpenResetPasswordDialog(false);
