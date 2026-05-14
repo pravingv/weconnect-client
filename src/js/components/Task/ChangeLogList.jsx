@@ -51,7 +51,9 @@ const ChangeLogList = ({ personId }) => {
       <LogTable>
         <thead>
           <tr>
-            <th>Change Log</th>
+            <th>Action & Detail</th>
+            <th>Target Person</th>
+            <th>Team</th>
             <th>Who Made Change</th>
           </tr>
         </thead>
@@ -59,7 +61,16 @@ const ChangeLogList = ({ personId }) => {
           {currentRows.length > 0 ? (
             currentRows.map((log) => (
               <tr key={`log-row-${log.id}`}>
-                <td className="description">{log.changeDescription}</td>
+                <td className="description">
+                  <strong>{log.changeDescription.split(':')[0]}</strong>:
+                  {log.changeDescription.split(':').slice(1).join(':')}
+                </td>
+                <td className="target">
+                  <span className="name">{log.targetPersonName || 'Self'}</span>
+                </td>
+                <td className="team">
+                  <span className="name">{log.teamName ? log.teamName : 'Not Applicable'}</span>
+                </td>
                 <td className="who">
                   <span className="name">{log.changedByPersonName}</span>
                   <span className="date">{log.dateCreatedFormatted}</span>
@@ -68,7 +79,7 @@ const ChangeLogList = ({ personId }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="2" className="empty">No activity recorded yet.</td>
+              <td colSpan="3" className="empty">No activity recorded yet.</td>
             </tr>
           )}
         </tbody>
@@ -99,22 +110,27 @@ ChangeLogList.propTypes = {
 };
 
 const Container = styled.div` margin-top: 25px; border-top: 1px solid #ccc; padding-top: 15px; `;
-const Title = styled.h3` font-size: 1.1rem; margin-bottom: 10px; `;
+const Title = styled.h3` font-size: 1.1rem; margin-bottom: 12px; font-weight: 600; `;
+
 const LogTable = styled.table`
   width: 100%; border-collapse: collapse; font-size: 0.85rem;
-  th { text-align: left; padding: 8px; border-bottom: 2px solid #eee; background: #fafafa; }
-  td { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
-  .name { display: block; font-weight: bold; }
-  .date { display: block; font-size: 0.75rem; color: #777; margin-top: 3px; }
-  .empty { text-align: center; padding: 20px; color: #999; }
+  th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #eee; background: #fafafa; color: #666; font-weight: 600; }
+  td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .description { color: #333; line-height: 1.4; }
+  .target { color: #555; font-weight: 500; width: 120px; }
+  .name { display: block; font-weight: 600; color: #222; }
+  .date { display: block; font-size: 0.75rem; color: #888; margin-top: 4px; }
+  .empty { text-align: center; padding: 30px; color: #999; }
 `;
-const PaginationWrapper = styled.div` display: flex; justify-content: center; align-items: center; margin-top: 15px; gap: 20px; `;
+
+const PaginationWrapper = styled.div` display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 15px; `;
 const NavButton = styled.button`
-  padding: 5px 12px; font-size: 0.8rem; cursor: pointer; background: white; border: 1px solid #ddd; border-radius: 4px;
-  &:disabled { cursor: not-allowed; color: #ccc; }
-  &:hover:not(:disabled) { background-color: #f5f5f5; }
+  padding: 6px 14px; font-size: 0.8rem; cursor: pointer; background: white; border: 1px solid #dcdcdc; border-radius: 4px;
+  &:disabled { cursor: not-allowed; color: #bbb; border-color: #eee; }
+  &:hover:not(:disabled) { background-color: #f8f9fa; border-color: #bbb; }
 `;
-const PageIndicator = styled.span` font-size: 0.85rem; color: #555; `;
-const StatusWrapper = styled.div` padding: 15px; font-size: 0.9rem; `;
+
+const PageIndicator = styled.span` font-size: 0.85rem; color: #666; `;
+const StatusWrapper = styled.div` padding: 20px; font-size: 0.9rem; color: #666; text-align: center; `;
 
 export default ChangeLogList;
