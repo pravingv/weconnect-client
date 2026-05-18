@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { renderLog } from '../../common/utils/logging';
 import TaskListForPersonManager from '../Task/TaskListForPersonManager';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import ChangeLogList from '../Task/ChangeLogList';
 
 
 const EditPersonTasksDrawerMainContent = () => {
@@ -13,6 +14,7 @@ const EditPersonTasksDrawerMainContent = () => {
   return (
     <EditPersonTasksDrawerMainContentWrapper>
       <TaskListForPersonManager personId={personId} />
+      <ChangeLogList personId={personId} />
     </EditPersonTasksDrawerMainContentWrapper>
   );
 };
