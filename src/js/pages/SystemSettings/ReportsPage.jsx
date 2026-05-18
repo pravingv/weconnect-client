@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Helmet } from 'react-helmet-async';
+import PropTypes from 'prop-types';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { useConnectAppContext, useConnectDispatch } from '../../contexts/ConnectAppContext';
 import { captureTeamListRetrieveData } from '../../models/TeamModel';
@@ -28,28 +29,68 @@ const SectionTitle = styled.h2`
   color: #333;
 `;
 
-const StatRow = styled.div`
+/* Accordion UI - collapsible container for grouped lists */
+
+const AccordionContainer = styled.div`
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+`;
+
+const AccordionHeader = styled.div`
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 600;
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #e0e0e0;
-  font-size: 16px;
-
-  &:last-child {
-    border-bottom: none;
+  background: #f1f6ff;
+  &:hover {
+    background: #e7f0ff;
   }
 `;
 
-const StatLabel = styled.span`
-  color: #555;
-  font-weight: 500;
+const AccordionBody = styled.div`
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  max-height: 300px;
+  overflow-y: auto;
 `;
 
-const StatValue = styled.span`
-  color: #2196f3;
-  font-weight: 600;
-  font-size: 18px;
-`;
+/* Accordion component - reusable collapsible section for each category */
+
+function Accordion ({ title, count, children }) {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <AccordionContainer>
+      <AccordionHeader
+        onClick={() => {
+          if (count > 0) {
+            setOpen(!open);
+          }
+        }}
+      >
+        <span>{title}</span>
+        <span>
+          {count} {count > 0 && (open ? '▲' : '▼')}
+        </span>
+      </AccordionHeader>
+
+      {open && count > 0 && (
+        <AccordionBody>
+          {children}
+        </AccordionBody>
+      )}
+    </AccordionContainer>
+  );
+}
+
+Accordion.propTypes = {
+  title: PropTypes.string.isRequired,
+  count: PropTypes.number.isRequired,
+  children: PropTypes.node,
+};
 
 export default function ReportsPage () {
   const { apiDataCache } = useConnectAppContext();
@@ -57,10 +98,10 @@ export default function ReportsPage () {
   const dispatch = useConnectDispatch();
 
   const [statsState, setStatsState] = useState({
-    onBothTeams: 0,
-    onlyOnC3: 0,
-    onlyOnC4: 0,
-    notOnEither: 0,
+    onBothTeams: [],
+    onlyOnC3: [],
+    onlyOnC4: [],
+    notOnEither: [],
   });
 
   const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
@@ -110,33 +151,37 @@ export default function ReportsPage () {
       )),
     );
 
-    let onBothTeamsCount = 0;
-    let onlyOnC3Count = 0;
-    let onlyOnC4Count = 0;
-    let notOnEitherCount = 0;
+    const onBoth = [];
+    const onlyC3 = [];
+    const onlyC4 = [];
+    const notEither = [];
 
     Object.values(allPeopleCache).forEach((person) => {
-      if (person.personId !== undefined && person.personId !== null) {
+      // Check if the person is active and not resigned
+      if (person.personId !== undefined && person.personId !== null && person.statusActive !== false && !person.statusResigned) {
         const onC3 = c3Members.has(person.personId);
         const onC4 = c4Members.has(person.personId);
 
+        const id = person.personId;
+
         if (onC3 && onC4) {
-          onBothTeamsCount++;
+          onBoth.push(id);
         } else if (onC3) {
-          onlyOnC3Count++;
+          onlyC3.push(id);
         } else if (onC4) {
-          onlyOnC4Count++;
+          onlyC4.push(id);
         } else {
-          notOnEitherCount++;
+          notEither.push(id);
         }
       }
     });
 
     setStatsState({
-      onBothTeams: onBothTeamsCount,
-      onlyOnC3: onlyOnC3Count,
-      onlyOnC4: onlyOnC4Count,
-      notOnEither: notOnEitherCount,
+      onBothTeams: onBoth,
+      onlyOnC3: onlyC3,
+      onlyOnC4: onlyC4,
+      notOnEither: notEither,
+
     });
   }, [allTeamsCache, allTeamMembersCache, allPeopleCache]);
 
@@ -150,22 +195,62 @@ export default function ReportsPage () {
 
         <ReportSection>
           <SectionTitle>Active Individuals by Team Membership</SectionTitle>
-          <StatRow>
-            <StatLabel>on c3 & c4 team</StatLabel>
-            <StatValue>{statsState.onBothTeams}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatLabel>only on c3 team</StatLabel>
-            <StatValue>{statsState.onlyOnC3}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatLabel>only on c4 team</StatLabel>
-            <StatValue>{statsState.onlyOnC4}</StatValue>
-          </StatRow>
-          <StatRow>
-            <StatLabel>not on c3 or c4 team</StatLabel>
-            <StatValue>{statsState.notOnEither}</StatValue>
-          </StatRow>
+
+          <Accordion
+            title="on c3 & c4 team"
+            count={statsState.onBothTeams.length}
+          >
+            {statsState.onBothTeams.map((id) => {
+              const person = allPeopleCache[id];
+              return (
+                <div key={id}>
+                  {person.firstName} {person.lastName}
+                </div>
+              );
+            })}
+          </Accordion>
+
+          <Accordion
+            title="only on c3 team"
+            count={statsState.onlyOnC3.length}
+          >
+            {statsState.onlyOnC3.map((id) => {
+              const person = allPeopleCache[id];
+              return (
+                <div key={id}>
+                  {person.firstName} {person.lastName}
+                </div>
+              );
+            })}
+          </Accordion>
+
+          <Accordion
+            title="only on c4 team"
+            count={statsState.onlyOnC4.length}
+          >
+            {statsState.onlyOnC4.map((id) => {
+              const person = allPeopleCache[id];
+              return (
+                <div key={id}>
+                  {person.firstName} {person.lastName}
+                </div>
+              );
+            })}
+          </Accordion>
+
+          <Accordion
+            title="not on c3 or c4 team"
+            count={statsState.notOnEither.length}
+          >
+            {statsState.notOnEither.map((id) => {
+              const person = allPeopleCache[id];
+              return (
+                <div key={id}>
+                  {person.firstName} {person.lastName}
+                </div>
+              );
+            })}
+          </Accordion>
         </ReportSection>
       </div>
     </>
