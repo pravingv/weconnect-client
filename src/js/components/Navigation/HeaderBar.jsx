@@ -133,14 +133,16 @@ const HeaderBar = ({ hideTabs }) => {
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
-  const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET, true,
-    { refetchInterval: 30000, refetchIntervalInBackground: false });
-  useEffect(() => {
-    if (taskGroupListRetrieveResults) {
-      captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
-      // setShouldExecuteTaskGroupListRetrieve(false);
-    }
-  }, [apiDataCache, dispatch, taskGroupListRetrieveResults]);
+  // Turned off because we also call this in TasksDataRetrieve
+  // const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET, true,
+  //   { refetchInterval: 30000, refetchIntervalInBackground: false });
+  // useEffect(() => {
+  //   console.log('HeaderBar taskGroupListRetrieveResults');
+  //   if (taskGroupListRetrieveResults) {
+  //     captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
+  //     // setShouldExecuteTaskGroupListRetrieve(false);
+  //   }
+  // }, [apiDataCache, dispatch, taskGroupListRetrieveResults]);
 
 
   const doTheRefresh = async () => {
@@ -149,10 +151,10 @@ const HeaderBar = ({ hideTabs }) => {
       questionnaireListRetrieveResults.refetch(),
       teamListRetrieveResults.refetch(),
       personListRetrieveResults.refetch(),
-      taskGroupListRetrieveResults.refetch(),
       queryClient.invalidateQueries({ queryKey: ['questionnaire-responses-list-retrieve']}),
     ]);
   };
+  // REMOVED FROM ABOVE taskGroupListRetrieveResults.refetch(),
 
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
   useEffect(() => {

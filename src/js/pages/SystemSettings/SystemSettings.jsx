@@ -43,6 +43,7 @@ const SystemSettings = () => {
 
   const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
+    // console.log('SystemSettings taskGroupListRetrieveResults');
     if (taskGroupListRetrieveResults) {
       captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
     }

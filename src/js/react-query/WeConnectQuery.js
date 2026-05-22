@@ -88,7 +88,7 @@ const useFetchData = (queryKey, fetchParams, isGet, shouldExecute = true, queryO
     // staleTime: shouldExecute ? 0 : '',
   });
   if (error) {
-    console.log(`An error occurred with ${queryKey}: ${error.message}`);
+    console.log(`An error occurred with ${queryKey}, queryOptions ${queryOptions}: ${error.message}`);
   }
   // if (queryKey === 'task-status-list-retrieve')   {
   //   console.log(`-----${queryKey} isSuccess: ${isSuccess}, isStale: ${isStale}, refetch: ${refetch}`);
