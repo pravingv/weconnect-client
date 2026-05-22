@@ -52,7 +52,7 @@ const ChangeLogList = ({ personId }) => {
         <thead>
           <tr>
             <th>Action & Detail</th>
-            <th>Target Person</th>
+            <th>Who Was Changed</th>
             <th>Team</th>
             <th>Who Made Change</th>
           </tr>
@@ -62,14 +62,13 @@ const ChangeLogList = ({ personId }) => {
             currentRows.map((log) => (
               <tr key={`log-row-${log.id}`}>
                 <td className="description">
-                  <strong>{log.changeDescription.split(':')[0]}</strong>:
-                  {log.changeDescription.split(':').slice(1).join(':')}
+                  {log.changeDescription}
                 </td>
                 <td className="target">
                   <span className="name">{log.targetPersonName || 'Self'}</span>
                 </td>
                 <td className="team">
-                  <span className="name">{log.teamName ? log.teamName : 'Not Applicable'}</span>
+                  <span className="name">{log.teamName ? log.teamName : 'n/a'}</span>
                 </td>
                 <td className="who">
                   <span className="name">{log.changedByPersonName}</span>
@@ -117,8 +116,8 @@ const LogTable = styled.table`
   th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #eee; background: #fafafa; color: #666; font-weight: 600; }
   td { padding: 12px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
   .description { color: #333; line-height: 1.4; }
-  .target { color: #555; font-weight: 500; width: 120px; }
-  .name { display: block; font-weight: 600; color: #222; }
+  .target { color: #555; width: 120px; }
+  .name { display: block; color: #222; }
   .date { display: block; font-size: 0.75rem; color: #888; margin-top: 4px; }
   .empty { text-align: center; padding: 30px; color: #999; }
 `;

@@ -44,6 +44,7 @@ const TasksDataRetrieve = () => {
 
   const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
+    // console.log('TasksDataRetrieve taskGroupListRetrieveResults');
     if (taskGroupListRetrieveResults) {
       captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
     }

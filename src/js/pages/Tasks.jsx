@@ -57,6 +57,7 @@ const Tasks = () => {
 
   const taskGroupListRetrieveResults = useFetchData(['task-group-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
+    // console.log('Tasks taskGroupListRetrieveResults');
     if (taskGroupListRetrieveResults) {
       captureTaskGroupListRetrieveData(taskGroupListRetrieveResults, apiDataCache, dispatch);
     }
@@ -209,9 +210,9 @@ const Tasks = () => {
               </PersonSummaryHeaderWrapper>
               {taskListByPersonId && selectedPersonList.map((person) => {
                 const showPersonResults = showPersonInTaskList(person, searchText, selectedTaskType, showCompletedTasks, taskDefinitionList, taskListByPersonId);
-                if (person.id === 583) {
-                  console.log('***** showPersonResults:', showPersonResults);
-                }
+                // if (person.id === 583) {
+                //   console.log('***** showPersonResults:', showPersonResults);
+                // }
                 let showPerson = true;
                 if (searchText) {
                   // showPersonResults.allSearchWordsWereFound ||
