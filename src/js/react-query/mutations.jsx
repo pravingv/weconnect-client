@@ -169,7 +169,7 @@ const usePersonSaveMutation = () => {
 
         // We use this to counteract the roll back to the previous person values.
         queryClient.refetchQueries({ queryKey: ['person-list-retrieve'], refetchType: 'active', exact: true, force: true })
-          .then(() => console.log('userPersonSaveMutation person-list-retrieve refetch completed'))
+          // .then(() => console.log('userPersonSaveMutation person-list-retrieve refetch completed'))
           .catch((error) => console.error('userPersonSaveMutation person-list-retrieve refetch failed:', error));
       } else {
         console.log('usePersonSaveMutation personId not >= 0:', results);
