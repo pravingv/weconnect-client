@@ -239,6 +239,34 @@ export function captureTaskStatusListRetrieveData (
       }
     });
   }
+
+  let taskDeletionDetected = false;
+  const incomingTaskKeys = new Set();
+
+  if (data && data.taskList && isSuccess === true) {
+    data.taskList.forEach((task) => {
+      if (task && task.personId >= 0 && task.taskDefinitionId >= 0) {
+        incomingTaskKeys.add(`${task.personId}-${task.taskDefinitionId}`);
+      }
+    });
+
+    // DELETE DETECTION
+    Object.entries(allTasksCacheNew).forEach(([personId, taskMap]) => {
+      Object.keys(taskMap).forEach((taskDefinitionId) => {
+        const key = `${personId}-${taskDefinitionId}`;
+
+        if (!incomingTaskKeys.has(key)) {
+          delete allTasksCacheNew[personId][taskDefinitionId];
+          taskDeletionDetected = true;
+        }
+      });
+
+      // cleanup empty objects
+      if (Object.keys(allTasksCacheNew[personId]).length === 0) {
+        delete allTasksCacheNew[personId];
+      }
+    });
+  }
   // if (newTaskDefinitionListDataReceived) {
   //   // console.log('TaskStatusListRetrieve setting allTaskDefinitionsCacheNew:', allTaskDefinitionsCacheNew);
   //   dispatch({ type: 'updateByKeyValue', key: 'allTaskDefinitionsCache', value: allTaskDefinitionsCacheNew });
@@ -257,7 +285,7 @@ export function captureTaskStatusListRetrieveData (
     changeResults.allTasksByDefinitionIdCache = allTasksByDefinitionIdCacheNew;
     changeResults.allTasksByDefinitionIdCacheChanged = true;
   }
-  if (newTaskListDataReceived) {
+  if (newTaskListDataReceived || taskDeletionDetected) {
     // console.log('TaskStatusListRetrieve setting allTasksCacheNew:', allTasksCacheNew);
     dispatch({ type: 'updateByKeyValue', key: 'allTasksCache', value: allTasksCacheNew });
     changeResults.allTasksCache = allTasksCacheNew;
