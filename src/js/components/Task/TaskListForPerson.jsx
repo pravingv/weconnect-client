@@ -25,7 +25,6 @@ const TaskListForPerson = ({ searchText, selectedTaskType, showCompletedTasks, t
         // console.log('*** showTaskTemp:', showTaskTemp);
         return showTaskTemp ? (
           <div
-            key={`task-wrapper-${task.personId}-${task.taskDefinitionId}`}
             style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -34,6 +33,7 @@ const TaskListForPerson = ({ searchText, selectedTaskType, showCompletedTasks, t
           >
             <TaskSummaryRow
               hideIfCompleted={!showCompletedTasks}
+              key={`taskSummaryRow-${task.personId}-${task.taskDefinitionId}`}
               personId={convertToInteger(task.personId)}
               taskDefinition={taskDefinition}
               task={task}
