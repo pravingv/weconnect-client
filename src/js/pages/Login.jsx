@@ -80,6 +80,39 @@ const Login = ({ classes }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuth]);
 
+  const removeSessionCookie = ()  => {
+    const urlObject = new URL(webAppConfig.STAFF_API_SERVER_ROOT_URL);
+    const updatedCookie = `WeConnectSession=; Max-Age=0; path=/; domain=${urlObject.hostname}`;
+    document.cookie = updatedCookie;
+    console.log('Login removeSessionCookie, cookie that was removed: ', updatedCookie);
+  };
+
+  const logoutApiInLogin = async (preserveWarning = false, warningMessage = '') => {
+    const data = await weConnectQueryFn('logout', { credentials: 'same-origin' }, METHOD.POST);
+    // console.log(`/logout response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
+    if (data?.authenticated) {
+      if (!preserveWarning) {
+        setWarningLine(data?.errors?.msg);
+        setSuccessLine('');
+      }
+    } else if (preserveWarning && warningMessage) {
+      setWarningLine(warningMessage);
+    } else {
+      setWarningLine('');
+      setSuccessLine('You are signed out');
+    }
+  };
+
+  const handleRejectedLogin = async (warningMessage, email) => {
+    setWarningLine(warningMessage);
+    console.error('Login attempt blocked:', email, warningMessage);
+    setSuccessLine('');
+    passwordFldRef.current.value = '';
+    clearSignedInGlobals(setAppContextValue, getAppContextData);
+    await logoutApiInLogin(true, warningMessage).then(() => removeSessionCookie());
+    queryClient.invalidateQueries({ queryKey: ['get-auth']});
+  };
+
   const loginApi = async (email, password) => {
     if (!validator.isEmail(email)) {
       setWarningLine('Please enter a valid email address.');
@@ -97,12 +130,24 @@ const Login = ({ classes }) => {
     // console.log(`/login response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
     // console.log('appContextData in Login after /login response: ', getAppContextData());
     if (data?.personId > 0) {
+      // Check person status for resigned or on leave
+      if (data.person) {
+        if (data.person.statusResigned) {
+          await handleRejectedLogin('This account has been marked as resigned and cannot log in.', email);
+          return;
+        }
+        if (data.person.statusOnLeave) {
+          await handleRejectedLogin('This account is currently on leave of absence and cannot log in.', email);
+          return;
+        }
+      }
+
       setAppContextValue('isAuthenticated', data.emailVerified);
       if (data.person && data.person.id) {
         data.person.personId = data.person.id;    // Initialize legacy (redundant) 'personId' field, which is not in the database
       }
       setAppContextValue('authenticatedPerson', data.person);
-      queryClient.invalidateQueries({ queryKey: ['get-auth'] });
+      queryClient.invalidateQueries({ queryKey: ['get-auth']});
       passwordFldRef.current.value = '';   // Blank the email field after signing in
       setWarningLine('');
       setAppContextValue('secretCodeVerified', true);
@@ -145,18 +190,6 @@ const Login = ({ classes }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetPassword]);
 
-  const logoutApiInLogin = async () => {
-    const data = await weConnectQueryFn('logout', { credentials: 'same-origin' }, METHOD.POST);
-    // console.log(`/logout response -- status: '${'status'}',  data: ${JSON.stringify(data)}`);
-    if (data?.authenticated) {
-      setWarningLine(data?.errors?.msg);
-      setSuccessLine('');
-    } else {
-      setWarningLine('');
-      setSuccessLine('You are signed out');
-    }
-  };
-
   const verifyYourEmail = async (personId) => {
     // console.log('verifyYourEmail ----------------');
     if (!personId || personId < 1) {
@@ -196,13 +229,6 @@ const Login = ({ classes }) => {
     }
   };
 
-  const removeSessionCookie = ()  => {
-    const urlObject = new URL(webAppConfig.STAFF_API_SERVER_ROOT_URL);
-    const updatedCookie = `WeConnectSession=; Max-Age=0; path=/; domain=${urlObject.hostname}`;
-    document.cookie = updatedCookie;
-    console.log('Login removeSessionCookie, cookie that was removed: ', updatedCookie);
-  };
-
   const signOutButtonPressed = async () => {
     if (passwordFldRef.current) {
       passwordFldRef.current.value = '';   // Blank the email field after signing out
@@ -211,7 +237,7 @@ const Login = ({ classes }) => {
     setOpenResetPasswordDialog(false);
     // console.log('signOutButtonPressed in Login before logoutApiInLogin()');
     await logoutApiInLogin().then(() => removeSessionCookie());
-    queryClient.invalidateQueries({ queryKey: ['get-auth'] });
+    queryClient.invalidateQueries({ queryKey: ['get-auth']});
   };
 
   const loginPressed = async () => {
@@ -290,11 +316,10 @@ const Login = ({ classes }) => {
   let isAdmin = false;
   if (dataAuth) {
     ({ isAuthenticated, person: authenticatedPerson } = dataAuth);
-    let apTemp = getAppContextValue('authenticatedPerson');
+    const apTemp = getAppContextValue('authenticatedPerson');
     if (apTemp !== undefined && apTemp !== null && apTemp.isAdmin !== undefined && apTemp.isAdmin !== null) {
       isAdmin = apTemp.isAdmin;
     }
-
   }
   const displayVerify =
     !isForSomeOneElse &&
