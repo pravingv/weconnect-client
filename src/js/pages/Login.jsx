@@ -132,6 +132,10 @@ const Login = ({ classes }) => {
     if (data?.personId > 0) {
       // Check person status for resigned or on leave
       if (data.person) {
+        if (!data.person.statusActive) {
+          await handleRejectedLogin('This account has been marked as inactive and cannot log in.', email);
+          return;
+        }
         if (data.person.statusResigned) {
           await handleRejectedLogin('This account has been marked as resigned and cannot log in.', email);
           return;
