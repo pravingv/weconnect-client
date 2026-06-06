@@ -140,10 +140,10 @@ const Login = ({ classes }) => {
           await handleRejectedLogin('This account has been marked as resigned and cannot log in.', email);
           return;
         }
-        if (data.person.statusOnLeave) {
-          await handleRejectedLogin('This account is currently on leave of absence and cannot log in.', email);
-          return;
-        }
+        // if (data.person.statusOnLeave) {
+        //   await handleRejectedLogin('This account is currently on leave of absence and cannot log in.', email);
+        //   return;
+        // }
       }
 
       setAppContextValue('isAuthenticated', data.emailVerified);
