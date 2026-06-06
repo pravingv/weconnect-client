@@ -150,7 +150,6 @@ const usePersonAwaySaveMutation = () => {
   });
 };
 
-// Copied to /models/PersonModel.jsx with a non-conflicting function name
 const usePersonSaveMutation = () => {
   const queryClient = useQueryClient();
   const { apiDataCache } = useConnectAppContext();
@@ -181,6 +180,30 @@ const usePersonSaveMutation = () => {
           .catch((error) => console.error('userPersonSaveMutation person-list-retrieve refetch failed:', error));
       } else {
         console.log('usePersonSaveMutation personId not >= 0:', results);
+      }
+    },
+  });
+};
+
+const usePersonDeleteMutation = () => {
+  const queryClient = useQueryClient();
+  const { setAppContextValue } = useConnectAppContext();
+
+  return useMutation({
+    mutationFn: (params) => weConnectQueryFn('person-delete', params, METHOD.GET),
+    onError: (error) => console.log('error in usePersonDeleteMutation: ', error),
+    onSuccess: (results) => {
+      console.log('usePersonDeleteMutation onSuccess, results:', results);
+      if (results.success === true) {
+        // Invalidate person list to refresh the list after deletion
+        queryClient.invalidateQueries({ queryKey: ['person-list-retrieve']});
+        queryClient.invalidateQueries({ queryKey: ['team-list-retrieve']});
+        // Close the profile drawer
+        setAppContextValue('headerProfileDrawerOpen', false);
+        setAppContextValue('profileDrawerPerson', undefined);
+        setAppContextValue('profileDrawerPersonId', -1);
+      } else {
+        console.log('usePersonDeleteMutation onSuccess but success flag is false:', results);
       }
     },
   });
@@ -261,7 +284,7 @@ const usePersonRetrieveByEmailMutation = () => {
 export {
   useAddPersonToTeamMutation, useAnswerListSaveMutation, useGetAuthMutation,
   useLogoutMutation, useMeetingSaveMutation, usePasswordSaveMutation,
-  usePersonAwaySaveMutation, usePersonSaveMutation,
+  usePersonAwaySaveMutation, usePersonDeleteMutation, usePersonSaveMutation,
   usePersonRetrieveMutation, usePersonRetrieveByEmailMutation,
   useQuestionListSaveMutation, useQuestionnaireSaveMutation,
   useQuestionSaveMutation,

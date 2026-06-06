@@ -15,7 +15,7 @@ import webAppConfig from '../../config';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams';
-import { usePersonSaveMutation } from '../../react-query/mutations';
+import { usePersonSaveMutation, usePersonDeleteMutation } from '../../react-query/mutations';
 import weConnectQueryFn, { METHOD } from '../../react-query/WeConnectQuery';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import EmailOfficialManager from './EmailOfficialManager';
@@ -31,6 +31,7 @@ const EditPersonForm = ({ classes }) => {
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { viewerAccessRights } = apiDataCache;
   const { mutate: personSave } = usePersonSaveMutation(); // Alternate: usePersonSave();
+  const { mutate: personDelete } = usePersonDeleteMutation();
 
   const [allOnboardingCheckboxesChecked, setAllOnboardingCheckboxesChecked] = useState(false);
   const [emailOfficialEdited, setEmailOfficialEdited] = useState(false);
@@ -52,6 +53,7 @@ const EditPersonForm = ({ classes }) => {
   const [slackError, setSlackError] = useState('');
   const [dateStartError, setDateStartError] = useState('');
   const [dateEndError, setDateEndError] = useState('');
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   const getDateDefaultValue = (dateString) => {
     if (!dateString) return null;
@@ -209,6 +211,15 @@ const EditPersonForm = ({ classes }) => {
       setAppContextValue('profileDrawerPerson', undefined);
       setAppContextValue('profileDrawerPersonId', -1);
     }
+  };
+
+  const deletePersonProfile = () => {
+    const plainParams = {
+      personId: activePerson.id,
+    };
+    console.log('Deleting person with ID:', activePerson.id);
+    personDelete(plainParams);
+    setDeleteConfirmed(false);
   };
 
   const setEmailOfficialFromChild = (emailOfficial) => {
@@ -906,6 +917,33 @@ const EditPersonForm = ({ classes }) => {
           )}
           label={`${activePerson.firstNamePreferred || activePerson.firstName} is a monthly donor`}
         />
+        <DeleteConfirmationWrapper style={viewerIsOnHrTeam ? {} : { display: 'none' }}>
+          <Button
+            classes={{ root: classes.deletePersonButton }}
+            color="primary"
+            disabled={!deleteConfirmed || !!dateStartError || !!dateEndError}
+            onClick={() => deletePersonProfile()}
+            variant="contained"
+          >
+            Delete Person
+          </Button>
+          <CheckboxLabel
+            classes={{ label: classes.checkboxLabel }}
+            control={(
+              <Checkbox
+                checked={deleteConfirmed || false}
+                className={classes.checkboxRoot}
+                color="primary"
+                id="deleteConfirmationCheckbox"
+                name="deleteConfirmation"
+                onChange={(event) => {
+                  setDeleteConfirmed(event.target.checked);
+                }}
+              />
+            )}
+            label="Confirm you want to permanently delete this profile"
+          />
+        </DeleteConfirmationWrapper>
         <ButtonWrapper>
           <Button
             classes={{ root: classes.savePersonButton }}
@@ -955,6 +993,16 @@ const styles = (theme) => ({
       color: '#424242 !important',
     },
   },
+  deletePersonButton: {
+    width: '150px',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+    },
+    '&.Mui-disabled': {
+      backgroundColor: '#e0e0e0 !important',
+      color: '#424242 !important',
+    },
+  },
 });
 
 const ButtonWrapper = styled('div')`
@@ -979,6 +1027,13 @@ const DateOptionsWrapper = styled('div')`
 
 const DateWrapper = styled('div')`
   margin-right: 4px;
+`;
+
+const DeleteConfirmationWrapper = styled('div')`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
 `;
 
 const EditPersonFormWrapper = styled('div')`
