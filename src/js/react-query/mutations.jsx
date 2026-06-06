@@ -108,6 +108,14 @@ const useTaskGroupTeamLinkDeleteMutation = () => {
   });
 };
 
+const useDeleteTaskMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: (params) => weConnectQueryFn('task-delete', params, METHOD.GET),
+    onError: (error) => console.log('error in useDeleteTaskMutation: ', error),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['task-status-list-retrieve']}),
+  });
+};
+
 const useTaskGroupTeamLinkSaveMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: (params) => weConnectQueryFn('task-group-team-link-save', params, METHOD.GET),
@@ -263,5 +271,6 @@ export {
   useTaskGroupSaveMutation,
   useTaskGroupTeamLinkDeleteMutation, useTaskGroupTeamLinkSaveMutation,
   useProfileChangeLogRetrieveMutation,
+  useDeleteTaskMutation,
 };
 
