@@ -46,21 +46,19 @@ const Tasks = () => {
   const { allPeopleCache, allTaskDefinitionsCache, allTasksByDefinitionIdCache, allTasksCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
+  const [hideAllTasks, setHideAllTasks] = useState(getAppContextValue('tasksActionBarHideAllTasks'));
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = (useState(null));
   const [personIdsList, setPersonIdsList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPersonList, setSelectedPersonList] = useState([]);
   const [selectedTaskType, setSelectedTaskType] = useState(TASK_TYPES.HR_ONBOARDING);
-  const [hideAllTasks, setHideAllTasks] = useState(getAppContextValue('tasksActionBarHideAllTasks'));
+  const [selectedTask, setSelectedTask] = useState(null);
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showTasksByTask, setShowTasksByTask] = useState(false);
   const [taskListByPersonId, setTaskListByPersonId] = useState({});
   const [taskDefinitionList, setTaskDefinitionList] = useState([]);
-
-  const [menuAnchorEl, setMenuAnchorEl] = (useState(null));
-  const [selectedTask, setSelectedTask] = useState(null);
-
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const doneByPersonFullName = useGetFullNamePreferred(selectedTask?.doneByPersonId);
 
@@ -157,6 +155,7 @@ const Tasks = () => {
   }, [getAppContextValue]);
 
   const handleMenuOpen = (event, task, taskDefinition) => {
+    console.log('handleMenuOpen event:', event);
     setMenuAnchorEl(event.currentTarget);
     setSelectedTask({ ...task, taskDefinition });
   };
