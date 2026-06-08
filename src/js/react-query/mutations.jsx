@@ -193,7 +193,7 @@ const usePersonDeleteMutation = () => {
     mutationFn: (params) => weConnectQueryFn('person-delete', params, METHOD.GET),
     onError: (error) => console.log('error in usePersonDeleteMutation: ', error),
     onSuccess: (results) => {
-      console.log('usePersonDeleteMutation onSuccess, results:', results);
+      // console.log('usePersonDeleteMutation onSuccess, results:', results);
       if (results.success === true) {
         // Invalidate person list to refresh the list after deletion
         queryClient.invalidateQueries({ queryKey: ['person-list-retrieve']});

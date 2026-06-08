@@ -217,7 +217,7 @@ const EditPersonForm = ({ classes }) => {
     const plainParams = {
       personId: activePerson.id,
     };
-    console.log('Deleting person with ID:', activePerson.id);
+    // console.log('Deleting person with ID:', activePerson.id);
     personDelete(plainParams);
     setDeleteConfirmed(false);
   };
