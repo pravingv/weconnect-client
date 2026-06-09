@@ -3,22 +3,36 @@ import { Checkbox, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup }
 import Popover from '@mui/material/Popover';
 import { withStyles } from '@mui/styles';
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { renderLog } from '../../common/utils/logging';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
+import { isInOfferProcess } from '../../controllers/PersonController';
 import { viewerCanSeeOrDo } from '../../models/AuthModel';
 
 
 const FilterPeopleTripleDot = ({ classes }) => { // teamId
   renderLog('FilterPeopleTripleDot');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
-  const { viewerAccessRights } = apiDataCache;
+  const { allPeopleCache, viewerAccessRights } = apiDataCache;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [viewerIsOnHrTeam, setViewerIsOnHrTeam] = useState(false);
+
+  const counts = useMemo(() => {
+    const people = allPeopleCache ? Object.values(allPeopleCache) : [];
+    return {
+      inOfferProcess: people.filter((p) => isInOfferProcess(p)).length,
+      onLeave: people.filter((p) => p.statusOnLeave === true).length,
+      resigned: people.filter((p) => p.statusResigned === true).length,
+      availableForSpecialProjects: people.filter((p) => p.statusAvailableForSpecialProjects === true).length,
+      teamLeads: people.filter((p) => p.isTeamLead === true).length,
+      hiringManagers: people.filter((p) => p.isHiringManager === true).length,
+      interns: people.filter((p) => p.isIntern === true).length,
+    };
+  }, [allPeopleCache]);
 
   useEffect(() => {
     setViewerIsOnHrTeam(viewerCanSeeOrDo(['canEditPersonAnyone'], viewerAccessRights));
@@ -132,7 +146,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 />
               )}
               // label={`In Offer Process (${webAppConfig.ORGANIZATION_NAME})`}
-              label="In Offer Process (3)"
+              label={`In Offer Process (${counts.inOfferProcess})`}
             />
             <CheckboxLabel
               classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
@@ -152,7 +166,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 />
               )}
               // label={`On Leave (${webAppConfig.ORGANIZATION_NAME})`}
-              label="On Leave (12)"
+              label={`On Leave (${counts.onLeave})`}
             />
             <CheckboxLabel
               classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
@@ -172,7 +186,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 />
               )}
               // label={`Resigned (${webAppConfig.ORGANIZATION_NAME})`}
-              label="Resigned (5)"
+              label={`Resigned (${counts.resigned})`}
             />
             <CheckboxLabel
               classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
@@ -192,7 +206,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 />
               )}
               // label={`Resigned (${webAppConfig.ORGANIZATION_NAME})`}
-              label="Available for Special Projects (1)"
+              label={`Available for Special Projects (${counts.availableForSpecialProjects})`}
             />
             <CheckboxLabel
               classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
@@ -212,7 +226,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 />
               )}
               // label={`Team Leads (${webAppConfig.ORGANIZATION_NAME})`}
-              label="Team Leads (7)"
+              label={`Team Leads (${counts.teamLeads})`}
             />
             <CheckboxLabel
               classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
@@ -232,7 +246,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 />
               )}
               // label={`Team Leads (${webAppConfig.ORGANIZATION_NAME})`}
-              label="Hiring Managers (7)"
+              label={`Hiring Managers (${counts.hiringManagers})`}
             />
             <CheckboxLabel
               classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
@@ -251,7 +265,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   }}
                 />
               )}
-              label="Interns (23)"
+              label={`Interns (${counts.interns})`}
             />
           </FormControl>
         </PopoverWrapper>
