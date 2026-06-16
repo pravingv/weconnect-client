@@ -199,7 +199,6 @@ const usePersonDeleteMutation = () => {
 
       // console.log('usePersonDeleteMutation onSuccess, deletedId:', deletedId, ', results:', results);
       if (results.success === true) {
-
         // Remove the deleted person from allPeopleCache
         const allPeopleCacheNew = { ...allPeopleCache };
         delete allPeopleCacheNew[deletedId];
