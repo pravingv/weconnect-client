@@ -187,17 +187,31 @@ const usePersonSaveMutation = () => {
 
 const usePersonDeleteMutation = () => {
   const queryClient = useQueryClient();
-  const { setAppContextValue } = useConnectAppContext();
+  const { setAppContextValue, apiDataCache } = useConnectAppContext();
+  const dispatch = useConnectDispatch();
 
   return useMutation({
     mutationFn: (params) => weConnectQueryFn('person-delete', params, METHOD.GET),
     onError: (error) => console.log('error in usePersonDeleteMutation: ', error),
-    onSuccess: (results) => {
-      // console.log('usePersonDeleteMutation onSuccess, results:', results);
+    onSuccess: (results, variables) => {
+      const { allPeopleCache } = apiDataCache;
+      const deletedId = results?.personId || variables?.personId || variables?.id;
+
+      // console.log('usePersonDeleteMutation onSuccess, deletedId:', deletedId, ', results:', results);
       if (results.success === true) {
-        // Invalidate person list to refresh the list after deletion
-        queryClient.invalidateQueries({ queryKey: ['person-list-retrieve']});
-        queryClient.invalidateQueries({ queryKey: ['team-list-retrieve']});
+
+        // Remove the deleted person from allPeopleCache
+        const allPeopleCacheNew = { ...allPeopleCache };
+        delete allPeopleCacheNew[deletedId];
+        dispatch({ type: 'updateByKeyValue', key: 'allPeopleCache', value: allPeopleCacheNew });
+
+        // Completely erase the list memory BEFORE triggering a refetch to stop stale data syncs
+        queryClient.removeQueries({ queryKey: ['person-list-retrieve']});
+        queryClient.removeQueries({ queryKey: ['team-list-retrieve']});
+
+        // Trigger a fresh background fetch for safety
+        queryClient.refetchQueries({ queryKey: ['person-list-retrieve']}).catch((error) =>  console.error('userPersonDeletMutation person-list-retrieve refetch failed:', error));
+        queryClient.refetchQueries({ queryKey: ['team-list-retrieve']}).catch((error) =>  console.error('userPersonDeletMutation team-list-retrieve refetch failed:', error));
         // Close the profile drawer
         setAppContextValue('headerProfileDrawerOpen', false);
         setAppContextValue('profileDrawerPerson', undefined);
@@ -296,4 +310,3 @@ export {
   useProfileChangeLogRetrieveMutation,
   useDeleteTaskMutation,
 };
-
