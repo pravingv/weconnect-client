@@ -46,7 +46,7 @@ const Teams = () => {
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
   const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
-  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 200;
+  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 50; // WV-4619: lowered from 200 now that only genuine 403 auth errors are counted
   useRedirectToLoginIfLoggedOut(teamListRetrieveResults, API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD);
 
 

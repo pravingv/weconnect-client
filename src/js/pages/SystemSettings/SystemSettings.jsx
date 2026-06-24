@@ -25,7 +25,7 @@ const SystemSettings = () => {
   const [personIdsList, setPersonIdsList] = useState([]);
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
-  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 200;
+  const API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD = 50; // WV-4619: lowered from 200 now that only genuine 403 auth errors are counted
   useRedirectToLoginIfLoggedOut(personListRetrieveResults, API_RETRIEVE_ERRORS_IN_A_ROW_THRESHOLD); //or maybe taskDefinitionListRetrieveResults or taskGroupListRetrieveResults or taskStatusListRetrieveResults?
 
   useEffect(() => {

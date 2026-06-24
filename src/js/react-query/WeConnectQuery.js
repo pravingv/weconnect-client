@@ -66,10 +66,24 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
     }
   } catch (err) {
     const errorMsg = typeof err !== 'undefined' ? err : '';
-    if (!errorMsg?.message.includes('403')) {
+    const httpStatusCode = err?.response?.status;
+    // A 403 from an authenticated endpoint means "not authorized" (likely logged out), as opposed
+    // to a transient network error (timeout, 5xx, dropped request). Telling them apart lets the
+    // logged-out-redirect heuristic count only genuine auth failures. (WV-4619)
+    const isAuthError = httpStatusCode === 403 || (errorMsg?.message?.includes('403') ?? false);
+    if (!isAuthError) {
       window.networkError = true;
     }
     console.error('Axios ', (isGet ? 'axios.get' : 'axios.post'), ' error: ', errorMsg);
+    // Re-throw so React Query records the failed query and exposes the error (with its HTTP status)
+    // to callers via useFetchData. Tag it so callers can distinguish an auth failure from a network
+    // error without re-parsing the message. (Previously errors were swallowed and undefined was
+    // returned, which React Query already treated as a failed query, so callers see no change.)
+    if (err && typeof err === 'object') {
+      err.weConnectIsAuthError = isAuthError;
+      err.weConnectHttpStatusCode = httpStatusCode;
+    }
+    throw err;
   }
 
   return response?.data;
@@ -90,11 +104,14 @@ const useFetchData = (queryKey, fetchParams, isGet, shouldExecute = true, queryO
   if (error) {
     console.log(`An error occurred with ${queryKey}, queryOptions ${queryOptions}: ${error.message}`);
   }
+  // WV-4619: surface whether the most recent failure was an auth error (403 / likely logged out)
+  // vs. a transient network error, so useRedirectToLoginIfLoggedOut counts only genuine auth failures.
+  const isAuthError = error ? (error.weConnectIsAuthError === true || error?.response?.status === 403) : false;
   // if (queryKey === 'task-status-list-retrieve')   {
   //   console.log(`-----${queryKey} isSuccess: ${isSuccess}, isStale: ${isStale}, refetch: ${refetch}`);
   //   console.log(`+++++${queryKey} data: ${JSON.stringify(data)}`);
   // }
-  return { data, isSuccess, isFetching, isStale, refetch };
+  return { data, isSuccess, isFetching, isStale, refetch, isAuthError };
 };
 
 export default weConnectQueryFn;
