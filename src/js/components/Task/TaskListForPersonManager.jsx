@@ -14,12 +14,14 @@ import { useSaveTaskMutation } from '../../react-query/mutations';
 import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import TaskListForPerson from './TaskListForPerson';
+import useMenu from '../../utils/useMenu';
 
 
 const TaskListForPersonManager = ({ personId }) => {
   renderLog('TaskListForPersonManager');
   const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { allPeopleCache, allTaskDefinitionsCache, allTasksCache, viewerAccessRights } = apiDataCache;
+  const { handleMenuOpen, renderMenu } = useMenu();
   const dispatch = useConnectDispatch();
   const person = useGetPersonById(personId);
   const { mutate: saveTask } = useSaveTaskMutation();
@@ -111,6 +113,8 @@ const TaskListForPersonManager = ({ personId }) => {
             showCompletedTasks={showCompletedTasks}
             taskDefinitionList={taskDefinitionList}
             taskListForPersonId={taskListByPersonId[person.personId] || []}
+            onTaskMenuOpen={handleMenuOpen}
+            tasksPage
           />
         )}
       </EditPersonTasksWrapper>
@@ -129,6 +133,7 @@ const TaskListForPersonManager = ({ personId }) => {
           </AdminMarkAsCompleted>
         )}
       </ActionLinks>
+      {renderMenu()}
     </TaskListForPersonManagerWrapper>
   );
 };
