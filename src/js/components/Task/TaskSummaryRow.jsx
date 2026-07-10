@@ -256,9 +256,14 @@ const OneTaskTitle = styled('div')`
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  width: 100%;
+  flex-grow: 1;
 `;
 
 const OneTaskWrapper = styled('div')`
+  width: 100%;
+  display: flex;
+  flex-grow: 1;
 `;
 
 const TaskCell = styled('div', {
@@ -268,10 +273,11 @@ const TaskCell = styled('div', {
   ${(smallFont && !smallestFont) ? 'font-size: .9em;' : ''};
   ${(smallestFont && !smallFont) ? 'font-size: .8em;' : ''};
   ${width ? `max-width: ${width}px;` : ''};
-  ${width ? `min-width: ${width}px;` : ''};
+  ${(width && width !== 800) ? `min-width: ${width}px;` : 'min-width: 0;'};
   overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  ${width ? `width: ${width}px;` : ''};
+  ${(width && width !== 800) ? `width: ${width}px;` : 'flex-grow: 1; width: 100%;'};
 `));
 
 const TaskCellOpen = styled('div')`

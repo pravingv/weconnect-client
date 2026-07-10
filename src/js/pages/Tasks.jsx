@@ -1,17 +1,4 @@
 import { withStyles } from '@mui/styles';
-import {
-  Menu,
-  MenuItem,
-  Drawer,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Checkbox,
-  FormControlLabel,
-  Typography,
-} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
@@ -33,11 +20,9 @@ import { alphabetizePeoplesObject } from '../utils/utilities';
 import { showTaskDefinition } from '../utils/showTask';
 import TaskSummaryRow from '../components/Task/TaskSummaryRow';
 import convertToInteger from '../common/utils/convertToInteger';
-import { useGetFullNamePreferred } from '../models/PersonModel';
-import { useSaveTaskMutation, useDeleteTaskMutation } from '../react-query/mutations';
-import { makeRequestParamsDictionary } from '../react-query/makeRequestParams';
 import { TASK_TYPE_LIST, TASK_TYPES } from '../constants/TaskTypeConstants';
 import useRedirectToLoginIfLoggedOut from '../utils/useRedirectToLoginIfLoggedOut';
+import useMenu from '../utils/useMenu';
 
 
 const Tasks = () => {
@@ -47,26 +32,15 @@ const Tasks = () => {
   const dispatch = useConnectDispatch();
 
   const [hideAllTasks, setHideAllTasks] = useState(getAppContextValue('tasksActionBarHideAllTasks'));
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [menuAnchorEl, setMenuAnchorEl] = (useState(null));
+  const { handleMenuOpen, renderMenu } = useMenu();
   const [personIdsList, setPersonIdsList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedPersonList, setSelectedPersonList] = useState([]);
   const [selectedTaskType, setSelectedTaskType] = useState(TASK_TYPES.HR_ONBOARDING);
-  const [selectedTask, setSelectedTask] = useState(null);
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showTasksByTask, setShowTasksByTask] = useState(false);
   const [taskListByPersonId, setTaskListByPersonId] = useState({});
   const [taskDefinitionList, setTaskDefinitionList] = useState([]);
-
-  const doneByPersonFullName = useGetFullNamePreferred(selectedTask?.doneByPersonId);
-
-  const { mutate: saveTask } = useSaveTaskMutation();
-  const { mutate: deleteTask } = useDeleteTaskMutation();
-
-  const authenticatedPerson = getAppContextValue('authenticatedPerson');
-  const authenticatedPersonId = authenticatedPerson?.id || -1;
 
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
@@ -154,63 +128,7 @@ const Tasks = () => {
     }
   }, [getAppContextValue]);
 
-  const handleMenuOpen = (event, task, taskDefinition) => {
-    console.log('handleMenuOpen event:', event);
-    setMenuAnchorEl(event.currentTarget);
-    setSelectedTask({ ...task, taskDefinition });
-  };
 
-  const handleMenuClose = () => {
-    setMenuAnchorEl(null);
-  };
-
-  const handleEditClick = () => {
-    handleMenuClose();
-    setIsDrawerOpen(true);
-  };
-
-  const handleDeleteClick = () => {
-    handleMenuClose();
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setIsDrawerOpen(false);
-  };
-
-  const handleDeleteConfirm = () => {
-    const deleteRequestParams = makeRequestParamsDictionary(
-      {
-        personId: selectedTask.personId,
-        taskDefinitionId: selectedTask.taskDefinitionId,
-      },
-      {},
-    );
-    deleteTask(deleteRequestParams);
-    setIsDeleteDialogOpen(false);
-  };
-
-  const handleStatusChange = (e) => {
-    const isDone = e.target.checked;
-
-    // Update local UI immediately
-    setSelectedTask((prev) => ({
-      ...prev,
-      statusDone: isDone,
-      doneByPersonId: authenticatedPersonId,
-    }));
-    const requestParams = makeRequestParamsDictionary(
-      {
-        personId: selectedTask.personId,
-        taskDefinitionId: selectedTask.taskDefinitionId,
-      },
-      {
-        doneByPersonId: authenticatedPersonId,
-        statusDone: isDone,
-      },
-    );
-    saveTask(requestParams);
-  };
 
 
   const teamId = 0;  // hack 1/15/25
@@ -333,77 +251,7 @@ const Tasks = () => {
           )}
         </div>
       </PageContentContainer>
-      <Menu
-        anchorEl={menuAnchorEl}
-        open={Boolean(menuAnchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleEditClick}>Edit</MenuItem>
-        <MenuItem onClick={handleDeleteClick}>Delete</MenuItem>
-      </Menu>
-      <Drawer anchor="right" open={isDrawerOpen} onClose={handleDrawerClose}>
-        <div
-          style={{
-            width: 350,
-            padding: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          <Typography variant="h6">Edit Task</Typography>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Typography>
-              Task: {selectedTask?.taskDefinition?.taskName}
-            </Typography>
-
-            {selectedTask?.statusDone && (
-              <Typography>
-                Completed By: {doneByPersonFullName}
-              </Typography>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormControlLabel
-              control={(
-                <Checkbox
-                  checked={selectedTask?.statusDone || false}
-                  onChange={handleStatusChange}
-                />
-              )}
-              label="Status Done"
-            />
-
-            <Button
-              variant="contained"
-              color="error"
-              onClick={() => {
-                setIsDrawerOpen(false);
-                setIsDeleteDialogOpen(true);
-              }}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      </Drawer>
-      <Dialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this task?
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-          <Button color="error" onClick={handleDeleteConfirm}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {renderMenu()}
     </div>
   );
 };
