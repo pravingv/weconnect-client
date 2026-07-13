@@ -34,22 +34,24 @@ const TaskListForPerson = ({ searchText, selectedTaskType, showCompletedTasks, t
             }}
           >
             <div style={{ flexGrow: 1, minWidth: 0 }}>
-              <TaskSummaryRow
+            <TaskSummaryRow
                 hideIfCompleted={!showCompletedTasks}
                 personId={convertToInteger(task.personId)}
                 taskDefinition={taskDefinition}
                 task={task}
+                actionButton={
+                  tasksPage && (showCompletedTasks || !task.statusDone) ? (
+                    <IconButton
+                      onClick={(e) => onTaskMenuOpen(e, task, taskDefinition)}
+                      style={{ padding: 4 }}
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                ) : null
+              }
               />
             </div>
-            {/* Conditional triple dot */}
-            {tasksPage && (showCompletedTasks || !task.statusDone) && (
-              <IconButton
-                onClick={(e) => onTaskMenuOpen(e, task, taskDefinition)}
-                style={{ flexShrink: 0 }}
-              >
-                <MoreVertIcon />
-              </IconButton>
-            )}
+
           </div>
         ) : null;
       })}
