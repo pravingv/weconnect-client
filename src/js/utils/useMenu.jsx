@@ -16,6 +16,7 @@ import { useGetFullNamePreferred } from '../models/PersonModel';
 import { useSaveTaskMutation, useDeleteTaskMutation } from '../react-query/mutations';
 import { makeRequestParamsDictionary } from '../react-query/makeRequestParams';
 import { useConnectAppContext } from '../contexts/ConnectAppContext';
+import { viewerCanSeeOrDo } from '../models/AuthModel';
 
 const useMenu = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -23,7 +24,8 @@ const useMenu = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const { getAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue } = useConnectAppContext();
+  const { viewerAccessRights } = apiDataCache;
   const authenticatedPerson = getAppContextValue('authenticatedPerson');
   const authenticatedPersonId = authenticatedPerson?.id || -1;
 
@@ -87,6 +89,21 @@ const useMenu = () => {
     saveTask(requestParams);
   }, [selectedTask, authenticatedPersonId, saveTask]);
 
+  const handleMarkCompleted = useCallback(() => {
+    handleMenuClose();
+    if (!selectedTask) return;
+    const requestParams = makeRequestParamsDictionary(
+      {
+        personId: selectedTask.personId,
+        taskDefinitionId: selectedTask.taskDefinitionId,
+      },
+      {
+        doneByPersonId: authenticatedPersonId,
+        statusDone: true,
+      },
+    );
+    saveTask(requestParams);
+  }, [selectedTask, authenticatedPersonId, saveTask, handleMenuClose]);
   const renderMenu = () => (
     <>
       <Menu
@@ -95,6 +112,9 @@ const useMenu = () => {
         onClose={handleMenuClose}
       >
         <MenuItem onClick={handleEditClick}>Edit</MenuItem>
+        {!selectedTask?.statusDone && viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
+          <MenuItem onClick={handleMarkCompleted}>Mark completed</MenuItem>
+        )}
         <MenuItem onClick={handleDeleteClick}>Delete</MenuItem>
       </Menu>
       <Drawer anchor="right" open={isDrawerOpen} onClose={handleDrawerClose}>

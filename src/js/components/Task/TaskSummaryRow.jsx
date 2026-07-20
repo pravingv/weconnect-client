@@ -14,10 +14,9 @@ import { makeRequestParamsDictionary } from '../../react-query/makeRequestParams
 import { useSaveTaskMutation } from '../../react-query/mutations';
 import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsActiveJSX';
 import GoogleDriveShareManager from '../Person/GoogleDriveShareManager';
-import { SpanWithLinkStyle } from '../Style/linkStyles';
 
 
-const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompletedLinkOnTitleLine, showPersonName, taskDefinition, task }) => {
+const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showPersonName, taskDefinition, task }) => {
   renderLog('TaskSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache, viewerAccessRights } = apiDataCache;
@@ -47,17 +46,6 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
       setAuthenticatedPersonId(authenticatedPerson.id);
     }
   }, [authenticatedPerson, getAppContextValue]);
-
-  const updateTaskFieldInstant = (isDone) => {
-    const requestParams = makeRequestParamsDictionary({
-      personId,
-      taskDefinitionId: task.taskDefinitionId,
-    }, {
-      doneByPersonId: authenticatedPersonId,
-      statusDone: isDone,
-    });
-    saveTask(requestParams);
-  };
 
   if (!task) {
     return null;
@@ -132,15 +120,6 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
               )}
             </CompletedBy>
           )}
-          {showMarkCompletedLinkOnTitleLine && !taskStatusDone && (
-            <MarkCompletedOnTitleLine>
-              {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
-                <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
-                  Mark completed
-                </SpanWithLinkStyle>
-              )}
-            </MarkCompletedOnTitleLine>
-          )}
         </TaskCell>
         {actionButton && (
           <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
@@ -168,7 +147,7 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
               />
             )}
             <div>
-              {taskStatusDone ? (
+              {taskStatusDone && (
                 <CheckboxDone>
                   Completed
                   {doneByPersonFullName && (
@@ -188,14 +167,6 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
                     </>
                   )}
                 </CheckboxDone>
-              ) : (
-                <>
-                  {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
-                    <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
-                      Mark completed
-                    </SpanWithLinkStyle>
-                  )}
-                </>
               )}
             </div>
           </TaskCellOpen>
@@ -208,7 +179,6 @@ TaskSummaryRow.propTypes = {
   actionButton: PropTypes.node,
   hideIfCompleted: PropTypes.bool.isRequired,
   personId: PropTypes.number.isRequired,
-  showMarkCompletedLinkOnTitleLine: PropTypes.bool,
   showPersonName: PropTypes.bool,
   taskDefinition: PropTypes.object.isRequired,
   task: PropTypes.object.isRequired,
