@@ -192,6 +192,7 @@ const Tasks = () => {
                                 hideIfCompleted={!showCompletedTasks}
                                 key={`taskSummaryRow-${task.personId}-${task.taskDefinitionId}`}
                                 personId={convertToInteger(task.personId)}
+                                showMarkCompletedLinkOnTitleLine={true}
                                 showPersonName
                                 taskDefinition={taskDefinition}
                                 task={task}
