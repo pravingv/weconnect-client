@@ -2,6 +2,8 @@ import { withStyles } from '@mui/styles';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
+import { IconButton } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { renderLog } from '../common/utils/logging';
 import PersonSummaryHeader from '../components/Person/PersonSummaryHeader';
 import PersonSummaryRow from '../components/Person/PersonSummaryRow';
@@ -190,10 +192,20 @@ const Tasks = () => {
                                 hideIfCompleted={!showCompletedTasks}
                                 key={`taskSummaryRow-${task.personId}-${task.taskDefinitionId}`}
                                 personId={convertToInteger(task.personId)}
-                                showMarkCompletedLinkOnTitleLine
+                                showMarkCompletedLinkOnTitleLine={true}
                                 showPersonName
                                 taskDefinition={taskDefinition}
                                 task={task}
+                                actionButton={
+                                  (showCompletedTasks || !task.statusDone) ? (
+                                    <IconButton
+                                      onClick={(e) => handleMenuOpen(e, task, taskDefinition)}
+                                      style={{ padding: 4 }}
+                                    >
+                                      <MoreVertIcon />
+                                    </IconButton>
+                                  ) : null
+                                }
                               />
                             </OneTaskWrapper>
                           );

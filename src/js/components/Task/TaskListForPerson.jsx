@@ -24,33 +24,23 @@ const TaskListForPerson = ({ searchText, selectedTaskType, showCompletedTasks, t
         const showTaskTemp = taskTypeMatches && showTask(task, searchText, taskDefinitionList);
         // console.log('*** showTaskTemp:', showTaskTemp);
         return showTaskTemp ? (
-          <div
-            key={`task-${task.personId}-${task.taskDefinitionId}`}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '100%',
-            }}
-          >
-            <div style={{ flexGrow: 1, minWidth: 0 }}>
-              <TaskSummaryRow
-                hideIfCompleted={!showCompletedTasks}
-                personId={convertToInteger(task.personId)}
-                taskDefinition={taskDefinition}
-                task={task}
-              />
-            </div>
-            {/* Conditional triple dot */}
-            {tasksPage && (showCompletedTasks || !task.statusDone) && (
-              <IconButton
-                onClick={(e) => onTaskMenuOpen(e, task, taskDefinition)}
-                style={{ flexShrink: 0 }}
-              >
-                <MoreVertIcon />
-              </IconButton>
-            )}
-          </div>
+          <TaskSummaryRow
+              key={`task-${task.personId}-${task.taskDefinitionId}`}
+              hideIfCompleted={!showCompletedTasks}
+              personId={convertToInteger(task.personId)}
+              taskDefinition={taskDefinition}
+              task={task}
+              actionButton={
+                tasksPage && (showCompletedTasks || !task.statusDone) ? (
+                  <IconButton
+                    onClick={(e) => onTaskMenuOpen(e, task, taskDefinition)}
+                    style={{ padding: 4 }}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+              ) : null
+            }
+            />
         ) : null;
       })}
     </TaskListWrapper>

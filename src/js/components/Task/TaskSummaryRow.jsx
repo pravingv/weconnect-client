@@ -16,8 +16,7 @@ import DisplayWhatToDoTextAsActiveJSX from '../../utils/DisplayWhatToDoTextAsAct
 import GoogleDriveShareManager from '../Person/GoogleDriveShareManager';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 
-
-const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitleLine, showPersonName, taskDefinition, task }) => {
+const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompletedLinkOnTitleLine, showPersonName, taskDefinition, task }) => {
   renderLog('TaskSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
   const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { allPeopleCache, viewerAccessRights } = apiDataCache;
@@ -142,6 +141,11 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
             </MarkCompletedOnTitleLine>
           )}
         </TaskCell>
+        {actionButton && (
+          <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+            {actionButton}
+          </div>
+        )}
       </OneTaskTitle>
       {taskDetailsOpen && (
         <OneTaskDetails>
@@ -173,7 +177,8 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
                       {' '}
                       {doneByPersonFullName}
                     </>
-                  )}
+                  )
+                  }
                   {task.dateLastUpdated && (
                     <>
                       {' '}
@@ -183,7 +188,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
                     </>
                   )}
                 </CheckboxDone>
-              ) : (
+              ): (
                 <>
                   {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
                     <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
@@ -200,6 +205,7 @@ const TaskSummaryRow = ({ hideIfCompleted, personId, showMarkCompletedLinkOnTitl
   );
 };
 TaskSummaryRow.propTypes = {
+  actionButton: PropTypes.node,
   hideIfCompleted: PropTypes.bool.isRequired,
   personId: PropTypes.number.isRequired,
   showMarkCompletedLinkOnTitleLine: PropTypes.bool,
@@ -261,9 +267,6 @@ const OneTaskTitle = styled('div')`
 `;
 
 const OneTaskWrapper = styled('div')`
-  width: 100%;
-  display: flex;
-  flex-grow: 1;
 `;
 
 const TaskCell = styled('div', {
