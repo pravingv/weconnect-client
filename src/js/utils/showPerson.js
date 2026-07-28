@@ -29,6 +29,9 @@ export const showPersonInCohortMemberList = (person, searchTextLocal) => {
 
 export const showPersonInMemberList = (person, searchTextLocal, getAppContextValue) => {
   if (!person || person.id < 0) return false; // Invalid person or personId
+  // if (person.id === 423) {
+  //   console.log('showPersonInMemberList, person:', person);
+  // }
   const pigsCanFly = false;
   if (searchTextLocal) {
     const results = isSearchTextFoundInPerson(searchTextLocal, person);
@@ -39,14 +42,14 @@ export const showPersonInMemberList = (person, searchTextLocal, getAppContextVal
   } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH') {
     // "Only" option, where we only show people who match the exact filters
     return onlyShowPersonWithPeopleFiltersExactMatch(person, getAppContextValue);
-  } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR') {
-    // "Include" option, where we show people who match any of the filters
-    return onlyShowPersonWithPeopleFiltersLogicalOrMatch(person, getAppContextValue);
   } else if (person.statusActive === false) {   // Mar 2026, Allow people with null statusActive through
     // Only show people marked with statusActive = false when searching
     // Mar 2026: Hopefully we won't find null statusActive going forward, but treat these as true
     // Eventually weave in the ability to show as a "show" filter option
     return false;
+  } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR') {
+    // "Include" option, where we show people who match any of the filters
+    return onlyShowPersonWithPeopleFiltersLogicalOrMatch(person, getAppContextValue);
   } else {
     return true; // Show the person if no searchText is provided, or there are any other filters
   }

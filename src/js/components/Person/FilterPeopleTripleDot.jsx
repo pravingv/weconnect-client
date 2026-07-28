@@ -23,13 +23,14 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
 
   const counts = useMemo(() => {
     const people = allPeopleCache ? Object.values(allPeopleCache) : [];
+    const activePeople = people.filter((p) => p.statusActive === true);
     return {
-      inOfferProcess: people.filter((p) => isInOfferProcess(p)).length,
+      inOfferProcess: activePeople.filter((p) => isInOfferProcess(p)).length,
       onLeave: people.filter((p) => p.statusOnLeave === true).length,
       resigned: people.filter((p) => p.statusResigned === true).length,
       availableForSpecialProjects: people.filter((p) => p.statusAvailableForSpecialProjects === true).length,
-      teamLeads: people.filter((p) => p.isTeamLead === true).length,
-      hiringManagers: people.filter((p) => p.isHiringManager === true).length,
+      teamLeads: activePeople.filter((p) => p.isTeamLead === true).length,
+      hiringManagers: activePeople.filter((p) => p.isHiringManager === true).length,
       interns: people.filter((p) => p.isIntern === true).length,
     };
   }, [allPeopleCache]);
@@ -189,7 +190,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
               label={`Resigned (${counts.resigned})`}
             />
             <CheckboxLabel
-              classes={viewerIsOnHrTeam ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+              classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
               control={(
                 <Checkbox
                   checked={getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') || false}

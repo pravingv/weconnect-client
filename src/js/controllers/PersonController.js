@@ -83,36 +83,21 @@ export const searchWordFoundInOnePerson = (searchWord, person) => {
 
 export const onlyShowPersonWithPeopleFiltersExactMatch = (person, getAppContextValue) => {
   // "Only" option, where we only show people who match the exact filters
-  const inOfferProcess = isInOfferProcess(person);
   let personIsVisible = false;
-  if (getAppContextValue('isInternPeopleFilter') === true) {
-    if (person.isIntern === true) {
-      personIsVisible = true;
-    }
-  } else if (getAppContextValue('isHiringManagerPeopleFilter') === true) {
-    if (person.isHiringManager === true) {
-      personIsVisible = true;
-    }
-  } else if (getAppContextValue('isTeamLeadPeopleFilter') === true) {
-    if (person.isTeamLead === true) {  // adjust to be team-by-team
-      personIsVisible = true;
-    }
-  } else if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
-    if (inOfferProcess) {
-      personIsVisible = true;
-    }
-  } else if (getAppContextValue('statusOnLeavePeopleFilter') === true) {
-    if (person.statusOnLeave === true) {  // adjust to be team-by-team
-      personIsVisible = true;
-    }
-  } else if (getAppContextValue('statusResignedPeopleFilter') === true) {
-    if (person.statusResigned === true) {  // adjust to be team-by-team
-      personIsVisible = true;
-    }
-  } else if (getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') === true) {
-    if (person.statusAvailableForSpecialProjects === true) {  // adjust to be team-by-team
-      personIsVisible = true;
-    }
+  if (getAppContextValue('isInternPeopleFilter') === true && person.isIntern === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('isHiringManagerPeopleFilter') === true && person.isHiringManager === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('isTeamLeadPeopleFilter') === true && person.isTeamLead === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('statusInOfferProcessPeopleFilter') === true && isInOfferProcess(person)) {
+    personIsVisible = true;
+  } else if (getAppContextValue('statusOnLeavePeopleFilter') === true && person.statusOnLeave === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('statusResignedPeopleFilter') === true && person.statusResigned === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') === true && person.statusAvailableForSpecialProjects === true) {
+    personIsVisible = true;
   }
   return personIsVisible;
 };
@@ -123,18 +108,19 @@ export const onlyShowPersonWithPeopleFiltersLogicalOrMatch = (person, getAppCont
   const inOfferProcess = isInOfferProcess(person);
   // console.log('onlyShowPersonWithPeopleFiltersLogicalOrMatch, person.lastName:', person.lastName, ', inOfferProcess:', inOfferProcess);
   let personIsVisible = person.statusActive === true && person.statusOfferLetterSigned === true && person.statusOnLeave !== true && person.statusResigned !== true && !inOfferProcess;
+  if (getAppContextValue('statusOnLeavePeopleFilter') === true && person.statusOnLeave === true) {
+    personIsVisible = true;
+  }
+  if (getAppContextValue('statusResignedPeopleFilter') === true && person.statusResigned === true) {
+    personIsVisible = true;
+  }
   if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
-    if (inOfferProcess) {
+    // If Resigned is not checked, do not show resigned people when 'In Offer Process' is selected
+    if (inOfferProcess && getAppContextValue('statusResignedPeopleFilter') === true) {
+      // No restrictions - show both
       personIsVisible = true;
-    }
-  }
-  if (getAppContextValue('statusOnLeavePeopleFilter') === true) {
-    if (person.statusOnLeave === true) {  // adjust to be team-by-team
-      personIsVisible = true;
-    }
-  }
-  if (getAppContextValue('statusResignedPeopleFilter') === true) {
-    if (person.statusResigned === true) {  // adjust to be team-by-team
+    } else if (person.statusResigned !== true) {
+      // If resigned, cannot be in offer process
       personIsVisible = true;
     }
   }

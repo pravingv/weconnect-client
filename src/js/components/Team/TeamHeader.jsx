@@ -204,17 +204,17 @@ const TeamHeader = (
             )}
           </TeamHeaderCell>
           <HideOnHover>
-            {teamLeadsCount > 0 && (
+            {(teamLeadsCount > 0 && teamLeads) && (
               <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
                   <TeamLead>{teamLeadsCount === 1 ? 'Lead: ' : 'Leads: '}{teamLeads}</TeamLead>
                 </ActionBarItem>
               </ActionBarSection>
             )}
-            {!hideTeamMemberCount && numberOfTeamMembers && (
+            {(!hideTeamMemberCount && (numberOfTeamMembers > 0)) && (
               <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
-                  <TeamMemberCount>{numberOfTeamMembers} {numberOfTeamMembers === 1 ? 'person' : 'people'}</TeamMemberCount>
+                  <TeamMemberCount>{numberOfTeamMembers === 1 ? `${numberOfTeamMembers} person` : `${numberOfTeamMembers} people`}</TeamMemberCount>
                 </ActionBarItem>
               </ActionBarSection>
             )}
