@@ -127,13 +127,13 @@ const useMenu = () => {
             gap: 16,
           }}
         >
-          <Typography variant="h6">Edit Task</Typography>
+          <Typography variant="h6">
+            Edit Task:
+            {' '}
+            {selectedTask?.taskDefinition?.taskName}
+          </Typography>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Typography>
-              Task: {selectedTask?.taskDefinition?.taskName}
-            </Typography>
-
             {selectedTask?.statusDone && (
               <Typography>
                 Completed By: {doneByPersonFullName}
@@ -151,14 +151,17 @@ const useMenu = () => {
               )}
               label="Status Done"
             />
-
+            <br />
+            <br />
+            <br />
             <Button
-              variant="contained"
+              variant="outlined"
               color="error"
               onClick={() => {
                 setIsDrawerOpen(false);
                 setIsDeleteDialogOpen(true);
               }}
+              sx={{ width: 150 }}
             >
               Delete
             </Button>
