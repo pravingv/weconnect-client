@@ -55,7 +55,8 @@ export const getPersonAwayLabel = (personAwayReason) => {
 // - Offer letter sent: statusOfferLetterSent === true
 // - Offer letter signed: statusOfferLetterSigned === true
 // export const isInOfferProcess = (person) => ((person.statusOfferDecisionNeeded === true) || (person.statusOfferApproved === true)) && person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true;
-export const isInOfferProcess = (person) => person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true;
+export const isInOfferProcess = (person) => person.statusOfferWillNotBeMade !== true && person.statusOfferLetterSigned !== true && person.statusResigned !== true && person.statusOnLeave !== true;
+export const hasAcceptedOffer = (person) => person.statusOfferLetterSigned === true;
 
 export const searchWordFoundInOnePerson = (searchWord, person) => {
   const fieldsToSearch = [
@@ -83,20 +84,28 @@ export const searchWordFoundInOnePerson = (searchWord, person) => {
 
 export const onlyShowPersonWithPeopleFiltersExactMatch = (person, getAppContextValue) => {
   // "Only" option, where we only show people who match the exact filters
+  // if (person.id === 381) {
+  //   console.log('onlyShowPersonWithPeopleFiltersLogicalOrMatch Trishali:', person);
+  //   console.log('statusResignedPeopleFilter: ', getAppContextValue('statusResignedPeopleFilter'));
+  // }
   let personIsVisible = false;
-  if (getAppContextValue('isInternPeopleFilter') === true && person.isIntern === true) {
-    personIsVisible = true;
-  } else if (getAppContextValue('isHiringManagerPeopleFilter') === true && person.isHiringManager === true) {
-    personIsVisible = true;
-  } else if (getAppContextValue('isTeamLeadPeopleFilter') === true && person.isTeamLead === true) {
-    personIsVisible = true;
-  } else if (getAppContextValue('statusInOfferProcessPeopleFilter') === true && isInOfferProcess(person)) {
-    personIsVisible = true;
-  } else if (getAppContextValue('statusOnLeavePeopleFilter') === true && person.statusOnLeave === true) {
+  if (getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') === true && person.statusAvailableForSpecialProjects === true) {
     personIsVisible = true;
   } else if (getAppContextValue('statusResignedPeopleFilter') === true && person.statusResigned === true) {
     personIsVisible = true;
-  } else if (getAppContextValue('statusAvailableForSpecialProjectsPeopleFilter') === true && person.statusAvailableForSpecialProjects === true) {
+  } else if (getAppContextValue('statusOnLeavePeopleFilter') === true && person.statusOnLeave === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('isInternPeopleFilter') === true && person.isIntern === true) {
+    personIsVisible = true;
+  } else if (person.statusActive !== true) {
+    // Don't show
+  } else if (getAppContextValue('isActiveInternPeopleFilter') === true && person.isIntern === true && person.statusOnLeave !== true && person.statusResigned !== true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('isHiringManagerPeopleFilter') === true && person.isHiringManager === true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('isTeamLeadPeopleFilter') === true && person.isTeamLead === true && person.statusResigned !== true) {
+    personIsVisible = true;
+  } else if (getAppContextValue('statusInOfferProcessPeopleFilter') === true && isInOfferProcess(person)) {
     personIsVisible = true;
   }
   return personIsVisible;
@@ -105,24 +114,23 @@ export const onlyShowPersonWithPeopleFiltersExactMatch = (person, getAppContextV
 export const onlyShowPersonWithPeopleFiltersLogicalOrMatch = (person, getAppContextValue) => {
   // "Include" option, where we show people who match any of the filters
   // Default is 'Active people' but we make people visible if the chosen filters below also match the person
+  // if (person.id === 381) {
+  //   console.log('onlyShowPersonWithPeopleFiltersLogicalOrMatch Trishali:', person);
+  //   console.log('statusResignedPeopleFilter: ', getAppContextValue('statusResignedPeopleFilter'));
+  // }
   const inOfferProcess = isInOfferProcess(person);
+  const acceptedOffer = hasAcceptedOffer(person);
   // console.log('onlyShowPersonWithPeopleFiltersLogicalOrMatch, person.lastName:', person.lastName, ', inOfferProcess:', inOfferProcess);
-  let personIsVisible = person.statusActive === true && person.statusOfferLetterSigned === true && person.statusOnLeave !== true && person.statusResigned !== true && !inOfferProcess;
+  // let personIsVisible = person.statusActive === true && person.statusOfferLetterSigned === true && person.statusOnLeave !== true && person.statusResigned !== true && !inOfferProcess;
+  let personIsVisible = person.statusActive === true && acceptedOffer && person.statusOnLeave !== true && person.statusResigned !== true && !inOfferProcess;
   if (getAppContextValue('statusOnLeavePeopleFilter') === true && person.statusOnLeave === true) {
     personIsVisible = true;
   }
   if (getAppContextValue('statusResignedPeopleFilter') === true && person.statusResigned === true) {
     personIsVisible = true;
   }
-  if (getAppContextValue('statusInOfferProcessPeopleFilter') === true) {
-    // If Resigned is not checked, do not show resigned people when 'In Offer Process' is selected
-    if (inOfferProcess && getAppContextValue('statusResignedPeopleFilter') === true) {
-      // No restrictions - show both
-      personIsVisible = true;
-    } else if (person.statusResigned !== true) {
-      // If resigned, cannot be in offer process
-      personIsVisible = true;
-    }
+  if (getAppContextValue('statusInOfferProcessPeopleFilter') === true && isInOfferProcess(person)) {
+    personIsVisible = true;
   }
   return personIsVisible; // Show the person if no searchText is provided
 };

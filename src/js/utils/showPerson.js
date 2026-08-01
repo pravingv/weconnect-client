@@ -27,6 +27,22 @@ export const showPersonInCohortMemberList = (person, searchTextLocal) => {
   }
 };
 
+export const isLogicalOrOptionSetThatIncludesStatusActiveFalse = (getAppContextValue) => {
+  // Ensure getAppContextValue is a function before calling it
+  if (typeof getAppContextValue !== 'function') {
+    console.error('getAppContextValue is not a valid function');
+    return false; // Default to false if getAppContextValue is invalid
+  }
+
+  try {
+    // Safely attempt to get the value
+    return getAppContextValue('statusResignedPeopleFilter') === true;
+  } catch (error) {
+    console.error('Error in isLogicalOrOptionSetThatIncludesStatusActiveFalse:', error);
+    return false; // Default to false in case of an error
+  }
+};
+
 export const showPersonInMemberList = (person, searchTextLocal, getAppContextValue) => {
   if (!person || person.id < 0) return false; // Invalid person or personId
   // if (person.id === 423) {
@@ -42,11 +58,19 @@ export const showPersonInMemberList = (person, searchTextLocal, getAppContextVal
   } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH') {
     // "Only" option, where we only show people who match the exact filters
     return onlyShowPersonWithPeopleFiltersExactMatch(person, getAppContextValue);
-  } else if (person.statusActive === false) {   // Mar 2026, Allow people with null statusActive through
-    // Only show people marked with statusActive = false when searching
-    // Mar 2026: Hopefully we won't find null statusActive going forward, but treat these as true
+  } else if (person.statusActive === false) {
+    // Mar 2026, Allow people with null statusActive through
+    // Hopefully we won't find null statusActive going forward, but treat these as true
     // Eventually weave in the ability to show as a "show" filter option
-    return false;
+
+    // Only show people marked with statusActive = false when searching
+    // We want to show at least one of the "OR" even if they aren't active
+    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR' && isLogicalOrOptionSetThatIncludesStatusActiveFalse(getAppContextValue)) {
+      // console.log('isLogicalOrOptionSetThatIncludesStatusActiveFalse');
+      return onlyShowPersonWithPeopleFiltersLogicalOrMatch(person, getAppContextValue);
+    } else {
+      return false;
+    }
   } else if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'LOGICAL_OR') {
     // "Include" option, where we show people who match any of the filters
     return onlyShowPersonWithPeopleFiltersLogicalOrMatch(person, getAppContextValue);

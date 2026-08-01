@@ -101,7 +101,9 @@ const TeamsActionBar = () => {
   useEffect(() => {
     let mostRecentOnlyPeopleFilterChosenUpdated = '';
     // console.log('getAppContextValue(\'isInternPeopleFilter\'): ', getAppContextValue('isInternPeopleFilter'));
-    if (getAppContextValue('isInternPeopleFilter')) {
+    if (getAppContextValue('isActiveInternPeopleFilter')) {
+      mostRecentOnlyPeopleFilterChosenUpdated = 'isActiveInternPeopleFilter';
+    } else if (getAppContextValue('isInternPeopleFilter')) {
       mostRecentOnlyPeopleFilterChosenUpdated = 'isInternPeopleFilter';
     } else if (getAppContextValue('isHiringManagerPeopleFilter')) {
       mostRecentOnlyPeopleFilterChosenUpdated = 'isHiringManagerPeopleFilter';
