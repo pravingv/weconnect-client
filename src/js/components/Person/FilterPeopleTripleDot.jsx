@@ -24,13 +24,15 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
   const counts = useMemo(() => {
     const people = allPeopleCache ? Object.values(allPeopleCache) : [];
     const activePeople = people.filter((p) => p.statusActive === true);
+    const activeNotResignedPeople = activePeople.filter((p) => p.statusResigned !== true);
     return {
       inOfferProcess: activePeople.filter((p) => isInOfferProcess(p)).length,
       onLeave: people.filter((p) => p.statusOnLeave === true).length,
       resigned: people.filter((p) => p.statusResigned === true).length,
       availableForSpecialProjects: people.filter((p) => p.statusAvailableForSpecialProjects === true).length,
-      teamLeads: activePeople.filter((p) => p.isTeamLead === true).length,
-      hiringManagers: activePeople.filter((p) => p.isHiringManager === true).length,
+      teamLeads: activeNotResignedPeople.filter((p) => p.isTeamLead === true).length,
+      hiringManagers: activeNotResignedPeople.filter((p) => p.isHiringManager === true).length,
+      activeInterns: activeNotResignedPeople.filter((p) => p.isIntern === true).length,
       interns: people.filter((p) => p.isIntern === true).length,
     };
   }, [allPeopleCache]);
@@ -48,6 +50,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
   };
 
   const uncheckAllExactMatchOptions = () => {
+    setAppContextValue('isActiveInternPeopleFilter', false);
     setAppContextValue('isInternPeopleFilter', false);
     setAppContextValue('isHiringManagerPeopleFilter', false);
     setAppContextValue('isTeamLeadPeopleFilter', false);
@@ -106,6 +109,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                 setAppContextValue('peopleFilterExactMatchVsLogicalOr', event.target.value);
                 if (event.target.value === 'LOGICAL_OR') {
                   // Uncheck options only offered for "EXACT_MATCH" options
+                  setAppContextValue('isActiveInternPeopleFilter', false);
                   setAppContextValue('isHiringManagerPeopleFilter', false);
                   setAppContextValue('isInternPeopleFilter', false);
                   setAppContextValue('isTeamLeadPeopleFilter', false);
@@ -253,6 +257,25 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
               classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
               control={(
                 <Checkbox
+                  checked={getAppContextValue('isActiveInternPeopleFilter') || false}
+                  className={classes.checkboxRoot}
+                  color="primary"
+                  id="isActiveInternPeopleFilterId"
+                  name="isActiveInternPeopleFilter"
+                  onChange={(event) => {
+                    if (getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' && event.target.checked) {
+                      uncheckAllExactMatchOptions();
+                    }
+                    setAppContextValue('isActiveInternPeopleFilter', event.target.checked);
+                  }}
+                />
+              )}
+              label={`Active Interns (${counts.activeInterns})`}
+            />
+            <CheckboxLabel
+              classes={getAppContextValue('peopleFilterExactMatchVsLogicalOr') === 'EXACT_MATCH' ? { label: classes.checkboxLabel } : { root: classes.hideThisField }}
+              control={(
+                <Checkbox
                   checked={getAppContextValue('isInternPeopleFilter') || false}
                   className={classes.checkboxRoot}
                   color="primary"
@@ -266,7 +289,7 @@ const FilterPeopleTripleDot = ({ classes }) => { // teamId
                   }}
                 />
               )}
-              label={`Interns (${counts.interns})`}
+              label={`All Interns (${counts.interns})`}
             />
           </FormControl>
         </PopoverWrapper>

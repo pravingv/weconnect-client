@@ -207,7 +207,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
                 <span>
                   {personStatus ? (
                     <span>
-                      {personStatus}
+                      {personStatus && `${personStatus}: `}{formatDateMMMDo(person.dateLastUpdated)}
                     </span>
                   ) : (
                     <span>
