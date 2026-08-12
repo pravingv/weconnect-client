@@ -21,6 +21,7 @@ import { ActionBarItem, ActionBarSection } from '../Style/actionBarStyles';
 import { SpanWithLinkStyle } from '../Style/linkStyles';
 import { getTeamMemberListByTeamId, getTeamMemberPersonListByTeamId } from '../../models/TeamModel';
 import { isPersonActive, showPersonInMemberList } from '../../utils/showPerson';
+import highlightSearchText from '../../utils/highlightSearchText';
 
 
 const TeamHeader = (
@@ -187,7 +188,7 @@ const TeamHeader = (
           <TeamHeaderCell $cellwidth={335} $largefont $titlecell $leftAlign>
             {teamLocal ? (
               <Link className={classes.teamLocalNameLink} to={`/team-home/${teamLocal?.teamId || teamLocal?.id}`}>
-                {teamLocal.teamName}
+                {highlightSearchText(teamLocal.teamName, searchText)}
               </Link>
             ) : (
               <>
@@ -207,7 +208,7 @@ const TeamHeader = (
             {(teamLeadsCount > 0 && teamLeads) && (
               <ActionBarSection $borderRightOff={numberOfTeamMembers === 0}>
                 <ActionBarItem>
-                  <TeamLead>{teamLeadsCount === 1 ? 'Lead: ' : 'Leads: '}{teamLeads}</TeamLead>
+                  <TeamLead>{teamLeadsCount === 1 ? 'Lead: ' : 'Leads: '}{highlightSearchText(teamLeads, searchText)}</TeamLead>
                 </ActionBarItem>
               </ActionBarSection>
             )}

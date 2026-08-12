@@ -18,6 +18,15 @@ class SearchBase extends React.Component {
     if (this.inputRef.current) {
       this.inputRef.current.focus();
     }
+    if (this.props.value !== undefined && this.props.value !== this.state.searchText) {
+      this.setState({ searchText: this.props.value || '' });
+    }
+  }
+
+  componentDidUpdate (prevProps) {
+    if (this.props.value !== prevProps.value && this.props.value !== this.state.searchText) {
+      this.setState({ searchText: this.props.value || '' });
+    }
   }
 
   handleInputChange = (event) => {
@@ -63,6 +72,7 @@ class SearchBase extends React.Component {
 }
 SearchBase.propTypes = {
   placeholder: PropTypes.string,
+  value: PropTypes.string,
   onChange: PropTypes.func,
   onKeyDown: PropTypes.func,
   onFocus: PropTypes.func,

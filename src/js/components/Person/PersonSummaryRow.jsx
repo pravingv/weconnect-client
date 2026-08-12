@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import DesignTokenColors from '../../common/components/Style/DesignTokenColors';
 import { formatDateMMMDo, timeFromDate } from '../../common/utils/dateFormat';
 import { renderLog } from '../../common/utils/logging';
+import highlightSearchText from '../../utils/highlightSearchText';
 import { useConnectAppContext } from '../../contexts/ConnectAppContext';
 import { viewerCanSeeOrDo, viewerCanSeeOrDoForThisTeam } from '../../models/AuthModel';
 import { getFullNamePreferredPerson } from '../../models/PersonModel';
@@ -21,8 +22,9 @@ import PersonSummaryRowTripleDot from './PersonSummaryRowTripleDot';
 
 const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, teamId, classes }) => {
   renderLog('PersonSummaryRow');  // Set LOG_RENDER_EVENTS to log all renders
-  const { apiDataCache, setAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue, setAppContextValue } = useConnectAppContext();
   const { allPeopleTeamIdLists, viewerAccessRights, viewerTeamAccessRights } = apiDataCache;
+  const searchText = getAppContextValue('teamsActionBarSearchText');
 
   const [personNumberOfTeams, setPersonNumberOfTeams] = useState(0);
   const [personRowUnfurled, setPersonRowUnfurled] = useState(personRowUnfurledFromParent);
@@ -144,7 +146,7 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
             className={classes.teamMemberName}
             onClick={() => viewPersonClick(canEditPerson)}
           >
-            {getFullNamePreferredPerson(person)}
+            {highlightSearchText(getFullNamePreferredPerson(person), searchText)}
           </SpanWithLinkStyle>
           <ShowNameOnHover>
             <CopyToClipboard text={getFullNamePreferredPerson(person)} onCopy={() => copyName()}>
@@ -167,14 +169,14 @@ const PersonSummaryRow = ({ hideTasks, personRowUnfurledFromParent, person, team
           $cellwidth={150}
           $smallestfont
         >
-          {person.location}
+          {highlightSearchText(person.location, searchText)}
         </PersonCell>
         <PersonCell
           id={`jobTitle-personId-${person.personId}`}
           $cellwidth={250}
           $smallestfont
         >
-          {person.jobTitle}
+          {highlightSearchText(person.jobTitle, searchText)}
           {personNumberOfTeams > 1 && (
             <NumberOfTeams>
               {' '}

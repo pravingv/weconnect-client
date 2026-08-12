@@ -29,6 +29,7 @@ const TeamsActionBar = () => {
   const clearFunction = () => {
     setSearchText(''); // For local use only
     setAppContextValue('teamsActionBarSearchText', '');
+    setAppContextValue('teamsActionBarClearSearchTextNow', false);
   };
 
   const searchFunction = (incomingSearchText) => {
@@ -223,6 +224,7 @@ const TeamsActionBar = () => {
       <SearchBarWrapper>
         <SearchBar2024
           clearFunction={clearFunction}
+          clearSearchTextNow={getAppContextValue('teamsActionBarClearSearchTextNow')}
           placeholder="Search existing teams"
           searchFunction={searchFunction}
           searchUpdateDelayTime={0}
