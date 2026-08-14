@@ -209,10 +209,10 @@ const Teams = () => {
     const matchingDepartmentsSet = new Set();
     teamList.forEach((team) => {
       if (showTeam(team, searchText, getAppContextValue)) {
+        matchingDepartmentsSet.add(DEPARTMENTS.ALL_TEAMS);
         const rawDepts = Array.isArray(team?.departments)
           ? team.departments
           : (typeof team?.departments === 'string' ? [team.departments] : []);
-
         rawDepts.forEach((rawDept) => {
           const canonicalDept = mapToDepartmentConstant(rawDept);
           if (canonicalDept && canonicalDept !== DEPARTMENTS.ALL_TEAMS) {
