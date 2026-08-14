@@ -1,5 +1,5 @@
 import { withStyles } from '@mui/styles';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import styled from 'styled-components';
 import arrayContains from '../common/utils/arrayContains';
@@ -16,7 +16,27 @@ import { showCohortTeam, showTeam } from '../utils/showTeam';
 import { DEPARTMENTS, DEPARTMENT_LIST } from '../constants/DepartmentConstants';
 import { SettingsApplications } from '@mui/icons-material';
 import useRedirectToLoginIfLoggedOut from '../utils/useRedirectToLoginIfLoggedOut';
+import { SpanWithLinkStyle } from '../components/Style/linkStyles';
 
+const mapToDepartmentConstant = (rawDept) => {
+  if (!rawDept) return null;
+  const deptLower = rawDept.toLowerCase().trim();
+
+  for (const officialDept of DEPARTMENT_LIST) {
+    if (officialDept.toLowerCase() === deptLower) {
+      return officialDept;
+    }
+  }
+
+  if (deptLower.includes('analytics')) return DEPARTMENTS.ANALYTICS;
+  if (deptLower.includes('donation')) return DEPARTMENTS.DONATIONS;
+  if (deptLower.includes('engineer')) return DEPARTMENTS.ENGINEERING;
+  if (deptLower.includes('marketing') || deptLower.includes('busdev')) return DEPARTMENTS.MARKETING;
+  if (deptLower.includes('political') || deptLower.includes('data')) return DEPARTMENTS.POLITICAL_DATA;
+  if (deptLower.includes('other')) return DEPARTMENTS.OTHER;
+
+  return DEPARTMENTS.OTHER;
+};
 
 const Teams = () => {
   renderLog('Teams');
@@ -32,6 +52,16 @@ const Teams = () => {
   const [statusOfferDecisionNeededCohortMemberList, setStatusOfferDecisionNeededCohortMemberList] = useState([]);
   const [teamList, setTeamList] = useState([]);
   const [apiRetrieveErrorsInARowCount, setApiRetrieveErrorsInARowCount] = useState(0);
+
+  const handleClearSearch = () => {
+    setSearchText('');
+    setAppContextValue('teamsActionBarSearchText', '');
+    setAppContextValue('teamsActionBarClearSearchTextNow', true);
+  };
+
+  const handleSelectAllTeams = () => {
+    setSelectedDepartment(DEPARTMENTS.ALL_TEAMS);
+  };
 
   const personListRetrieveResults = useFetchData(['person-list-retrieve'], {}, METHOD.GET);
 
@@ -97,15 +127,19 @@ const Teams = () => {
     }
   }, [getAppContextValue]);
 
+
+
   useEffect(() => {
-    if (getAppContextValue('teamsActionBarSearchText') !== searchText) {
-      setSearchText(getAppContextValue('teamsActionBarSearchText'));
+    const incomingSearchText = getAppContextValue('teamsActionBarSearchText') || '';
+    if (incomingSearchText !== searchText) {
+      setSelectedDepartment(DEPARTMENTS.ALL_TEAMS);
+      setSearchText(incomingSearchText);
     }
     if (getAppContextValue('teamsActionBarShowAllTeamMembers') !== showAllTeamMembers) {
       setShowAllTeamMembers(getAppContextValue('teamsActionBarShowAllTeamMembers'));
     }
-  }, [getAppContextValue]);
-
+  }, [getAppContextValue, searchText, showAllTeamMembers]);
+  
   useEffect(() => {
     let visiblePeopleCount = 0;
     const alreadyCountedList = [];
@@ -170,6 +204,47 @@ const Teams = () => {
   const showCohortsForSelectedDepartment =
     selectedDepartment === DEPARTMENTS.ALL_TEAMS || selectedDepartment === DEPARTMENTS.OTHER;
 
+  const matchingDepartments = useMemo(() => {
+    if (!searchText || !teamList) return [];
+    const matchingDepartmentsSet = new Set();
+    teamList.forEach((team) => {
+      if (showTeam(team, searchText, getAppContextValue)) {
+        matchingDepartmentsSet.add(DEPARTMENTS.ALL_TEAMS);
+        const rawDepts = Array.isArray(team?.departments)
+          ? team.departments
+          : (typeof team?.departments === 'string' ? [team.departments] : []);
+        rawDepts.forEach((rawDept) => {
+          const canonicalDept = mapToDepartmentConstant(rawDept);
+          if (canonicalDept && canonicalDept !== DEPARTMENTS.ALL_TEAMS) {
+            matchingDepartmentsSet.add(canonicalDept);
+          }
+        });
+      }
+    });
+    return DEPARTMENT_LIST.filter((dept) => matchingDepartmentsSet.has(dept));
+  }, [searchText, teamList, getAppContextValue]);
+
+  const matchingDepartmentsSet = useMemo(
+    () => new Set(matchingDepartments),
+    [matchingDepartments],
+  );
+
+  const hasMatchesInSelectedDepartment = useMemo(() => {
+    if (selectedDepartment === DEPARTMENTS.ALL_TEAMS) {
+      return getAppContextValue('teamsPageVisiblePeopleCount') > 0;
+    }
+    return teamList.some((team) => {
+      const rawDepts = Array.isArray(team?.departments)
+        ? team.departments
+        : (typeof team?.departments === 'string' ? [team.departments] : []);
+      const teamMatchesDepartmentFilter = rawDepts.some(
+        (dept) => mapToDepartmentConstant(dept) === selectedDepartment || dept === selectedDepartment,
+      );
+      return showTeam(team, searchText, getAppContextValue) && teamMatchesDepartmentFilter;
+    });
+  }, [selectedDepartment, teamList, searchText, getAppContextValue]);
+
+  const hasSearchText = Boolean(searchText); 
   return (
     <div>
       <Helmet>
@@ -180,17 +255,56 @@ const Teams = () => {
         </title>
         {/* Don't think we can do this anymore ... <link rel="canonical" href={`${webAppConfig.WECONNECT_URL_FOR_SEO}/team-home`} /> */}
       </Helmet>
-      <DepartmentFilterHeader>
-        {DEPARTMENT_LIST.map((dept) => (
-          <DepartmentFilterButton
-            key={dept}
-            $active={selectedDepartment === dept}
-            onClick={() => setSelectedDepartment(dept)}
-          >
-            {dept}
-          </DepartmentFilterButton>
-        ))}
-      </DepartmentFilterHeader>
+      <FixedHeaderWrapper>
+        <DepartmentFilterHeader>
+          {DEPARTMENT_LIST.map((dept) => (
+            <DepartmentFilterButton
+              key={dept}
+              $active={selectedDepartment === dept}
+              $isMatch={matchingDepartmentsSet.has(dept)}
+              $hasSearchText={hasSearchText}
+              onClick={() => setSelectedDepartment(dept)}
+            >
+              {dept}
+            </DepartmentFilterButton>
+          ))}
+        </DepartmentFilterHeader>
+        {searchText && (
+          <SearchWrapper>
+            <SearchTextWrapper>
+              Searching in "{selectedDepartment === DEPARTMENTS.ALL_TEAMS ? 'All Teams' : selectedDepartment}"
+            </SearchTextWrapper>
+            <SearchOptions>
+              <SpanWithLinkStyle onClick={handleClearSearch}>
+                Clear Search
+              </SpanWithLinkStyle>
+              {selectedDepartment !== DEPARTMENTS.ALL_TEAMS && (
+                <>
+                  {' | '}
+                    <SpanWithLinkStyle onClick={handleSelectAllTeams}>
+                      All Teams
+                    </SpanWithLinkStyle>
+                  </>
+                )}
+            </SearchOptions>
+            {getAppContextValue('teamsPageVisiblePeopleCount') === 0 && (
+              <SearchMatchWrapper>
+                We don't have results for "{searchText}" in {selectedDepartment === DEPARTMENTS.ALL_TEAMS ? 'any team' : selectedDepartment}
+              </SearchMatchWrapper>
+            )}
+            {getAppContextValue('teamsPageVisiblePeopleCount') > 0 && selectedDepartment !== DEPARTMENTS.ALL_TEAMS && !hasMatchesInSelectedDepartment && (
+              <SearchMatchWrapper>
+                We don't have results for "{searchText}" in {selectedDepartment}
+              </SearchMatchWrapper>
+            )}
+            {matchingDepartments.length > 0 && selectedDepartment !== DEPARTMENTS.ALL_TEAMS && !hasMatchesInSelectedDepartment && (
+              <SearchMatchWrapper>
+                "{searchText}" found in : {matchingDepartments.join(', ')}
+              </SearchMatchWrapper>
+            )}
+       </SearchWrapper>
+        )}
+      </FixedHeaderWrapper>
       <PageContentContainer style={{ paddingTop: 0 }}>
         <ActionBarWrapperSpacer />
         {/* NOTE: we continue working on refactoring team-list-retrieve to not include person data, */}
@@ -249,15 +363,22 @@ const OneTeamWrapper = styled('div')`
 `;
 
 const ActionBarWrapperSpacer = styled('div')`
-  margin-top: 170px;
+  margin-top: 200px;
 `;
 
-const DepartmentFilterHeader = styled('div')`
+const FixedHeaderWrapper = styled('div')`
   position: fixed;
   top: 110px;
   left: 0;
   right: 0;
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const DepartmentFilterHeader = styled('div')`
+  width: 100%;
   background: white;
   border-bottom: 2px solid #e5e5e5;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -275,7 +396,7 @@ const DepartmentFilterButton = styled('button')`
   padding: 8px 20px;
   border-radius: 20px;
   font-size: 14px;
-  font-weight: ${(props) => (props.$active ? '600' : '500')};
+  font-weight: ${(props) => ((props.$hasSearchText ? props.$isMatch : props.$active) ? '600' : '500')};
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
@@ -289,5 +410,57 @@ const DepartmentFilterButton = styled('button')`
     transform: scale(0.98);
   }
 `;
+
+const SearchWrapper = styled('div')`
+  max-width: 960px;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px 4px 10px;
+  box-sizing: border-box;
+`;
+
+const SearchTextWrapper = styled('div')`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: #102270ff;
+  font-size: 24px;
+  font-weight: 500;
+`;
+
+const SearchOptions = styled('div')`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  gap: 8px;
+  flex-wrap: wrap;
+  text-align: right;
+`;
+
+const SearchMatchWrapper = styled('div')`
+  display: flex;
+  flex-basis: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: #29658e;
+  font-size: 16px;
+  font-weight: 500;
+  font-style: italic;
+  margin-top: 6px;
+  background: #c4d7e4;
+  padding: 6px 12px;
+  border-radius: 0;
+  box-sizing: border-box;
+`;
+
+
 
 export default withStyles(styles)(Teams);
