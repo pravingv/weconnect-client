@@ -227,7 +227,7 @@ const TeamsActionBar = () => {
           clearSearchTextNow={getAppContextValue('teamsActionBarClearSearchTextNow')}
           placeholder="Search existing teams"
           searchFunction={searchFunction}
-          searchUpdateDelayTime={0}
+          searchUpdateDelayTime={500}
         />
       </SearchBarWrapper>
       <ActionBarSection>

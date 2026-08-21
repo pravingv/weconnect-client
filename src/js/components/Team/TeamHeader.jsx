@@ -80,11 +80,18 @@ const TeamHeader = (
   };
 
   useEffect(() => {
-    if (showAllTeamMembersFromParent !== showAllTeamMembersFromParentAlreadySet) {
+    if (showAllTeamMembersFromParent !== showAllTeamMembersFromParentAlreadySet){
       setShowAllTeamMembers(showAllTeamMembersFromParent);
       setShowAllTeamMembersFromParentAlreadySet(showAllTeamMembersFromParent);
     }
   }, [showAllTeamMembers, showAllTeamMembersFromParent, showAllTeamMembersFromParentAlreadySet]);
+
+  useEffect(() => {
+    // If the search text changes, show all the team members in teams page when collapsed.
+    if (searchText && !expandAllTeamMembers) {
+      setShowAllTeamMembers(true);
+    }
+  }, [searchText]);
 
   useEffect(() => {
     // These are the TeamMember dictionaries (as opposed to person dictionaries)
