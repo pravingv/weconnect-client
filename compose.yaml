@@ -10,8 +10,8 @@ services:
       - HOSTNAME=0.0.0.0
       - PORT=4000
       - PROTOCOL=HTTPS
-      - HTTPS_SSL_CERT=/etc/ssl/certs/cert.pem    # use automatically created cert
-      - HTTPS_SSL_KEY=/etc/ssl/private/key.pem    # use automatically created key
+#      - HTTPS_SSL_CERT=${HTTPS_SSL_CERT:-/etc/ssl/certs/cert.pem}    # As a fallback, use automatically created cert
+#      - HTTPS_SSL_KEY=${HTTPS_SSL_KEY:-/etc/ssl/private/key.pem}    # As a fallback, use automatically created key
     volumes:
       - .:/app
       # Prevent the host node_modules from shadowing the container's installed node_modules

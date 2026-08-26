@@ -76,7 +76,7 @@ const FastLoad = () => {
         const replaceResponse = await weConnectQueryFn('fast-load-local-table-replace', { tablePacket }, METHOD.POST);
         const count = tableJSON?.length || 0;
         if (replaceResponse?.error) {
-          console.log(`doFastLoad: replaceResonse for table ${table} -- sent an error ${replaceResponse.error}`);
+          console.log(`doFastLoad: replaceResponse for table ${table} -- sent an error ${replaceResponse.error}`);
           $(`#${table}_id`).html(`<td style="color: red">${replaceResponse.error}</td>`);
         } else if (count === 0) {
           $(`#${table}_id`).html('<td style="color: red">no rows replaced by local server</td>');

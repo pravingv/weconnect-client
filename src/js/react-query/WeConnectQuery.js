@@ -35,7 +35,7 @@ const buildSearchParams = (params = {}) => {
 // Define a default query function that will receive the query key
 const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) => {
   const res = { queryKey, isGet, forceMaster };
-  // console.log('weConnectQueryFn queryKey: ', queryKey, ', params: ', params);
+  // console.log('weConnectQueryFn queryKey: ', queryKey.toString(), ', params: ', params, ', isGet: ', isGet, ', forceMaster: ', forceMaster);
   Object.keys(params).forEach((key) => {
     res[key] = params[key];
   });
@@ -44,7 +44,7 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
   httpLog(`HTTP weConnectQueryFn ${queryKey} (${isGet ? 'GET' : 'POST'}): ${JSON.stringify(res || {})}`);
   const url = new URL(`${queryKey}/`,
     forceMaster ? 'https://teamapi.wevote.org/apis/v1/' : webAppConfig.STAFF_API_SERVER_API_ROOT_URL);
-  // console.log(queryKey, params, isGet);
+  // console.log(`HTTP weConnectQueryFn url ${url}`);
   if (isGet) {
     url.search = buildSearchParams(params).toString();
   }
@@ -77,7 +77,7 @@ const weConnectQueryFn = async (queryKey, params, isGet, forceMaster = false) =>
     console.error('Axios ', (isGet ? 'axios.get' : 'axios.post'), ' error: ', errorMsg);
     // Re-throw so React Query records the failed query and exposes the error (with its HTTP status)
     // to callers via useFetchData. Tag it so callers can distinguish an auth failure from a network
-    // error without re-parsing the message. (Previously errors were swallowed and undefined was
+    // error without reparsing the message. (Previously errors were swallowed and undefined was
     // returned, which React Query already treated as a failed query, so callers see no change.)
     if (err && typeof err === 'object') {
       err.weConnectIsAuthError = isAuthError;

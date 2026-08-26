@@ -13,14 +13,27 @@ const PostgresRowCounts = () => {
   const [open, setOpen] = useState(false);
   const [tableRowData, setTableRowData] = useState([]);
 
-  /* HACK */      const forceMaster = false;
   async function fetchData () {
     if (tableRowData.length === 0) {
-      const tablePacket = await weConnectQueryFn('fast-load-table-statistics', METHOD.POST, forceMaster);
-      console.log(tablePacket);
-      const parsedTablePacket = JSON.parse(tablePacket.sqlTables);
-      console.log(parsedTablePacket);
-      setTableRowData(parsedTablePacket);
+      const tablePacketMaster = await weConnectQueryFn('fast-load-table-statistics', '', METHOD.POST, true);   // Master
+      const tablePacketLocal = await weConnectQueryFn('fast-load-table-statistics', '', METHOD.POST, false);   // Local
+      console.log('MASTER:', tablePacketMaster);
+      console.log('LOCAL:', tablePacketLocal);
+      const parsedTableMaster = JSON.parse(tablePacketMaster.sqlTables);
+      const parsedTableLocal = JSON.parse(tablePacketLocal.sqlTables);
+
+      for (let i = 0; i < parsedTableMaster.length; i++) {
+        const row = parsedTableMaster[i];
+        const { 0: index, 1: name } = row;
+        console.log(`Index ${index}: ${name}`);
+        const found = parsedTableLocal.find((element) => element[1] === name);
+        const thirdElement = found ? found[1] : '0';
+        parsedTableMaster[index] = row.push(thirdElement);
+      }
+
+      console.log('parsedTableMaster', parsedTableMaster);
+      const parsedTableMasterWithoutTemp = parsedTableMaster.filter((innerArray) => !innerArray[0].includes('_temp'));
+      setTableRowData(parsedTableMasterWithoutTemp);
     }
   }
 
@@ -43,7 +56,7 @@ const PostgresRowCounts = () => {
           onClick={() => handleOpen()}
           sx={{ backgroundColor: 'white', whiteSpace: 'nowrap' }}
         >
-          Report SQL Row Counts from Master Server
+          Report SQL Row Counts from Master and Local Servers
         </Button>
         <br />
 
@@ -55,7 +68,7 @@ const PostgresRowCounts = () => {
           sx={{ paddingTop: '20px' }}
         >
           <DialogTitle sx={{ m: 0, p: 2, paddingTop: '10px' }} id="customized-dialog-title">
-            Row counts for each table in the production Postgres DB
+            Row counts for each table in the two Postgres DBs
           </DialogTitle>
           <IconButton
             aria-label="close"
@@ -74,7 +87,8 @@ const PostgresRowCounts = () => {
               <thead>
                 <tr>
                   <th scope="col" style={{ textAlign: 'left', paddingRight: '200px' }}>Table</th>
-                  <th scope="col" style={{ textAlign: 'left' }}>Row Count</th>
+                  <th scope="col" style={{ textAlign: 'left', paddingRight: '20px' }}>Master Row Count</th>
+                  <th scope="col" style={{ textAlign: 'left' }}>Local Row Count</th>
                 </tr>
               </thead>
               <tbody id="tableBody">
@@ -83,6 +97,7 @@ const PostgresRowCounts = () => {
                     <>
                       <td>{t[0]}</td>
                       <td id={`${t[0]}_id`}>{t[1]}</td>
+                      <td>{`${t[2]}`}</td>
                     </>
                   </tr>
                 ))}
