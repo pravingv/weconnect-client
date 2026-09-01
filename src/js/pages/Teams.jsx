@@ -306,7 +306,7 @@ const Teams = () => {
         )}
       </FixedHeaderWrapper>
       <PageContentContainer style={{ paddingTop: 0 }}>
-        <ActionBarWrapperSpacer />
+        <ActionBarWrapperSpacer $hasSearchText={hasSearchText} />
         {/* NOTE: we continue working on refactoring team-list-retrieve to not include person data, */}
         {/* so that team.teamMemberList would only include the TeamMember data of team members */}
         {/* We have partially implemented this change by introducing teamMemberInfoList */}
@@ -363,7 +363,7 @@ const OneTeamWrapper = styled('div')`
 `;
 
 const ActionBarWrapperSpacer = styled('div')`
-  margin-top: 200px;
+  margin-top: ${(props) => (props.$hasSearchText ? '210px' : '170px')};
 `;
 
 const FixedHeaderWrapper = styled('div')`
@@ -414,6 +414,7 @@ const DepartmentFilterButton = styled('button')`
 const SearchWrapper = styled('div')`
   max-width: 960px;
   width: 100%;
+  background: white;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
