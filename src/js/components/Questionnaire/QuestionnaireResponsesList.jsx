@@ -68,7 +68,7 @@ const QuestionnaireResponsesList = ({ personId }) => {
                 <Suspense fallback={<></>}>
                   <OpenExternalWebSite
                     linkIdAttribute="view answers"
-                    url={`${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}/answers/${questionnaire.id}/${personId}`}
+                    url={`${webAppConfig.PROTOCOL}${webAppConfig.HOSTNAME}${webAppConfig.PORT ? `:${webAppConfig.PORT}` : ''}/answers/${questionnaire.id}/${personId}`}
                     target="_blank"
                     body={(
                       <Tooltip title="View answers">

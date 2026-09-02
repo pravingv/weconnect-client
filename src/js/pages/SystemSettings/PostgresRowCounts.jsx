@@ -26,7 +26,7 @@ const PostgresRowCounts = () => {
         const row = parsedTableMaster[i];
         const { 0: index, 1: name } = row;
         console.log(`Index ${index}: ${name}`);
-        const found = parsedTableLocal.find((element) => element[1] === name);
+        const found = parsedTableLocal.find((element) => element[0] === index);
         const thirdElement = found ? found[1] : '0';
         parsedTableMaster[index] = row.push(thirdElement);
       }
