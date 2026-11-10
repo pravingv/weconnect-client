@@ -147,6 +147,14 @@ export function captureTeamListRetrieveData (
                 console.error('Error removing team member from teamMemberListOfPersonIdsAtStart:', error);
               }
             }
+            // Capture team lead status changed for the member.
+            const existingTeamMemberIndex = allTeamMembersCacheNew[team.teamId].findIndex(
+              (oneTeamMember) => oneTeamMember.personId === teamMember.personId && oneTeamMember.isTeamLead !== teamMember.isTeamLead,
+            );
+            if (existingTeamMemberIndex !== -1) {
+              allTeamMembersCacheNew[team.teamId][existingTeamMemberIndex] = teamMember;
+              newTeamMemberDataReceived = true;
+            }
           }
         });
         if (teamMemberListOfPersonIdsAtStart && teamMemberListOfPersonIdsAtStart.length > 0) {
