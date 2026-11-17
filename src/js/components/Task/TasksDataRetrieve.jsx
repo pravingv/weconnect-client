@@ -15,7 +15,7 @@ import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 //  we include this component in the App component.
 const TasksDataRetrieve = () => {
   renderLog('TasksDataRetrieve');  // Set LOG_RENDER_EVENTS to log all renders
-  const { apiDataCache } = useConnectAppContext();
+  const { apiDataCache,getAppContextValue } = useConnectAppContext();
   const { allPeopleCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
@@ -27,6 +27,14 @@ const TasksDataRetrieve = () => {
       capturePersonListRetrieveData(personListRetrieveResults, apiDataCache, dispatch);
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
+
+  const personId = getAppContextValue('personActionPersonId');
+  const personRetrieveResults = useFetchData(['person-list-retrieve'], { personId: personId }, METHOD.GET, personId > 0, { queryKey: ['person-list-retrieve', personId] });
+  useEffect(() => {
+    if (personRetrieveResults) {
+      capturePersonListRetrieveData(personRetrieveResults, apiDataCache, dispatch);
+    }
+  }, [personRetrieveResults, allPeopleCache, dispatch]);
 
   const taskDefinitionListRetrieveResults = useFetchData(['task-definition-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
