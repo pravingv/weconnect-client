@@ -110,9 +110,16 @@ const useTaskGroupTeamLinkDeleteMutation = () => {
 
 const useDeleteTaskMutation = () => {
   const queryClient = useQueryClient();
+  const { setAppContextValue } = useConnectAppContext();
   return useMutation({ mutationFn: (params) => weConnectQueryFn('task-delete', params, METHOD.GET),
     onError: (error) => console.log('error in useDeleteTaskMutation: ', error),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['task-status-list-retrieve']}),
+    onSuccess: (_data, params) => {
+      // Store the affected personId in AppContext and invalidate their scoped task status query in TasksDataRetrieve
+      if (params?.personId > 0) {
+        setAppContextValue('taskActionPersonId', params.personId);
+        queryClient.invalidateQueries({ queryKey: ['task-status-list-retrieve', params.personId], });
+      }
+    },
   });
 };
 
@@ -224,11 +231,18 @@ const usePersonDeleteMutation = () => {
 
 const useSaveTaskMutation = () => {
   const queryClient = useQueryClient();
+  const { setAppContextValue } = useConnectAppContext();
 
   return useMutation({
     mutationFn: (requestParams) => weConnectQueryFn('task-save', requestParams, METHOD.GET),
     onError: (error) => console.log('error in useSaveTaskMutation: ', error),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['task-status-list-retrieve']}).then(() => {}),
+    onSuccess: (_data, requestParams) => {
+      // Store the affected personId in AppContext and invalidate their scoped task status query in TasksDataRetrieve
+      if (requestParams?.personId > 0) {
+        setAppContextValue('taskActionPersonId', requestParams.personId);
+        queryClient.invalidateQueries({ queryKey: ['task-status-list-retrieve', requestParams.personId], });
+      }
+    },
   });
 };
 
