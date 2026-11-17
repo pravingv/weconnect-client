@@ -145,6 +145,7 @@ export function captureTaskStatusListRetrieveData (
   incomingRetrieveResults = {},
   apiDataCache = {},
   dispatch,
+  personIdList = [],
 ) {
   const { data, isSuccess } = incomingRetrieveResults;
   // const allTaskDefinitionsCache = apiDataCache.allTaskDefinitionsCache || {};
@@ -240,28 +241,40 @@ export function captureTaskStatusListRetrieveData (
     });
   }
 
+  // Track whether any previously cached tasks were removed on the server
   let taskDeletionDetected = false;
   const incomingTaskKeys = new Set();
 
   if (data && data.taskList && isSuccess === true) {
+    // Only check for deleted tasks among the people included in this API request
+    // (prevents a single-person task status fetch from deleting cached tasks of other people)
+    const incomingPersonIds = (personIdList && personIdList.length > 0)
+      ? personIdList.map(String)
+      : Object.keys(allTasksCacheNew);
+
+    // Build a lookup set of all active (personId-taskDefinitionId) pairs returned by the API
     data.taskList.forEach((task) => {
       if (task && task.personId >= 0 && task.taskDefinitionId >= 0) {
         incomingTaskKeys.add(`${task.personId}-${task.taskDefinitionId}`);
       }
     });
 
-    // DELETE DETECTION
-    Object.entries(allTasksCacheNew).forEach(([personId, taskMap]) => {
+    // DELETE DETECTION (scoped to requested personIdList, or all cached people when personIdList is [])
+    incomingPersonIds.forEach((personId) => {
+      const taskMap = allTasksCacheNew[personId];
+      if (!taskMap) return;
+
       Object.keys(taskMap).forEach((taskDefinitionId) => {
         const key = `${personId}-${taskDefinitionId}`;
 
+        // Remove cached task if it is no longer present in the server response for this person
         if (!incomingTaskKeys.has(key)) {
           delete allTasksCacheNew[personId][taskDefinitionId];
           taskDeletionDetected = true;
         }
       });
 
-      // cleanup empty objects
+      // cleanup empty objects when a person has no remaining tasks
       if (Object.keys(allTasksCacheNew[personId]).length === 0) {
         delete allTasksCacheNew[personId];
       }
@@ -285,6 +298,7 @@ export function captureTaskStatusListRetrieveData (
     changeResults.allTasksByDefinitionIdCache = allTasksByDefinitionIdCacheNew;
     changeResults.allTasksByDefinitionIdCacheChanged = true;
   }
+  // Dispatch updated allTasksCache when tasks are added, modified, or deleted
   if (newTaskListDataReceived || taskDeletionDetected) {
     // console.log('TaskStatusListRetrieve setting allTasksCacheNew:', allTasksCacheNew);
     dispatch({ type: 'updateByKeyValue', key: 'allTasksCache', value: allTasksCacheNew });

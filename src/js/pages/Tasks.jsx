@@ -70,10 +70,11 @@ const Tasks = () => {
 
   const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.POST);
   useEffect(() => {
-    if (taskStatusListRetrieveResults) {
-      captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch);
+    // Depend on .data so re-renders from single-person task mutations don't overwrite apiDataCache with stale query results
+    if (taskStatusListRetrieveResults.data) {
+      captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch, personIdsList);
     }
-  }, [personIdsList, taskStatusListRetrieveResults]);
+  }, [personIdsList, taskStatusListRetrieveResults.data]);
 
   const teamListRetrieveResults = useFetchData(['team-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
