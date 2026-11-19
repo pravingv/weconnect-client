@@ -100,8 +100,11 @@ const AddPersonDrawerMainContent = () => {
       setPersonIsOnTeam([])
     } else {
       const searchLower = currentValue.toLowerCase()
-      const isMatch = (element) => (element.lastName.toLowerCase().includes(searchLower) ||
-          element.firstName.toLowerCase().includes(searchLower) || element.firstNamePreferred?.toLowerCase().includes(searchLower));
+      const isMatch = (element) => {
+        const searchable = `${element.firstNamePreferred ?? ''} ${element.firstName ?? ''} ${element.lastName ?? ''}`.toLowerCase();
+        const terms = searchLower.trim().split(/\s+/);
+        return terms.every((term) => searchable.includes(term));
+      };
       const matchingElements = remainingPeopleToAdd ? remainingPeopleToAdd.filter((element) => isMatch(element)) : {};
       const personOnTeam = thisTeamsCurrentMembersList ? thisTeamsCurrentMembersList.filter((element) => isMatch(element)) : [];
       setPersonIsOnTeam(personOnTeam);
