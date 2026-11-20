@@ -99,13 +99,13 @@ const HeaderBar = ({ hideTabs }) => {
     return Object.values(allPeopleCache).map((p) => p.personId);
   }, [allPeopleCache]);
 
-  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.POST, personIdsList.length > 0 && goodAllPeopleCache,
-    { refetchInterval: 30000, refetchIntervalInBackground: false });
+  const taskStatusListRetrieveResults = useFetchData(['task-status-list-retrieve'], { personIdList: personIdsList }, METHOD.POST, true, { refetchInterval: 30000, refetchIntervalInBackground: false });
   useEffect(() => {
-    if (taskStatusListRetrieveResults) {
-      captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch);
+    // Depend on .data so re-renders from single-person task mutations don't overwrite apiDataCache with stale query results
+    if (taskStatusListRetrieveResults.data) {
+      captureTaskStatusListRetrieveData(taskStatusListRetrieveResults, apiDataCache, dispatch, personIdsList);
     }
-  }, [personIdsList, taskStatusListRetrieveResults]);
+  }, [personIdsList, taskStatusListRetrieveResults.data]);
 
   const questionnaireListRetrieveResults = useFetchData(['questionnaire-list-retrieve'], {}, METHOD.GET, true,
     { refetchInterval: 120000,  refetchIntervalInBackground: false });
