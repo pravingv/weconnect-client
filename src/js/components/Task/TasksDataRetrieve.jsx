@@ -28,6 +28,14 @@ const TasksDataRetrieve = () => {
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
+  const personId = getAppContextValue('personActionPersonId');
+  const personRetrieveResults = useFetchData(['person-list-retrieve'], { personId: personId }, METHOD.GET, personId > 0, { queryKey: ['person-list-retrieve', personId] });
+  useEffect(() => {
+    if (personRetrieveResults) {
+      capturePersonListRetrieveData(personRetrieveResults, apiDataCache, dispatch);
+    }
+  }, [personRetrieveResults, allPeopleCache, dispatch]);
+
   const taskDefinitionListRetrieveResults = useFetchData(['task-definition-list-retrieve'], {}, METHOD.GET);
   useEffect(() => {
     if (taskDefinitionListRetrieveResults) {

@@ -159,7 +159,7 @@ const usePersonAwaySaveMutation = () => {
 
 const usePersonSaveMutation = () => {
   const queryClient = useQueryClient();
-  const { apiDataCache } = useConnectAppContext();
+  const { apiDataCache, setAppContextValue } = useConnectAppContext();
   const dispatch = useConnectDispatch();
   // console.log('mutations usePersonSaveMutation called');
 
@@ -180,9 +180,9 @@ const usePersonSaveMutation = () => {
         allPeopleCacheNew[results.personId] = results;
         dispatch({ type: 'updateByKeyValue', key: 'allPeopleCache', value: allPeopleCacheNew });
         // For some reason, after this dispatch, the new person values appear and then there is an immediate roll-back to the previous person values.
-
         // We use this to counteract the roll back to the previous person values.
-        queryClient.refetchQueries({ queryKey: ['person-list-retrieve'], refetchType: 'active', exact: true, force: true })
+        setAppContextValue('personActionPersonId', results.personId);
+        queryClient.refetchQueries({ queryKey: ['person-list-retrieve',results.personId], refetchType: 'active', exact: true, force: true })
           // .then(() => console.log('userPersonSaveMutation person-list-retrieve refetch completed'))
           .catch((error) => console.error('userPersonSaveMutation person-list-retrieve refetch failed:', error));
       } else {
