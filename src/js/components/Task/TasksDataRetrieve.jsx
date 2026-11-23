@@ -15,7 +15,7 @@ import { METHOD, useFetchData } from '../../react-query/WeConnectQuery';
 //  we include this component in the App component.
 const TasksDataRetrieve = () => {
   renderLog('TasksDataRetrieve');  // Set LOG_RENDER_EVENTS to log all renders
-  const { apiDataCache,getAppContextValue } = useConnectAppContext();
+  const { apiDataCache, getAppContextValue } = useConnectAppContext();
   const { allPeopleCache } = apiDataCache;
   const dispatch = useConnectDispatch();
 
