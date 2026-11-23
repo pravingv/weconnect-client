@@ -110,9 +110,10 @@ const EmailOfficialManager = (
       setResultsText(`Staff member '${createUserResults.primaryEmail}' has been created`);
       const firstNameToDisplay = firstNamePreferred || firstName;
       setNewAccountNotification(
-        `Hi${(firstNameToDisplay) && ` ${firstNameToDisplay}`}, I have just created your new Gmail-powered ${webAppConfig.ORGANIZATION_NAME} email account. Can you please verify you can sign in?
+        `Hi${(firstNameToDisplay) && ` ${firstNameToDisplay}`}, I have just created your new Gmail-powered ${webAppConfig.ORGANIZATION_NAME} email account. Can you please verify you can add this new email account to your Gmail?
 Username: ${primaryEmail}
 Password (expires in 48 hours): ${password}
+How to add another account: https://www.youtube.com/watch?v=R-vq3YzmA38
 Please note that we prefer that you keep your Slack account connected to your personal email address (as opposed to switching Slack to your new WeVote email address.)`,
       );
       setShowNewAccountNotification(true);
@@ -158,7 +159,12 @@ Please note that we prefer that you keep your Slack account connected to your pe
     // console.log('reset wevote password', data);
     if (data.success) {
       setNewPasswordNotification(
-        `Thank you for requesting that the password be reset for your ${webAppConfig.ORGANIZATION_NAME} Gmail-powered email account. Can you please verify you can sign in?\n Username: ${emailToChange} \nPassword: ${newPassword}`);
+        `Thank you for requesting that the password be reset for your ${webAppConfig.ORGANIZATION_NAME} Gmail-powered email account. Can you please verify you can sign in?
+Username: ${emailToChange}
+Password (expires in 48 hours): ${newPassword}
+How to add another account: https://www.youtube.com/watch?v=R-vq3YzmA38
+`,
+      );
       setShowNewPasswordNotification(true);
     } else {
       // console.error('Failed to reset password:', data);
