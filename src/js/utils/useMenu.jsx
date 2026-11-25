@@ -69,11 +69,12 @@ const useMenu = () => {
     setIsDeleteDialogOpen(false);
   }, [selectedTask, deleteTask]);
 
-  const handleStatusChange = useCallback((e) => {
+  const handleStatusChange = useCallback((e, fieldName) => {
     const isDone = e.target.checked;
     setSelectedTask((prev) => ({
       ...prev,
       statusDone: isDone,
+      [fieldName]: isDone,
       doneByPersonId: authenticatedPersonId,
     }));
     const requestParams = makeRequestParamsDictionary(
@@ -84,12 +85,13 @@ const useMenu = () => {
       {
         doneByPersonId: authenticatedPersonId,
         statusDone: isDone,
+        [fieldName]: isDone,
       },
     );
     saveTask(requestParams);
   }, [selectedTask, authenticatedPersonId, saveTask]);
 
-  const handleMarkCompleted = useCallback(() => {
+  const handleMarkCompleted = useCallback((fieldName) => {
     handleMenuClose();
     if (!selectedTask) return;
     const requestParams = makeRequestParamsDictionary(
@@ -100,6 +102,7 @@ const useMenu = () => {
       {
         doneByPersonId: authenticatedPersonId,
         statusDone: true,
+        [fieldName]: true,
       },
     );
     saveTask(requestParams);
@@ -113,7 +116,12 @@ const useMenu = () => {
       >
         <MenuItem onClick={handleEditClick}>Edit</MenuItem>
         {!selectedTask?.statusDone && viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
-          <MenuItem onClick={handleMarkCompleted}>Mark completed</MenuItem>
+          selectedTask?.taskDefinition.isYesNoTask ? [
+            <MenuItem key="mark-yes" onClick={() => handleMarkCompleted('statusYes')}>Mark Yes</MenuItem>,
+            <MenuItem key="mark-no" onClick={() => handleMarkCompleted('statusNo')}>Mark No</MenuItem>,
+          ] : (
+            <MenuItem onClick={() => handleMarkCompleted('statusDone')}>Mark Completed</MenuItem>
+          )
         )}
         <MenuItem onClick={handleDeleteClick}>Delete</MenuItem>
       </Menu>
@@ -142,15 +150,38 @@ const useMenu = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormControlLabel
-              control={(
-                <Checkbox
-                  checked={selectedTask?.statusDone || false}
-                  onChange={handleStatusChange}
+            {selectedTask?.taskDefinition.isYesNoTask ? (
+              <>
+                <FormControlLabel
+                  control={(
+                    <Checkbox
+                      checked={selectedTask?.statusYes || false}
+                      onChange={(e) => handleStatusChange(e, 'statusYes')}
+                    />
+                  )}
+                  label="Status Yes"
                 />
-              )}
-              label="Status Done"
-            />
+                <FormControlLabel
+                  control={(
+                    <Checkbox
+                      checked={selectedTask?.statusNo || false}
+                      onChange={(e) => handleStatusChange(e, 'statusNo')}
+                    />
+                  )}
+                  label="Status No"
+                />
+              </>
+            ) : (
+              <FormControlLabel
+                control={(
+                  <Checkbox
+                    checked={selectedTask?.statusDone || false}
+                    onChange={(e) => handleStatusChange(e, 'statusDone')}
+                  />
+                )}
+                label="Status Done"
+              />
+            )}
             <br />
             <br />
             <br />
