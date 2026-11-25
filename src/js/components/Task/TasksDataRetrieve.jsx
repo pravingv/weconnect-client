@@ -74,8 +74,8 @@ const TasksDataRetrieve = () => {
   const { data: taskStatusData, isSuccess: taskStatusSuccess } = taskStatusResults;
   useEffect(() => {
     // Only run when fresh single-person taskStatusData arrives from the mutation-triggered query
-    if (taskStatusSuccess && taskStatusData && personId > 0) {
-      captureTaskStatusListRetrieveData({ data: taskStatusData, isSuccess: taskStatusSuccess }, apiDataCache, dispatch, [personId]);
+    if (taskStatusSuccess && taskStatusData && personTaskId > 0) {
+      captureTaskStatusListRetrieveData({ data: taskStatusData, isSuccess: taskStatusSuccess }, apiDataCache, dispatch, [personTaskId]);
     }
   }, [taskStatusData, taskStatusSuccess]);
 

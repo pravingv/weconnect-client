@@ -47,13 +47,14 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
     }
   }, [authenticatedPerson, getAppContextValue]);
 
-  const updateTaskFieldInstant = (isDone) => {
+  const updateTaskFieldInstant = (fieldName, value) => {
     const requestParams = makeRequestParamsDictionary({
       personId,
       taskDefinitionId: task.taskDefinitionId,
     }, {
       doneByPersonId: authenticatedPersonId,
-      statusDone: isDone,
+      statusDone: value,
+      [fieldName]: value,
     });
     saveTask(requestParams);
   };
@@ -78,6 +79,23 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
     taskWhyWeDoIt = taskDefinition.taskWhyWeDoIt;
   }
   const taskNameToDisplay = taskStatusDone ? taskNameCompleted || taskName : taskName;
+  const markCompletedLinks = viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
+    taskDefinition.isYesNoTask ? (
+      <>
+        <SpanWithLinkStyle onClick={() => updateTaskFieldInstant('statusYes', true)}>
+          Mark Yes
+        </SpanWithLinkStyle>
+        {' '}
+        <SpanWithLinkStyle onClick={() => updateTaskFieldInstant('statusNo', true)}>
+          Mark No
+        </SpanWithLinkStyle>
+      </>
+    ) : (
+      <SpanWithLinkStyle onClick={() => updateTaskFieldInstant('statusDone', true)}>
+        Mark Completed
+      </SpanWithLinkStyle>
+    )
+  );
   return (
     <OneTaskWrapper key={`teamMemberRow-${personId}-${task.taskDefinitionId}`}>
       <OneTaskTitle key={`teamMemberTitle-${personId}-${task.taskDefinitionId}`}>
@@ -133,11 +151,7 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
           )}
           {showMarkCompletedLinkOnTitleLine && !taskStatusDone && (
             <MarkCompletedOnTitleLine>
-              {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
-                <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
-                  Mark completed
-                </SpanWithLinkStyle>
-              )}
+              {markCompletedLinks}
             </MarkCompletedOnTitleLine>
           )}
         </TaskCell>
@@ -188,14 +202,8 @@ const TaskSummaryRow = ({ actionButton, hideIfCompleted, personId, showMarkCompl
                     </>
                   )}
                 </CheckboxDone>
-              ): (
-                <>
-                  {viewerCanSeeOrDo(['canMarkOnboardingTaskCompleted'], viewerAccessRights) && (
-                    <SpanWithLinkStyle onClick={() => updateTaskFieldInstant(true)}>
-                      Mark completed
-                    </SpanWithLinkStyle>
-                  )}
-                </>
+              ) : (
+                markCompletedLinks
               )}
             </div>
           </TaskCellOpen>

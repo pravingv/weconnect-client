@@ -25,13 +25,15 @@ const EditTaskDefinitionForm = ({ classes }) => {
   const [googleDriveAssetId, setGoogleDriveAssetId] = useState('');
   const [isGoogleDrivePermissionTask, setIsGoogleDrivePermissionTask] = useState(false);
   const [isQuestionnaireTask, setIsQuestionnaireTask] = useState(false);
+  const [isYesNoTask, setIsYesNoTask] = useState(false);
   const [lastCopiedToken, setLastCopiedToken] = useState(null);
   const [moveToAnotherTaskGroup, setMoveToAnotherTaskGroup] = useState(false);
   const [questionnaireId, setQuestionnaireId] = useState('');
   const [saveButtonActive, setSaveButtonActive] = useState(false);
   const [statusActive, setStatusActive] = useState(false);
   const [statusOfferApproved, setStatusOfferApproved] = useState(false);
-  const [statusOfferDecisionNeededSetFalse, setStatusOfferDecisionNeededSetFalse] = useState(false);
+  const [statusOfferDecisionNeededSetFalseYes, setStatusOfferDecisionNeededSetFalseYes] = useState(false);
+  const [statusOfferDecisionNeededSetFalseNo, setStatusOfferDecisionNeededSetFalseNo] = useState(false);
   const [statusOfferLetterCreated, setStatusOfferLetterCreated] = useState(false);
   const [statusOfferLetterSigned, setStatusOfferLetterSigned] = useState(false);
   const [statusOfferQuestionnaireAnswered, setStatusOfferQuestionnaireAnswered] = useState(false);
@@ -58,10 +60,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setGoogleDriveAssetId(taskDefinition.googleDriveAssetId);
       setIsGoogleDrivePermissionTask(taskDefinition.isGoogleDrivePermissionTask);
       setIsQuestionnaireTask(taskDefinition.isQuestionnaireTask);
+      setIsYesNoTask(taskDefinition.isYesNoTask);
       setQuestionnaireId(taskDefinition.questionnaireId);
       setStatusActive(taskDefinition.statusActive);
       setStatusOfferApproved(taskDefinition.statusOfferApproved);
-      setStatusOfferDecisionNeededSetFalse(taskDefinition.statusOfferDecisionNeededSetFalse);
+      setStatusOfferDecisionNeededSetFalseYes(taskDefinition.statusOfferDecisionNeededSetFalse);
+      setStatusOfferDecisionNeededSetFalseNo(taskDefinition.statusOfferDecisionNeededSetFalse);
       setStatusOfferLetterCreated(taskDefinition.statusOfferLetterCreated);
       setStatusOfferLetterSigned(taskDefinition.statusOfferLetterSigned);
       setStatusOfferQuestionnaireAnswered(taskDefinition.statusOfferQuestionnaireAnswered);
@@ -78,10 +82,12 @@ const EditTaskDefinitionForm = ({ classes }) => {
       setGoogleDriveAssetId('');
       setIsGoogleDrivePermissionTask(false);
       setIsQuestionnaireTask(false);
+      setIsYesNoTask(false);
       setQuestionnaireId('');
       setStatusActive(false);
       setStatusOfferApproved(false);
-      setStatusOfferDecisionNeededSetFalse(false);
+      setStatusOfferDecisionNeededSetFalseYes(false);
+      setStatusOfferDecisionNeededSetFalseNo(false);
       setStatusOfferLetterCreated(false);
       setStatusOfferLetterSigned(false);
       setStatusOfferQuestionnaireAnswered(false);
@@ -115,10 +121,11 @@ const EditTaskDefinitionForm = ({ classes }) => {
       googleDriveAssetId,
       isGoogleDrivePermissionTask,
       isQuestionnaireTask,
+      isYesNoTask,
       questionnaireId,
       statusActive,
       statusOfferApproved,
-      statusOfferDecisionNeededSetFalse,
+      statusOfferDecisionNeededSetFalse: Boolean(statusOfferDecisionNeededSetFalseYes || statusOfferDecisionNeededSetFalseNo),
       statusOfferLetterCreated,
       statusOfferLetterSigned,
       statusOfferQuestionnaireAnswered,
@@ -255,6 +262,23 @@ const EditTaskDefinitionForm = ({ classes }) => {
           classes={{ label: classes.checkboxLabel }}
           control={(
             <Checkbox
+              checked={isYesNoTask || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="isYesNoTaskToBeSaved"
+              name="isYesNoTask"
+              onChange={(event) => {
+                setIsYesNoTask(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Is Yes/No task"
+        />
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
               checked={isQuestionnaireTask || false}
               className={classes.checkboxRoot}
               color="primary"
@@ -345,19 +369,19 @@ const EditTaskDefinitionForm = ({ classes }) => {
           variant="outlined"
         />
         <CustomizationTokensHeader>
-          When this task marked completed, also update:
+          When this task marked Yes, also update:
         </CustomizationTokensHeader>
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
           control={(
             <Checkbox
-              checked={statusOfferDecisionNeededSetFalse || false}
+              checked={statusOfferDecisionNeededSetFalseYes || false}
               className={classes.checkboxRoot}
               color="primary"
-              id="statusOfferDecisionNeededSetFalseToBeSaved"
-              name="statusOfferDecisionNeededSetFalse"
+              id="statusOfferDecisionNeededSetFalseYesToBeSaved"
+              name="statusOfferDecisionNeededSetFalseYes"
               onChange={(event) => {
-                setStatusOfferDecisionNeededSetFalse(event.target.checked);
+                setStatusOfferDecisionNeededSetFalseYes(event.target.checked);
                 updateSaveButton(true);
               }}
             />
@@ -381,6 +405,26 @@ const EditTaskDefinitionForm = ({ classes }) => {
           )}
           label="Set Person.statusOfferApproved TRUE"
         />
+        <CustomizationTokensHeader>
+          When this task marked No, also update:
+        </CustomizationTokensHeader>
+        <CheckboxLabel
+          classes={{ label: classes.checkboxLabel }}
+          control={(
+            <Checkbox
+              checked={statusOfferDecisionNeededSetFalseNo || false}
+              className={classes.checkboxRoot}
+              color="primary"
+              id="statusOfferDecisionNeededSetFalseNoToBeSaved"
+              name="statusOfferDecisionNeededSetFalseNo"
+              onChange={(event) => {
+                setStatusOfferDecisionNeededSetFalseNo(event.target.checked);
+                updateSaveButton(true);
+              }}
+            />
+          )}
+          label="Set Person.statusOfferDecisionNeeded to FALSE"
+        />
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
           control={(
@@ -398,6 +442,9 @@ const EditTaskDefinitionForm = ({ classes }) => {
           )}
           label="Set Person.statusOfferWillNotBeMade TRUE"
         />
+        <CustomizationTokensHeader>
+          When this task marked completed, also update:
+        </CustomizationTokensHeader>
         <CheckboxLabel
           classes={{ label: classes.checkboxLabel }}
           control={(
