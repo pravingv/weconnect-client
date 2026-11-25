@@ -28,8 +28,8 @@ const TasksDataRetrieve = () => {
     }
   }, [personListRetrieveResults, allPeopleCache, dispatch]);
 
-  const personId = getAppContextValue('personActionPersonId');
-  const personRetrieveResults = useFetchData(['person-list-retrieve'], { personId: personId }, METHOD.GET, personId > 0, { queryKey: ['person-list-retrieve', personId] });
+  const personSaveId = getAppContextValue('personActionPersonId');
+  const personRetrieveResults = useFetchData(['person-list-retrieve'], { personId: personSaveId }, METHOD.GET, personSaveId > 0, { queryKey: ['person-list-retrieve', personSaveId] });
   useEffect(() => {
     if (personRetrieveResults) {
       capturePersonListRetrieveData(personRetrieveResults, apiDataCache, dispatch);
@@ -69,8 +69,8 @@ const TasksDataRetrieve = () => {
 
   // console.log('~~~~~ taskStatusListRetrieveResults', taskStatusListRetrieveResults);
   // Fetch updated task statuses for a single person when triggered by save/delete task mutations
-  const personId = getAppContextValue('taskActionPersonId');
-  const taskStatusResults = useFetchData(  ['task-status-list-retrieve'],  { personIdList: [personId] },  METHOD.POST,  personId > 0,  { queryKey: ['task-status-list-retrieve', personId] },);
+  const personTaskId = getAppContextValue('taskActionPersonId');
+  const taskStatusResults = useFetchData(  ['task-status-list-retrieve'],  { personIdList: [personTaskId] },  METHOD.POST,  personTaskId > 0,  { queryKey: ['task-status-list-retrieve', personTaskId] },);
   const { data: taskStatusData, isSuccess: taskStatusSuccess } = taskStatusResults;
   useEffect(() => {
     // Only run when fresh single-person taskStatusData arrives from the mutation-triggered query
