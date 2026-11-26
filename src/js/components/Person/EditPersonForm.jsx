@@ -673,12 +673,12 @@ const EditPersonForm = ({ classes }) => {
                 />
               </Suspense>
             </QuickLink>
-            {activePerson.jazzHrUrl.endsWith('/profile') && (
+            {activePerson.jazzHrUrl.includes('/profile') && (
               <QuickLink>
                 <Suspense fallback={<></>}>
                   <OpenExternalWebSite
                     linkIdAttribute="jazzHrEmailsUrlId"
-                    url={activePerson.jazzHrUrl.replace(/\/profile$/, '/message')}
+                    url={activePerson.jazzHrUrl.replace(/\/profile\?.*/, '/message')}
                     target="_blank"
                     body={(
                       <span>
